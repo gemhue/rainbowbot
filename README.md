@@ -1,0 +1,2 @@
+# rainbowbot
+Discord Bot
