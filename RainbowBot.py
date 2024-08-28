@@ -1,19 +1,14 @@
-import os
-from dotenv import load_dotenv
 import discord
-from discord.ext import commands
 from discord import app_commands
+from discord.ext import commands
 from datetime import datetime, timedelta
-
-load_dotenv()
-TOKEN = os.getenv("token")
 
 intents = discord.Intents.default()
 intents.members = True
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
-Bot = commands.Bot(command_prefix='.', intents=intents)
+bot = commands.Bot(command_prefix='.', intents=intents)
 
 debug_guild = discord.Object(id=1274023759497662646)
 
@@ -27,7 +22,6 @@ async def on_ready():
     name="hello",
     description="Says hello."
 )
-@app_commands.checks.has_permissions(administrator=True)
 async def hello(interaction):
     embed = discord.Embed(description="Hello!")
     await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -36,7 +30,6 @@ async def hello(interaction):
     name="goodbye",
     description="Says goodbye."
 )
-@app_commands.checks.has_permissions(administrator=True)
 async def goodbye(interaction):
     embed = discord.Embed(description="Goodbye!")
     await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -47,12 +40,12 @@ async def goodbye(interaction):
 )
 @app_commands.checks.has_permissions(administrator=True)
 async def serverlists(interaction):
-    members = interaction.guild.members
-    channels = interaction.guild.channels
-    memberstring = ", ".join(str(x) for x in members)
-    channelstring = ", ".join(str(x) for x in channels)
-    embed = discord.Embed(description="**Members**: " + memberstring + "\n" + "**Channels**: " + channelstring)
-    await interaction.response.send_message(embed=embed, ephemeral=True)
+    members = [m for m in interaction.guild.members if not m.bot]
+    channels = interaction.guild.text_channels
+    memberstring = ", ".join(str(x.mention) for x in members)
+    channelstring = ", ".join(str(x.mention) for x in channels)
+    embeds = [discord.Embed(title="Members", description=memberstring), discord.Embed(title="Channels:", description=channelstring)]
+    await interaction.response.send_message(embeds=embeds, ephemeral=True)
 
 @tree.command(
     name="memberids",
@@ -60,7 +53,7 @@ async def serverlists(interaction):
 )
 @app_commands.checks.has_permissions(administrator=True)
 async def memberids(interaction):
-    members = interaction.guild.members
+    members = [m for m in interaction.guild.members if not m.bot]
     memberids = []
     for x in members:
         memberids.append(x.id)
@@ -116,4 +109,4 @@ async def getactivity(interaction):
     await interaction.followup.send(embed=discord.Embed(title="Active Members:", description=activeembed), ephemeral=True)
     await interaction.followup.send(embed=discord.Embed(title="Inactive Members:", description=inactiveembed), ephemeral=True)
 
-client.run(TOKEN)
+client.run('token')
