@@ -3,9 +3,10 @@ from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 from discord import app_commands
+from datetime import datetime, timedelta
 
 load_dotenv()
-TOKEN = os.getenv("DISCORD_TOKEN")
+TOKEN = os.getenv("token")
 
 intents = discord.Intents.default()
 intents.members = True
@@ -19,53 +20,100 @@ debug_guild = discord.Object(id=1274023759497662646)
 @client.event
 async def on_ready():
     tree.clear_commands(guild=debug_guild)
-    await tree.sync(guild=debug_guild)
+    await tree.sync()
     print("Ready!")
 
 @tree.command(
     name="hello",
-    description="Says hello.",
-    guild=debug_guild
+    description="Says hello."
 )
+@app_commands.checks.has_permissions(administrator=True)
 async def hello(interaction):
-    await interaction.response.send_message("Hello!")
+    embed = discord.Embed(description="Hello!")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 @tree.command(
     name="goodbye",
-    description="Says goodbye.",
-    guild=debug_guild
+    description="Says goodbye."
 )
+@app_commands.checks.has_permissions(administrator=True)
 async def goodbye(interaction):
-    await interaction.response.send_message("Goodbye!")
+    embed = discord.Embed(description="Goodbye!")
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 @tree.command(
     name="serverlists",
-    description="(WIP) Returns a list server members and server channels.",
-    guild=debug_guild
+    description="(WIP) Returns a list server members and server channels."
 )
+@app_commands.checks.has_permissions(administrator=True)
 async def serverlists(interaction):
     members = interaction.guild.members
     channels = interaction.guild.channels
     memberstring = ", ".join(str(x) for x in members)
     channelstring = ", ".join(str(x) for x in channels)
-    await interaction.response.send_message("**Members**: " + memberstring + "\n" + "**Channels**: " + channelstring)
+    embed = discord.Embed(description="**Members**: " + memberstring + "\n" + "**Channels**: " + channelstring)
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 @tree.command(
-    name="serverids",
-    description="(WIP) Returns a list server member IDs and server channel IDs.",
-    guild=debug_guild
+    name="memberids",
+    description="(WIP) Returns a list server member IDs and server channel IDs."
 )
-async def serverids(interaction):
+@app_commands.checks.has_permissions(administrator=True)
+async def memberids(interaction):
     members = interaction.guild.members
-    channels = interaction.guild.channels
     memberids = []
     for x in members:
         memberids.append(x.id)
+    memberidstring = ", ".join(str(x) for x in memberids)
+    embed = discord.Embed(description="**Member IDs**: " + memberidstring)
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+@tree.command(
+    name="channelids",
+    description="(WIP) Returns a list of server channel IDs."
+)
+@app_commands.checks.has_permissions(administrator=True)
+async def channelids(interaction):
+    channels = interaction.guild.text_channels
     channelids = []
     for x in channels:
         channelids.append(x.id)
-    memberidstring = ", ".join(str(x) for x in memberids)
     channelidstring = ", ".join(str(x) for x in channelids)
-    await interaction.response.send_message("**Member IDs**: " + memberidstring + "\n" + "**Channel IDs**: " + channelidstring)
+    embed = discord.Embed(description="**Channel IDs**: " + channelidstring)
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+@tree.command(
+    name="getactivity",
+    description="(WIP) Returns a list of active and inactive server members."
+)
+@app_commands.checks.has_permissions(administrator=True)
+async def getactivity(interaction):
+    await interaction.response.defer(ephemeral=True, thinking=True)
+    channels = interaction.guild.text_channels
+    members = [m for m in interaction.guild.members if not m.bot]
+    today =  datetime.now()
+    setdays = timedelta(days=30)
+    daysago = today-setdays
+    activemembers = []
+    inactivemembers = []
+    for member in members:
+        for channel in channels:
+            async for message in channel.history(after=daysago):
+                if message.author == member and member not in activemembers:
+                    activemembers.append(member)
+                else:
+                    pass
+        if member not in activemembers:
+            inactivemembers.append(member)
+        else:
+            pass
+    # for member in activemembers:
+    #     await interaction.followup.send(member.mention + " is active!", ephemeral=True)
+    # for member in inactivemembers:
+    #     await interaction.followup.send(member.mention + " is inactive!", ephemeral=True)
+    activeembed = ", ".join(str(m.mention) for m in activemembers)
+    inactiveembed = ", ".join(str(m.mention) for m in inactivemembers)
+    await interaction.followup.send(embed=discord.Embed(title="Active Members:", description=activeembed), ephemeral=True)
+    await interaction.followup.send(embed=discord.Embed(title="Inactive Members:", description=inactiveembed), ephemeral=True)
 
 client.run(TOKEN)
