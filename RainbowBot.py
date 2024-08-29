@@ -89,17 +89,16 @@ async def getactivity(interaction):
     daysago = today-setdays
     activemembers = []
     inactivemembers = []
-    for member in members:
-        for channel in channels:
-            async for message in channel.history(after=daysago):
+    for channel in channels:
+        async for message in channel.history(after=daysago):
+            for member in members:
                 if message.author == member and member not in activemembers:
                     activemembers.append(member)
                 else:
                     pass
+    for member in members:
         if member not in activemembers:
             inactivemembers.append(member)
-        else:
-            pass
     # for member in activemembers:
     #     await interaction.followup.send(member.mention + " is active!", ephemeral=True)
     # for member in inactivemembers:
