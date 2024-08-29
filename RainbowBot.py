@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 
 intents = discord.Intents.default()
 intents.members = True
@@ -21,8 +21,8 @@ async def on_ready():
 
 @client.event
 async def on_message(message: discord.Message):
-    letrig = ['lesbian','dyke','sapphic','wlw']
-    gatrig = ['gay','faggot','achillean','mlm']
+    letrig = ['lesbian','sapphic','wlw']
+    gatrig = ['gay','achillean','mlm']
     bitrig = ['bisexual','biromantic','bi woman','bi lady','bi girl','bi gal','bi man','bi guy','bi dude','bi boy','bi person','bi people']
     astrig = ['asexual','aromantic','acespec','arospec','ace spec','aro spec','ace-spec','aro-spec']
     tgtrig = ['transgender','transsexual','trans woman','trans lady','trans girl','trans gal','trans man','trans guy','trans dude','trans boy','trans person','trans people']
@@ -113,17 +113,18 @@ async def channelids(interaction):
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 @tree.command(
-    name="getactivity",
+    name="setactivity",
     description="(WIP) Returns a list of active and inactive server members."
 )
 @app_commands.checks.has_permissions(administrator=True)
-async def getactivity(interaction):
+async def setactivity(interaction, days: int, inactive: discord.Role, active: discord.Role):
     await interaction.response.defer(ephemeral=True, thinking=True)
     channels = interaction.guild.text_channels
     members = [m for m in interaction.guild.members if not m.bot]
-    today =  datetime.now()
-    setdays = timedelta(days=30)
+    today =  datetime.now(timezone.utc)
+    setdays = timedelta(days=days)
     daysago = today-setdays
+    newmembers = [m for m in members if m.joined_at < daysago]
     activemembers = []
     inactivemembers = []
     for channel in channels:
@@ -131,17 +132,27 @@ async def getactivity(interaction):
             for member in members:
                 if message.author == member and member not in activemembers:
                     activemembers.append(member)
-                else:
-                    pass
     for member in members:
-        if member not in activemembers:
+        if member not in activemembers and member not in newmembers:
             inactivemembers.append(member)
+        elif member in newmembers and member not in activemembers:
+            activemembers.append(member)
+    for member in activemembers:
+        if active not in member.roles:
+            await member.add_roles(active)
+            if inactive in member.roles:
+                await member.remove_roles(inactive)
+    for member in inactivemembers:
+        if inactive not in member.roles:
+            await member.add_roles(inactive)
+            if active in member.roles:
+                await member.remove_roles(active)
     # for member in activemembers:
     #     await interaction.followup.send(member.mention + " is active!", ephemeral=True)
     # for member in inactivemembers:
     #     await interaction.followup.send(member.mention + " is inactive!", ephemeral=True)
-    activeembed = ", ".join(str(m.mention) for m in activemembers)
-    inactiveembed = ", ".join(str(m.mention) for m in inactivemembers)
+    activeembed = ", ".join(str("<@!" + str(m.id) + ">") for m in activemembers)
+    inactiveembed = ", ".join(str("<@!" + str(m.id) + ">") for m in inactivemembers)
     await interaction.followup.send(embed=discord.Embed(title="Active Members:", description=activeembed), ephemeral=True)
     await interaction.followup.send(embed=discord.Embed(title="Inactive Members:", description=inactiveembed), ephemeral=True)
 
