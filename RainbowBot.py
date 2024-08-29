@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 intents = discord.Intents.default()
 intents.members = True
+intents.message_content = True
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
@@ -16,7 +17,43 @@ debug_guild = discord.Object(id=1274023759497662646)
 async def on_ready():
     tree.clear_commands(guild=debug_guild)
     await tree.sync()
-    print("Ready!")
+    print(f'Logged in as {client.user}! (ID: {client.user.id})')
+
+@client.event
+async def on_message(message: discord.Message):
+    letrig = ['lesbian','dyke','sapphic','wlw']
+    gatrig = ['gay','faggot','achillean','mlm']
+    bitrig = ['bisexual','biromantic','bi woman','bi lady','bi girl','bi gal','bi man','bi guy','bi dude','bi boy','bi person','bi people']
+    astrig = ['asexual','aromantic','acespec','arospec','ace spec','aro spec','ace-spec','aro-spec']
+    tgtrig = ['transgender','transsexual','trans woman','trans lady','trans girl','trans gal','trans man','trans guy','trans dude','trans boy','trans person','trans people']
+    nbtrig = ['nonbinary','non binary','non-binary','enby']
+    tftrig = ['transfeminine','trans feminine','trans-feminine','transfem','trans fem','trans-fem']
+    tmtrig = ['transmasculine','trans masculine','trans-masculine','transmasc','trans masc','trans-masc']
+    leemo = client.get_emoji(1274435288499884094)
+    gaemo = client.get_emoji(1274435330174615624)
+    biemo = client.get_emoji(1274435359878676560)
+    asemo = client.get_emoji(1274435406804291634)
+    tgemo = client.get_emoji(1274435448726622208)
+    nbemo = client.get_emoji(1274435483912638515)
+    tfemo = client.get_emoji(1274435557744840820)
+    tmemo = client.get_emoji(1274435528883961989)
+    msg = message.content.lower()
+    if any(x in msg for x in letrig):
+        await message.add_reaction(leemo)
+    if any(x in msg for x in gatrig):
+        await message.add_reaction(gaemo)
+    if any(x in msg for x in bitrig):
+        await message.add_reaction(biemo)
+    if any(x in msg for x in astrig):
+        await message.add_reaction(asemo)
+    if any(x in msg for x in tgtrig):
+        await message.add_reaction(tgemo)
+    if any(x in msg for x in nbtrig):
+        await message.add_reaction(nbemo)
+    if any(x in msg for x in tftrig):
+        await message.add_reaction(tfemo)
+    if any(x in msg for x in tmtrig):
+        await message.add_reaction(tmemo)
 
 @tree.command(
     name="hello",
