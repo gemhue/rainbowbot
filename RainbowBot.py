@@ -20,29 +20,26 @@ class ChannelsSelector(ChannelSelect):
             channel_types=[ChannelType.text],
             placeholder="Select channels... (limit: 25)",
             min_values=1,
-            max_values=25
+            max_values=25,
+            row=1
         )
     async def callback(self, interaction: discord.Interaction) -> Any:
-        await interaction.response.defer(ephemeral=True, thinking=True)
+        await interaction.response.defer(ephemeral=True)
         channels: list[DropdownView] = self.values
+        channels = [c.resolve() for c in self.values]
         self.view.values = [c for c in channels]
-        channellist = [c.mention for c in channels]
-        embed = discord.Embed(description=f'{interaction.user.mention} selected the following channels:\n\n' + "\n".join(channellist))
-        await interaction.followup.send(embed=embed, ephemeral=True)
 
 class DropdownView(discord.ui.View):
     def __init__(self):
         super().__init__()
         self.value = None
         self.add_item(ChannelsSelector())
-    @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green)
+    @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message('Confirming...', ephemeral=True)
         self.value = True
         self.stop()
-    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.grey)
+    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.grey, row=2)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message('Cancelling...', ephemeral=True)
         self.value = False
         self.stop()
 
@@ -54,20 +51,24 @@ class DropdownView(discord.ui.View):
     amount="Amount of messages to purge from each channel (limit: 100)"
 )
 async def purgeself(interaction, amount: int):
-    await interaction.response.defer(thinking=True)
+    await interaction.response.defer(ephemeral=True, thinking=True)
     view = DropdownView()
-    await interaction.followup.send("Which channels would you like to purge your messages from?", view=view, ephemeral=True)
+    await interaction.followup.send("Which channel(s) would you like to purge messages from?", view=view, ephemeral=True)
     await view.wait()
+    channels = [c.mention for c in view.values]
+    channellist = ", ".join(channels)
+    embed = discord.Embed(title="Selected Channels:", description=channellist)
+    await interaction.followup.send(embed=embed, ephemeral=True)
     if view.value == True:
-        channels = [await c.fetch() for c in view.values]
+        channels = [c for c in view.values]
         deleted = []
         for channel in channels:
             deleted += await channel.purge(limit=amount, check=lambda message: message.author == interaction.user)
-        await interaction.followup.send(f'{len(deleted)} of your messages have been purged!')
+        await interaction.followup.send(f'{len(deleted)} messages have been purged!', ephemeral=True)
     elif view.value == False:
-        await interaction.followup.send('None of your messages have been purged!')
+        await interaction.followup.send('Interaction Cancelled. No messages have been purged!', ephemeral=True)
     else:
-        await interaction.followup.send('The interaction has timed out!')
+        await interaction.followup.send('Interaction Timed Out. No messages have been purged!', ephemeral=True)
 
 @tree.command(
     name="purgechannels",
@@ -77,16 +78,25 @@ async def purgeself(interaction, amount: int):
 @app_commands.describe(
     amount="Amount of messages to purge from each channel (limit: 100)"
 )
-async def purgeself(interaction, amount: int):
-    await interaction.response.defer(thinking=True)
+async def purgechannels(interaction, amount: int):
+    await interaction.response.defer(ephemeral=True, thinking=True)
     view = DropdownView()
-    await interaction.followup.send("Which channels would you like to purge messages from?", view=view, ephemeral=True)
+    await interaction.followup.send("Which channel(s) would you like to purge messages from?", view=view, ephemeral=True)
     await view.wait()
-    channels = [await c.fetch() for c in view.values]
-    deleted = []
-    for channel in channels:
-        deleted += await channel.purge(limit=amount, check=lambda message: message.author == interaction.user)
-    await interaction.followup.send(f'{len(deleted)} messages have been purged!')
+    channels = [c.mention for c in view.values]
+    channellist = ", ".join(channels)
+    embed = discord.Embed(title="Selected Channels:", description=channellist)
+    await interaction.followup.send(embed=embed, ephemeral=True)
+    if view.value == True:
+        channels = [c for c in view.values]
+        deleted = []
+        for channel in channels:
+            deleted += await channel.purge(limit=amount, check=lambda message: message.pinned == False)
+        await interaction.followup.send(f'{len(deleted)} messages have been purged!', ephemeral=True)
+    elif view.value == False:
+        await interaction.followup.send('Interaction Cancelled. No messages have been purged!', ephemeral=True)
+    else:
+        await interaction.followup.send('Interaction Timed Out. No messages have been purged!', ephemeral=True)
 
 @tree.command(
     name="sync",
