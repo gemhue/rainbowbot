@@ -1,7 +1,9 @@
 import discord
-from discord import app_commands
+from discord import app_commands, ChannelType
 from discord.ext import commands
+from discord.ui import ChannelSelect
 from datetime import datetime, timezone, timedelta
+from typing import Any
 
 intents = discord.Intents.default()
 intents.members = True
@@ -12,12 +14,79 @@ tree = app_commands.CommandTree(client)
 
 bot = commands.Bot(command_prefix='.', intents=intents)
 
-@client.event
-async def on_ready():
-    # guild = discord.Object(id=1274023759497662646)
-    # tree.clear_commands(guild=guild)
-    # await tree.sync()
-    print(f'Logged in as {client.user}! (ID: {client.user.id})')
+class ChannelsSelector(ChannelSelect):
+    def __init__(self):
+        super().__init__(
+            channel_types=[ChannelType.text],
+            placeholder="Select channels... (limit: 25)",
+            min_values=1,
+            max_values=25
+        )
+    async def callback(self, interaction: discord.Interaction) -> Any:
+        await interaction.response.defer(ephemeral=True, thinking=True)
+        channels: list[DropdownView] = self.values
+        self.view.values = [c for c in channels]
+        channellist = [c.mention for c in channels]
+        embed = discord.Embed(description=f'{interaction.user.mention} selected the following channels:\n\n' + "\n".join(channellist))
+        await interaction.followup.send(embed=embed, ephemeral=True)
+
+class DropdownView(discord.ui.View):
+    def __init__(self):
+        super().__init__()
+        self.value = None
+        self.add_item(ChannelsSelector())
+    @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green)
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message('Confirming...', ephemeral=True)
+        self.value = True
+        self.stop()
+    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.grey)
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message('Cancelling...', ephemeral=True)
+        self.value = False
+        self.stop()
+
+@tree.command(
+    name="purgeself",
+    description="Purge your messages in a set list of channels."
+)
+@app_commands.describe(
+    amount="Amount of messages to purge from each channel (limit: 100)"
+)
+async def purgeself(interaction, amount: int):
+    await interaction.response.defer(thinking=True)
+    view = DropdownView()
+    await interaction.followup.send("Which channels would you like to purge your messages from?", view=view, ephemeral=True)
+    await view.wait()
+    if view.value == True:
+        channels = [await c.fetch() for c in view.values]
+        deleted = []
+        for channel in channels:
+            deleted += await channel.purge(limit=amount, check=lambda message: message.author == interaction.user)
+        await interaction.followup.send(f'{len(deleted)} of your messages have been purged!')
+    elif view.value == False:
+        await interaction.followup.send('None of your messages have been purged!')
+    else:
+        await interaction.followup.send('The interaction has timed out!')
+
+@tree.command(
+    name="purgechannels",
+    description="Purge messages in a set list of channels (admin only)."
+)
+@app_commands.checks.has_permissions(administrator=True)
+@app_commands.describe(
+    amount="Amount of messages to purge from each channel (limit: 100)"
+)
+async def purgeself(interaction, amount: int):
+    await interaction.response.defer(thinking=True)
+    view = DropdownView()
+    await interaction.followup.send("Which channels would you like to purge messages from?", view=view, ephemeral=True)
+    await view.wait()
+    channels = [await c.fetch() for c in view.values]
+    deleted = []
+    for channel in channels:
+        deleted += await channel.purge(limit=amount, check=lambda message: message.author == interaction.user)
+    await interaction.followup.send(f'{len(deleted)} messages have been purged!')
 
 @tree.command(
     name="sync",
@@ -30,8 +99,9 @@ async def sync(interaction: discord.Interaction):
         tree.clear_commands(guild=guild)
         await tree.sync()
         print('The command tree has been synced!')
+        await interaction.response.send_message("The command tree has been synced!", ephemeral=True)
     else:
-        await interaction.response.send_message("Not Allowed")
+        await interaction.response.send_message("Not Allowed", ephemeral=True)
 
 @client.event
 async def on_message(message: discord.Message):
@@ -44,7 +114,7 @@ async def on_message(message: discord.Message):
     list7 = ['transfeminine','trans feminine','trans-feminine','transfem','trans fem','trans-fem']
     list8 = ['transmasculine','trans masculine','trans-masculine','transmasc','trans masc','trans-masc']
     moji1 = client.get_emoji(1274435288499884094)
-    moji2= client.get_emoji(1274435330174615624)
+    moji2 = client.get_emoji(1274435330174615624)
     moji3 = client.get_emoji(1274435359878676560)
     moji4 = client.get_emoji(1274435406804291634)
     moji5 = client.get_emoji(1274435448726622208)
@@ -92,8 +162,8 @@ async def goodbye(interaction):
 async def serverlists(interaction):
     members = [m for m in interaction.guild.members if not m.bot]
     channels = interaction.guild.text_channels
-    memberstring = ", ".join(str("<@!" + str(x.id) + ">") for x in members)
-    channelstring = ", ".join(str("<#" + str(x.id) + ">") for x in channels)
+    memberstring = ", ".join(str(x.mention) for x in members)
+    channelstring = ", ".join(str(x.mention) for x in channels)
     embeds = [discord.Embed(title="Members", description=memberstring), discord.Embed(title="Channels", description=channelstring)]
     await interaction.response.send_message(embeds=embeds)
 
@@ -125,7 +195,7 @@ async def channelids(interaction):
 
 @tree.command(
     name="activityroles",
-    description="Returns a list of active and inactive server members."
+    description="Assigns all server members either an active or inactive role (admin only)."
 )
 @app_commands.describe(
     days="Set the number of days a member must be inactive before getting the inactive role.",
@@ -169,5 +239,12 @@ async def activityroles(interaction, days: int, inactive: discord.Role, active: 
     for member in inactivemembers:
         embed = discord.Embed(description=str(f"{member.mention} is inactive! They've been given the {inactive.mention} role if they didn't already have it."))
         await interaction.followup.send(embed=embed)
+
+@client.event
+async def on_ready():
+    # guild = discord.Object(id=1274023759497662646)
+    # tree.clear_commands(guild=guild)
+    # await tree.sync()
+    print(f'Logged in as {client.user}! (ID: {client.user.id})')
 
 client.run('token')
