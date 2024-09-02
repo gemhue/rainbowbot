@@ -18,24 +18,24 @@ class ChannelsSelector(ChannelSelect):
     def __init__(self):
         super().__init__(
             channel_types=[ChannelType.text],
-            placeholder="Select channels... (limit: 25)",
+            placeholder="Select channels... (Limit: 25)",
             min_values=1,
             max_values=25,
             row=1
         )
     async def callback(self, interaction: discord.Interaction) -> Any:
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer(thinking=True)
         channels: list[DropdownView] = self.values
         channels = [c.resolve() for c in self.values]
         self.view.values = [c for c in channels]
         channelment = [c.mention for c in channels]
         channellist = ", ".join(channelment)
-        embed = discord.Embed(title="Selected Channels:", description=f'{channellist}\n\nPlease hit the `Confirm` button above to confirm these selections. Otherwise, hit `Cancel` to cancel.')
-        await interaction.followup.send(embed=embed, ephemeral=True)
+        embed = discord.Embed(title="Selected Channels:", description=f'{channellist}')
+        await interaction.followup.send(embed=embed)
 
 class DropdownView(discord.ui.View):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *, timeout=180.0):
+        super().__init__(timeout=timeout)
         self.value = None
         self.add_item(ChannelsSelector())
     @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
@@ -49,75 +49,108 @@ class DropdownView(discord.ui.View):
 
 @tree.command(
     name="purgeself",
-    description="Purge your messages in a set list of channels."
+    description="Purge your unpinned messages in a set list of up to 25 channels."
 )
-@app_commands.describe(
-    amount="Amount of messages to purge from each channel (limit: 100)"
-)
-async def purgeself(interaction, amount: int):
-    await interaction.response.defer(ephemeral=True, thinking=True)
+async def purgeself(interaction: discord.Interaction):
+    await interaction.response.defer(thinking=True)
     view = DropdownView()
-    await interaction.followup.send("Which channel(s) would you like to purge messages from?", view=view, ephemeral=True)
+    await interaction.followup.send("Which channel(s) would you like to purge messages from?", view=view)
     await view.wait()
     if view.value == True:
-        channels = [c for c in view.values]
-        deleted = []
-        for channel in channels:
-            deleted += await channel.purge(limit=amount, check=lambda message: message.author == interaction.user)
-        await interaction.followup.send(f'{len(deleted)} messages have been purged!', ephemeral=True)
+        purgechannels = [c for c in view.values]
+        for channel in purgechannels:
+            messages = [message async for message in channel.history(limit=None)]
+            unpinned = []
+            for m in messages:
+                if m.pinned == False:
+                    unpinned.append(m)
+            deleted = []
+            if len(unpinned) > 0:
+                deleted += await channel.purge(check=lambda message: message.author == interaction.user and message.pinned == False, oldest_first=True)
+                if len(deleted) == 1:
+                    await interaction.followup.send(f'{len(deleted)} message was just removed from {channel.mention}!')
+                else:
+                    await interaction.followup.send(f'{len(deleted)} messages were just removed from {channel.mention}!')
+        purgement = [c.mention for c in purgechannels]
+        if len(purgement) > 0:
+            purgelist = ", ".join(purgement)
+        else:
+            purgelist = purgement[0]
+        await interaction.followup.send(f'{interaction.user.mention} has just purged the following channels: {purgelist}!')
     elif view.value == False:
-        await interaction.followup.send('Interaction Cancelled. No messages have been purged!', ephemeral=True)
+        await interaction.followup.send('Interaction Cancelled. No messages have been purged!')
     else:
-        await interaction.followup.send('Interaction Timed Out. No messages have been purged!', ephemeral=True)
+        await interaction.followup.send('Interaction Timed Out. No messages have been purged!')
 
 @tree.command(
     name="purgechannels",
-    description="Purge messages in a set list of channels (admin only)."
+    description="Purge unpinned messages in a set list of up to 25 channels (admin only)."
 )
 @app_commands.checks.has_permissions(administrator=True)
-@app_commands.describe(
-    amount="Amount of messages to purge from each channel (limit: 100)"
-)
-async def purgechannels(interaction, amount: int):
-    await interaction.response.defer(ephemeral=True, thinking=True)
+async def purgechannels(interaction: discord.Interaction):
+    await interaction.response.defer(thinking=True)
     view = DropdownView()
-    await interaction.followup.send("Which channel(s) would you like to purge messages from?", view=view, ephemeral=True)
+    await interaction.followup.send("Which channel(s) would you like to purge messages from?", view=view)
     await view.wait()
-    channels = [c.mention for c in view.values]
-    channellist = ", ".join(channels)
-    embed = discord.Embed(title="Selected Channels:", description=channellist)
-    await interaction.followup.send(embed=embed, ephemeral=True)
     if view.value == True:
-        channels = [c for c in view.values]
-        deleted = []
-        for channel in channels:
-            deleted += await channel.purge(limit=amount, check=lambda message: message.pinned == False)
-        await interaction.followup.send(f'{len(deleted)} messages have been purged!', ephemeral=True)
+        purgechannels = [c for c in view.values]
+        for channel in purgechannels:
+            messages = [message async for message in channel.history(limit=None)]
+            unpinned = []
+            for m in messages:
+                if m.pinned == False:
+                    unpinned.append(m)
+            deleted = []
+            if len(unpinned) > 0:
+                deleted += await channel.purge(check=lambda message: message.pinned == False, oldest_first=True)
+                if len(deleted) == 1:
+                    await interaction.followup.send(f'{len(deleted)} message was just removed from {channel.mention}!')
+                else:
+                    await interaction.followup.send(f'{len(deleted)} messages were just removed from {channel.mention}!')
+        purgement = [c.mention for c in purgechannels]
+        if len(purgement) > 0:
+            purgelist = ", ".join(purgement)
+        else:
+            purgelist = purgement[0]
+        await interaction.followup.send(f'{interaction.user.mention} has just purged the following channels: {purgelist}!')
     elif view.value == False:
-        await interaction.followup.send('Interaction Cancelled. No messages have been purged!', ephemeral=True)
+        await interaction.followup.send('Interaction Cancelled. No messages have been purged!')
     else:
-        await interaction.followup.send('Interaction Timed Out. No messages have been purged!', ephemeral=True)
+        await interaction.followup.send('Interaction Timed Out. No messages have been purged!')
 
 @tree.command(
     name="purgeserver",
-    description="Purges all unpinned messages in a server (admin only)."
+    description="Purges all unpinned messages in a server, excluding up to 25 channels (admin only)."
 )
 @app_commands.checks.has_permissions(administrator=True)
 async def purgeserver(interaction: discord.Interaction):
     await interaction.response.defer(thinking=True)
     guild = interaction.guild
     channels = guild.text_channels
-    for channel in channels:
-        messages = [message async for message in channel.history(limit=None)]
-        unpinned = []
-        for m in messages:
-            if m.pinned == False:
-                unpinned.append(m)
-        deleted = []
-        if len(unpinned) > 0:
-            deleted += await channel.purge(check=lambda message: message.pinned == False, oldest_first=True)
-            await interaction.followup.send(f'{len(deleted)} messages were just removed from {channel.mention}!')
-    await interaction.followup.send(f'{interaction.user.mention} has just purged the server!')
+    view = DropdownView()
+    await interaction.followup.send("Which channels would you like to **exclude** from the purge? You must select at least 1 channel to exclude.", view=view)
+    await view.wait()
+    if view.value == True:
+        excludedchannels = [c for c in view.values]
+        purgechannels = [c for c in channels if c not in excludedchannels]
+        for channel in purgechannels:
+            messages = [message async for message in channel.history(limit=None)]
+            unpinned = []
+            for m in messages:
+                if m.pinned == False:
+                    unpinned.append(m)
+            deleted = []
+            if len(unpinned) > 0:
+                deleted += await channel.purge(check=lambda message: message.pinned == False, oldest_first=True)
+                if len(deleted) == 1:
+                    await interaction.followup.send(f'{len(deleted)} message was just removed from {channel.mention}!')
+                else:
+                    await interaction.followup.send(f'{len(deleted)} messages were just removed from {channel.mention}!')
+        await interaction.followup.send(f'{interaction.user.mention} has just purged the server!')
+    elif view.value == False:
+        await interaction.followup.send('Interaction Cancelled. No messages have been purged!')
+    else:
+        await interaction.followup.send('Interaction Timed Out. No messages have been purged!')
 
 @tree.command(
     name="sync",
