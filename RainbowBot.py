@@ -8,6 +8,7 @@ from typing import Any
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
+intents.guilds = True
 
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
@@ -152,28 +153,13 @@ async def purgeserver(interaction: discord.Interaction):
     else:
         await interaction.followup.send('Interaction Timed Out. No messages have been purged!')
 
-@tree.command(
-    name="sync",
-    description="Syncs the command tree (for bot owner only)."
-)
-@app_commands.checks.has_permissions(administrator=True)
-async def sync(interaction: discord.Interaction):
-    guild = discord.Object(id=interaction.guild_id)
-    if interaction.user.id == 323927406295384067:
-        tree.clear_commands(guild=guild)
-        await tree.sync()
-        print('The command tree has been synced!')
-        await interaction.response.send_message("The command tree has been synced!", ephemeral=True)
-    else:
-        await interaction.response.send_message("Not Allowed", ephemeral=True)
-
 @client.event
 async def on_message(message: discord.Message):
     list1 = ['lesbian','sapphic','wlw']
     list2 = ['gay','achillean','mlm']
-    list3 = ['bisexual','biromantic','bi woman','bi lady','bi girl','bi gal','bi man','bi guy','bi dude','bi boy','bi person','bi people']
+    list3 = ['bisexual','biromantic','bi woman','bi women','bi lady','bi ladies','bi girl','bi gal','bi man','bi men','bi guy','bi dude','bi boy','bi person','bi people']
     list4 = ['asexual','aromantic','acespec','arospec','ace spec','aro spec','ace-spec','aro-spec']
-    list5 = ['transgender','transsexual','trans woman','trans lady','trans girl','trans gal','trans man','trans guy','trans dude','trans boy','trans person','trans people']
+    list5 = ['transgender','transsexual','trans woman','trans women','trans lady','trans ladies','trans girl','trans gal','trans man','trans men','trans guy','trans dude','trans boy','trans person','trans people']
     list6 = ['nonbinary','non binary','non-binary','enby']
     list7 = ['transfeminine','trans feminine','trans-feminine','transfem','trans fem','trans-fem']
     list8 = ['transmasculine','trans masculine','trans-masculine','transmasc','trans masc','trans-masc']
@@ -202,60 +188,6 @@ async def on_message(message: discord.Message):
         await message.add_reaction(moji7)
     if any(x in msg for x in list8):
         await message.add_reaction(moji8)
-
-@tree.command(
-    name="hello",
-    description="Says hello."
-)
-async def hello(interaction):
-    embed = discord.Embed(description="Hello!")
-    await interaction.response.send_message(embed=embed)
-
-@tree.command(
-    name="goodbye",
-    description="Says goodbye."
-)
-async def goodbye(interaction):
-    embed = discord.Embed(description="Goodbye!")
-    await interaction.response.send_message(embed=embed)
-
-@tree.command(
-    name="serverlists",
-    description="Returns a list server members and server channels."
-)
-async def serverlists(interaction):
-    members = [m for m in interaction.guild.members if not m.bot]
-    channels = interaction.guild.text_channels
-    memberstring = ", ".join(str(x.mention) for x in members)
-    channelstring = ", ".join(str(x.mention) for x in channels)
-    embeds = [discord.Embed(title="Members", description=memberstring), discord.Embed(title="Channels", description=channelstring)]
-    await interaction.response.send_message(embeds=embeds)
-
-@tree.command(
-    name="memberids",
-    description="Returns a list server member IDs."
-)
-async def memberids(interaction):
-    members = [m for m in interaction.guild.members if not m.bot]
-    memberids = []
-    for x in members:
-        memberids.append(x.id)
-    memberidstring = ", ".join(str(x) for x in memberids)
-    embed = discord.Embed(description="**Member IDs**: " + memberidstring)
-    await interaction.response.send_message(embed=embed)
-
-@tree.command(
-    name="channelids",
-    description="Returns a list of server channel IDs."
-)
-async def channelids(interaction):
-    channels = interaction.guild.text_channels
-    channelids = []
-    for x in channels:
-        channelids.append(x.id)
-    channelidstring = ", ".join(str(x) for x in channelids)
-    embed = discord.Embed(description="**Channel IDs**: " + channelidstring)
-    await interaction.response.send_message(embed=embed)
 
 @tree.command(
     name="activityroles",
@@ -304,11 +236,110 @@ async def activityroles(interaction, days: int, inactive: discord.Role, active: 
         embed = discord.Embed(description=str(f"{member.mention} is inactive! They've been given the {inactive.mention} role if they didn't already have it."))
         await interaction.followup.send(embed=embed)
 
+guilds = {}
+
+@tree.command(
+    name="addaward",
+    description="Adds an award to the user."
+)
+async def addaward(interaction):
+    await interaction.response.defer(thinking=True)
+    guild = interaction.guild
+    user = interaction.user
+    if guild.id in guilds:
+        if user.id in guilds[guild.id]:
+            guilds[guild.id][user.id] += 1
+            if guilds[guild.id][user.id] == 1:
+                embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
+                await interaction.followup.send(embed)
+            else:
+                embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} awards!")
+                await interaction.followup.send(embed)
+        else:
+            guilds[guild.id][user.id] = 1
+            embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
+            await interaction.followup.send(embed)
+    else:
+        guilds[guild.id] = {}
+        guilds[guild.id][user.id] = 1
+        embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
+        await interaction.followup.send(embed)
+
+@tree.command(
+    name="removeaward",
+    description="Removes an award from the user."
+)
+async def removeaward(interaction):
+    await interaction.response.defer(thinking=True)
+    guild = interaction.guild
+    user = interaction.user
+    if guild.id in guilds:
+        if user.id in guilds[guild.id]:
+            if guilds[guild.id][user.id] == 0:
+                embed = discord.Embed(title="Error", description=f"{user.mention} doesn't have any awards!")
+                await interaction.followup.send(embed)
+            else:
+                guilds[guild.id][user.id] -= 1
+                if guilds[guild.id][user.id] == 0:
+                    embed = discord.Embed(title="Update", description=f"{user.mention} no longer has any awards!")
+                    await interaction.followup.send(embed)
+                elif guilds[guild.id][user.id] == 1:
+                    embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
+                    await interaction.followup.send(embed)
+                else:
+                    embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} awards!")
+                    await interaction.followup.send(embed)
+        else:
+            embed = discord.Embed(title="Error", description=f"{user.mention} doesn't exist in the award log.")
+            await interaction.followup.send(embed)
+    else:
+        embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the award log.")
+        await interaction.followup.send(embed)
+
+@tree.command(
+    name="checkawards",
+    description="Returns the number of awards the user currently has."
+)
+async def checkawards(interaction):
+    await interaction.response.defer(thinking=True)
+    guild = interaction.guild
+    user = interaction.user
+    if guild.id in guilds:
+        if user.id in guilds[guild.id]:
+            if guilds[guild.id][user.id] == 0:
+                embed = discord.Embed(title="Number of Awards", description=f"{user.mention} doesn't have any awards!")
+                await interaction.followup.send(embed)
+            elif guilds[guild.id][user.id] == 1:
+                embed = discord.Embed(title="Number of Awards", description=f"{user.mention} has {guilds[guild.id][user.id]} award!")
+                await interaction.followup.send(embed)
+            else:
+                embed = discord.Embed(title="Number of Awards", description=f"{user.mention} has {guilds[guild.id][user.id]} awards!")
+                await interaction.followup.send(embed)
+        else:
+            embed = discord.Embed(title="Error", description=f"{user.mention} doesn't exist in the award log.")
+            await interaction.followup.send(embed)
+    else:
+        embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the award log.")
+        await interaction.followup.send(embed)
+
+@tree.command(
+    name="leaderboard",
+    description="Returns the current award leaderboard for the server."
+)
+async def leaderboard(interaction):
+    await interaction.response.defer(thinking=True)
+    guild = interaction.guild
+    desc = []
+    for member, awards in guilds[guild.id].items():
+        desc.append(f"<@{member}>: {awards}")
+    description = "\n".join(x for x in desc)
+    embed = discord.Embed(title="Leaderboard", description=description)
+    await interaction.followup.send(embed)
+
 @client.event
 async def on_ready():
-    # guild = discord.Object(id=1274023759497662646)
-    # tree.clear_commands(guild=guild)
-    # await tree.sync()
+    tree.clear_commands(guild=None)
+    await tree.sync(guild=None)
     print(f'Logged in as {client.user}! (ID: {client.user.id})')
 
 client.run('token')
