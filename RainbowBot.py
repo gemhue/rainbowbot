@@ -3,7 +3,7 @@ from discord import app_commands, ChannelType
 from discord.ext import commands
 from discord.ui import ChannelSelect
 from datetime import datetime, timezone, timedelta
-from typing import Any
+from typing import Any, Optional
 
 intents = discord.Intents.default()
 intents.members = True
@@ -199,7 +199,7 @@ async def on_message(message: discord.Message):
     active="Choose the role that you would like to give to active members."
 )
 @app_commands.checks.has_permissions(administrator=True)
-async def activityroles(interaction, days: int, inactive: discord.Role, active: discord.Role):
+async def activityroles(interaction: discord.Interaction, days: int, inactive: discord.Role, active: discord.Role):
     await interaction.response.defer(thinking=True)
     channels = interaction.guild.text_channels
     members = [m for m in interaction.guild.members if not m.bot]
@@ -240,39 +240,45 @@ guilds = {}
 
 @tree.command(
     name="addaward",
-    description="Adds an award to the user."
+    description="Adds an award to the command user or another selected member."
 )
-async def addaward(interaction):
+@app_commands.describe(
+    member="Choose the member to add the award to."
+)
+async def addaward(interaction: discord.Interaction, member: Optional[discord.Member] = None):
     await interaction.response.defer(thinking=True)
     guild = interaction.guild
-    user = interaction.user
+    user = member or interaction.user
     if guild.id in guilds:
         if user.id in guilds[guild.id]:
             guilds[guild.id][user.id] += 1
             if guilds[guild.id][user.id] == 1:
-                embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
+                embed = discord.Embed(title="Award Added", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
                 await interaction.followup.send(embed=embed)
             else:
-                embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} awards!")
+                embed = discord.Embed(title="Award Added", description=f"{user.mention} now has {guilds[guild.id][user.id]} awards!")
                 await interaction.followup.send(embed=embed)
         else:
             guilds[guild.id][user.id] = 1
-            embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
+            embed = discord.Embed(title="Award Added", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
             await interaction.followup.send(embed=embed)
     else:
         guilds[guild.id] = {}
         guilds[guild.id][user.id] = 1
-        embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
+        embed = discord.Embed(title="Award Added", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
         await interaction.followup.send(embed=embed)
 
 @tree.command(
     name="removeaward",
-    description="Removes an award from the user."
+    description="Removes an award from the user or another selected member."
 )
-async def removeaward(interaction):
+@app_commands.describe(
+    member="Choose the member to remove the award from."
+)
+async def removeaward(interaction: discord.Interaction, member: Optional[discord.Member] = None):
     await interaction.response.defer(thinking=True)
     guild = interaction.guild
-    user = interaction.user
+    user = member or interaction.user
     if guild.id in guilds:
         if user.id in guilds[guild.id]:
             if guilds[guild.id][user.id] == 0:
@@ -281,13 +287,13 @@ async def removeaward(interaction):
             else:
                 guilds[guild.id][user.id] -= 1
                 if guilds[guild.id][user.id] == 0:
-                    embed = discord.Embed(title="Update", description=f"{user.mention} no longer has any awards!")
+                    embed = discord.Embed(title="Award Removed", description=f"{user.mention} no longer has any awards!")
                     await interaction.followup.send(embed=embed)
                 elif guilds[guild.id][user.id] == 1:
-                    embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
+                    embed = discord.Embed(title="Award Removed", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
                     await interaction.followup.send(embed=embed)
                 else:
-                    embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} awards!")
+                    embed = discord.Embed(title="Award Removed", description=f"{user.mention} now has {guilds[guild.id][user.id]} awards!")
                     await interaction.followup.send(embed=embed)
         else:
             embed = discord.Embed(title="Error", description=f"{user.mention} doesn't exist in the award log.")
@@ -298,12 +304,15 @@ async def removeaward(interaction):
 
 @tree.command(
     name="checkawards",
-    description="Returns the number of awards the user currently has."
+    description="Returns the number of awards that the user (or another selected user) currently has."
 )
-async def checkawards(interaction):
+@app_commands.describe(
+    member="Choose the member that you would like to check the number of awards for."
+)
+async def checkawards(interaction: discord.Interaction, member: Optional[discord.Member] = None):
     await interaction.response.defer(thinking=True)
     guild = interaction.guild
-    user = interaction.user
+    user = member or interaction.user
     if guild.id in guilds:
         if user.id in guilds[guild.id]:
             if guilds[guild.id][user.id] == 0:
@@ -326,25 +335,25 @@ async def checkawards(interaction):
     name="clearawards",
     description="Clears all of the awards in the server."
 )
-async def clearawards(interaction):
+async def clearawards(interaction: discord.Interaction):
     await interaction.response.defer(thinking=True)
     guild = interaction.guild
     guilds[guild.id] = {}
-    embed = discord.Embed(title="Update", description=f"{guild.name} has had all its rewards cleared!")
+    embed = discord.Embed(title="Awards Cleared", description=f"{guild.name} has had all its rewards cleared!")
     await interaction.followup.send(embed=embed)
 
 @tree.command(
     name="leaderboard",
     description="Returns the current award leaderboard for the server."
 )
-async def leaderboard(interaction):
+async def leaderboard(interaction: discord.Interaction):
     await interaction.response.defer(thinking=True)
     guild = interaction.guild
     desc = []
     for member, awards in guilds[guild.id].items():
         desc.append(f"<@{member}>: {awards}")
     description = "\n".join(x for x in desc)
-    embed = discord.Embed(title="Leaderboard", description=description)
+    embed = discord.Embed(title="Award Leaderboard", description=description)
     await interaction.followup.send(embed=embed)
 
 @tree.command(
@@ -352,13 +361,13 @@ async def leaderboard(interaction):
     description="Syncs the command tree for the server (bot owner only)."
 )
 @app_commands.checks.has_permissions(administrator=True)
-async def sync(interaction):
+async def sync(interaction: discord.Interaction):
     await interaction.response.defer(thinking=True)
     if interaction.user.id == 323927406295384067:
         guild = discord.Object(id=1274023759497662646)
         tree.clear_commands(guild=guild)
         await tree.sync()
-        embed = discord.Embed(title="Update", description=f"The bot's command tree in {guild.name} has been synced!")
+        embed = discord.Embed(title="Update", description=f"The bot's command tree has been synced!")
         await interaction.followup.send(embed=embed)
     else:
         embed = discord.Embed(title="Error", description=f"This action is not allowed.")
