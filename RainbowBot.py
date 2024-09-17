@@ -251,19 +251,19 @@ async def addaward(interaction):
             guilds[guild.id][user.id] += 1
             if guilds[guild.id][user.id] == 1:
                 embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
-                await interaction.followup.send(embed)
+                await interaction.followup.send(embed=embed)
             else:
                 embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} awards!")
-                await interaction.followup.send(embed)
+                await interaction.followup.send(embed=embed)
         else:
             guilds[guild.id][user.id] = 1
             embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
-            await interaction.followup.send(embed)
+            await interaction.followup.send(embed=embed)
     else:
         guilds[guild.id] = {}
         guilds[guild.id][user.id] = 1
         embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
-        await interaction.followup.send(embed)
+        await interaction.followup.send(embed=embed)
 
 @tree.command(
     name="removeaward",
@@ -277,24 +277,24 @@ async def removeaward(interaction):
         if user.id in guilds[guild.id]:
             if guilds[guild.id][user.id] == 0:
                 embed = discord.Embed(title="Error", description=f"{user.mention} doesn't have any awards!")
-                await interaction.followup.send(embed)
+                await interaction.followup.send(embed=embed)
             else:
                 guilds[guild.id][user.id] -= 1
                 if guilds[guild.id][user.id] == 0:
                     embed = discord.Embed(title="Update", description=f"{user.mention} no longer has any awards!")
-                    await interaction.followup.send(embed)
+                    await interaction.followup.send(embed=embed)
                 elif guilds[guild.id][user.id] == 1:
                     embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
-                    await interaction.followup.send(embed)
+                    await interaction.followup.send(embed=embed)
                 else:
                     embed = discord.Embed(title="Update", description=f"{user.mention} now has {guilds[guild.id][user.id]} awards!")
-                    await interaction.followup.send(embed)
+                    await interaction.followup.send(embed=embed)
         else:
             embed = discord.Embed(title="Error", description=f"{user.mention} doesn't exist in the award log.")
-            await interaction.followup.send(embed)
+            await interaction.followup.send(embed=embed)
     else:
         embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the award log.")
-        await interaction.followup.send(embed)
+        await interaction.followup.send(embed=embed)
 
 @tree.command(
     name="checkawards",
@@ -308,19 +308,30 @@ async def checkawards(interaction):
         if user.id in guilds[guild.id]:
             if guilds[guild.id][user.id] == 0:
                 embed = discord.Embed(title="Number of Awards", description=f"{user.mention} doesn't have any awards!")
-                await interaction.followup.send(embed)
+                await interaction.followup.send(embed=embed)
             elif guilds[guild.id][user.id] == 1:
                 embed = discord.Embed(title="Number of Awards", description=f"{user.mention} has {guilds[guild.id][user.id]} award!")
-                await interaction.followup.send(embed)
+                await interaction.followup.send(embed=embed)
             else:
                 embed = discord.Embed(title="Number of Awards", description=f"{user.mention} has {guilds[guild.id][user.id]} awards!")
-                await interaction.followup.send(embed)
+                await interaction.followup.send(embed=embed)
         else:
             embed = discord.Embed(title="Error", description=f"{user.mention} doesn't exist in the award log.")
-            await interaction.followup.send(embed)
+            await interaction.followup.send(embed=embed)
     else:
         embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the award log.")
-        await interaction.followup.send(embed)
+        await interaction.followup.send(embed=embed)
+
+@tree.command(
+    name="clearawards",
+    description="Clears all of the awards in the server."
+)
+async def clearawards(interaction):
+    await interaction.response.defer(thinking=True)
+    guild = interaction.guild
+    guilds[guild.id] = {}
+    embed = discord.Embed(title="Update", description=f"{guild.name} has had all its rewards cleared!")
+    await interaction.followup.send(embed=embed)
 
 @tree.command(
     name="leaderboard",
@@ -334,12 +345,30 @@ async def leaderboard(interaction):
         desc.append(f"<@{member}>: {awards}")
     description = "\n".join(x for x in desc)
     embed = discord.Embed(title="Leaderboard", description=description)
-    await interaction.followup.send(embed)
+    await interaction.followup.send(embed=embed)
+
+@tree.command(
+    name="sync",
+    description="Syncs the command tree for the server (bot owner only)."
+)
+@app_commands.checks.has_permissions(administrator=True)
+async def sync(interaction):
+    await interaction.response.defer(thinking=True)
+    if interaction.user.id == 323927406295384067:
+        guild = discord.Object(id=1274023759497662646)
+        tree.clear_commands(guild=guild)
+        await tree.sync()
+        embed = discord.Embed(title="Update", description=f"The bot's command tree in {guild.name} has been synced!")
+        await interaction.followup.send(embed=embed)
+    else:
+        embed = discord.Embed(title="Error", description=f"This action is not allowed.")
+        await interaction.followup.send(embed-embed)
 
 @client.event
 async def on_ready():
-    tree.clear_commands(guild=None)
-    await tree.sync(guild=None)
+    #guild = discord.Object(id=1274023759497662646)
+    #tree.clear_commands(guild=guild)
+    #await tree.sync()
     print(f'Logged in as {client.user}! (ID: {client.user.id})')
 
 client.run('token')
