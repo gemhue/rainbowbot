@@ -252,11 +252,18 @@ async def addaward(interaction: discord.Interaction, amount: Optional[int] = Non
     guild = interaction.guild
     amount = amount or 1
     user = member or interaction.user
-    sing_low = awardset[guild.id]["singular_lower"] or "award"
-    #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
-    plur_low = awardset[guild.id]["plural_lower"] or "awards"
-    plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
-    moji = awardset[guild.id]["emoji"] or "⭐"
+    if guild.id in awardset:
+        sing_low = awardset[guild.id]["singular_lower"] or "award"
+        sing_cap = awardset[guild.id]["singular_caps"] or "Award"
+        plur_low = awardset[guild.id]["plural_lower"] or "awards"
+        plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
+        moji = awardset[guild.id]["emoji"] or "⭐"
+    else:
+        sing_low = "award"
+        sing_cap = "Award"
+        plur_low = "awards"
+        plur_cap = "Awards"
+        moji = "⭐"
     if guild.id in guilds:
         if user.id in guilds[guild.id]:
             guilds[guild.id][user.id] += amount
@@ -297,11 +304,18 @@ async def removeaward(interaction: discord.Interaction, amount: Optional[int] = 
     guild = interaction.guild
     amount = amount or 1
     user = member or interaction.user
-    sing_low = awardset[guild.id]["singular_lower"] or "award"
-    #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
-    plur_low = awardset[guild.id]["plural_lower"] or "awards"
-    plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
-    moji = awardset[guild.id]["emoji"] or "⭐"
+    if guild.id in awardset:
+        sing_low = awardset[guild.id]["singular_lower"] or "award"
+        sing_cap = awardset[guild.id]["singular_caps"] or "Award"
+        plur_low = awardset[guild.id]["plural_lower"] or "awards"
+        plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
+        moji = awardset[guild.id]["emoji"] or "⭐"
+    else:
+        sing_low = "award"
+        sing_cap = "Award"
+        plur_low = "awards"
+        plur_cap = "Awards"
+        moji = "⭐"
     if guild.id in guilds:
         if user.id in guilds[guild.id]:
             if guilds[guild.id][user.id] == 0:
@@ -339,11 +353,18 @@ async def checkawards(interaction: discord.Interaction, member: Optional[discord
     await interaction.response.defer(thinking=True)
     guild = interaction.guild
     user = member or interaction.user
-    sing_low = awardset[guild.id]["singular_lower"] or "award"
-    #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
-    plur_low = awardset[guild.id]["plural_lower"] or "awards"
-    plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
-    moji = awardset[guild.id]["emoji"] or "⭐"
+    if guild.id in awardset:
+        sing_low = awardset[guild.id]["singular_lower"] or "award"
+        sing_cap = awardset[guild.id]["singular_caps"] or "Award"
+        plur_low = awardset[guild.id]["plural_lower"] or "awards"
+        plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
+        moji = awardset[guild.id]["emoji"] or "⭐"
+    else:
+        sing_low = "award"
+        sing_cap = "Award"
+        plur_low = "awards"
+        plur_cap = "Awards"
+        moji = "⭐"
     if guild.id in guilds:
         if user.id in guilds[guild.id]:
             if guilds[guild.id][user.id] == 0:
@@ -369,11 +390,18 @@ async def checkawards(interaction: discord.Interaction, member: Optional[discord
 async def clearawards(interaction: discord.Interaction):
     await interaction.response.defer(thinking=True)
     guild = interaction.guild
-    #sing_low = awardset[guild.id]["singular_lower"] or "award"
-    #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
-    plur_low = awardset[guild.id]["plural_lower"] or "awards"
-    plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
-    moji = awardset[guild.id]["emoji"] or "⭐"
+    if guild.id in awardset:
+        sing_low = awardset[guild.id]["singular_lower"] or "award"
+        sing_cap = awardset[guild.id]["singular_caps"] or "Award"
+        plur_low = awardset[guild.id]["plural_lower"] or "awards"
+        plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
+        moji = awardset[guild.id]["emoji"] or "⭐"
+    else:
+        sing_low = "award"
+        sing_cap = "Award"
+        plur_low = "awards"
+        plur_cap = "Awards"
+        moji = "⭐"
     guilds[guild.id] = {}
     embed = discord.Embed(title=f"{moji} {plur_cap} Cleared {moji}", description=f"{guild.name} has had all its {plur_low} cleared!")
     await interaction.followup.send(embed=embed)
@@ -413,11 +441,18 @@ async def setawards(interaction: discord.Interaction, name_singular: str, name_p
 async def leaderboard(interaction: discord.Interaction):
     await interaction.response.defer(thinking=True)
     guild = interaction.guild
-    sing_low = awardset[guild.id]["singular_lower"] or "award"
-    sing_cap = awardset[guild.id]["singular_caps"] or "Award"
-    #plur_low = awardset[guild.id]["plural_lower"] or "awards"
-    #plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
-    moji = awardset[guild.id]["emoji"] or "⭐"
+    if guild.id in awardset:
+        sing_low = awardset[guild.id]["singular_lower"] or "award"
+        sing_cap = awardset[guild.id]["singular_caps"] or "Award"
+        plur_low = awardset[guild.id]["plural_lower"] or "awards"
+        plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
+        moji = awardset[guild.id]["emoji"] or "⭐"
+    else:
+        sing_low = "award"
+        sing_cap = "Award"
+        plur_low = "awards"
+        plur_cap = "Awards"
+        moji = "⭐"
     desc = []
     if guild.id in guilds:
         for member, awards in guilds[guild.id].items():
