@@ -4,6 +4,7 @@ from discord.ext import commands
 from discord.ui import ChannelSelect
 from datetime import datetime, timezone, timedelta
 from typing import Any, Optional
+import string
 
 intents = discord.Intents.default()
 intents.members = True
@@ -240,66 +241,91 @@ guilds = {}
 
 @tree.command(
     name="addaward",
-    description="Adds an award to the command user or another selected member."
+    description="Adds awards to the command user or another selected member."
 )
 @app_commands.describe(
-    member="Choose the member to add the award to."
+    amount="Choose the number of awards to add (Default: 1).",
+    member="Choose the member to add the awards to (Default: Self)."
 )
-async def addaward(interaction: discord.Interaction, member: Optional[discord.Member] = None):
+async def addaward(interaction: discord.Interaction, amount: Optional[int] = None, member: Optional[discord.Member] = None):
     await interaction.response.defer(thinking=True)
     guild = interaction.guild
+    amount = amount or 1
     user = member or interaction.user
+    sing_low = awardset[guild.id]["singular_lower"] or "award"
+    #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
+    plur_low = awardset[guild.id]["plural_lower"] or "awards"
+    plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
+    moji = awardset[guild.id]["emoji"] or "⭐"
     if guild.id in guilds:
         if user.id in guilds[guild.id]:
-            guilds[guild.id][user.id] += 1
+            guilds[guild.id][user.id] += amount
             if guilds[guild.id][user.id] == 1:
-                embed = discord.Embed(title="Award Added", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
+                embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {sing_low}!")
                 await interaction.followup.send(embed=embed)
             else:
-                embed = discord.Embed(title="Award Added", description=f"{user.mention} now has {guilds[guild.id][user.id]} awards!")
+                embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {plur_low}!")
                 await interaction.followup.send(embed=embed)
         else:
-            guilds[guild.id][user.id] = 1
-            embed = discord.Embed(title="Award Added", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
-            await interaction.followup.send(embed=embed)
+            guilds[guild.id][user.id] = amount
+            if guilds[guild.id][user.id] == 1:
+                embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {sing_low}!")
+                await interaction.followup.send(embed=embed)
+            else:
+                embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {plur_low}!")
+                await interaction.followup.send(embed=embed)
     else:
         guilds[guild.id] = {}
-        guilds[guild.id][user.id] = 1
-        embed = discord.Embed(title="Award Added", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
-        await interaction.followup.send(embed=embed)
+        guilds[guild.id][user.id] = amount
+        if guilds[guild.id][user.id] == 1:
+            embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {sing_low}!")
+            await interaction.followup.send(embed=embed)
+        else:
+            embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {plur_low}!")
+            await interaction.followup.send(embed=embed)
 
 @tree.command(
     name="removeaward",
-    description="Removes an award from the user or another selected member."
+    description="Removes awards from the command user or another selected member."
 )
 @app_commands.describe(
-    member="Choose the member to remove the award from."
+    amount="Choose the number of awards to remove (Default: 1).",
+    member="Choose the member to remove the awards from (Default: Self)."
 )
-async def removeaward(interaction: discord.Interaction, member: Optional[discord.Member] = None):
+async def removeaward(interaction: discord.Interaction, amount: Optional[int] = None, member: Optional[discord.Member] = None):
     await interaction.response.defer(thinking=True)
     guild = interaction.guild
+    amount = amount or 1
     user = member or interaction.user
+    sing_low = awardset[guild.id]["singular_lower"] or "award"
+    #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
+    plur_low = awardset[guild.id]["plural_lower"] or "awards"
+    plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
+    moji = awardset[guild.id]["emoji"] or "⭐"
     if guild.id in guilds:
         if user.id in guilds[guild.id]:
             if guilds[guild.id][user.id] == 0:
-                embed = discord.Embed(title="Error", description=f"{user.mention} doesn't have any awards!")
+                embed = discord.Embed(title="Error", description=f"{user.mention} doesn't have any {plur_low}!")
+                await interaction.followup.send(embed=embed)
+            elif guilds[guild.id][user.id] < amount:
+                embed = discord.Embed(title="Error", description=f"{user.mention} doesn't have enough {plur_low}!")
                 await interaction.followup.send(embed=embed)
             else:
-                guilds[guild.id][user.id] -= 1
+                guilds[guild.id][user.id] -= amount
                 if guilds[guild.id][user.id] == 0:
-                    embed = discord.Embed(title="Award Removed", description=f"{user.mention} no longer has any awards!")
+                    embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{user.mention} no longer has any {plur_low}!")
                     await interaction.followup.send(embed=embed)
                 elif guilds[guild.id][user.id] == 1:
-                    embed = discord.Embed(title="Award Removed", description=f"{user.mention} now has {guilds[guild.id][user.id]} award!")
+                    embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {sing_low}!")
                     await interaction.followup.send(embed=embed)
                 else:
-                    embed = discord.Embed(title="Award Removed", description=f"{user.mention} now has {guilds[guild.id][user.id]} awards!")
+                    embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {plur_low}!")
                     await interaction.followup.send(embed=embed)
         else:
-            embed = discord.Embed(title="Error", description=f"{user.mention} doesn't exist in the award log.")
+            embed = discord.Embed(title="Error", description=f"{user.mention} doesn't exist in the {sing_low} log.")
             await interaction.followup.send(embed=embed)
     else:
-        embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the award log.")
+        embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the {sing_low} log.")
         await interaction.followup.send(embed=embed)
 
 @tree.command(
@@ -307,28 +333,33 @@ async def removeaward(interaction: discord.Interaction, member: Optional[discord
     description="Returns the number of awards that the user (or another selected user) currently has."
 )
 @app_commands.describe(
-    member="Choose the member that you would like to check the number of awards for."
+    member="Choose the member that you would like to check the number of awards for (Default: Self)."
 )
 async def checkawards(interaction: discord.Interaction, member: Optional[discord.Member] = None):
     await interaction.response.defer(thinking=True)
     guild = interaction.guild
     user = member or interaction.user
+    sing_low = awardset[guild.id]["singular_lower"] or "award"
+    #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
+    plur_low = awardset[guild.id]["plural_lower"] or "awards"
+    plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
+    moji = awardset[guild.id]["emoji"] or "⭐"
     if guild.id in guilds:
         if user.id in guilds[guild.id]:
             if guilds[guild.id][user.id] == 0:
-                embed = discord.Embed(title="Number of Awards", description=f"{user.mention} doesn't have any awards!")
+                embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{user.mention} doesn't have any {plur_low}!")
                 await interaction.followup.send(embed=embed)
             elif guilds[guild.id][user.id] == 1:
-                embed = discord.Embed(title="Number of Awards", description=f"{user.mention} has {guilds[guild.id][user.id]} award!")
+                embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{user.mention} has {guilds[guild.id][user.id]} {sing_low}!")
                 await interaction.followup.send(embed=embed)
             else:
-                embed = discord.Embed(title="Number of Awards", description=f"{user.mention} has {guilds[guild.id][user.id]} awards!")
+                embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{user.mention} has {guilds[guild.id][user.id]} {plur_low}!")
                 await interaction.followup.send(embed=embed)
         else:
-            embed = discord.Embed(title="Error", description=f"{user.mention} doesn't exist in the award log.")
+            embed = discord.Embed(title="Error", description=f"{user.mention} doesn't exist in the {sing_low} log.")
             await interaction.followup.send(embed=embed)
     else:
-        embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the award log.")
+        embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the {sing_low} log.")
         await interaction.followup.send(embed=embed)
 
 @tree.command(
@@ -338,22 +369,62 @@ async def checkawards(interaction: discord.Interaction, member: Optional[discord
 async def clearawards(interaction: discord.Interaction):
     await interaction.response.defer(thinking=True)
     guild = interaction.guild
+    #sing_low = awardset[guild.id]["singular_lower"] or "award"
+    #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
+    plur_low = awardset[guild.id]["plural_lower"] or "awards"
+    plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
+    moji = awardset[guild.id]["emoji"] or "⭐"
     guilds[guild.id] = {}
-    embed = discord.Embed(title="Awards Cleared", description=f"{guild.name} has had all its rewards cleared!")
+    embed = discord.Embed(title=f"{moji} {plur_cap} Cleared {moji}", description=f"{guild.name} has had all its {plur_low} cleared!")
+    await interaction.followup.send(embed=embed)
+
+awardset = {}
+
+@tree.command(
+    name="setawards",
+    description="Sets the name and emoji for the server awards."
+)
+@app_commands.describe(
+    name_singular="Provide the singular form of the award name (Default: Award)",
+    name_plural="Provide the plural form of the award name (Default: Awards)",
+    emoji="Choose the emoji you would like to represent the award (Example: ⭐)."
+)
+async def setawards(interaction: discord.Interaction, name_singular: str, name_plural: str, emoji: str):
+    await interaction.response.defer(thinking=True)
+    guild = interaction.guild
+    awardset[guild.id] = {}
+    awardset[guild.id]["singular_lower"] = name_singular.lower()
+    awardset[guild.id]["singular_caps"] = string.capwords(name_singular)
+    awardset[guild.id]["plural_lower"] = name_plural.lower()
+    awardset[guild.id]["plural_caps"] = string.capwords(name_plural)
+    awardset[guild.id]["emoji"] = emoji
+    sing_low = awardset[guild.id]["singular_lower"]
+    sing_cap = awardset[guild.id]["singular_caps"]
+    plur_low = awardset[guild.id]["plural_lower"]
+    plur_cap = awardset[guild.id]["plural_caps"]
+    moji = awardset[guild.id]["emoji"]
+    embed = discord.Embed(title=f"{moji} {sing_cap} Set {moji}",description=f"The award name and emoji have been set!\nName (singular, lowercase): {sing_low}\nName (singular, capitalized): {sing_cap}\nName (plural, lowercase): {plur_low}\nName (plural, capitalized): {plur_cap}\nEmoji: {moji}")
     await interaction.followup.send(embed=embed)
 
 @tree.command(
     name="leaderboard",
     description="Returns the current award leaderboard for the server."
 )
-async def leaderboard(interaction: discord.Interaction):
+@app_commands.describe(
+    award="Choose the name you would like to give the award (Example: 'Award').",
+    emoji="Choose the emoji you would like to represent the award (Example: ⭐)."
+)
+async def leaderboard(interaction: discord.Interaction, award: Optional[str] = None, emoji: Optional[str] = None):
     await interaction.response.defer(thinking=True)
     guild = interaction.guild
+    award = award or "Award"
+    emoji = emoji or "⭐"
     desc = []
     for member, awards in guilds[guild.id].items():
+        awards = awards * emoji
         desc.append(f"<@{member}>: {awards}")
     description = "\n".join(x for x in desc)
-    embed = discord.Embed(title="Award Leaderboard", description=description)
+    embed = discord.Embed(title=f"{emoji} {award} Leaderboard {emoji}", description=description)
     await interaction.followup.send(embed=embed)
 
 @tree.command(
