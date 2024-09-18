@@ -403,29 +403,32 @@ async def setawards(interaction: discord.Interaction, name_singular: str, name_p
     plur_low = awardset[guild.id]["plural_lower"]
     plur_cap = awardset[guild.id]["plural_caps"]
     moji = awardset[guild.id]["emoji"]
-    embed = discord.Embed(title=f"{moji} {sing_cap} Set {moji}",description=f"The award name and emoji have been set!\nName (singular, lowercase): {sing_low}\nName (singular, capitalized): {sing_cap}\nName (plural, lowercase): {plur_low}\nName (plural, capitalized): {plur_cap}\nEmoji: {moji}")
+    embed = discord.Embed(title=f"{moji} {plur_cap} Set {moji}",description=f"The award name and emoji have been set!\n\n**Name** (singular, lowercase): {sing_low}\n\n**Name** (singular, capitalized): {sing_cap}\n\n**Name** (plural, lowercase): {plur_low}\n\n**Name** (plural, capitalized): {plur_cap}\n\n**Emoji**: {moji}")
     await interaction.followup.send(embed=embed)
 
 @tree.command(
     name="leaderboard",
     description="Returns the current award leaderboard for the server."
 )
-@app_commands.describe(
-    award="Choose the name you would like to give the award (Example: 'Award').",
-    emoji="Choose the emoji you would like to represent the award (Example: ⭐)."
-)
-async def leaderboard(interaction: discord.Interaction, award: Optional[str] = None, emoji: Optional[str] = None):
+async def leaderboard(interaction: discord.Interaction):
     await interaction.response.defer(thinking=True)
     guild = interaction.guild
-    award = award or "Award"
-    emoji = emoji or "⭐"
+    sing_low = awardset[guild.id]["singular_lower"] or "award"
+    sing_cap = awardset[guild.id]["singular_caps"] or "Award"
+    #plur_low = awardset[guild.id]["plural_lower"] or "awards"
+    #plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
+    moji = awardset[guild.id]["emoji"] or "⭐"
     desc = []
-    for member, awards in guilds[guild.id].items():
-        awards = awards * emoji
-        desc.append(f"<@{member}>: {awards}")
-    description = "\n".join(x for x in desc)
-    embed = discord.Embed(title=f"{emoji} {award} Leaderboard {emoji}", description=description)
-    await interaction.followup.send(embed=embed)
+    if guild.id in guilds:
+        for member, awards in guilds[guild.id].items():
+            awards = awards * moji
+            desc.append(f"<@{member}>: {awards}")
+        description = "\n\n".join(x for x in desc)
+        embed = discord.Embed(title=f"{moji} {sing_cap} Leaderboard {moji}", description=description)
+        await interaction.followup.send(embed=embed)
+    else:
+        embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the {sing_low} log.")
+        await interaction.followup.send(embed=embed)
 
 @tree.command(
     name="sync",
