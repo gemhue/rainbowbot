@@ -26,15 +26,10 @@ class ChannelsSelector(ChannelSelect):
             row=1
         )
     async def callback(self, interaction: discord.Interaction) -> Any:
-        await interaction.response.defer(thinking=True)
         channels: list[DropdownView] = self.values
-        channels = [c.resolve() for c in self.values]
+        #channels = [c.resolve() for c in self.values]
         self.view.values = [c for c in channels]
-        channelment = [c.mention for c in channels]
-        channellist = ", ".join(channelment)
-        embed = discord.Embed(title="Selected Channels:", description=f'{channellist}')
-        await interaction.followup.send(embed=embed)
-
+            
 class DropdownView(discord.ui.View):
     def __init__(self, *, timeout=180.0):
         super().__init__(timeout=timeout)
@@ -43,10 +38,19 @@ class DropdownView(discord.ui.View):
     @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.value = True
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        channels = [c.resolve() for c in self.values]
+        channelment = [c.mention for c in channels]
+        channellist = ", ".join(channelment)
+        embed = discord.Embed(title="Selected Channels:", description=f'{channellist}')
+        await interaction.followup.send(embed=embed, ephemeral=True)
         self.stop()
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.grey, row=2)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.value = False
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        embed = discord.Embed(title="Cancelled", description=f'This interaction has been cancelled.')
+        await interaction.followup.send(embed=embed, ephemeral=True)
         self.stop()
 
 @tree.command(
@@ -54,9 +58,9 @@ class DropdownView(discord.ui.View):
     description="Purge your unpinned messages in a set list of up to 25 channels."
 )
 async def purgeself(interaction: discord.Interaction):
-    await interaction.response.defer(thinking=True)
+    await interaction.response.defer(thinking=True, ephemeral=True)
     view = DropdownView()
-    await interaction.followup.send("Which channel(s) would you like to purge messages from?", view=view)
+    await interaction.followup.send("Which channel(s) would you like to purge messages from?", view=view, ephemeral=True)
     await view.wait()
     if view.value == True:
         purgechannels = [c for c in view.values]
@@ -70,19 +74,19 @@ async def purgeself(interaction: discord.Interaction):
             if len(unpinned) > 0:
                 deleted += await channel.purge(check=lambda message: message.author == interaction.user and message.pinned == False, oldest_first=True)
                 if len(deleted) == 1:
-                    await interaction.followup.send(f'{len(deleted)} message was just removed from {channel.mention}!')
+                    await interaction.followup.send(f'{len(deleted)} message was just removed from {channel.mention}!', ephemeral=True)
                 else:
-                    await interaction.followup.send(f'{len(deleted)} messages were just removed from {channel.mention}!')
+                    await interaction.followup.send(f'{len(deleted)} messages were just removed from {channel.mention}!', ephemeral=True)
         purgement = [c.mention for c in purgechannels]
         if len(purgement) > 0:
             purgelist = ", ".join(purgement)
         else:
             purgelist = purgement[0]
-        await interaction.followup.send(f'{interaction.user.mention} has just purged the following channels: {purgelist}!')
+        await interaction.followup.send(f'{interaction.user.mention} has just purged the following channels: {purgelist}!', ephemeral=True)
     elif view.value == False:
-        await interaction.followup.send('Interaction Cancelled. No messages have been purged!')
+        await interaction.followup.send('Interaction Cancelled. No messages have been purged!', ephemeral=True)
     else:
-        await interaction.followup.send('Interaction Timed Out. No messages have been purged!')
+        await interaction.followup.send('Interaction Timed Out. No messages have been purged!', ephemeral=True)
 
 @tree.command(
     name="purgechannels",
@@ -90,9 +94,9 @@ async def purgeself(interaction: discord.Interaction):
 )
 @app_commands.checks.has_permissions(administrator=True)
 async def purgechannels(interaction: discord.Interaction):
-    await interaction.response.defer(thinking=True)
+    await interaction.response.defer(thinking=True, ephemeral=True)
     view = DropdownView()
-    await interaction.followup.send("Which channel(s) would you like to purge messages from?", view=view)
+    await interaction.followup.send("Which channel(s) would you like to purge messages from?", view=view, ephemeral=True)
     await view.wait()
     if view.value == True:
         purgechannels = [c for c in view.values]
@@ -106,19 +110,19 @@ async def purgechannels(interaction: discord.Interaction):
             if len(unpinned) > 0:
                 deleted += await channel.purge(check=lambda message: message.pinned == False, oldest_first=True)
                 if len(deleted) == 1:
-                    await interaction.followup.send(f'{len(deleted)} message was just removed from {channel.mention}!')
+                    await interaction.followup.send(f'{len(deleted)} message was just removed from {channel.mention}!', ephemeral=True)
                 else:
-                    await interaction.followup.send(f'{len(deleted)} messages were just removed from {channel.mention}!')
+                    await interaction.followup.send(f'{len(deleted)} messages were just removed from {channel.mention}!', ephemeral=True)
         purgement = [c.mention for c in purgechannels]
         if len(purgement) > 0:
             purgelist = ", ".join(purgement)
         else:
             purgelist = purgement[0]
-        await interaction.followup.send(f'{interaction.user.mention} has just purged the following channels: {purgelist}!')
+        await interaction.followup.send(f'{interaction.user.mention} has just purged the following channels: {purgelist}!', ephemeral=True)
     elif view.value == False:
-        await interaction.followup.send('Interaction Cancelled. No messages have been purged!')
+        await interaction.followup.send('Interaction Cancelled. No messages have been purged!', ephemeral=True)
     else:
-        await interaction.followup.send('Interaction Timed Out. No messages have been purged!')
+        await interaction.followup.send('Interaction Timed Out. No messages have been purged!', ephemeral=True)
 
 @tree.command(
     name="purgeserver",
@@ -126,11 +130,11 @@ async def purgechannels(interaction: discord.Interaction):
 )
 @app_commands.checks.has_permissions(administrator=True)
 async def purgeserver(interaction: discord.Interaction):
-    await interaction.response.defer(thinking=True)
+    await interaction.response.defer(thinking=True, ephemeral=True)
     guild = interaction.guild
     channels = guild.text_channels
     view = DropdownView()
-    await interaction.followup.send("Which channels would you like to **exclude** from the purge? You must select at least 1 channel to exclude.", view=view)
+    await interaction.followup.send("Which channels would you like to **exclude** from the purge? You must select at least 1 channel to exclude.", view=view, ephemeral=True)
     await view.wait()
     if view.value == True:
         excludedchannels = [c for c in view.values]
@@ -145,14 +149,14 @@ async def purgeserver(interaction: discord.Interaction):
             if len(unpinned) > 0:
                 deleted += await channel.purge(check=lambda message: message.pinned == False, oldest_first=True)
                 if len(deleted) == 1:
-                    await interaction.followup.send(f'{len(deleted)} message was just removed from {channel.mention}!')
+                    await interaction.followup.send(f'{len(deleted)} message was just removed from {channel.mention}!', ephemeral=True)
                 else:
-                    await interaction.followup.send(f'{len(deleted)} messages were just removed from {channel.mention}!')
-        await interaction.followup.send(f'{interaction.user.mention} has just purged the server!')
+                    await interaction.followup.send(f'{len(deleted)} messages were just removed from {channel.mention}!', ephemeral=True)
+        await interaction.followup.send(f'{interaction.user.mention} has just purged the server!', ephemeral=True)
     elif view.value == False:
-        await interaction.followup.send('Interaction Cancelled. No messages have been purged!')
+        await interaction.followup.send('Interaction Cancelled. No messages have been purged!', ephemeral=True)
     else:
-        await interaction.followup.send('Interaction Timed Out. No messages have been purged!')
+        await interaction.followup.send('Interaction Timed Out. No messages have been purged!', ephemeral=True)
 
 @client.event
 async def on_message(message: discord.Message):
@@ -201,7 +205,7 @@ async def on_message(message: discord.Message):
 )
 @app_commands.checks.has_permissions(administrator=True)
 async def activityroles(interaction: discord.Interaction, days: int, inactive: discord.Role, active: discord.Role):
-    await interaction.response.defer(thinking=True)
+    await interaction.response.defer(thinking=True, ephemeral=True)
     channels = interaction.guild.text_channels
     members = [m for m in interaction.guild.members if not m.bot]
     today =  datetime.now(timezone.utc)
@@ -232,10 +236,10 @@ async def activityroles(interaction: discord.Interaction, days: int, inactive: d
                 await member.remove_roles(active)
     for member in activemembers:
         embed = discord.Embed(description=str(f"{member.mention} is active! They've been given the {active.mention} role if they didn't already have it."))
-        await interaction.followup.send(embed=embed)
+        await interaction.followup.send(embed=embed, ephemeral=True)
     for member in inactivemembers:
         embed = discord.Embed(description=str(f"{member.mention} is inactive! They've been given the {inactive.mention} role if they didn't already have it."))
-        await interaction.followup.send(embed=embed)
+        await interaction.followup.send(embed=embed, ephemeral=True)
 
 guilds = {}
 
@@ -248,19 +252,19 @@ guilds = {}
     member="Choose the member to add the awards to (Default: Self)."
 )
 async def addaward(interaction: discord.Interaction, amount: Optional[int] = None, member: Optional[discord.Member] = None):
-    await interaction.response.defer(thinking=True)
+    await interaction.response.defer(thinking=True, ephemeral=True)
     guild = interaction.guild
     amount = amount or 1
     user = member or interaction.user
     if guild.id in awardset:
         sing_low = awardset[guild.id]["singular_lower"] or "award"
-        sing_cap = awardset[guild.id]["singular_caps"] or "Award"
+        #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
         plur_low = awardset[guild.id]["plural_lower"] or "awards"
         plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
         moji = awardset[guild.id]["emoji"] or "⭐"
     else:
         sing_low = "award"
-        sing_cap = "Award"
+        #sing_cap = "Award"
         plur_low = "awards"
         plur_cap = "Awards"
         moji = "⭐"
@@ -269,27 +273,27 @@ async def addaward(interaction: discord.Interaction, amount: Optional[int] = Non
             guilds[guild.id][user.id] += amount
             if guilds[guild.id][user.id] == 1:
                 embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {sing_low}!")
-                await interaction.followup.send(embed=embed)
+                await interaction.followup.send(embed=embed, ephemeral=True)
             else:
                 embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {plur_low}!")
-                await interaction.followup.send(embed=embed)
+                await interaction.followup.send(embed=embed, ephemeral=True)
         else:
             guilds[guild.id][user.id] = amount
             if guilds[guild.id][user.id] == 1:
                 embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {sing_low}!")
-                await interaction.followup.send(embed=embed)
+                await interaction.followup.send(embed=embed, ephemeral=True)
             else:
                 embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {plur_low}!")
-                await interaction.followup.send(embed=embed)
+                await interaction.followup.send(embed=embed, ephemeral=True)
     else:
         guilds[guild.id] = {}
         guilds[guild.id][user.id] = amount
         if guilds[guild.id][user.id] == 1:
             embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {sing_low}!")
-            await interaction.followup.send(embed=embed)
+            await interaction.followup.send(embed=embed, ephemeral=True)
         else:
             embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {plur_low}!")
-            await interaction.followup.send(embed=embed)
+            await interaction.followup.send(embed=embed, ephemeral=True)
 
 @tree.command(
     name="removeaward",
@@ -300,19 +304,19 @@ async def addaward(interaction: discord.Interaction, amount: Optional[int] = Non
     member="Choose the member to remove the awards from (Default: Self)."
 )
 async def removeaward(interaction: discord.Interaction, amount: Optional[int] = None, member: Optional[discord.Member] = None):
-    await interaction.response.defer(thinking=True)
+    await interaction.response.defer(thinking=True, ephemeral=True)
     guild = interaction.guild
     amount = amount or 1
     user = member or interaction.user
     if guild.id in awardset:
         sing_low = awardset[guild.id]["singular_lower"] or "award"
-        sing_cap = awardset[guild.id]["singular_caps"] or "Award"
+        #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
         plur_low = awardset[guild.id]["plural_lower"] or "awards"
         plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
         moji = awardset[guild.id]["emoji"] or "⭐"
     else:
         sing_low = "award"
-        sing_cap = "Award"
+        #sing_cap = "Award"
         plur_low = "awards"
         plur_cap = "Awards"
         moji = "⭐"
@@ -320,27 +324,27 @@ async def removeaward(interaction: discord.Interaction, amount: Optional[int] = 
         if user.id in guilds[guild.id]:
             if guilds[guild.id][user.id] == 0:
                 embed = discord.Embed(title="Error", description=f"{user.mention} doesn't have any {plur_low}!")
-                await interaction.followup.send(embed=embed)
+                await interaction.followup.send(embed=embed, ephemeral=True)
             elif guilds[guild.id][user.id] < amount:
                 embed = discord.Embed(title="Error", description=f"{user.mention} doesn't have enough {plur_low}!")
-                await interaction.followup.send(embed=embed)
+                await interaction.followup.send(embed=embed, ephemeral=True)
             else:
                 guilds[guild.id][user.id] -= amount
                 if guilds[guild.id][user.id] == 0:
                     embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{user.mention} no longer has any {plur_low}!")
-                    await interaction.followup.send(embed=embed)
+                    await interaction.followup.send(embed=embed, ephemeral=True)
                 elif guilds[guild.id][user.id] == 1:
                     embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {sing_low}!")
-                    await interaction.followup.send(embed=embed)
+                    await interaction.followup.send(embed=embed, ephemeral=True)
                 else:
                     embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {plur_low}!")
-                    await interaction.followup.send(embed=embed)
+                    await interaction.followup.send(embed=embed, ephemeral=True)
         else:
             embed = discord.Embed(title="Error", description=f"{user.mention} doesn't exist in the {sing_low} log.")
-            await interaction.followup.send(embed=embed)
+            await interaction.followup.send(embed=embed, ephemeral=True)
     else:
         embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the {sing_low} log.")
-        await interaction.followup.send(embed=embed)
+        await interaction.followup.send(embed=embed, ephemeral=True)
 
 @tree.command(
     name="checkawards",
@@ -350,18 +354,18 @@ async def removeaward(interaction: discord.Interaction, amount: Optional[int] = 
     member="Choose the member that you would like to check the number of awards for (Default: Self)."
 )
 async def checkawards(interaction: discord.Interaction, member: Optional[discord.Member] = None):
-    await interaction.response.defer(thinking=True)
+    await interaction.response.defer(thinking=True, ephemeral=True)
     guild = interaction.guild
     user = member or interaction.user
     if guild.id in awardset:
         sing_low = awardset[guild.id]["singular_lower"] or "award"
-        sing_cap = awardset[guild.id]["singular_caps"] or "Award"
+        #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
         plur_low = awardset[guild.id]["plural_lower"] or "awards"
         plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
         moji = awardset[guild.id]["emoji"] or "⭐"
     else:
         sing_low = "award"
-        sing_cap = "Award"
+        #sing_cap = "Award"
         plur_low = "awards"
         plur_cap = "Awards"
         moji = "⭐"
@@ -369,42 +373,42 @@ async def checkawards(interaction: discord.Interaction, member: Optional[discord
         if user.id in guilds[guild.id]:
             if guilds[guild.id][user.id] == 0:
                 embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{user.mention} doesn't have any {plur_low}!")
-                await interaction.followup.send(embed=embed)
+                await interaction.followup.send(embed=embed, ephemeral=True)
             elif guilds[guild.id][user.id] == 1:
                 embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{user.mention} has {guilds[guild.id][user.id]} {sing_low}!")
-                await interaction.followup.send(embed=embed)
+                await interaction.followup.send(embed=embed, ephemeral=True)
             else:
                 embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{user.mention} has {guilds[guild.id][user.id]} {plur_low}!")
-                await interaction.followup.send(embed=embed)
+                await interaction.followup.send(embed=embed, ephemeral=True)
         else:
             embed = discord.Embed(title="Error", description=f"{user.mention} doesn't exist in the {sing_low} log.")
-            await interaction.followup.send(embed=embed)
+            await interaction.followup.send(embed=embed, ephemeral=True)
     else:
         embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the {sing_low} log.")
-        await interaction.followup.send(embed=embed)
+        await interaction.followup.send(embed=embed, ephemeral=True)
 
 @tree.command(
     name="clearawards",
     description="Clears all of the awards in the server."
 )
 async def clearawards(interaction: discord.Interaction):
-    await interaction.response.defer(thinking=True)
+    await interaction.response.defer(thinking=True, ephemeral=True)
     guild = interaction.guild
     if guild.id in awardset:
-        sing_low = awardset[guild.id]["singular_lower"] or "award"
-        sing_cap = awardset[guild.id]["singular_caps"] or "Award"
+        #sing_low = awardset[guild.id]["singular_lower"] or "award"
+        #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
         plur_low = awardset[guild.id]["plural_lower"] or "awards"
         plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
         moji = awardset[guild.id]["emoji"] or "⭐"
     else:
-        sing_low = "award"
-        sing_cap = "Award"
+        #sing_low = "award"
+        #sing_cap = "Award"
         plur_low = "awards"
         plur_cap = "Awards"
         moji = "⭐"
     guilds[guild.id] = {}
     embed = discord.Embed(title=f"{moji} {plur_cap} Cleared {moji}", description=f"{guild.name} has had all its {plur_low} cleared!")
-    await interaction.followup.send(embed=embed)
+    await interaction.followup.send(embed=embed, ephemeral=True)
 
 awardset = {}
 
@@ -418,7 +422,7 @@ awardset = {}
     emoji="Choose the emoji you would like to represent the award (Example: ⭐)."
 )
 async def setawards(interaction: discord.Interaction, name_singular: str, name_plural: str, emoji: str):
-    await interaction.response.defer(thinking=True)
+    await interaction.response.defer(thinking=True, ephemeral=True)
     guild = interaction.guild
     awardset[guild.id] = {}
     awardset[guild.id]["singular_lower"] = name_singular.lower()
@@ -432,7 +436,7 @@ async def setawards(interaction: discord.Interaction, name_singular: str, name_p
     plur_cap = awardset[guild.id]["plural_caps"]
     moji = awardset[guild.id]["emoji"]
     embed = discord.Embed(title=f"{moji} {plur_cap} Set {moji}",description=f"The award name and emoji have been set!\n\n**Name** (singular, lowercase): {sing_low}\n\n**Name** (singular, capitalized): {sing_cap}\n\n**Name** (plural, lowercase): {plur_low}\n\n**Name** (plural, capitalized): {plur_cap}\n\n**Emoji**: {moji}")
-    await interaction.followup.send(embed=embed)
+    await interaction.followup.send(embed=embed, ephemeral=True)
 
 @tree.command(
     name="leaderboard",
@@ -444,26 +448,27 @@ async def leaderboard(interaction: discord.Interaction):
     if guild.id in awardset:
         sing_low = awardset[guild.id]["singular_lower"] or "award"
         sing_cap = awardset[guild.id]["singular_caps"] or "Award"
-        plur_low = awardset[guild.id]["plural_lower"] or "awards"
-        plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
+        #plur_low = awardset[guild.id]["plural_lower"] or "awards"
+        #plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
         moji = awardset[guild.id]["emoji"] or "⭐"
     else:
         sing_low = "award"
         sing_cap = "Award"
-        plur_low = "awards"
-        plur_cap = "Awards"
+        #plur_low = "awards"
+        #plur_cap = "Awards"
         moji = "⭐"
     desc = []
     if guild.id in guilds:
-        for member, awards in guilds[guild.id].items():
+        awardlog = dict(sorted(guilds[guild.id].items(), key=lambda item:item[1], reverse=True))
+        for member, awards in awardlog.items():
             awards = awards * moji
-            desc.append(f"<@{member}>: {awards}")
+            desc.append(f"<@{member}>:\n{awards}")
         description = "\n\n".join(x for x in desc)
         embed = discord.Embed(title=f"{moji} {sing_cap} Leaderboard {moji}", description=description)
         await interaction.followup.send(embed=embed)
     else:
         embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the {sing_low} log.")
-        await interaction.followup.send(embed=embed)
+        await interaction.followup.send(embed=embed, ephemeral=True)
 
 @tree.command(
     name="sync",
@@ -471,16 +476,16 @@ async def leaderboard(interaction: discord.Interaction):
 )
 @app_commands.checks.has_permissions(administrator=True)
 async def sync(interaction: discord.Interaction):
-    await interaction.response.defer(thinking=True)
+    await interaction.response.defer(thinking=True, ephemeral=True)
     if interaction.user.id == 323927406295384067:
         guild = discord.Object(id=1274023759497662646)
         tree.clear_commands(guild=guild)
         await tree.sync()
         embed = discord.Embed(title="Update", description=f"The bot's command tree has been synced!")
-        await interaction.followup.send(embed=embed)
+        await interaction.followup.send(embed=embed, ephemeral=True)
     else:
         embed = discord.Embed(title="Error", description=f"This action is not allowed.")
-        await interaction.followup.send(embed-embed)
+        await interaction.followup.send(embed-embed, ephemeral=True)
 
 @client.event
 async def on_ready():
