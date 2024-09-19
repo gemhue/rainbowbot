@@ -6,10 +6,11 @@ from datetime import datetime, timezone, timedelta
 from typing import Any, Optional
 import string
 
-intents = discord.Intents.default()
-intents.members = True
-intents.message_content = True
-intents.guilds = True
+intents = discord.Intents.all()
+#intents.members = True
+#intents.message_content = True
+#intents.guilds = True
+#intents.reactions = True
 
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
@@ -261,13 +262,13 @@ async def addaward(interaction: discord.Interaction, amount: Optional[int] = Non
         #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
         plur_low = awardset[guild.id]["plural_lower"] or "awards"
         plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
-        moji = awardset[guild.id]["emoji"] or "⭐"
+        moji = awardset[guild.id]["emoji"] or "🏅"
     else:
         sing_low = "award"
         #sing_cap = "Award"
         plur_low = "awards"
         plur_cap = "Awards"
-        moji = "⭐"
+        moji = "🏅"
     if guild.id in guilds:
         if user.id in guilds[guild.id]:
             guilds[guild.id][user.id] += amount
@@ -295,6 +296,63 @@ async def addaward(interaction: discord.Interaction, amount: Optional[int] = Non
             embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{user.mention} now has {guilds[guild.id][user.id]} {plur_low}!")
             await interaction.followup.send(embed=embed, ephemeral=True)
 
+@client.event
+async def on_reaction_add(reaction: discord.Reaction, user: discord.Member):
+    msg = reaction.message
+    gld = msg.guild
+    mbr = msg.author
+    if gld.id in awardset:
+        sing_low = awardset[gld.id]["singular_lower"] or "award"
+        sing_cap = awardset[gld.id]["singular_caps"] or "Award"
+        plur_low = awardset[gld.id]["plural_lower"] or "awards"
+        #plur_cap = awardset[gld.id]["plural_caps"] or "Awards"
+        moji = awardset[gld.id]["emoji"] or "🏅"
+    else:
+        sing_low = "award"
+        sing_cap = "Award"
+        plur_low = "awards"
+        #plur_cap = "Awards"
+        moji = "🏅"
+    if reaction.emoji == moji:
+        if gld.id in guilds:
+            if mbr.id in guilds[gld.id]:
+                guilds[gld.id][mbr.id] += 1
+                embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{user.mention} has added 1 {sing_low} to {mbr.mention}'s total via an emoji reaction. {mbr.mention}'s new total number of {plur_low} is {guilds[gld.id][mbr.id]}!")
+                await msg.channel.send(embed=embed, reference=msg)
+            else:
+                guilds[gld.id][mbr.id] = 1
+                embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{user.mention} has added 1 {sing_low} to {mbr.mention}'s total via an emoji reaction. {mbr.mention}'s new total number of {plur_low} is {guilds[gld.id][mbr.id]}!")
+                await msg.channel.send(embed=embed, reference=msg)
+        else:
+            guilds[gld.id] = {}
+            guilds[gld.id][mbr.id] = 1
+            embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{user.mention} has added 1 {sing_low} to {mbr.mention}'s total via an emoji reaction. {mbr.mention}'s new total number of {plur_low} is {guilds[gld.id][mbr.id]}!")
+            await msg.channel.send(embed=embed, reference=msg)
+
+@client.event
+async def on_reaction_remove(reaction: discord.Reaction, user: discord.Member):
+    msg = reaction.message
+    gld = msg.guild
+    mbr = msg.author
+    if gld.id in awardset:
+        sing_low = awardset[gld.id]["singular_lower"] or "award"
+        sing_cap = awardset[gld.id]["singular_caps"] or "Award"
+        plur_low = awardset[gld.id]["plural_lower"] or "awards"
+        #plur_cap = awardset[gld.id]["plural_caps"] or "Awards"
+        moji = awardset[gld.id]["emoji"] or "🏅"
+    else:
+        sing_low = "award"
+        sing_cap = "Award"
+        plur_low = "awards"
+        #plur_cap = "Awards"
+        moji = "🏅"
+    if reaction.emoji == moji:
+        if gld.id in guilds:
+            if mbr.id in guilds[gld.id] and guilds[gld.id][mbr.id] >= 1:
+                guilds[gld.id][mbr.id] -= 1
+                embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{user.mention} has removed 1 {sing_low} from {mbr.mention}'s total via an emoji unreaction. {mbr.mention}'s new total number of {plur_low} is {guilds[gld.id][mbr.id]}!")
+                await msg.channel.send(embed=embed, reference=msg)
+
 @tree.command(
     name="removeaward",
     description="Removes awards from the command user or another selected member."
@@ -313,13 +371,13 @@ async def removeaward(interaction: discord.Interaction, amount: Optional[int] = 
         #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
         plur_low = awardset[guild.id]["plural_lower"] or "awards"
         plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
-        moji = awardset[guild.id]["emoji"] or "⭐"
+        moji = awardset[guild.id]["emoji"] or "🏅"
     else:
         sing_low = "award"
         #sing_cap = "Award"
         plur_low = "awards"
         plur_cap = "Awards"
-        moji = "⭐"
+        moji = "🏅"
     if guild.id in guilds:
         if user.id in guilds[guild.id]:
             if guilds[guild.id][user.id] == 0:
@@ -362,13 +420,13 @@ async def checkawards(interaction: discord.Interaction, member: Optional[discord
         #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
         plur_low = awardset[guild.id]["plural_lower"] or "awards"
         plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
-        moji = awardset[guild.id]["emoji"] or "⭐"
+        moji = awardset[guild.id]["emoji"] or "🏅"
     else:
         sing_low = "award"
         #sing_cap = "Award"
         plur_low = "awards"
         plur_cap = "Awards"
-        moji = "⭐"
+        moji = "🏅"
     if guild.id in guilds:
         if user.id in guilds[guild.id]:
             if guilds[guild.id][user.id] == 0:
@@ -399,13 +457,13 @@ async def clearawards(interaction: discord.Interaction):
         #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
         plur_low = awardset[guild.id]["plural_lower"] or "awards"
         plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
-        moji = awardset[guild.id]["emoji"] or "⭐"
+        moji = awardset[guild.id]["emoji"] or "🏅"
     else:
         #sing_low = "award"
         #sing_cap = "Award"
         plur_low = "awards"
         plur_cap = "Awards"
-        moji = "⭐"
+        moji = "🏅"
     guilds[guild.id] = {}
     embed = discord.Embed(title=f"{moji} {plur_cap} Cleared {moji}", description=f"{guild.name} has had all its {plur_low} cleared!")
     await interaction.followup.send(embed=embed, ephemeral=True)
@@ -419,7 +477,7 @@ awardset = {}
 @app_commands.describe(
     name_singular="Provide the singular form of the award name (Default: Award)",
     name_plural="Provide the plural form of the award name (Default: Awards)",
-    emoji="Choose the emoji you would like to represent the award (Example: ⭐)."
+    emoji="Choose the emoji you would like to represent the award (Example: 🏅)."
 )
 async def setawards(interaction: discord.Interaction, name_singular: str, name_plural: str, emoji: str):
     await interaction.response.defer(thinking=True, ephemeral=True)
@@ -450,13 +508,13 @@ async def leaderboard(interaction: discord.Interaction):
         sing_cap = awardset[guild.id]["singular_caps"] or "Award"
         #plur_low = awardset[guild.id]["plural_lower"] or "awards"
         #plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
-        moji = awardset[guild.id]["emoji"] or "⭐"
+        moji = awardset[guild.id]["emoji"] or "🏅"
     else:
         sing_low = "award"
         sing_cap = "Award"
         #plur_low = "awards"
         #plur_cap = "Awards"
-        moji = "⭐"
+        moji = "🏅"
     desc = []
     if guild.id in guilds:
         awardlog = dict(sorted(guilds[guild.id].items(), key=lambda item:item[1], reverse=True))
