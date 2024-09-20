@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 import discord
 from discord import app_commands, ChannelType
 from discord.ext import commands
@@ -6,11 +8,10 @@ from datetime import datetime, timezone, timedelta
 from typing import Any, Optional
 import string
 
+load_dotenv()
+TOKEN = os.getenv("DISCORD_TOKEN")
+
 intents = discord.Intents.all()
-#intents.members = True
-#intents.message_content = True
-#intents.guilds = True
-#intents.reactions = True
 
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
@@ -28,7 +29,6 @@ class ChannelsSelector(ChannelSelect):
         )
     async def callback(self, interaction: discord.Interaction) -> Any:
         channels: list[DropdownView] = self.values
-        #channels = [c.resolve() for c in self.values]
         self.view.values = [c for c in channels]
             
 class DropdownView(discord.ui.View):
@@ -259,13 +259,11 @@ async def addaward(interaction: discord.Interaction, amount: Optional[int] = Non
     user = member or interaction.user
     if guild.id in awardset:
         sing_low = awardset[guild.id]["singular_lower"] or "award"
-        #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
         plur_low = awardset[guild.id]["plural_lower"] or "awards"
         plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
         moji = awardset[guild.id]["emoji"] or "🏅"
     else:
         sing_low = "award"
-        #sing_cap = "Award"
         plur_low = "awards"
         plur_cap = "Awards"
         moji = "🏅"
@@ -305,15 +303,13 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.Member):
         sing_low = awardset[gld.id]["singular_lower"] or "award"
         sing_cap = awardset[gld.id]["singular_caps"] or "Award"
         plur_low = awardset[gld.id]["plural_lower"] or "awards"
-        #plur_cap = awardset[gld.id]["plural_caps"] or "Awards"
         moji = awardset[gld.id]["emoji"] or "🏅"
     else:
         sing_low = "award"
         sing_cap = "Award"
         plur_low = "awards"
-        #plur_cap = "Awards"
         moji = "🏅"
-    if reaction.emoji == moji:
+    if str(reaction.emoji) == moji:
         if gld.id in guilds:
             if mbr.id in guilds[gld.id]:
                 guilds[gld.id][mbr.id] += 1
@@ -338,15 +334,13 @@ async def on_reaction_remove(reaction: discord.Reaction, user: discord.Member):
         sing_low = awardset[gld.id]["singular_lower"] or "award"
         sing_cap = awardset[gld.id]["singular_caps"] or "Award"
         plur_low = awardset[gld.id]["plural_lower"] or "awards"
-        #plur_cap = awardset[gld.id]["plural_caps"] or "Awards"
         moji = awardset[gld.id]["emoji"] or "🏅"
     else:
         sing_low = "award"
         sing_cap = "Award"
         plur_low = "awards"
-        #plur_cap = "Awards"
         moji = "🏅"
-    if reaction.emoji == moji:
+    if str(reaction.emoji) == moji:
         if gld.id in guilds:
             if mbr.id in guilds[gld.id] and guilds[gld.id][mbr.id] >= 1:
                 guilds[gld.id][mbr.id] -= 1
@@ -368,13 +362,11 @@ async def removeaward(interaction: discord.Interaction, amount: Optional[int] = 
     user = member or interaction.user
     if guild.id in awardset:
         sing_low = awardset[guild.id]["singular_lower"] or "award"
-        #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
         plur_low = awardset[guild.id]["plural_lower"] or "awards"
         plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
         moji = awardset[guild.id]["emoji"] or "🏅"
     else:
         sing_low = "award"
-        #sing_cap = "Award"
         plur_low = "awards"
         plur_cap = "Awards"
         moji = "🏅"
@@ -417,13 +409,11 @@ async def checkawards(interaction: discord.Interaction, member: Optional[discord
     user = member or interaction.user
     if guild.id in awardset:
         sing_low = awardset[guild.id]["singular_lower"] or "award"
-        #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
         plur_low = awardset[guild.id]["plural_lower"] or "awards"
         plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
         moji = awardset[guild.id]["emoji"] or "🏅"
     else:
         sing_low = "award"
-        #sing_cap = "Award"
         plur_low = "awards"
         plur_cap = "Awards"
         moji = "🏅"
@@ -453,14 +443,10 @@ async def clearawards(interaction: discord.Interaction):
     await interaction.response.defer(thinking=True, ephemeral=True)
     guild = interaction.guild
     if guild.id in awardset:
-        #sing_low = awardset[guild.id]["singular_lower"] or "award"
-        #sing_cap = awardset[guild.id]["singular_caps"] or "Award"
         plur_low = awardset[guild.id]["plural_lower"] or "awards"
         plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
         moji = awardset[guild.id]["emoji"] or "🏅"
     else:
-        #sing_low = "award"
-        #sing_cap = "Award"
         plur_low = "awards"
         plur_cap = "Awards"
         moji = "🏅"
@@ -477,7 +463,7 @@ awardset = {}
 @app_commands.describe(
     name_singular="Provide the singular form of the award name (Default: Award)",
     name_plural="Provide the plural form of the award name (Default: Awards)",
-    emoji="Choose the emoji you would like to represent the award (Example: 🏅)."
+    emoji="Choose the emoji you would like to represent the award (Default: 🏅)."
 )
 async def setawards(interaction: discord.Interaction, name_singular: str, name_plural: str, emoji: str):
     await interaction.response.defer(thinking=True, ephemeral=True)
@@ -506,14 +492,10 @@ async def leaderboard(interaction: discord.Interaction):
     if guild.id in awardset:
         sing_low = awardset[guild.id]["singular_lower"] or "award"
         sing_cap = awardset[guild.id]["singular_caps"] or "Award"
-        #plur_low = awardset[guild.id]["plural_lower"] or "awards"
-        #plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
         moji = awardset[guild.id]["emoji"] or "🏅"
     else:
         sing_low = "award"
         sing_cap = "Award"
-        #plur_low = "awards"
-        #plur_cap = "Awards"
         moji = "🏅"
     desc = []
     if guild.id in guilds:
@@ -547,9 +529,6 @@ async def sync(interaction: discord.Interaction):
 
 @client.event
 async def on_ready():
-    #guild = discord.Object(id=1274023759497662646)
-    #tree.clear_commands(guild=guild)
-    #await tree.sync()
     print(f'Logged in as {client.user}! (ID: {client.user.id})')
 
-client.run('token')
+client.run(TOKEN)
