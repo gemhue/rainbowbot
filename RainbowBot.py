@@ -559,14 +559,14 @@ profiles = {}
 ])
 @app_commands.choices(sexuality=[
     app_commands.Choice(name="Lesbian", value="Lesbian"),
-    app_commands.Choice(name="Lesbian on the Aromantic Spectrum and/or the Asexual Spectrum", value="Lesbian on the Aromantic Spectrum and/or the Asexual Spectrum"),
+    app_commands.Choice(name="Aro-Spec/Ace-Spec Lesbian", value="Aro-Spec/Ace-Spec Lesbian"),
     app_commands.Choice(name="Gay Man", value="Gay Man"),
-    app_commands.Choice(name="Gay Man on the Aromantic Spectrum and/or the Asexual Spectrum", value="Gay Man on the Aromantic Spectrum and/or the Asexual Spectrum"),
+    app_commands.Choice(name="Aro-Spec/Ace-Spec Gay Man", value="Aro-Spec/Ace-Spec Gay Man"),
     app_commands.Choice(name="Bisexual", value="Bisexual"),
-    app_commands.Choice(name="Bisexual on the Aromantic Spectrum and/or the Asexual Spectrum", value="Bisexual on the Aromantic Spectrum and/or the Asexual Spectrum"),
-    app_commands.Choice(name="Straight Person", value="Straight Person"),
-    app_commands.Choice(name="Straight Person on the Aromantic Spectrum and/or the Asexual Spectrum", value="Straight Person on the Aromantic Spectrum and/or the Asexual Spectrum"),
-    app_commands.Choice(name="Person on the Aromantic Spectrum and/or the Asexual Spectrum", value="Person on the Aromantic Spectrum and/or the Asexual Spectrum")
+    app_commands.Choice(name="Aro-Spec/Ace-Spec Bisexual", value="Aro-Spec/Ace-Spec Bisexual"),
+    app_commands.Choice(name="Straight", value="Straight"),
+    app_commands.Choice(name="Aro-Spec/Ace-Spec Straight", value="Aro-Spec/Ace-Spec Straight"),
+    app_commands.Choice(name="Aro-Spec/Ace-Spec", value="Aro-Spec/Ace-Spec")
 ])
 @app_commands.choices(relationship_status=[
     app_commands.Choice(name="Happily Single", value="Happily Single"),
