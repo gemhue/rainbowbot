@@ -1,5 +1,3 @@
-import os
-from dotenv import load_dotenv
 import discord
 from discord import app_commands, ChannelType
 from discord.ext import commands
@@ -8,15 +6,35 @@ from datetime import datetime, timezone, timedelta
 from typing import Any, Optional
 import string
 
-load_dotenv()
-TOKEN = os.getenv("DISCORD_TOKEN")
+myguild = discord.Object(id=1274023759497662646)
 
-intents = discord.Intents.all()
+class MyClient(discord.Client):
+    def __init__(self, *, intents: discord.Intents):
+        super().__init__(intents=intents)
+        self.tree = app_commands.CommandTree(self)
+    async def setup_hook(self):
+        self.tree.copy_global_to(guild=myguild)
+        await self.tree.sync(guild=myguild)
 
-client = discord.Client(intents=intents)
+intents = discord.Intents.default()
+client = MyClient(intents=intents)
+
 tree = app_commands.CommandTree(client)
 
 bot = commands.Bot(command_prefix='.', intents=intents)
+
+@bot.command()
+@commands.is_owner()
+async def sync(interaction: discord.Interaction):
+    await interaction.response.defer(thinking=True, ephemeral=True)
+    if interaction.user.id == 323927406295384067:
+        tree.clear_commands(guild=None)
+        await tree.sync(guild=None)
+        embed = discord.Embed(title="Success", description=f"The bot's command tree has been synced!")
+        await interaction.followup.send(embed=embed, ephemeral=True)
+    else:
+        embed = discord.Embed(title="Error", description=f"This action is not allowed.")
+        await interaction.followup.send(embed-embed, ephemeral=True)
 
 class ChannelsSelector(ChannelSelect):
     def __init__(self):
@@ -510,25 +528,155 @@ async def leaderboard(interaction: discord.Interaction):
         embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the {sing_low} log.")
         await interaction.followup.send(embed=embed, ephemeral=True)
 
+profiles = {}
+
 @tree.command(
-    name="sync",
-    description="Syncs the command tree for the server (bot owner only)."
+    name="setprofile",
+    description="Run this command to set up your member profile."
 )
-@app_commands.checks.has_permissions(administrator=True)
-async def sync(interaction: discord.Interaction):
+@app_commands.describe(
+    name="Provide your name or nickname.",
+    age="Provide your age or age range.",
+    location="Provide your country, state, or city of residence.",
+    pronouns="Provide your pronouns.",
+    gender="Choose the option closest to your gender identity.",
+    sexuality="Choose the option closest to your sexuality.",
+    relationship_status="Choose the option closest to your relationship status.",
+    family_planning_status="Choose the option closest to your family planning status."
+)
+@app_commands.choices(gender=[
+    app_commands.Choice(name="Woman", value="Woman"),
+    app_commands.Choice(name="GNC Woman", value="GNC Woman"),
+    app_commands.Choice(name="Cisgender Woman", value="Cisgender Woman"),
+    app_commands.Choice(name="Transgender Woman", value="Transgender Woman"),
+    app_commands.Choice(name="Man", value="Man"),
+    app_commands.Choice(name="GNC Man", value="GNC Man"),
+    app_commands.Choice(name="Cisgender Man", value="Cisgender Man"),
+    app_commands.Choice(name="Transgender Man", value="Transgender Man"),
+    app_commands.Choice(name="Nonbinary", value="Nonbinary"),
+    app_commands.Choice(name="Transfem Nonbinary", value="Transfem Nonbinary"),
+    app_commands.Choice(name="Transmasc Nonbinary", value="Transmasc Nonbinary")
+])
+@app_commands.choices(sexuality=[
+    app_commands.Choice(name="Lesbian", value="Lesbian"),
+    app_commands.Choice(name="Lesbian on the Aromantic Spectrum and/or the Asexual Spectrum", value="Lesbian on the Aromantic Spectrum and/or the Asexual Spectrum"),
+    app_commands.Choice(name="Gay Man", value="Gay Man"),
+    app_commands.Choice(name="Gay Man on the Aromantic Spectrum and/or the Asexual Spectrum", value="Gay Man on the Aromantic Spectrum and/or the Asexual Spectrum"),
+    app_commands.Choice(name="Bisexual", value="Bisexual"),
+    app_commands.Choice(name="Bisexual on the Aromantic Spectrum and/or the Asexual Spectrum", value="Bisexual on the Aromantic Spectrum and/or the Asexual Spectrum"),
+    app_commands.Choice(name="Straight Person", value="Straight Person"),
+    app_commands.Choice(name="Straight Person on the Aromantic Spectrum and/or the Asexual Spectrum", value="Straight Person on the Aromantic Spectrum and/or the Asexual Spectrum"),
+    app_commands.Choice(name="Person on the Aromantic Spectrum and/or the Asexual Spectrum", value="Person on the Aromantic Spectrum and/or the Asexual Spectrum")
+])
+@app_commands.choices(relationship_status=[
+    app_commands.Choice(name="Happily Single", value="Happily Single"),
+    app_commands.Choice(name="Single and Ready to Mingle", value="Single and Ready to Mingle"),
+    app_commands.Choice(name="Dating Casually", value="Dating Casually"),
+    app_commands.Choice(name="Dating Exclusively", value="Dating Exclusively"),
+    app_commands.Choice(name="In an Open Relationship", value="In an Open Relationship"),
+    app_commands.Choice(name="In a Closed Relationship", value="In a Closed Relationship"),
+    app_commands.Choice(name="Married and Polyamorous", value="Married and Polyamorous"),
+    app_commands.Choice(name="Married and Monogamous", value="Married and Monogamous")
+])
+@app_commands.choices(family_planning_status=[
+    app_commands.Choice(name="Waiting to Try", value="Waiting to Try"),
+    app_commands.Choice(name="Waiting to Try after Loss", value="Waiting to Try after Loss"),
+    app_commands.Choice(name="Trying to Conceive", value="Trying to Conceive"),
+    app_commands.Choice(name="Trying to Conceive after Loss", value="Trying to Conceive after Loss"),
+    app_commands.Choice(name="Expecting", value="Expecting"),
+    app_commands.Choice(name="Expecting after Loss", value="Expecting after Loss"),
+    app_commands.Choice(name="Parenting", value="Parenting"),
+    app_commands.Choice(name="Parenting after Loss", value="Parenting after Loss"),
+    app_commands.Choice(name="Parenting and Waiting to Try", value="Parenting and Waiting to Try"),
+    app_commands.Choice(name="Parenting and Trying to Conceive", value="Parenting and Trying to Conceive"),
+    app_commands.Choice(name="Parenting and Expecting", value="Parenting and Expecting")
+])
+async def setprofile(interaction: discord.Interaction, name: Optional[str], age: Optional[str], location: Optional[str], pronouns: Optional[str], gender: Optional[str], sexuality: Optional[str], relationship_status: Optional[str], family_planning_status: Optional[str]):
     await interaction.response.defer(thinking=True, ephemeral=True)
-    if interaction.user.id == 323927406295384067:
-        guild = discord.Object(id=1274023759497662646)
-        tree.clear_commands(guild=guild)
-        await tree.sync()
-        embed = discord.Embed(title="Update", description=f"The bot's command tree has been synced!")
-        await interaction.followup.send(embed=embed, ephemeral=True)
+    guild = interaction.guild
+    member = interaction.user
+    if guild in profiles:
+        if member in profiles[guild]:
+            if name == None:
+                profiles[guild][member]["Name"] = profiles[guild][member]["Name"] or None
+            else:
+                profiles[guild][member]["Name"] = name
+            if age == None:
+                profiles[guild][member]["Age"] = profiles[guild][member]["Age"] or None
+            else:
+                profiles[guild][member]["Age"] = age
+            if location == None:
+                profiles[guild][member]["Location"] = profiles[guild][member]["Location"] or None
+            else:
+                profiles[guild][member]["Location"] = location
+            if pronouns == None:
+                profiles[guild][member]["Pronouns"] = profiles[guild][member]["Pronouns"] or None
+            else:
+                profiles[guild][member]["Pronouns"] = pronouns
+            if gender == None:
+                profiles[guild][member]["Gender"] = profiles[guild][member]["Gender"] or None
+            else:
+                profiles[guild][member]["Gender"] = gender
+            if sexuality == None:
+                profiles[guild][member]["Sexuality"] = profiles[guild][member]["Sexuality"] or None
+            else:
+                profiles[guild][member]["Sexuality"] = sexuality
+            if relationship_status == None:
+                profiles[guild][member]["Relationship Status"] = profiles[guild][member]["Relationship Status"] or None
+            else:
+                profiles[guild][member]["Relationship Status"] = relationship_status
+            if family_planning_status == None:
+                profiles[guild][member]["Family Planning Status"] = profiles[guild][member]["Family Planning Status"] or None
+            else:
+                profiles[guild][member]["Family Planning Status"] = family_planning_status
+        else:
+            profiles[guild][member] = {}
+            profiles[guild][member]["Name"] = name or None
+            profiles[guild][member]["Age"] = age or None
+            profiles[guild][member]["Location"] = location or None
+            profiles[guild][member]["Pronouns"] = pronouns or None
+            profiles[guild][member]["Gender"] = gender or None
+            profiles[guild][member]["Sexuality"] = sexuality or None
+            profiles[guild][member]["Relationship Status"] = relationship_status or None
+            profiles[guild][member]["Family Planning Status"] = family_planning_status or None
     else:
-        embed = discord.Embed(title="Error", description=f"This action is not allowed.")
-        await interaction.followup.send(embed-embed, ephemeral=True)
+        profiles[guild] = {}
+        profiles[guild][member] = {}
+        profiles[guild][member]["Name"] = name or None
+        profiles[guild][member]["Age"] = age or None
+        profiles[guild][member]["Location"] = location or None
+        profiles[guild][member]["Pronouns"] = pronouns or None
+        profiles[guild][member]["Gender"] = gender or None
+        profiles[guild][member]["Sexuality"] = sexuality or None
+        profiles[guild][member]["Relationship Status"] = relationship_status or None
+        profiles[guild][member]["Family Planning Status"] = family_planning_status or None
+    name = profiles[guild][member]["Name"]
+    age = profiles[guild][member]["Age"]
+    location = profiles[guild][member]["Location"]
+    pronouns = profiles[guild][member]["Pronouns"]
+    gender = profiles[guild][member]["Gender"]
+    sexuality = profiles[guild][member]["Sexuality"]
+    relationship_status = profiles[guild][member]["Relationship Status"]
+    family_planning_status = profiles[guild][member]["Family Planning Status"]
+    embed = discord.Embed(color=member.accent_color)
+    embed.set_author(name=member.name, icon_url=member.avatar)
+    embed.add_field(name="Name", value=name, inline=True)
+    embed.add_field(name="Age", value=age, inline=True)
+    embed.add_field(name="Location", value=location, inline=True)
+    embed.add_field(name="Pronouns", value=pronouns, inline=True)
+    embed.add_field(name="Gender", value=gender, inline=True)
+    embed.add_field(name="Sexuality", value=sexuality, inline=True)
+    embed.add_field(name="Relationship Status", value=relationship_status, inline=True)
+    embed.add_field(name="Family Planning Status", value=family_planning_status, inline=True)
+    embed.set_footer(text=f"Member of {guild.name} since {discord.utils.format_dt(member.joined_at, style="R")}.")
+    await interaction.followup.send(embed=embed, ephemeral=True)
+
+
 
 @client.event
 async def on_ready():
+    tree.clear_commands(guild=None)
+    await tree.sync(guild=None)
     print(f'Logged in as {client.user}! (ID: {client.user.id})')
 
-client.run(TOKEN)
+client.run('token')
