@@ -6,26 +6,42 @@ from datetime import datetime, timezone, timedelta
 from typing import Any, Optional
 import string
 
-myguild = discord.Object(id=1274023759497662646)
-
 class MyClient(discord.Client):
     def __init__(self, *, intents: discord.Intents):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
-    async def setup_hook(self):
-        self.tree.copy_global_to(guild=myguild)
-        await self.tree.sync(guild=myguild)
+    #async def setup_hook(self):
+    #    self.tree.clear_commands(guild=None)
+    #    await self.tree.sync(guild=None)
 
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 client = MyClient(intents=intents)
+tree = client.tree
+bot = commands.Bot(command_prefix='rb!', intents=intents)
 
-tree = app_commands.CommandTree(client)
+@client.event
+async def on_ready():
+    print(f'Logged in as {client.user}! (ID: {client.user.id})')
 
-bot = commands.Bot(command_prefix='.', intents=intents)
+client.run('token')
 
 @bot.command()
 @commands.is_owner()
 async def sync(interaction: discord.Interaction):
+    await interaction.response.defer(thinking=True, ephemeral=True)
+    if interaction.user.id == 323927406295384067:
+        myguild = discord.Object(id=1274023759497662646)
+        tree.clear_commands(guild=myguild)
+        await tree.sync(guild=myguild)
+        embed = discord.Embed(title="Success", description=f"The bot's command tree has been synced!")
+        await interaction.followup.send(embed=embed, ephemeral=True)
+    else:
+        embed = discord.Embed(title="Error", description=f"This action is not allowed.")
+        await interaction.followup.send(embed-embed, ephemeral=True)
+
+@bot.command()
+@commands.is_owner()
+async def globalsync(interaction: discord.Interaction):
     await interaction.response.defer(thinking=True, ephemeral=True)
     if interaction.user.id == 323927406295384067:
         tree.clear_commands(guild=None)
@@ -343,28 +359,6 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.Member):
             embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{user.mention} has added 1 {sing_low} to {mbr.mention}'s total via an emoji reaction. {mbr.mention}'s new total number of {plur_low} is {guilds[gld.id][mbr.id]}!")
             await msg.channel.send(embed=embed, reference=msg)
 
-@client.event
-async def on_reaction_remove(reaction: discord.Reaction, user: discord.Member):
-    msg = reaction.message
-    gld = msg.guild
-    mbr = msg.author
-    if gld.id in awardset:
-        sing_low = awardset[gld.id]["singular_lower"] or "award"
-        sing_cap = awardset[gld.id]["singular_caps"] or "Award"
-        plur_low = awardset[gld.id]["plural_lower"] or "awards"
-        moji = awardset[gld.id]["emoji"] or "🏅"
-    else:
-        sing_low = "award"
-        sing_cap = "Award"
-        plur_low = "awards"
-        moji = "🏅"
-    if str(reaction.emoji) == moji:
-        if gld.id in guilds:
-            if mbr.id in guilds[gld.id] and guilds[gld.id][mbr.id] >= 1:
-                guilds[gld.id][mbr.id] -= 1
-                embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{user.mention} has removed 1 {sing_low} from {mbr.mention}'s total via an emoji unreaction. {mbr.mention}'s new total number of {plur_low} is {guilds[gld.id][mbr.id]}!")
-                await msg.channel.send(embed=embed, reference=msg)
-
 @tree.command(
     name="removeaward",
     description="Removes awards from the command user or another selected member."
@@ -414,6 +408,28 @@ async def removeaward(interaction: discord.Interaction, amount: Optional[int] = 
         embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the {sing_low} log.")
         await interaction.followup.send(embed=embed, ephemeral=True)
 
+@client.event
+async def on_reaction_remove(reaction: discord.Reaction, user: discord.Member):
+    msg = reaction.message
+    gld = msg.guild
+    mbr = msg.author
+    if gld.id in awardset:
+        sing_low = awardset[gld.id]["singular_lower"] or "award"
+        sing_cap = awardset[gld.id]["singular_caps"] or "Award"
+        plur_low = awardset[gld.id]["plural_lower"] or "awards"
+        moji = awardset[gld.id]["emoji"] or "🏅"
+    else:
+        sing_low = "award"
+        sing_cap = "Award"
+        plur_low = "awards"
+        moji = "🏅"
+    if str(reaction.emoji) == moji:
+        if gld.id in guilds:
+            if mbr.id in guilds[gld.id] and guilds[gld.id][mbr.id] >= 1:
+                guilds[gld.id][mbr.id] -= 1
+                embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{user.mention} has removed 1 {sing_low} from {mbr.mention}'s total via an emoji unreaction. {mbr.mention}'s new total number of {plur_low} is {guilds[gld.id][mbr.id]}!")
+                await msg.channel.send(embed=embed, reference=msg)
+
 @tree.command(
     name="checkawards",
     description="Returns the number of awards that the user (or another selected user) currently has."
@@ -458,7 +474,7 @@ async def checkawards(interaction: discord.Interaction, member: Optional[discord
     description="Clears all of the awards in the server."
 )
 async def clearawards(interaction: discord.Interaction):
-    await interaction.response.defer(thinking=True, ephemeral=True)
+    await interaction.response.defer(thinking=True)
     guild = interaction.guild
     if guild.id in awardset:
         plur_low = awardset[guild.id]["plural_lower"] or "awards"
@@ -470,7 +486,7 @@ async def clearawards(interaction: discord.Interaction):
         moji = "🏅"
     guilds[guild.id] = {}
     embed = discord.Embed(title=f"{moji} {plur_cap} Cleared {moji}", description=f"{guild.name} has had all its {plur_low} cleared!")
-    await interaction.followup.send(embed=embed, ephemeral=True)
+    await interaction.followup.send(embed=embed)
 
 awardset = {}
 
@@ -532,12 +548,12 @@ profiles = {}
 
 @tree.command(
     name="setprofile",
-    description="Run this command to set up your member profile."
+    description="Run this command to set up your member profile. Please note that all fields are optional."
 )
 @app_commands.describe(
     name="Provide your name or nickname.",
     age="Provide your age or age range.",
-    location="Provide your country, state, or city of residence.",
+    location="Provide your continent, country, state, or city of residence.",
     pronouns="Provide your pronouns.",
     gender="Choose the option closest to your gender identity.",
     sexuality="Choose the option closest to your sexuality.",
@@ -560,8 +576,8 @@ profiles = {}
 @app_commands.choices(sexuality=[
     app_commands.Choice(name="Lesbian", value="Lesbian"),
     app_commands.Choice(name="Aro-Spec/Ace-Spec Lesbian", value="Aro-Spec/Ace-Spec Lesbian"),
-    app_commands.Choice(name="Gay Man", value="Gay Man"),
-    app_commands.Choice(name="Aro-Spec/Ace-Spec Gay Man", value="Aro-Spec/Ace-Spec Gay Man"),
+    app_commands.Choice(name="Gay", value="Gay"),
+    app_commands.Choice(name="Aro-Spec/Ace-Spec Gay", value="Aro-Spec/Ace-Spec Gay"),
     app_commands.Choice(name="Bisexual", value="Bisexual"),
     app_commands.Choice(name="Aro-Spec/Ace-Spec Bisexual", value="Aro-Spec/Ace-Spec Bisexual"),
     app_commands.Choice(name="Straight", value="Straight"),
@@ -570,7 +586,7 @@ profiles = {}
 ])
 @app_commands.choices(relationship_status=[
     app_commands.Choice(name="Happily Single", value="Happily Single"),
-    app_commands.Choice(name="Single and Ready to Mingle", value="Single and Ready to Mingle"),
+    app_commands.Choice(name="Single and Looking", value="Single and Looking"),
     app_commands.Choice(name="Dating Casually", value="Dating Casually"),
     app_commands.Choice(name="Dating Exclusively", value="Dating Exclusively"),
     app_commands.Choice(name="In an Open Relationship", value="In an Open Relationship"),
@@ -670,13 +686,3 @@ async def setprofile(interaction: discord.Interaction, name: Optional[str], age:
     embed.add_field(name="Family Planning Status", value=family_planning_status, inline=True)
     embed.set_footer(text=f"Member of {guild.name} since {discord.utils.format_dt(member.joined_at, style="R")}.")
     await interaction.followup.send(embed=embed, ephemeral=True)
-
-
-
-@client.event
-async def on_ready():
-    tree.clear_commands(guild=None)
-    await tree.sync(guild=None)
-    print(f'Logged in as {client.user}! (ID: {client.user.id})')
-
-client.run('token')
