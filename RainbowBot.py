@@ -9,9 +9,6 @@ class MyClient(discord.Client):
     def __init__(self, *, intents: discord.Intents):
         super().__init__(intents=intents)
         self.tree = app_commands.CommandTree(self)
-    async def setup_hook(self):
-        self.tree.clear_commands(guild=None)
-        await self.tree.sync()
 
 intents = discord.Intents.all()
 client = MyClient(intents=intents)
@@ -19,6 +16,9 @@ tree = client.tree
 
 @client.event
 async def on_ready():
+    guild = discord.Object(id=1274023759497662646)
+    tree.clear_commands(guild=guild)
+    await tree.sync(guild=guild)
     print(f'Logged in as {client.user}! (ID: {client.user.id})')
 
 client.run('token')
@@ -28,18 +28,16 @@ client.run('token')
     description="Syncs the command tree for the server (bot owner only)."
 )
 @app_commands.checks.has_permissions(administrator=True)
-
 async def sync(interaction: discord.Interaction):
     await interaction.response.defer(thinking=True)
-    if interaction.user.id == 323927406295384067:
-        guild = discord.Object(id=1274023759497662646)
-        tree.clear_commands(guild=guild)
-        await tree.copy_global_to(guild=guild)
-        await tree.sync()
-        embed = discord.Embed(title="Update", description=f"The bot's command tree has been synced!")
-        await interaction.followup.send(embed=embed)
-    else:
-        embed = discord.Embed(title="Error", description=f"This action is not allowed.")
+    if interaction.guild.id == 1274023759497662646:
+        if interaction.user.id == 323927406295384067:
+            tree.clear_commands(guild=None)
+            await tree.sync(guild=None)
+            embed = discord.Embed(title="Update", description=f"The bot's global command tree has been synced!")
+            await interaction.followup.send(embed=embed)
+        else:
+            embed = discord.Embed(title="Error", description=f"This action is not allowed.")
 
 class ChannelsSelector(ChannelSelect):
     def __init__(self):
