@@ -21,8 +21,6 @@ async def on_ready():
     await tree.sync(guild=guild)
     print(f'Logged in as {client.user}! (ID: {client.user.id})')
 
-client.run('token')
-
 @tree.command(
     name="sync",
     description="Syncs the command tree for the server (bot owner only)."
@@ -278,16 +276,10 @@ async def addaward(interaction: discord.Interaction, amount: Optional[int] = Non
     guild = interaction.guild
     amount = amount or 1
     user = member or interaction.user
-    if guild.id in awardset:
-        sing_low = awardset[guild.id]["singular_lower"] or "award"
-        plur_low = awardset[guild.id]["plural_lower"] or "awards"
-        plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
-        moji = awardset[guild.id]["emoji"] or "🏅"
-    else:
-        sing_low = "award"
-        plur_low = "awards"
-        plur_cap = "Awards"
-        moji = "🏅"
+    sing_low = awardset[gld.id]["singular_lower"] or "award"
+    sing_cap = awardset[gld.id]["singular_caps"] or "Award"
+    plur_low = awardset[gld.id]["plural_lower"] or "awards"
+    moji = awardset[gld.id]["emoji"] or "🏅"
     if guild.id in guilds:
         if user.id in guilds[guild.id]:
             guilds[guild.id][user.id] += amount
@@ -320,16 +312,10 @@ async def on_reaction_add(reaction: discord.Reaction, user: discord.Member):
     msg = reaction.message
     gld = msg.guild
     mbr = msg.author
-    if gld.id in awardset:
-        sing_low = awardset[gld.id]["singular_lower"] or "award"
-        sing_cap = awardset[gld.id]["singular_caps"] or "Award"
-        plur_low = awardset[gld.id]["plural_lower"] or "awards"
-        moji = awardset[gld.id]["emoji"] or "🏅"
-    else:
-        sing_low = "award"
-        sing_cap = "Award"
-        plur_low = "awards"
-        moji = "🏅"
+    sing_low = awardset[gld.id]["singular_lower"] or "award"
+    sing_cap = awardset[gld.id]["singular_caps"] or "Award"
+    plur_low = awardset[gld.id]["plural_lower"] or "awards"
+    moji = awardset[gld.id]["emoji"] or "🏅"
     if str(reaction.emoji) == moji:
         if gld.id in guilds:
             if mbr.id in guilds[gld.id]:
@@ -359,16 +345,10 @@ async def removeaward(interaction: discord.Interaction, amount: Optional[int] = 
     guild = interaction.guild
     amount = amount or 1
     user = member or interaction.user
-    if guild.id in awardset:
-        sing_low = awardset[guild.id]["singular_lower"] or "award"
-        plur_low = awardset[guild.id]["plural_lower"] or "awards"
-        plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
-        moji = awardset[guild.id]["emoji"] or "🏅"
-    else:
-        sing_low = "award"
-        plur_low = "awards"
-        plur_cap = "Awards"
-        moji = "🏅"
+    sing_low = awardset[gld.id]["singular_lower"] or "award"
+    sing_cap = awardset[gld.id]["singular_caps"] or "Award"
+    plur_low = awardset[gld.id]["plural_lower"] or "awards"
+    moji = awardset[gld.id]["emoji"] or "🏅"
     if guild.id in guilds:
         if user.id in guilds[guild.id]:
             if guilds[guild.id][user.id] == 0:
@@ -400,16 +380,10 @@ async def on_reaction_remove(reaction: discord.Reaction, user: discord.Member):
     msg = reaction.message
     gld = msg.guild
     mbr = msg.author
-    if gld.id in awardset:
-        sing_low = awardset[gld.id]["singular_lower"] or "award"
-        sing_cap = awardset[gld.id]["singular_caps"] or "Award"
-        plur_low = awardset[gld.id]["plural_lower"] or "awards"
-        moji = awardset[gld.id]["emoji"] or "🏅"
-    else:
-        sing_low = "award"
-        sing_cap = "Award"
-        plur_low = "awards"
-        moji = "🏅"
+    sing_low = awardset[gld.id]["singular_lower"] or "award"
+    sing_cap = awardset[gld.id]["singular_caps"] or "Award"
+    plur_low = awardset[gld.id]["plural_lower"] or "awards"
+    moji = awardset[gld.id]["emoji"] or "🏅"
     if str(reaction.emoji) == moji:
         if gld.id in guilds:
             if mbr.id in guilds[gld.id] and guilds[gld.id][mbr.id] >= 1:
@@ -428,16 +402,10 @@ async def checkawards(interaction: discord.Interaction, member: Optional[discord
     await interaction.response.defer(thinking=True, ephemeral=True)
     guild = interaction.guild
     user = member or interaction.user
-    if guild.id in awardset:
-        sing_low = awardset[guild.id]["singular_lower"] or "award"
-        plur_low = awardset[guild.id]["plural_lower"] or "awards"
-        plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
-        moji = awardset[guild.id]["emoji"] or "🏅"
-    else:
-        sing_low = "award"
-        plur_low = "awards"
-        plur_cap = "Awards"
-        moji = "🏅"
+    sing_low = awardset[gld.id]["singular_lower"] or "award"
+    sing_cap = awardset[gld.id]["singular_caps"] or "Award"
+    plur_low = awardset[gld.id]["plural_lower"] or "awards"
+    moji = awardset[gld.id]["emoji"] or "🏅"
     if guild.id in guilds:
         if user.id in guilds[guild.id]:
             if guilds[guild.id][user.id] == 0:
@@ -463,14 +431,10 @@ async def checkawards(interaction: discord.Interaction, member: Optional[discord
 async def clearawards(interaction: discord.Interaction):
     await interaction.response.defer(thinking=True)
     guild = interaction.guild
-    if guild.id in awardset:
-        plur_low = awardset[guild.id]["plural_lower"] or "awards"
-        plur_cap = awardset[guild.id]["plural_caps"] or "Awards"
-        moji = awardset[guild.id]["emoji"] or "🏅"
-    else:
-        plur_low = "awards"
-        plur_cap = "Awards"
-        moji = "🏅"
+    sing_low = awardset[gld.id]["singular_lower"] or "award"
+    sing_cap = awardset[gld.id]["singular_caps"] or "Award"
+    plur_low = awardset[gld.id]["plural_lower"] or "awards"
+    moji = awardset[gld.id]["emoji"] or "🏅"
     guilds[guild.id] = {}
     embed = discord.Embed(title=f"{moji} {plur_cap} Cleared {moji}", description=f"{guild.name} has had all its {plur_low} cleared!")
     await interaction.followup.send(embed=embed)
@@ -674,3 +638,5 @@ async def setprofile(interaction: discord.Interaction, name: Optional[str], age:
     joined = discord.utils.format_dt(member.joined_at, style="R")
     embed.set_footer(text=f"Member of {guild.name} since {joined}.")
     await interaction.followup.send(embed=embed, ephemeral=True)
+
+client.run('token')
