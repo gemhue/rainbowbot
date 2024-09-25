@@ -13,6 +13,41 @@ bot = commands.Bot(
 
 guilds = {}
 
+class ChannelsSelector(ChannelSelect):
+    def __init__(self):
+        super().__init__(
+            channel_types=[ChannelType.text],
+            placeholder="Select channels... (Limit: 25)",
+            min_values=1,
+            max_values=25,
+            row=1
+        )
+    async def callback(self, interaction: discord.Interaction) -> Any:
+        channels: list[DropdownView] = self.values
+        self.view.values = [c for c in channels]
+
+class DropdownView(discord.ui.View):
+    def __init__(self, *, timeout=180.0):
+        super().__init__(timeout=timeout)
+        self.value = None
+        self.add_item(ChannelsSelector())
+
+    @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.value = True
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        channels = [c.resolve() for c in self.values]
+        channelment = [c.mention for c in channels]
+        channellist = ", ".join(channelment)
+        embed = discord.Embed(title="Selected Channels:", description=f'{channellist}')
+        await interaction.followup.send(embed=embed, ephemeral=True)
+        self.stop()
+
+    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.grey, row=2)
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.value = False
+        self.stop()
+
 class BackgroundTasks(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -163,42 +198,7 @@ class SetupCommands(commands.Cog):
 class PurgeCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
-    class ChannelsSelector(ChannelSelect):
-        def __init__(self):
-            super().__init__(
-                channel_types=[ChannelType.text],
-                placeholder="Select channels... (Limit: 25)",
-                min_values=1,
-                max_values=25,
-                row=1
-            )
-        async def callback(self, interaction: discord.Interaction) -> Any:
-            channels: list[DropdownView] = self.values
-            self.view.values = [c for c in channels]
-    
-    class DropdownView(discord.ui.View):
-        def __init__(self, *, timeout=180.0):
-            super().__init__(timeout=timeout)
-            self.value = None
-            self.add_item(ChannelsSelector())
 
-        @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
-        async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
-            self.value = True
-            await interaction.response.defer(thinking=True, ephemeral=True)
-            channels = [c.resolve() for c in self.values]
-            channelment = [c.mention for c in channels]
-            channellist = ", ".join(channelment)
-            embed = discord.Embed(title="Selected Channels:", description=f'{channellist}')
-            await interaction.followup.send(embed=embed, ephemeral=True)
-            self.stop()
-
-        @discord.ui.button(label='Cancel', style=discord.ButtonStyle.grey, row=2)
-        async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
-            self.value = False
-            self.stop()
-    
     @commands.hybrid_command()
     @commands.has_guild_permissions(administrator=True)
     async def purgeself(self, ctx: commands.Context):
