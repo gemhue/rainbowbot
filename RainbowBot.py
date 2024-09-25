@@ -23,8 +23,8 @@ class ChannelsSelector(ChannelSelect):
         self.view.values = [c for c in channels]
 
 class DropdownView(discord.ui.View):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *, timeout=180.0):
+        super().__init__(timeout=timeout)
         self.value = None
         self.add_item(ChannelsSelector())
 
@@ -42,7 +42,7 @@ class BackgroundTasks(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.Cog.listener(name="Emoji Reactions")
+    @commands.Cog.listener(name="emoji_reactions")
     async def on_message(self, message: discord.Message):
         message = message.content.lower()
         list1 = ['lesbian','sapphic','wlw']
@@ -79,7 +79,7 @@ class BackgroundTasks(commands.Cog):
             await message.add_reaction(moji8)
         await bot.process_commands(message)
         
-    @commands.Cog.listener(name="Member Join")
+    @commands.Cog.listener(name="member_join")
     async def on_member_join(self, member: discord.Member):
         guild = member.guild
         channel = guilds[guild.id]["welcome channel"]
@@ -96,7 +96,7 @@ class BackgroundTasks(commands.Cog):
         if botrole is not None and member.bot == True:
             await member.add_roles(botrole)
 
-    @commands.Cog.listener(name="Member Remove")
+    @commands.Cog.listener(name="member_remove")
     async def on_member_remove(self, member: discord.Member):
         guild = member.guild
         channel = guilds[guild.id]["goodbye channel"]
@@ -111,30 +111,28 @@ class SetupCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="Sync")
+    @commands.command(name="sync")
     @commands.is_owner()
     async def sync(self, ctx: commands.Context):
         """Syncs the local command tree (bot owner only).
         """
-        await ctx.defer(thinking=True)
+        await ctx.defer()
         guild = ctx.guild
-        bot.tree.clear_commands(guild=guild)
         await bot.tree.sync(guild=guild)
         embed = discord.Embed(title="Update", description=f"The bot's local command tree has been synced!")
         await ctx.send(embed=embed)
     
-    @commands.command(name="Global Sync")
+    @commands.command(name="globalsync")
     @commands.is_owner()
     async def globalsync(self, ctx: commands.Context):
         """Syncs the global command tree (bot owner only).
         """
-        await ctx.defer(thinking=True)
-        bot.tree.clear_commands(guild=None)
+        await ctx.defer()
         await bot.tree.sync(guild=None)
         embed = discord.Embed(title="Update", description=f"The bot's global command tree has been synced!")
         await ctx.send(embed=embed)
 
-    @commands.hybrid_command(name="Set Channels")
+    @commands.hybrid_command(name="setchannels")
     @commands.has_guild_permissions(administrator=True)
     async def setchannels(self, ctx: commands.Context, logging_channel: Optional[discord.TextChannel], welcome_channel: Optional[discord.TextChannel], goodbye_channel: Optional[discord.TextChannel]):
         """Sets the channels for logging messages, welcome messages, and goodbye messages.
@@ -149,12 +147,18 @@ class SetupCommands(commands.Cog):
             Set the channels for goodbye messages.
         """
         guild = ctx.guild
-        guilds[guild.id]["logging channel"] = logging_channel
-        guilds[guild.id]["welcome channel"] = welcome_channel
-        guilds[guild.id]["goodbye channel"] = goodbye_channel
+        if guild in guilds:
+            guilds[guild.id]["logging channel"] = logging_channel
+            guilds[guild.id]["welcome channel"] = welcome_channel
+            guilds[guild.id]["goodbye channel"] = goodbye_channel
+        else:
+            guilds[guild.id] = {}
+            guilds[guild.id]["logging channel"] = logging_channel
+            guilds[guild.id]["welcome channel"] = welcome_channel
+            guilds[guild.id]["goodbye channel"] = goodbye_channel
         await ctx.send(f"**Logging Channel**: {logging_channel}\n**Welcome Channel**: {welcome_channel}\n**Goodbye Channel**: {goodbye_channel}")
 
-    @commands.hybrid_command(name="Set Welcome Message")
+    @commands.hybrid_command(name="setwelcome")
     @commands.has_guild_permissions(administrator=True)
     async def setwelcome(self, ctx: commands.Context, message: str):
         """Sets the welcome message for members who leave the server.
@@ -165,10 +169,14 @@ class SetupCommands(commands.Cog):
             Set the welcome message for members who leave the server.
         """
         guild = ctx.guild
-        guilds[guild.id]["welcome message"] = message
+        if guild.id in guilds:
+            guilds[guild.id]["welcome message"] = message
+        else:
+            guilds[guild.id] = {}
+            guilds[guild.id]["welcome message"] = message
         await ctx.send(f"**Welcome Message**: {message}")
 
-    @commands.hybrid_command(name="Set Goodbye Message")
+    @commands.hybrid_command(name="setgoodbye")
     @commands.has_guild_permissions(administrator=True)
     async def setgoodbye(self, ctx: commands.Context, message: str):
         """Sets the goodbye message for members who leave the server.
@@ -179,10 +187,14 @@ class SetupCommands(commands.Cog):
             Set the goodbye message for members who leave the server.
         """
         guild = ctx.guild
-        guilds[guild.id]["goodbye message"] = message
+        if guild.id in guilds:
+            guilds[guild.id]["goodbye message"] = message
+        else:
+            guilds[guild.id] = {}
+            guilds[guild.id]["goodbye message"] = message
         await ctx.send(f"**Goodbye Message**: {message}")
 
-    @commands.hybrid_command(name="Set Join Roles")
+    @commands.hybrid_command(name="setjoinroles")
     @commands.has_guild_permissions(administrator=True)
     async def setjoinroles(self, ctx: commands.Context, role: discord.Role, botrole: Optional[discord.Role]):
         """Sets the roles to give to new members who join the server.
@@ -195,13 +207,21 @@ class SetupCommands(commands.Cog):
             Choose the role that you would like to give to new bots on join.
         """
         guild = ctx.guild
-        guilds[guild.id]["join role"] = role
-        await ctx.send(f"**Join Role**: {role}")
-        if botrole is not None:
-            guilds[guild.id]["bot role"] = botrole
-            await ctx.send(f"**Bot Role**: {botrole}")
+        if guild.id in guilds:  
+            guilds[guild.id]["join role"] = role
+            message = await ctx.send(f"**Join Role**: {role}")
+            if botrole is not None:
+                guilds[guild.id]["bot role"] = botrole
+                await message.edit(f"**Join Role**: {role}\n\n**Bot Role**: {botrole}")
+        else:
+            guilds[guild.id] = {}
+            guilds[guild.id]["join role"] = role
+            message = await ctx.send(f"**Join Role**: {role}")
+            if botrole is not None:
+                guilds[guild.id]["bot role"] = botrole
+                await message.edit(f"**Join Role**: {role}\n\n**Bot Role**: {botrole}")
 
-    @commands.hybrid_command(name="Activity Roles")
+    @commands.hybrid_command(name="activityroles")
     @commands.has_guild_permissions(administrator=True)
     async def activityroles(self, ctx: commands.Context, days: int, active: discord.Role, inactive: discord.Role):
         """Assigns an active role to active members and an inactive role to inactive members.
@@ -244,15 +264,13 @@ class SetupCommands(commands.Cog):
                 await member.add_roles(inactive)
             elif active in member.roles:
                 await member.remove_roles(active)
-        activelen = len(activemembers)
-        inactivelen = len(inactivemembers)
-        await ctx.send(f"{activelen} members now have the {active} role!\n{inactivelen} members now have the {inactive} role!")
+        await ctx.send(f"{len(activemembers)} members now have the {active} role!\n{len(inactivemembers)} members now have the {inactive} role!")
 
 class PurgeCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_command(name="Purge Member")
+    @commands.hybrid_command(name="purgemember")
     @commands.has_guild_permissions(administrator=True)
     async def purgemember(self, ctx: commands.Context, member: discord.Member):
         """Purge all of a member's unpinned messages in a set list of up to 25 channels. (Admin Only)
@@ -262,7 +280,7 @@ class PurgeCommands(commands.Cog):
         member : discord.Member
             Provide the member who's unpinned messages you would like to purge.
         """
-        await ctx.defer(thinking=True)
+        await ctx.defer()
         view = DropdownView()
         embed = discord.Embed(title="🗑️ Purge Member 🗑️", description=f"Which channel(s) would you like to purge {member.mention}'s unpinned messages from?")
         response = await ctx.send(embed=embed, view=view)
@@ -294,11 +312,11 @@ class PurgeCommands(commands.Cog):
             embed = discord.Embed(title="⌛ Timed Out ⌛", description='This interaction has timed out. No messages have been purged.')
             await response.edit(embed=embed, view=None)
 
-    @commands.hybrid_command(name="Purge Channels")
+    @commands.hybrid_command(name="purgechannels")
     @commands.has_guild_permissions(administrator=True)
     async def purgechannels(self, ctx: commands.Context):
         """Purge all unpinned messages in a set list of up to 25 channels. (Admin Only)"""
-        await ctx.defer(thinking=True)
+        await ctx.defer()
         view = DropdownView()
         embed = discord.Embed(title="🗑️ Purge Channels 🗑️", description="Which channel(s) would you like to purge all unpinned messages from?")
         response = await ctx.send(embed=embed, view=view)
@@ -330,11 +348,11 @@ class PurgeCommands(commands.Cog):
             embed = discord.Embed(title="⌛ Timed Out ⌛", description='This interaction has timed out. No messages have been purged.')
             await response.edit(embed=embed, view=None)
 
-    @commands.hybrid_command(name="Purge Server")
+    @commands.hybrid_command(name="purgeserver")
     @commands.has_guild_permissions(administrator=True)
     async def purgeserver(self, ctx: commands.Context):
         """Purges all unpinned messages in a server, excluding up to 25 channels. (Admin Only)"""
-        await ctx.defer(thinking=True)
+        await ctx.defer()
         view = DropdownView()
         embed = discord.Embed(title="🗑️ Purge Server 🗑️", description="Which channels would you like to **exclude** from the purge of all unpinned messages?")
         response = await ctx.send(embed=embed, view=view)
@@ -371,7 +389,7 @@ class AwardCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @commands.hybrid_command(name="Set Awards")
+    @commands.hybrid_command(name="setawards")
     @commands.has_guild_permissions(administrator=True)
     async def setawards(self, ctx: commands.Context, name_singular: str, name_plural: str, emoji: str):
         """Sets the name and emoji for the server awards.
@@ -385,14 +403,21 @@ class AwardCommands(commands.Cog):
         emoji : str
             Choose the emoji you would like to represent the award. (Default: 🏅)
         """
-        await ctx.defer(thinking=True, ephemeral=True)
+        await ctx.defer(ephemeral=True)
         guild = ctx.guild
-        guilds[guild.id] = {}
-        guilds[guild.id]["singular lower"] = name_singular.lower()
-        guilds[guild.id]["singular caps"] = string.capwords(name_singular)
-        guilds[guild.id]["plural lower"] = name_plural.lower()
-        guilds[guild.id]["plural caps"] = string.capwords(name_plural)
-        guilds[guild.id]["emoji"] = emoji
+        if guild.id in guilds:
+            guilds[guild.id]["singular lower"] = name_singular.lower()
+            guilds[guild.id]["singular caps"] = string.capwords(name_singular)
+            guilds[guild.id]["plural lower"] = name_plural.lower()
+            guilds[guild.id]["plural caps"] = string.capwords(name_plural)
+            guilds[guild.id]["emoji"] = emoji
+        else:
+            guilds[guild.id] = {}
+            guilds[guild.id]["singular lower"] = name_singular.lower()
+            guilds[guild.id]["singular caps"] = string.capwords(name_singular)
+            guilds[guild.id]["plural lower"] = name_plural.lower()
+            guilds[guild.id]["plural caps"] = string.capwords(name_plural)
+            guilds[guild.id]["emoji"] = emoji
         sing_low = guilds[guild.id]["singular lower"]
         sing_cap = guilds[guild.id]["singular caps"]
         plur_low = guilds[guild.id]["plural lower"]
@@ -401,23 +426,36 @@ class AwardCommands(commands.Cog):
         embed = discord.Embed(title=f"{moji} {plur_cap} Set {moji}",description=f"The award name and emoji have been set!\n\n**Name** (singular, lowercase): {sing_low}\n\n**Name** (singular, capitalized): {sing_cap}\n\n**Name** (plural, lowercase): {plur_low}\n\n**Name** (plural, capitalized): {plur_cap}\n\n**Emoji**: {moji}")
         await ctx.send(embed=embed, ephemeral=True)
 
-    @commands.hybrid_command(name="Clear Awards")
+    @commands.hybrid_command(name="clearawards")
     @commands.has_guild_permissions(administrator=True)
     async def clearawards(self, ctx: commands.Context):
         """Clears all of the awards in the server.
         """
-        await ctx.defer(thinking=True)
+        await ctx.defer()
         guild = ctx.guild
-        #sing_low = guilds[guild.id]["singular lower"] or "award"
-        #sing_cap = guilds[guild.id]["singular caps"] or "Award"
+        sing_low = guilds[guild.id]["singular lower"] or "award"
+        sing_cap = guilds[guild.id]["singular caps"] or "Award"
         plur_low = guilds[guild.id]["plural lower"] or "awards"
         plur_cap = guilds[guild.id]["plural caps"] or "Awards"
         moji = guilds[guild.id]["emoji"] or "🏅"
-        guilds[guild.id] = {}
+        if guild.id in guilds:
+            members = [m for m in guild.members]
+            for member in members:
+                if member.id in guilds[guild.id]:
+                    guilds[guild.id][member.id]["awards"] = 0
+                else:
+                    guilds[guild.id][member.id] = {}
+                    guilds[guild.id][member.id]["awards"] = 0
+        else:
+            guilds[guild.id] = {}
+            members = [m for m in guild.members]
+            for member in members:
+                guilds[guild.id][member.id] = {}
+                guilds[guild.id][member.id]["awards"] = 0
         embed = discord.Embed(title=f"{moji} {plur_cap} Cleared {moji}", description=f"{guild.name} has had all its {plur_low} cleared!")
         await ctx.send(embed=embed)
     
-    @commands.hybrid_command(name="Award Reaction Toggle")
+    @commands.hybrid_command(name="awardreactiontoggle")
     @commands.has_guild_permissions(administrator=True)
     async def awardreactiontoggle(self, ctx: commands.Context, toggle: bool):
         """Toggles the ability for users to add or remove awards with reactions.
@@ -428,9 +466,13 @@ class AwardCommands(commands.Cog):
             Set to True to toggle award reactions on. Set to False to toggle award reactions off.
         """
         guild = ctx.guild
-        guilds[guild.id]["award react toggle"] = toggle
+        if guild in guilds[guild.id]:
+            guilds[guild.id]["award react toggle"] = toggle
+        else:
+            guilds[guild.id] = {}
+            guilds[guild.id]["award react toggle"] = toggle
 
-    @commands.Cog.listener(name="Reaction Add")
+    @commands.Cog.listener(name="reactionadd")
     async def on_reaction_add(self, reaction: discord.Reaction, user: discord.Member):
         message = reaction.message
         guild = message.guild
@@ -439,25 +481,30 @@ class AwardCommands(commands.Cog):
             sing_low = guilds[guild.id]["singular lower"] or "award"
             sing_cap = guilds[guild.id]["singular caps"] or "Award"
             plur_low = guilds[guild.id]["plural lower"] or "awards"
-            #plur_cap = guilds[guild.id]["plural caps"] or "Awards"
+            plur_cap = guilds[guild.id]["plural caps"] or "Awards"
             moji = guilds[guild.id]["emoji"] or "🏅"
             if str(reaction.emoji) == moji:
                 if guild.id in guilds:
                     if member.id in guilds[guild.id]:
-                        guilds[guild.id][member.id] += 1
-                        embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{user.mention} has added 1 {sing_low} to {member.mention}'s total via an emoji reaction. {member.mention}'s new total number of {plur_low} is {guilds[guild.id][member.id]}!")
+                        guilds[guild.id][member.id]["awards"] += 1
+                        awards = guilds[guild.id][member.id]["awards"]
+                        embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{user.mention} has added 1 {sing_low} to {member.mention}'s total via an emoji reaction. {member.mention}'s new total number of {plur_low} is {awards}!")
                         await message.channel.send(embed=embed, reference=message)
                     else:
-                        guilds[guild.id][member.id] = 1
-                        embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{user.mention} has added 1 {sing_low} to {member.mention}'s total via an emoji reaction. {member.mention}'s new total number of {plur_low} is {guilds[guild.id][member.id]}!")
+                        guilds[guild.id][member.id] = {}
+                        guilds[guild.id][member.id]["awards"] = 1
+                        awards = guilds[guild.id][member.id]["awards"]
+                        embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{user.mention} has added 1 {sing_low} to {member.mention}'s total via an emoji reaction. {member.mention}'s new total number of {plur_low} is {awards}!")
                         await message.channel.send(embed=embed, reference=message)
                 else:
                     guilds[guild.id] = {}
-                    guilds[guild.id][member.id] = 1
-                    embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{user.mention} has added 1 {sing_low} to {member.mention}'s total via an emoji reaction. {member.mention}'s new total number of {plur_low} is {guilds[guild.id][member.id]}!")
+                    guilds[guild.id][member.id] = {}
+                    guilds[guild.id][member.id]["awards"] = 1
+                    awards = guilds[guild.id][member.id]["awards"]
+                    embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{user.mention} has added 1 {sing_low} to {member.mention}'s total via an emoji reaction. {member.mention}'s new total number of {plur_low} is {awards}!")
                     await message.channel.send(embed=embed, reference=message)
 
-    @commands.Cog.listener(name="Reaction Remove")
+    @commands.Cog.listener(name="reactionremove")
     async def on_reaction_remove(self, reaction: discord.Reaction, user: discord.Member):
         message = reaction.message
         guild = message.guild
@@ -466,16 +513,18 @@ class AwardCommands(commands.Cog):
             sing_low = guilds[guild.id]["singular lower"] or "award"
             sing_cap = guilds[guild.id]["singular caps"] or "Award"
             plur_low = guilds[guild.id]["plural lower"] or "awards"
-            #plur_cap = guilds[guild.id]["plural caps"] or "Awards"
+            plur_cap = guilds[guild.id]["plural caps"] or "Awards"
             moji = guilds[guild.id]["emoji"] or "🏅"
             if str(reaction.emoji) == moji:
                 if guild.id in guilds:
-                    if member.id in guilds[guild.id] and guilds[guild.id][member.id] >= 1:
-                        guilds[guild.id][member.id] -= 1
-                        embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{user.mention} has removed 1 {sing_low} from {member.mention}'s total via an emoji unreaction. {member.mention}'s new total number of {plur_low} is {guilds[guild.id][member.id]}!")
-                        await message.channel.send(embed=embed, reference=message)
+                    if member.id in guilds[guild.id]:
+                        if guilds[guild.id][member.id]["awards"] >= 1:
+                            guilds[guild.id][member.id]["awards"] -= 1
+                            awards = guilds[guild.id][member.id]["awards"]
+                            embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{user.mention} has removed 1 {sing_low} from {member.mention}'s total via an emoji unreaction. {member.mention}'s new total number of {plur_low} is {awards}!")
+                            await message.channel.send(embed=embed, reference=message)
 
-    @commands.hybrid_command(name="Add Awards")
+    @commands.hybrid_command(name="addawards")
     async def addawards(self, ctx: commands.Context, amount: Optional[int] = None, member: Optional[discord.Member] = None):
         """Adds awards to the command user or another selected member.
 
@@ -486,43 +535,43 @@ class AwardCommands(commands.Cog):
         member : discord.Member, optional
             Choose the member to add the awards to. (Default: Self)
         """
-        await ctx.defer(thinking=True, ephemeral=True)
+        await ctx.defer(ephemeral=True)
         guild = ctx.guild
         amount = amount or 1
         member = member or ctx.user
         sing_low = guilds[guild.id]["singular lower"] or "award"
-        #sing_cap = guilds[guild.id]["singular caps"] or "Award"
+        sing_cap = guilds[guild.id]["singular caps"] or "Award"
         plur_low = guilds[guild.id]["plural lower"] or "awards"
         plur_cap = guilds[guild.id]["plural caps"] or "Awards"
         moji = guilds[guild.id]["emoji"] or "🏅"
         if guild.id in guilds:
             if member.id in guilds[guild.id]:
-                guilds[guild.id][member.id] += amount
-                if guilds[guild.id][member.id] == 1:
-                    embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]} {sing_low}!")
+                guilds[guild.id][member.id]["awards"] += amount
+                if guilds[guild.id][member.id]["awards"] == 1:
+                    embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
                     await ctx.send(embed=embed, ephemeral=True)
                 else:
-                    embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]} {plur_low}!")
+                    embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
                     await ctx.send(embed=embed, ephemeral=True)
             else:
-                guilds[guild.id][member.id] = amount
-                if guilds[guild.id][member.id] == 1:
-                    embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]} {sing_low}!")
+                guilds[guild.id][member.id]["awards"] = amount
+                if guilds[guild.id][member.id]["awards"] == 1:
+                    embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
                     await ctx.send(embed=embed, ephemeral=True)
                 else:
-                    embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]} {plur_low}!")
+                    embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
                     await ctx.send(embed=embed, ephemeral=True)
         else:
             guilds[guild.id] = {}
-            guilds[guild.id][member.id] = amount
-            if guilds[guild.id][member.id] == 1:
-                embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]} {sing_low}!")
+            guilds[guild.id][member.id]["awards"] = amount
+            if guilds[guild.id][member.id]["awards"] == 1:
+                embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
                 await ctx.send(embed=embed, ephemeral=True)
             else:
-                embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]} {plur_low}!")
+                embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
                 await ctx.send(embed=embed, ephemeral=True)
 
-    @commands.hybrid_command(name="Remove Awards")
+    @commands.hybrid_command(name="removeawards")
     async def removeawards(self, ctx: commands.Context, amount: Optional[int] = None, member: Optional[discord.Member] = None):
         """Removes awards from the command user or another selected member.
 
@@ -533,33 +582,33 @@ class AwardCommands(commands.Cog):
         member : discord.Member, optional
             Choose the member to remove the awards from. (Default: Self)
         """
-        await ctx.defer(thinking=True, ephemeral=True)
+        await ctx.defer(ephemeral=True)
         guild = ctx.guild
         amount = amount or 1
         member = member or ctx.user
         sing_low = guilds[guild.id]["singular lower"] or "award"
-        #sing_cap = guilds[guild.id]["singular caps"] or "Award"
+        sing_cap = guilds[guild.id]["singular caps"] or "Award"
         plur_low = guilds[guild.id]["plural lower"] or "awards"
         plur_cap = guilds[guild.id]["plural caps"] or "Awards"
         moji = guilds[guild.id]["emoji"] or "🏅"
         if guild.id in guilds:
             if member.id in guilds[guild.id]:
-                if guilds[guild.id][member.id] == 0:
+                if guilds[guild.id][member.id]["awards"] == 0:
                     embed = discord.Embed(title="Error", description=f"{member.mention} doesn't have any {plur_low}!")
                     await ctx.send(embed=embed, ephemeral=True)
-                elif guilds[guild.id][member.id] < amount:
+                elif guilds[guild.id][member.id]["awards"] < amount:
                     embed = discord.Embed(title="Error", description=f"{member.mention} doesn't have enough {plur_low}!")
                     await ctx.send(embed=embed, ephemeral=True)
                 else:
-                    guilds[guild.id][member.id] -= amount
-                    if guilds[guild.id][member.id] == 0:
+                    guilds[guild.id][member.id]["awards"] -= amount
+                    if guilds[guild.id][member.id]["awards"] == 0:
                         embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} no longer has any {plur_low}!")
                         await ctx.send(embed=embed, ephemeral=True)
-                    elif guilds[guild.id][member.id] == 1:
-                        embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]} {sing_low}!")
+                    elif guilds[guild.id][member.id]["awards"] == 1:
+                        embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
                         await ctx.send(embed=embed, ephemeral=True)
                     else:
-                        embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]} {plur_low}!")
+                        embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
                         await ctx.send(embed=embed, ephemeral=True)
             else:
                 embed = discord.Embed(title="Error", description=f"{member.mention} doesn't exist in the {sing_low} log.")
@@ -568,7 +617,7 @@ class AwardCommands(commands.Cog):
             embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the {sing_low} log.")
             await ctx.send(embed=embed, ephemeral=True)
 
-    @commands.hybrid_command(name="Check Awards")
+    @commands.hybrid_command(name="checkawards")
     async def checkawards(self, ctx: commands.Context, member: Optional[discord.Member] = None):
         """Returns the number of awards that the user or another selected user currently has.
 
@@ -577,24 +626,24 @@ class AwardCommands(commands.Cog):
         member : discord.Member, optional
             Choose the member that you would like to check the number of awards for. (Default: Self)
         """
-        await ctx.defer(thinking=True, ephemeral=True)
+        await ctx.defer(ephemeral=True)
         guild = ctx.guild
         member = member or ctx.user
         sing_low = guilds[guild.id]["singular lower"] or "award"
-        #sing_cap = guilds[guild.id]["singular caps"] or "Award"
+        sing_cap = guilds[guild.id]["singular caps"] or "Award"
         plur_low = guilds[guild.id]["plural lower"] or "awards"
         plur_cap = guilds[guild.id]["plural caps"] or "Awards"
         moji = guilds[guild.id]["emoji"] or "🏅"
         if guild.id in guilds:
             if member.id in guilds[guild.id]:
-                if guilds[guild.id][member.id] == 0:
+                if guilds[guild.id][member.id]["awards"] == 0:
                     embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} doesn't have any {plur_low}!")
                     await ctx.send(embed=embed, ephemeral=True)
-                elif guilds[guild.id][member.id] == 1:
-                    embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {guilds[guild.id][member.id]} {sing_low}!")
+                elif guilds[guild.id][member.id]["awards"] == 1:
+                    embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
                     await ctx.send(embed=embed, ephemeral=True)
                 else:
-                    embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {guilds[guild.id][member.id]} {plur_low}!")
+                    embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
                     await ctx.send(embed=embed, ephemeral=True)
             else:
                 embed = discord.Embed(title="Error", description=f"{member.mention} doesn't exist in the {sing_low} log.")
@@ -603,34 +652,40 @@ class AwardCommands(commands.Cog):
             embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the {sing_low} log.")
             await ctx.send(embed=embed, ephemeral=True)
 
-    @commands.hybrid_command(name="Leaderboard")
+    @commands.hybrid_command(name="leaderboard")
     async def leaderboard(self, ctx: commands.Context):
         """Returns the current award leaderboard for the server."""
-        await ctx.defer(thinking=True)
+        await ctx.defer()
         guild = ctx.guild
         sing_low = guilds[guild.id]["singular lower"] or "award"
         sing_cap = guilds[guild.id]["singular caps"] or "Award"
-        #plur_low = guilds[guild.id]["plural lower"] or "awards"
-        #plur_cap = guilds[guild.id]["plural caps"] or "Awards"
+        plur_low = guilds[guild.id]["plural lower"] or "awards"
+        plur_cap = guilds[guild.id]["plural caps"] or "Awards"
         moji = guilds[guild.id]["emoji"] or "🏅"
-        desc = []
         if guild.id in guilds:
-            awardlog = dict(sorted(guilds[guild.id].items(), key=lambda item:item[1], reverse=True))
-            for member, awards in awardlog.items():
-                awards = awards * moji
-                desc.append(f"<@{member}>:\n{awards}")
-            description = "\n\n".join(x for x in desc)
-            embed = discord.Embed(title=f"{moji} {sing_cap} Leaderboard {moji}", description=description)
-            await ctx.send(embed=embed)
+            awardlog = {}
+            for member in guild.members:
+                if member.id in guilds[guild.id]:
+                    if "awards" in guilds[guild.id][member.id]:
+                        if guilds[guild.id][member.id]["awards"] > 0:
+                            awards[member.id] = guilds[guild.id][member.id]["awards"]
         else:
             embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the {sing_low} log.")
             await ctx.send(embed=embed, ephemeral=True)
+        desc = []
+        for member, awards in awardlog.items():
+            awards = awards * moji
+            desc.append(f"<@{member}>:\n{awards}")
+        description = "\n\n".join(x for x in desc)
+        embed = discord.Embed(title=f"{moji} {sing_cap} Leaderboard {moji}", description=description)
+        await ctx.send(embed=embed)
+            
 
 class ProfileCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @commands.hybrid_command(name="Set Profile")
+    @commands.hybrid_command(name="setprofile")
     async def setprofile(self, ctx: commands.Context, name: Optional[str], age: Optional[str], location: Optional[str], pronouns: Optional[str], gender: Optional[str], sexuality: Optional[str], relationship: Optional[str], family: Optional[str], biography: Optional[str]):
         """Run this command to set up your member profile. Note that all fields are optional.
 
@@ -655,7 +710,7 @@ class ProfileCommands(commands.Cog):
         biography : str, optional
             Provide a brief biography (ex. family, hobbies, interests, work, etc).
         """
-        await ctx.defer(thinking=True, ephemeral=True)
+        await ctx.defer(ephemeral=True)
         guild = ctx.guild
         member = ctx.author
         if guild in guilds:
@@ -744,8 +799,8 @@ class ProfileCommands(commands.Cog):
         embed.set_footer(text=f"Member of {guild.name} for {joined}.")
         await ctx.send(embed=embed, ephemeral=True)
 
-    @commands.hybrid_command(name="Set Profile Name")
-    async def setprofile_name(self, ctx: commands.Context, name: str):
+    @commands.hybrid_command(name="setprofilename")
+    async def setprofilename(self, ctx: commands.Context, name: str):
         """Run this command to set your profile name.
 
         Parameters
@@ -759,8 +814,8 @@ class ProfileCommands(commands.Cog):
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile name is now set to: {name}")
         await ctx.send(embed=embed, ephemeral=True)
 
-    @commands.hybrid_command(name="Set Profile Age")
-    async def setprofile_age(self, ctx: commands.Context, age: str):
+    @commands.hybrid_command(name="setprofileage")
+    async def setprofileage(self, ctx: commands.Context, age: str):
         """Run this command to set your profile age.
 
         Parameters
@@ -774,8 +829,8 @@ class ProfileCommands(commands.Cog):
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile age is now set to: {age}")
         await ctx.send(embed=embed, ephemeral=True)
 
-    @commands.hybrid_command(name="Set Profile Location")
-    async def setprofile_location(self, ctx: commands.Context, location: str):
+    @commands.hybrid_command(name="setprofilelocation")
+    async def setprofilelocation(self, ctx: commands.Context, location: str):
         """Run this command to set your profile location.
 
         Parameters
@@ -789,8 +844,8 @@ class ProfileCommands(commands.Cog):
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile location is now set to: {location}")
         await ctx.send(embed=embed, ephemeral=True)
 
-    @commands.hybrid_command(name="Set Profile Pronouns")
-    async def setprofile_pronouns(self, ctx: commands.Context, pronouns: str):
+    @commands.hybrid_command(name="setprofilepronouns")
+    async def setprofilepronouns(self, ctx: commands.Context, pronouns: str):
         """Run this command to set your profile pronouns.
 
         Parameters
@@ -804,8 +859,8 @@ class ProfileCommands(commands.Cog):
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile pronouns are now set to: {pronouns}")
         await ctx.send(embed=embed, ephemeral=True)
 
-    @commands.hybrid_command(name="Set Profile Gender")
-    async def setprofile_gender(self, ctx: commands.Context, gender: str):
+    @commands.hybrid_command(name="setprofilegender")
+    async def setprofilegender(self, ctx: commands.Context, gender: str):
         """Run this command to set your profile gender.
 
         Parameters
@@ -819,8 +874,8 @@ class ProfileCommands(commands.Cog):
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile gender is now set to: {gender}")
         await ctx.send(embed=embed, ephemeral=True)
 
-    @commands.hybrid_command(name="Set Profile Sexuality")
-    async def setprofile_sexuality(self, ctx: commands.Context, sexuality: str):
+    @commands.hybrid_command(name="setprofilesexuality")
+    async def setprofilesexuality(self, ctx: commands.Context, sexuality: str):
         """Run this command to set your profile sexuality.
 
         Parameters
@@ -834,8 +889,8 @@ class ProfileCommands(commands.Cog):
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile sexuality is now set to: {sexuality}")
         await ctx.send(embed=embed, ephemeral=True)
 
-    @commands.hybrid_command(name="Set Profile Relationship Status")
-    async def setprofile_relationship(self, ctx: commands.Context, relationship: str):
+    @commands.hybrid_command(name="setprofilerelationship")
+    async def setprofilerelationship(self, ctx: commands.Context, relationship: str):
         """Run this command to set your profile relationship status.
 
         Parameters
@@ -849,8 +904,8 @@ class ProfileCommands(commands.Cog):
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile relationship status is now set to: {relationship}")
         await ctx.send(embed=embed, ephemeral=True)
 
-    @commands.hybrid_command(name="Set Profile Family Planning Status")
-    async def setprofile_family(self, ctx: commands.Context, family: str):
+    @commands.hybrid_command(name="setprofilefamily")
+    async def setprofilefamily(self, ctx: commands.Context, family: str):
         """Run this command to set your profile family planning status.
 
         Parameters
@@ -864,8 +919,8 @@ class ProfileCommands(commands.Cog):
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile family planning status is now set to: {family}")
         await ctx.send(embed=embed, ephemeral=True)
 
-    @commands.hybrid_command(name="Set Profile Biography")
-    async def setprofile_biography(self, ctx: commands.Context, biography: str):
+    @commands.hybrid_command(name="setprofilebiography")
+    async def setprofilebiography(self, ctx: commands.Context, biography: str):
         """Run this command to set your profile biography.
 
         Parameters
@@ -879,8 +934,15 @@ class ProfileCommands(commands.Cog):
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile biography is now set to: {biography}")
         await ctx.send(embed=embed, ephemeral=True)
 
-    @commands.hybrid_command(name="Get Profile")
+    @commands.hybrid_command(name="getprofile")
     async def getprofile(self, ctx: commands.Context, member: discord.Member):
+        """Run this command to retrieve a member's profile.
+
+        Parameters
+        -----------
+        member : str
+            Provide the member whose profile you would like to retrieve.
+        """
         guild = ctx.guild
         name = guilds[guild][member]["Name"]
         age = guilds[guild][member]["Age"]
@@ -912,10 +974,11 @@ async def setup(bot):
     await bot.add_cog(SetupCommands(bot), override=True)
     await bot.add_cog(PurgeCommands(bot), override=True)
     await bot.add_cog(AwardCommands(bot), override=True)
+    await bot.add_cog(ProfileCommands(bot), override=True)
 
 @bot.event
 async def on_ready():
-    await setup()
+    await setup(bot)
     print(f'Logged in as {bot.user}! (ID: {bot.user.id})')
 
 bot.run('token')
