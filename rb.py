@@ -87,13 +87,13 @@ class SetupCommands(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def sync(ctx: commands.Context):
+    async def sync(self, ctx: commands.Context):
         await bot.tree.sync()
         await ctx.send()
 
     @commands.hybrid_command()
     @commands.has_guild_permissions(administrator=True)
-    async def setchannels(ctx: commands.Context, logging_channel: Optional[discord.TextChannel], welcome_channel: Optional[discord.TextChannel], goodbye_channel: Optional[discord.TextChannel]):
+    async def setchannels(self, ctx: commands.Context, logging_channel: Optional[discord.TextChannel], welcome_channel: Optional[discord.TextChannel], goodbye_channel: Optional[discord.TextChannel]):
         guild = ctx.guild
         guilds[guild.id]["logging"] = logging_channel
         guilds[guild.id]["welcome"] = welcome_channel
@@ -102,21 +102,21 @@ class SetupCommands(commands.Cog):
 
     @commands.hybrid_command()
     @commands.has_guild_permissions(administrator=True)
-    async def setwelcome(ctx: commands.Context, message: str):
+    async def setwelcome(self, ctx: commands.Context, message: str):
         guild = ctx.guild
         guilds[guild.id]["welcome message"] = message
         await ctx.send(f"**Welcome Message**: {message}")
 
     @commands.hybrid_command()
     @commands.has_guild_permissions(administrator=True)
-    async def setgoodbye(ctx: commands.Context, message: str):
+    async def setgoodbye(self, ctx: commands.Context, message: str):
         guild = ctx.guild
         guilds[guild.id]["goodbye message"] = message
         await ctx.send(f"**Goodbye Message**: {message}")
 
     @commands.hybrid_command()
     @commands.has_guild_permissions(administrator=True)
-    async def setjoinrole(ctx: commands.Context, role: discord.Role, botrole: Optional[discord.Role]):
+    async def setjoinrole(self, ctx: commands.Context, role: discord.Role, botrole: Optional[discord.Role]):
         guild = ctx.guild
         guilds[guild.id]["join role"] = role
         await ctx.send(f"**Join Role**: {role}")
@@ -126,7 +126,7 @@ class SetupCommands(commands.Cog):
 
     @commands.hybrid_command()
     @commands.has_guild_permissions(administrator=True)
-    async def activityroles(ctx: commands.Context, days: int, active: discord.Role, inactive: discord.Role):
+    async def activityroles(self, ctx: commands.Context, days: int, active: discord.Role, inactive: discord.Role):
         await ctx.defer(ephemeral=True)
         guild = ctx.guild
         channels = guild.text_channels
@@ -173,7 +173,7 @@ class PurgeCommands(commands.Cog):
                 max_values=25,
                 row=1
             )
-        async def callback(self, ctx: commands.Context) -> Any:
+        async def callback(self, interaction: discord.Interaction) -> Any:
             channels: list[DropdownView] = self.values
             self.view.values = [c for c in channels]
     
@@ -184,24 +184,24 @@ class PurgeCommands(commands.Cog):
             self.add_item(ChannelsSelector())
 
         @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
-        async def confirm(self, ctx: commands.Context, button: discord.ui.Button):
+        async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
             self.value = True
-            await ctx.defer(thinking=True, ephemeral=True)
+            await interaction.response.defer(thinking=True, ephemeral=True)
             channels = [c.resolve() for c in self.values]
             channelment = [c.mention for c in channels]
             channellist = ", ".join(channelment)
             embed = discord.Embed(title="Selected Channels:", description=f'{channellist}')
-            await ctx.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed, ephemeral=True)
             self.stop()
 
         @discord.ui.button(label='Cancel', style=discord.ButtonStyle.grey, row=2)
-        async def cancel(self, ctx: commands.Context, button: discord.ui.Button):
+        async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
             self.value = False
             self.stop()
     
     @commands.hybrid_command()
     @commands.has_guild_permissions(administrator=True)
-    async def purgeself(ctx: commands.Context):
+    async def purgeself(self, ctx: commands.Context):
         await ctx.defer(thinking=True, ephemeral=True)
         view = DropdownView()
         await ctx.send("Which channel(s) would you like to purge messages from?", view=view, ephemeral=True)
@@ -229,7 +229,7 @@ class PurgeCommands(commands.Cog):
 
     @commands.hybrid_command()
     @commands.has_guild_permissions(administrator=True)
-    async def purgechannels(ctx: commands.Context):
+    async def purgechannels(self, ctx: commands.Context):
         await ctx.defer(thinking=True, ephemeral=True)
         view = DropdownView()
         await ctx.send("Which channel(s) would you like to purge messages from?", view=view, ephemeral=True)
@@ -257,7 +257,7 @@ class PurgeCommands(commands.Cog):
 
     @commands.hybrid_command()
     @commands.has_guild_permissions(administrator=True)
-    async def purgeserver(ctx: commands.Context):
+    async def purgeserver(self, ctx: commands.Context):
         await ctx.defer(thinking=True, ephemeral=True)
         guild = ctx.guild
         channels = guild.text_channels
@@ -292,7 +292,7 @@ class AwardCommands(commands.Cog):
         self.bot = bot
     
     @commands.hybrid_command()
-    async def setawards(ctx: commands.Context, name_singular: str, name_plural: str, emoji: str):
+    async def setawards(self, ctx: commands.Context, name_singular: str, name_plural: str, emoji: str):
         await ctx.defer(thinking=True, ephemeral=True)
         guild = ctx.guild
         guilds[guild.id] = {}
@@ -310,7 +310,7 @@ class AwardCommands(commands.Cog):
         await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command()
-    async def clearawards(ctx: commands.Context):
+    async def clearawards(self, ctx: commands.Context):
         await ctx.defer(thinking=True)
         guild = ctx.guild
         #sing_low = guilds[guild.id]["singular_lower"] or "award"
@@ -323,7 +323,7 @@ class AwardCommands(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.Cog.listener()
-    async def on_reaction_add(reaction: discord.Reaction, user: discord.Member):
+    async def on_reaction_add(self, reaction: discord.Reaction, user: discord.Member):
         message = reaction.message
         guild = message.guild
         member = message.author
@@ -349,7 +349,7 @@ class AwardCommands(commands.Cog):
                 await message.channel.send(embed=embed, reference=message)
 
     @commands.Cog.listener()
-    async def on_reaction_remove(reaction: discord.Reaction, user: discord.Member):
+    async def on_reaction_remove(self, reaction: discord.Reaction, user: discord.Member):
         message = reaction.message
         guild = message.guild
         member = message.author
@@ -366,7 +366,7 @@ class AwardCommands(commands.Cog):
                     await message.channel.send(embed=embed, reference=message)
 
     @commands.hybrid_command()
-    async def addaward(ctx: commands.Context, amount: Optional[int] = None, member: Optional[discord.Member] = None):
+    async def addaward(self, ctx: commands.Context, amount: Optional[int] = None, member: Optional[discord.Member] = None):
         await ctx.defer(thinking=True, ephemeral=True)
         guild = ctx.guild
         amount = amount or 1
@@ -404,7 +404,7 @@ class AwardCommands(commands.Cog):
                 await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command()
-    async def removeaward(ctx: commands.Context, amount: Optional[int] = None, member: Optional[discord.Member] = None):
+    async def removeaward(self, ctx: commands.Context, amount: Optional[int] = None, member: Optional[discord.Member] = None):
         await ctx.defer(thinking=True, ephemeral=True)
         guild = ctx.guild
         amount = amount or 1
@@ -441,7 +441,7 @@ class AwardCommands(commands.Cog):
             await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command()
-    async def checkawards(ctx: commands.Context, member: Optional[discord.Member] = None):
+    async def checkawards(self, ctx: commands.Context, member: Optional[discord.Member] = None):
         await ctx.defer(thinking=True, ephemeral=True)
         guild = ctx.guild
         member = member or ctx.user
@@ -469,7 +469,7 @@ class AwardCommands(commands.Cog):
             await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command()
-    async def leaderboard(ctx: commands.Context):
+    async def leaderboard(self, ctx: commands.Context):
         await ctx.defer(thinking=True)
         guild = ctx.guild
         sing_low = guilds[guild.id]["singular_lower"] or "award"
