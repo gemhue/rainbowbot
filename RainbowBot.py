@@ -518,11 +518,12 @@ class AwardCommands(commands.Cog):
             if str(reaction.emoji) == moji:
                 if guild.id in guilds:
                     if member.id in guilds[guild.id]:
-                        if guilds[guild.id][member.id]["awards"] >= 1:
-                            guilds[guild.id][member.id]["awards"] -= 1
-                            awards = guilds[guild.id][member.id]["awards"]
-                            embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{user.mention} has removed 1 {sing_low} from {member.mention}'s total via an emoji unreaction. {member.mention}'s new total number of {plur_low} is {awards}!")
-                            await message.channel.send(embed=embed, reference=message)
+                        if "awards" in guilds[guild.id][member.id]:
+                            if guilds[guild.id][member.id]["awards"] >= 1:
+                                guilds[guild.id][member.id]["awards"] -= 1
+                                awards = guilds[guild.id][member.id]["awards"]
+                                embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{user.mention} has removed 1 {sing_low} from {member.mention}'s total via an emoji unreaction. {member.mention}'s new total number of {plur_low} is {awards}!")
+                                await message.channel.send(embed=embed, reference=message)
 
     @commands.hybrid_command(name="addawards")
     async def addawards(self, ctx: commands.Context, amount: Optional[int] = None, member: Optional[discord.Member] = None):
@@ -546,30 +547,34 @@ class AwardCommands(commands.Cog):
         moji = guilds[guild.id]["emoji"] or "🏅"
         if guild.id in guilds:
             if member.id in guilds[guild.id]:
-                guilds[guild.id][member.id]["awards"] += amount
-                if guilds[guild.id][member.id]["awards"] == 1:
-                    embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
-                    await ctx.send(embed=embed, ephemeral=True)
+                if "awards" in guilds[guild.id][member.id]:
+                    guilds[guild.id][member.id]["awards"] += amount
+                    if guilds[guild.id][member.id]["awards"] == 1:
+                        embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
+                    else:
+                        embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
                 else:
-                    embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
-                    await ctx.send(embed=embed, ephemeral=True)
+                    guilds[guild.id][member.id]["awards"] = amount
+                    if guilds[guild.id][member.id]["awards"] == 1:
+                        embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
+                    else:
+                        embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
             else:
+                guilds[guild.id][member.id] = {}
                 guilds[guild.id][member.id]["awards"] = amount
                 if guilds[guild.id][member.id]["awards"] == 1:
                     embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
-                    await ctx.send(embed=embed, ephemeral=True)
                 else:
                     embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
-                    await ctx.send(embed=embed, ephemeral=True)
         else:
             guilds[guild.id] = {}
+            guilds[guild.id][member.id] = {}
             guilds[guild.id][member.id]["awards"] = amount
             if guilds[guild.id][member.id]["awards"] == 1:
                 embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
-                await ctx.send(embed=embed, ephemeral=True)
             else:
                 embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
-                await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command(name="removeawards")
     async def removeawards(self, ctx: commands.Context, amount: Optional[int] = None, member: Optional[discord.Member] = None):
@@ -593,23 +598,27 @@ class AwardCommands(commands.Cog):
         moji = guilds[guild.id]["emoji"] or "🏅"
         if guild.id in guilds:
             if member.id in guilds[guild.id]:
-                if guilds[guild.id][member.id]["awards"] == 0:
-                    embed = discord.Embed(title="Error", description=f"{member.mention} doesn't have any {plur_low}!")
-                    await ctx.send(embed=embed, ephemeral=True)
-                elif guilds[guild.id][member.id]["awards"] < amount:
-                    embed = discord.Embed(title="Error", description=f"{member.mention} doesn't have enough {plur_low}!")
-                    await ctx.send(embed=embed, ephemeral=True)
-                else:
-                    guilds[guild.id][member.id]["awards"] -= amount
+                if "awards" in guilds[guild.id][member.id]:
                     if guilds[guild.id][member.id]["awards"] == 0:
-                        embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} no longer has any {plur_low}!")
+                        embed = discord.Embed(title="Error", description=f"{member.mention} doesn't have any {plur_low}!")
                         await ctx.send(embed=embed, ephemeral=True)
-                    elif guilds[guild.id][member.id]["awards"] == 1:
-                        embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
+                    elif guilds[guild.id][member.id]["awards"] < amount:
+                        embed = discord.Embed(title="Error", description=f"{member.mention} doesn't have enough {plur_low}!")
                         await ctx.send(embed=embed, ephemeral=True)
                     else:
-                        embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
-                        await ctx.send(embed=embed, ephemeral=True)
+                        guilds[guild.id][member.id]["awards"] -= amount
+                        if guilds[guild.id][member.id]["awards"] == 0:
+                            embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} no longer has any {plur_low}!")
+                            await ctx.send(embed=embed, ephemeral=True)
+                        elif guilds[guild.id][member.id]["awards"] == 1:
+                            embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
+                            await ctx.send(embed=embed, ephemeral=True)
+                        else:
+                            embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
+                            await ctx.send(embed=embed, ephemeral=True)
+                else:
+                    embed = discord.Embed(title="Error", description=f"{member.mention} doesn't exist in the {sing_low} log.")
+                    await ctx.send(embed=embed, ephemeral=True)
             else:
                 embed = discord.Embed(title="Error", description=f"{member.mention} doesn't exist in the {sing_low} log.")
                 await ctx.send(embed=embed, ephemeral=True)
@@ -636,14 +645,18 @@ class AwardCommands(commands.Cog):
         moji = guilds[guild.id]["emoji"] or "🏅"
         if guild.id in guilds:
             if member.id in guilds[guild.id]:
-                if guilds[guild.id][member.id]["awards"] == 0:
-                    embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} doesn't have any {plur_low}!")
-                    await ctx.send(embed=embed, ephemeral=True)
-                elif guilds[guild.id][member.id]["awards"] == 1:
-                    embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
-                    await ctx.send(embed=embed, ephemeral=True)
+                if "awards" in guilds[guild.id][member.id]:
+                    if guilds[guild.id][member.id]["awards"] == 0:
+                        embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} doesn't have any {plur_low}!")
+                        await ctx.send(embed=embed, ephemeral=True)
+                    elif guilds[guild.id][member.id]["awards"] == 1:
+                        embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
+                        await ctx.send(embed=embed, ephemeral=True)
+                    else:
+                        embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
+                        await ctx.send(embed=embed, ephemeral=True)
                 else:
-                    embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
+                    embed = discord.Embed(title="Error", description=f"{member.mention} doesn't exist in the {sing_low} log.")
                     await ctx.send(embed=embed, ephemeral=True)
             else:
                 embed = discord.Embed(title="Error", description=f"{member.mention} doesn't exist in the {sing_low} log.")
@@ -679,7 +692,6 @@ class AwardCommands(commands.Cog):
         description = "\n\n".join(x for x in desc)
         embed = discord.Embed(title=f"{moji} {sing_cap} Leaderboard {moji}", description=description)
         await ctx.send(embed=embed)
-            
 
 class ProfileCommands(commands.Cog):
     def __init__(self, bot):
@@ -714,86 +726,86 @@ class ProfileCommands(commands.Cog):
         guild = ctx.guild
         member = ctx.author
         if guild in guilds:
-            if member in guilds[guild]:
-                if name == None:
-                    guilds[guild][member]["Name"] = guilds[guild][member]["Name"] or None
-                else:
-                    guilds[guild][member]["Name"] = name
-                if age == None:
-                    guilds[guild][member]["Age"] = guilds[guild][member]["Age"] or None
-                else:
-                    guilds[guild][member]["Age"] = age
-                if location == None:
-                    guilds[guild][member]["Location"] = guilds[guild][member]["Location"] or None
-                else:
-                    guilds[guild][member]["Location"] = location
-                if pronouns == None:
-                    guilds[guild][member]["Pronouns"] = guilds[guild][member]["Pronouns"] or None
-                else:
-                    guilds[guild][member]["Pronouns"] = pronouns
-                if gender == None:
-                    guilds[guild][member]["Gender"] = guilds[guild][member]["Gender"] or None
-                else:
-                    guilds[guild][member]["Gender"] = gender
-                if sexuality == None:
-                    guilds[guild][member]["Sexuality"] = guilds[guild][member]["Sexuality"] or None
-                else:
-                    guilds[guild][member]["Sexuality"] = sexuality
-                if relationship == None:
-                    guilds[guild][member]["Relationship Status"] = guilds[guild][member]["Relationship Status"] or None
-                else:
-                    guilds[guild][member]["Relationship Status"] = relationship
-                if family == None:
-                    guilds[guild][member]["Family Planning Status"] = guilds[guild][member]["Family Planning Status"] or None
-                else:
-                    guilds[guild][member]["Family Planning Status"] = family
-                if biography == None:
-                    guilds[guild][member]["Biography"] = guilds[guild][member]["Biography"] or None
-                else:
-                    guilds[guild][member]["Biography"] = biography
+            if member in guilds[guild.id]:
+                if name is not None:
+                    guilds[guild.id][member.id]["Name"] = name
+                if age is not None:
+                    guilds[guild.id][member.id]["Age"] = age
+                if location is not None:
+                    guilds[guild.id][member.id]["Location"] = location
+                if pronouns is not None:
+                    guilds[guild.id][member.id]["Pronouns"] = pronouns
+                if gender is not None:
+                    guilds[guild.id][member.id]["Gender"] = gender
+                if sexuality is not None:
+                    guilds[guild.id][member.id]["Sexuality"] = sexuality
+                if relationship is not None:
+                    guilds[guild.id][member.id]["Relationship Status"] = relationship
+                if family is not None:
+                    guilds[guild.id][member.id]["Family Planning Status"] = family
+                if biography is not None:
+                    guilds[guild.id][member.id]["Biography"] = biography
             else:
-                guilds[guild][member] = {}
-                guilds[guild][member]["Name"] = name or None
-                guilds[guild][member]["Age"] = age or None
-                guilds[guild][member]["Location"] = location or None
-                guilds[guild][member]["Pronouns"] = pronouns or None
-                guilds[guild][member]["Gender"] = gender or None
-                guilds[guild][member]["Sexuality"] = sexuality or None
-                guilds[guild][member]["Relationship Status"] = relationship or None
-                guilds[guild][member]["Family Planning Status"] = family or None
-                guilds[guild][member]["Biography"] = biography or None
+                guilds[guild.id][member.id] = {}
+                if name is not None:
+                    guilds[guild.id][member.id]["Name"] = name
+                if age is not None:
+                    guilds[guild.id][member.id]["Age"] = age
+                if location is not None:
+                    guilds[guild.id][member.id]["Location"] = location
+                if pronouns is not None:
+                    guilds[guild.id][member.id]["Pronouns"] = pronouns
+                if gender is not None:
+                    guilds[guild.id][member.id]["Gender"] = gender
+                if sexuality is not None:
+                    guilds[guild.id][member.id]["Sexuality"] = sexuality
+                if relationship is not None:
+                    guilds[guild.id][member.id]["Relationship Status"] = relationship
+                if family is not None:
+                    guilds[guild.id][member.id]["Family Planning Status"] = family
+                if biography is not None:
+                    guilds[guild.id][member.id]["Biography"] = biography
         else:
-            guilds[guild] = {}
-            guilds[guild][member] = {}
-            guilds[guild][member]["Name"] = name or None
-            guilds[guild][member]["Age"] = age or None
-            guilds[guild][member]["Location"] = location or None
-            guilds[guild][member]["Pronouns"] = pronouns or None
-            guilds[guild][member]["Gender"] = gender or None
-            guilds[guild][member]["Sexuality"] = sexuality or None
-            guilds[guild][member]["Relationship Status"] = relationship or None
-            guilds[guild][member]["Family Planning Status"] = family or None
-            guilds[guild][member]["Biography"] = biography or None
-        name = guilds[guild][member]["Name"]
-        age = guilds[guild][member]["Age"]
-        location = guilds[guild][member]["Location"]
-        pronouns = guilds[guild][member]["Pronouns"]
-        gender = guilds[guild][member]["Gender"]
-        sexuality = guilds[guild][member]["Sexuality"]
-        relationship = guilds[guild][member]["Relationship Status"]
-        family = guilds[guild][member]["Family Planning Status"]
-        biography = guilds[guild][member]["Biography"]
+            guilds[guild.id] = {}
+            guilds[guild.id][member.id] = {}
+            guilds[guild.id][member.id]["Name"] = name or None
+            guilds[guild.id][member.id]["Age"] = age or None
+            guilds[guild.id][member.id]["Location"] = location or None
+            guilds[guild.id][member.id]["Pronouns"] = pronouns or None
+            guilds[guild.id][member.id]["Gender"] = gender or None
+            guilds[guild.id][member.id]["Sexuality"] = sexuality or None
+            guilds[guild.id][member.id]["Relationship Status"] = relationship or None
+            guilds[guild.id][member.id]["Family Planning Status"] = family or None
+            guilds[guild.id][member.id]["Biography"] = biography or None
         embed = discord.Embed(color=member.accent_color)
         embed.set_author(name=f"{member.name}", icon_url=f"{member.avatar}")
-        embed.add_field(name="🏷️ Name", value=f"{name}", inline=True)
-        embed.add_field(name="🏷️ Age", value=f"{age}", inline=True)
-        embed.add_field(name="🏷️ Location", value=f"{location}", inline=True)
-        embed.add_field(name="🏷️ Pronouns", value=f"{pronouns}", inline=True)
-        embed.add_field(name="🏷️ Gender", value=f"{gender}", inline=True)
-        embed.add_field(name="🏷️ Sexuality", value=f"{sexuality}", inline=True)
-        embed.add_field(name="📝 Relationship Status", value=f"{relationship}", inline=True)
-        embed.add_field(name="📝 Family Planning Status", value=f"{family}", inline=True)
-        embed.add_field(name="📝 Biography", value=f"{biography}", inline=False)
+        if guilds[guild.id][member.id]["Name"] is not None:
+            name = guilds[guild.id][member.id]["Name"]
+            embed.add_field(name="🏷️ Name", value=f"{name}", inline=True)
+        if guilds[guild.id][member.id]["Age"] is not None:
+            age = guilds[guild.id][member.id]["Age"]
+            embed.add_field(name="🏷️ Age", value=f"{age}", inline=True)
+        if guilds[guild.id][member.id]["Location"] is not None:
+            location = guilds[guild.id][member.id]["Location"]
+            embed.add_field(name="🏷️ Location", value=f"{location}", inline=True)
+        if guilds[guild.id][member.id]["Pronouns"] is not None:
+            pronouns = guilds[guild.id][member.id]["Pronouns"]
+            embed.add_field(name="🏷️ Pronouns", value=f"{pronouns}", inline=True)
+        if guilds[guild.id][member.id]["Gender"] is not None:
+            gender = guilds[guild.id][member.id]["Gender"]
+            embed.add_field(name="🏷️ Gender", value=f"{gender}", inline=True)
+        if guilds[guild.id][member.id]["Sexuality"] is not None:
+            sexuality = guilds[guild.id][member.id]["Sexuality"]
+            embed.add_field(name="🏷️ Sexuality", value=f"{sexuality}", inline=True)
+        if guilds[guild.id][member.id]["Relationship Status"] is not None:
+            relationship = guilds[guild.id][member.id]["Relationship Status"]
+            embed.add_field(name="📝 Relationship Status", value=f"{relationship}", inline=True)
+        if guilds[guild.id][member.id]["Family Planning Status"] is not None:
+            family = guilds[guild.id][member.id]["Family Planning Status"]
+            embed.add_field(name="📝 Family Planning Status", value=f"{family}", inline=True)
+        if guilds[guild.id][member.id]["Biography"] is not None:
+            biography = guilds[guild.id][member.id]["Biography"] or None
+            embed.add_field(name="📝 Biography", value=f"{biography}", inline=False)
         embed.add_field(name="📝 Roles", value=f"{member.roles}", inline=False)
         joined = discord.utils.format_dt(member.joined_at, style="R")
         embed.set_footer(text=f"Member of {guild.name} for {joined}.")
@@ -810,7 +822,7 @@ class ProfileCommands(commands.Cog):
         """
         guild = ctx.guild
         member = ctx.author
-        guilds[guild][member]["Name"] = name
+        guilds[guild.id][member.id]["Name"] = name
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile name is now set to: {name}")
         await ctx.send(embed=embed, ephemeral=True)
 
@@ -825,7 +837,7 @@ class ProfileCommands(commands.Cog):
         """
         guild = ctx.guild
         member = ctx.author
-        guilds[guild][member]["Age"] = age
+        guilds[guild.id][member.id]["Age"] = age
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile age is now set to: {age}")
         await ctx.send(embed=embed, ephemeral=True)
 
@@ -840,7 +852,7 @@ class ProfileCommands(commands.Cog):
         """
         guild = ctx.guild
         member = ctx.author
-        guilds[guild][member]["Location"] = location
+        guilds[guild.id][member.id]["Location"] = location
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile location is now set to: {location}")
         await ctx.send(embed=embed, ephemeral=True)
 
@@ -855,7 +867,7 @@ class ProfileCommands(commands.Cog):
         """
         guild = ctx.guild
         member = ctx.author
-        guilds[guild][member]["Pronouns"] = pronouns
+        guilds[guild.id][member.id]["Pronouns"] = pronouns
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile pronouns are now set to: {pronouns}")
         await ctx.send(embed=embed, ephemeral=True)
 
@@ -870,7 +882,7 @@ class ProfileCommands(commands.Cog):
         """
         guild = ctx.guild
         member = ctx.author
-        guilds[guild][member]["Gender"] = gender
+        guilds[guild.id][member.id]["Gender"] = gender
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile gender is now set to: {gender}")
         await ctx.send(embed=embed, ephemeral=True)
 
@@ -885,7 +897,7 @@ class ProfileCommands(commands.Cog):
         """
         guild = ctx.guild
         member = ctx.author
-        guilds[guild][member]["Sexuality"] = sexuality
+        guilds[guild.id][member.id]["Sexuality"] = sexuality
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile sexuality is now set to: {sexuality}")
         await ctx.send(embed=embed, ephemeral=True)
 
@@ -900,7 +912,7 @@ class ProfileCommands(commands.Cog):
         """
         guild = ctx.guild
         member = ctx.author
-        guilds[guild][member]["Relationship Status"] = relationship
+        guilds[guild.id][member.id]["Relationship Status"] = relationship
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile relationship status is now set to: {relationship}")
         await ctx.send(embed=embed, ephemeral=True)
 
@@ -915,7 +927,7 @@ class ProfileCommands(commands.Cog):
         """
         guild = ctx.guild
         member = ctx.author
-        guilds[guild][member]["Family Planning Status"] = family
+        guilds[guild.id][member.id]["Family Planning Status"] = family
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile family planning status is now set to: {family}")
         await ctx.send(embed=embed, ephemeral=True)
 
@@ -930,7 +942,7 @@ class ProfileCommands(commands.Cog):
         """
         guild = ctx.guild
         member = ctx.author
-        guilds[guild][member]["Biography"] = biography
+        guilds[guild.id][member.id]["Biography"] = biography
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile biography is now set to: {biography}")
         await ctx.send(embed=embed, ephemeral=True)
 
@@ -944,30 +956,43 @@ class ProfileCommands(commands.Cog):
             Provide the member whose profile you would like to retrieve.
         """
         guild = ctx.guild
-        name = guilds[guild][member]["Name"]
-        age = guilds[guild][member]["Age"]
-        location = guilds[guild][member]["Location"]
-        pronouns = guilds[guild][member]["Pronouns"]
-        gender = guilds[guild][member]["Gender"]
-        sexuality = guilds[guild][member]["Sexuality"]
-        relationship_status = guilds[guild][member]["Relationship Status"]
-        family_planning_status = guilds[guild][member]["Family Planning Status"]
-        biography = guilds[guild][member]["Biography"]
-        embed = discord.Embed(color=member.accent_color)
-        embed.set_author(name=f"{member.name}", icon_url=f"{member.avatar}")
-        embed.add_field(name="🏷️ Name", value=f"{name}", inline=True)
-        embed.add_field(name="🏷️ Age", value=f"{age}", inline=True)
-        embed.add_field(name="🏷️ Location", value=f"{location}", inline=True)
-        embed.add_field(name="🏷️ Pronouns", value=f"{pronouns}", inline=True)
-        embed.add_field(name="🏷️ Gender", value=f"{gender}", inline=True)
-        embed.add_field(name="🏷️ Sexuality", value=f"{sexuality}", inline=True)
-        embed.add_field(name="📝 Relationship Status", value=f"{relationship_status}", inline=True)
-        embed.add_field(name="📝 Family Planning Status", value=f"{family_planning_status}", inline=True)
-        embed.add_field(name="📝 Biography", value=f"{biography}", inline=False)
-        embed.add_field(name="📝 Roles", value=f"{member.roles}", inline=False)
-        joined = discord.utils.format_dt(member.joined_at, style="R")
-        embed.set_footer(text=f"Member of {guild.name} for {joined}.")
-        await ctx.send(embed=embed)
+        if guild.id in guilds:
+            if member.id in guilds[guild.id]:
+                embed = discord.Embed(color=member.accent_color)
+                embed.set_author(name=f"{member.name}", icon_url=f"{member.avatar}")
+                if guilds[guild.id][member.id]["Name"] is not None:
+                    name = guilds[guild.id][member.id]["Name"]
+                    embed.add_field(name="🏷️ Name", value=f"{name}", inline=True)
+                if guilds[guild.id][member.id]["Age"] is not None:
+                    age = guilds[guild.id][member.id]["Age"]
+                    embed.add_field(name="🏷️ Age", value=f"{age}", inline=True)
+                if guilds[guild.id][member.id]["Location"] is not None:
+                    location = guilds[guild.id][member.id]["Location"]
+                    embed.add_field(name="🏷️ Location", value=f"{location}", inline=True)
+                if guilds[guild.id][member.id]["Pronouns"] is not None:
+                    pronouns = guilds[guild.id][member.id]["Pronouns"]
+                    embed.add_field(name="🏷️ Pronouns", value=f"{pronouns}", inline=True)
+                if guilds[guild.id][member.id]["Gender"] is not None:
+                    gender = guilds[guild.id][member.id]["Gender"]
+                    embed.add_field(name="🏷️ Gender", value=f"{gender}", inline=True)
+                if guilds[guild.id][member.id]["Sexuality"] is not None:
+                    sexuality = guilds[guild.id][member.id]["Sexuality"]
+                    embed.add_field(name="🏷️ Sexuality", value=f"{sexuality}", inline=True)
+                if guilds[guild.id][member.id]["Relationship Status"] is not None:
+                    relationship = guilds[guild.id][member.id]["Relationship Status"]
+                    embed.add_field(name="📝 Relationship Status", value=f"{relationship}", inline=True)
+                if guilds[guild.id][member.id]["Family Planning Status"] is not None:
+                    family = guilds[guild.id][member.id]["Family Planning Status"]
+                    embed.add_field(name="📝 Family Planning Status", value=f"{family}", inline=True)
+                if guilds[guild.id][member.id]["Biography"] is not None:
+                    biography = guilds[guild.id][member.id]["Biography"] or None
+                    embed.add_field(name="📝 Biography", value=f"{biography}", inline=False)
+                embed.add_field(name="📝 Roles", value=f"{member.roles}", inline=False)
+                joined = discord.utils.format_dt(member.joined_at, style="R")
+                embed.set_footer(text=f"Member of {guild.name} for {joined}.")
+            else:
+                embed = discord.Embed(title="Error", description="The user has not set a profile.")
+        await ctx.send(embed=embed, ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(BackgroundTasks(bot), override=True)
