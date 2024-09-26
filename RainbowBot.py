@@ -1,6 +1,6 @@
 import string
 import discord
-from discord import ChannelType
+from discord import ChannelType, app_commands
 from discord.ui import ChannelSelect
 from discord.ext import commands
 from typing import Any, Optional
@@ -134,6 +134,7 @@ class SetupCommands(commands.Cog):
 
     @commands.hybrid_command(name="setchannels")
     @commands.has_guild_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
     async def setchannels(self, ctx: commands.Context, logging_channel: Optional[discord.TextChannel], welcome_channel: Optional[discord.TextChannel], goodbye_channel: Optional[discord.TextChannel]):
         """Sets the channels for logging messages, welcome messages, and goodbye messages.
 
@@ -160,6 +161,7 @@ class SetupCommands(commands.Cog):
 
     @commands.hybrid_command(name="setwelcome")
     @commands.has_guild_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
     async def setwelcome(self, ctx: commands.Context, message: str):
         """Sets the welcome message for members who leave the server.
 
@@ -178,6 +180,7 @@ class SetupCommands(commands.Cog):
 
     @commands.hybrid_command(name="setgoodbye")
     @commands.has_guild_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
     async def setgoodbye(self, ctx: commands.Context, message: str):
         """Sets the goodbye message for members who leave the server.
 
@@ -196,6 +199,7 @@ class SetupCommands(commands.Cog):
 
     @commands.hybrid_command(name="setjoinroles")
     @commands.has_guild_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
     async def setjoinroles(self, ctx: commands.Context, role: discord.Role, botrole: Optional[discord.Role]):
         """Sets the roles to give to new members who join the server.
 
@@ -223,6 +227,7 @@ class SetupCommands(commands.Cog):
 
     @commands.hybrid_command(name="activityroles")
     @commands.has_guild_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
     async def activityroles(self, ctx: commands.Context, days: int, active: discord.Role, inactive: discord.Role):
         """Assigns an active role to active members and an inactive role to inactive members.
 
@@ -272,6 +277,7 @@ class PurgeCommands(commands.Cog):
 
     @commands.hybrid_command(name="purgemember")
     @commands.has_guild_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
     async def purgemember(self, ctx: commands.Context, member: discord.Member):
         """Purge all of a member's unpinned messages in a set list of up to 25 channels. (Admin Only)
 
@@ -314,6 +320,7 @@ class PurgeCommands(commands.Cog):
 
     @commands.hybrid_command(name="purgechannels")
     @commands.has_guild_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
     async def purgechannels(self, ctx: commands.Context):
         """Purge all unpinned messages in a set list of up to 25 channels. (Admin Only)"""
         await ctx.defer()
@@ -350,6 +357,7 @@ class PurgeCommands(commands.Cog):
 
     @commands.hybrid_command(name="purgeserver")
     @commands.has_guild_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
     async def purgeserver(self, ctx: commands.Context):
         """Purges all unpinned messages in a server, excluding up to 25 channels. (Admin Only)"""
         await ctx.defer()
@@ -391,6 +399,7 @@ class AwardCommands(commands.Cog):
     
     @commands.hybrid_command(name="setawards")
     @commands.has_guild_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
     async def setawards(self, ctx: commands.Context, name_singular: str, name_plural: str, emoji: str):
         """Sets the name and emoji for the server awards.
 
@@ -428,6 +437,7 @@ class AwardCommands(commands.Cog):
 
     @commands.hybrid_command(name="clearawards")
     @commands.has_guild_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
     async def clearawards(self, ctx: commands.Context):
         """Clears all of the awards in the server.
         """
@@ -457,6 +467,7 @@ class AwardCommands(commands.Cog):
     
     @commands.hybrid_command(name="awardreactiontoggle")
     @commands.has_guild_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
     async def awardreactiontoggle(self, ctx: commands.Context, toggle: bool):
         """Toggles the ability for users to add or remove awards with reactions.
 
@@ -777,7 +788,8 @@ class ProfileCommands(commands.Cog):
             guilds[guild.id][member.id]["Relationship Status"] = relationship or None
             guilds[guild.id][member.id]["Family Planning Status"] = family or None
             guilds[guild.id][member.id]["Biography"] = biography or None
-        embed = discord.Embed(color=member.accent_color)
+        joined = discord.utils.format_dt(member.joined_at, style="R")
+        embed = discord.Embed(color=member.accent_color, title="Member Profile", description=f"Member of {guild.name} for {joined}.")
         embed.set_author(name=f"{member.name}", icon_url=f"{member.avatar}")
         if guilds[guild.id][member.id]["Name"] is not None:
             name = guilds[guild.id][member.id]["Name"]
@@ -806,9 +818,8 @@ class ProfileCommands(commands.Cog):
         if guilds[guild.id][member.id]["Biography"] is not None:
             biography = guilds[guild.id][member.id]["Biography"] or None
             embed.add_field(name="📝 Biography", value=f"{biography}", inline=False)
-        embed.add_field(name="📝 Roles", value=f"{member.roles}", inline=False)
-        joined = discord.utils.format_dt(member.joined_at, style="R")
-        embed.set_footer(text=f"Member of {guild.name} for {joined}.")
+        roles = [r.mention for r in member.roles]
+        embed.add_field(name="📝 Roles", value=f"{roles}", inline=False)
         await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command(name="setprofilename")
@@ -958,7 +969,8 @@ class ProfileCommands(commands.Cog):
         guild = ctx.guild
         if guild.id in guilds:
             if member.id in guilds[guild.id]:
-                embed = discord.Embed(color=member.accent_color)
+                joined = discord.utils.format_dt(member.joined_at, style="R")
+                embed = discord.Embed(color=member.accent_color, title="Member Profile", description=f"Member of {guild.name} for {joined}.")
                 embed.set_author(name=f"{member.name}", icon_url=f"{member.avatar}")
                 if guilds[guild.id][member.id]["Name"] is not None:
                     name = guilds[guild.id][member.id]["Name"]
@@ -987,9 +999,8 @@ class ProfileCommands(commands.Cog):
                 if guilds[guild.id][member.id]["Biography"] is not None:
                     biography = guilds[guild.id][member.id]["Biography"] or None
                     embed.add_field(name="📝 Biography", value=f"{biography}", inline=False)
-                embed.add_field(name="📝 Roles", value=f"{member.roles}", inline=False)
-                joined = discord.utils.format_dt(member.joined_at, style="R")
-                embed.set_footer(text=f"Member of {guild.name} for {joined}.")
+                roles = [r.mention for r in member.roles]
+                embed.add_field(name="📝 Roles", value=f"{roles}", inline=False)
             else:
                 embed = discord.Embed(title="Error", description="The user has not set a profile.")
         await ctx.send(embed=embed, ephemeral=True)
