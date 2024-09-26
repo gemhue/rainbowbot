@@ -566,7 +566,7 @@ class AwardCommands(commands.Cog):
         await ctx.defer(ephemeral=True)
         guild = ctx.guild
         amount = amount or 1
-        member = member or ctx.user
+        member = member or ctx.author
         sing_low = guilds[guild.id]["singular lower"] or 'award'
         sing_cap = guilds[guild.id]["singular caps"] or 'Award'
         plur_low = guilds[guild.id]["plural lower"] or 'awards'
@@ -617,7 +617,7 @@ class AwardCommands(commands.Cog):
         await ctx.defer(ephemeral=True)
         guild = ctx.guild
         amount = amount or 1
-        member = member or ctx.user
+        member = member or ctx.author
         sing_low = guilds[guild.id]["singular lower"] or 'award'
         sing_cap = guilds[guild.id]["singular caps"] or 'Award'
         plur_low = guilds[guild.id]["plural lower"] or 'awards'
@@ -664,7 +664,7 @@ class AwardCommands(commands.Cog):
         """
         await ctx.defer(ephemeral=True)
         guild = ctx.guild
-        member = member or ctx.user
+        member = member or ctx.author
         sing_low = guilds[guild.id]["singular lower"] or 'award'
         sing_cap = guilds[guild.id]["singular caps"] or 'Award'
         plur_low = guilds[guild.id]["plural lower"] or 'awards'
