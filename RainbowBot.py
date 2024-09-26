@@ -836,6 +836,7 @@ class ProfileCommands(commands.Cog):
             biography = guilds[guild.id][member.id]["Biography"] or None
             embed.add_field(name="📝 Biography", value=f"{biography}", inline=False)
         roles = [r.mention for r in member.roles]
+        roles = ", ".join(roles)
         embed.add_field(name="📝 Roles", value=f"{roles}", inline=False)
         await ctx.send(embed=embed, ephemeral=True)
 
@@ -1018,6 +1019,7 @@ class ProfileCommands(commands.Cog):
                     biography = guilds[guild.id][member.id]["Biography"] or None
                     embed.add_field(name="📝 Biography", value=f"{biography}", inline=False)
                 roles = [r.mention for r in member.roles]
+                roles = ", ".join(roles)
                 embed.add_field(name="📝 Roles", value=f"{roles}", inline=False)
             else:
                 embed = discord.Embed(title="Error", description="The user has not set a profile.")
