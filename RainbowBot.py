@@ -157,7 +157,7 @@ class SetupCommands(commands.Cog):
             guilds[guild.id]["logging channel"] = logging_channel
             guilds[guild.id]["welcome channel"] = welcome_channel
             guilds[guild.id]["goodbye channel"] = goodbye_channel
-        await ctx.send(f"**Logging Channel**: {logging_channel}\n**Welcome Channel**: {welcome_channel}\n**Goodbye Channel**: {goodbye_channel}")
+        await ctx.send(f"**Logging Channel**: {logging_channel.mention}\n**Welcome Channel**: {welcome_channel.mention}\n**Goodbye Channel**: {goodbye_channel.mention}")
 
     @commands.hybrid_command(name="setwelcome")
     @commands.has_guild_permissions(administrator=True)
@@ -213,17 +213,17 @@ class SetupCommands(commands.Cog):
         guild = ctx.guild
         if guild.id in guilds:  
             guilds[guild.id]["join role"] = role
-            message = await ctx.send(f"**Join Role**: {role}")
+            message = await ctx.send(f"**Join Role**: {role.mention}")
             if botrole is not None:
                 guilds[guild.id]["bot role"] = botrole
-                await message.edit(f"**Join Role**: {role}\n\n**Bot Role**: {botrole}")
+                await message.edit(f"**Join Role**: {role.mention}\n\n**Bot Role**: {botrole.mention}")
         else:
             guilds[guild.id] = {}
             guilds[guild.id]["join role"] = role
-            message = await ctx.send(f"**Join Role**: {role}")
+            message = await ctx.send(f"**Join Role**: {role.mention}")
             if botrole is not None:
                 guilds[guild.id]["bot role"] = botrole
-                await message.edit(f"**Join Role**: {role}\n\n**Bot Role**: {botrole}")
+                await message.edit(f"**Join Role**: {role.mention}\n\n**Bot Role**: {botrole.mention}")
 
     @commands.hybrid_command(name="activityroles")
     @commands.has_guild_permissions(administrator=True)
@@ -269,7 +269,7 @@ class SetupCommands(commands.Cog):
                 await member.add_roles(inactive)
             elif active in member.roles:
                 await member.remove_roles(active)
-        await ctx.send(f"{len(activemembers)} members now have the {active} role!\n{len(inactivemembers)} members now have the {inactive} role!")
+        await ctx.send(f"{len(activemembers)} members now have the {active.mention} role!\n{len(inactivemembers)} members now have the {inactive.mention} role!")
 
 class PurgeCommands(commands.Cog):
     def __init__(self, bot):
@@ -479,9 +479,13 @@ class AwardCommands(commands.Cog):
         guild = ctx.guild
         if guild in guilds[guild.id]:
             guilds[guild.id]["award react toggle"] = toggle
+            embed = discord.Embed(title="Update", description=f"The toggle for award reactions has been set to {toggle}.")
+            ctx.send(embed=embed)
         else:
             guilds[guild.id] = {}
             guilds[guild.id]["award react toggle"] = toggle
+            embed = discord.Embed(title="Update", description=f"The toggle for award reactions has been set to {toggle}.")
+            ctx.send(embed=embed)
 
     @commands.Cog.listener(name="reactionadd")
     async def on_reaction_add(self, reaction: discord.Reaction, user: discord.Member):
@@ -788,8 +792,9 @@ class ProfileCommands(commands.Cog):
             guilds[guild.id][member.id]["Relationship Status"] = relationship or None
             guilds[guild.id][member.id]["Family Planning Status"] = family or None
             guilds[guild.id][member.id]["Biography"] = biography or None
-        joined = discord.utils.format_dt(member.joined_at, style="R")
-        embed = discord.Embed(color=member.accent_color, title="Member Profile", description=f"Member of {guild.name} for {joined}.")
+        joined = discord.utils.format_dt(member.joined_at, style="D")
+        joinedago = discord.utils.format_dt(member.joined_at, style="R")
+        embed = discord.Embed(color=member.accent_color, title=f"{member.name}'s Member Profile", description=f"Member of {guild.name} since {joined} ({joinedago}).")
         embed.set_author(name=f"{member.name}", icon_url=f"{member.avatar}")
         if guilds[guild.id][member.id]["Name"] is not None:
             name = guilds[guild.id][member.id]["Name"]
@@ -969,8 +974,9 @@ class ProfileCommands(commands.Cog):
         guild = ctx.guild
         if guild.id in guilds:
             if member.id in guilds[guild.id]:
-                joined = discord.utils.format_dt(member.joined_at, style="R")
-                embed = discord.Embed(color=member.accent_color, title="Member Profile", description=f"Member of {guild.name} for {joined}.")
+                joined = discord.utils.format_dt(member.joined_at, style="D")
+                joinedago = discord.utils.format_dt(member.joined_at, style="R")
+                embed = discord.Embed(color=member.accent_color, title=f"{member.name}'s Member Profile", description=f"Member of {guild.name} since {joined} ({joinedago}).")
                 embed.set_author(name=f"{member.name}", icon_url=f"{member.avatar}")
                 if guilds[guild.id][member.id]["Name"] is not None:
                     name = guilds[guild.id][member.id]["Name"]
