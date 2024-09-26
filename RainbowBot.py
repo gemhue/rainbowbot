@@ -16,7 +16,13 @@ guilds = {}
 
 class ChannelsSelector(ChannelSelect):
     def __init__(self):
-        super().__init__(channel_types=[ChannelType.text], placeholder="Select channels... (Limit: 25)", row=1)
+        super().__init__(
+            channel_types=[ChannelType.text],
+            placeholder="Select channels... (Limit: 25)",
+            min_values=1,
+            max_values=25,
+            row=1
+        )
 
     async def callback(self, interaction: discord.Interaction) -> Any:
         channels: list[DropdownView] = self.values
@@ -136,7 +142,7 @@ class SetupCommands(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     async def setchannels(self, ctx: commands.Context, logging_channel: Optional[discord.TextChannel], welcome_channel: Optional[discord.TextChannel], goodbye_channel: Optional[discord.TextChannel]):
-        """Sets the channels for logging messages, welcome messages, and goodbye messages.
+        """(Admin Only) Sets the channels for logging messages, welcome messages, and goodbye messages.
 
         Parameters
         -----------
@@ -163,7 +169,7 @@ class SetupCommands(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     async def setwelcome(self, ctx: commands.Context, message: str):
-        """Sets the welcome message for members who leave the server.
+        """(Admin Only) Sets the welcome message for members who leave the server.
 
         Parameters
         -----------
@@ -182,7 +188,7 @@ class SetupCommands(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     async def setgoodbye(self, ctx: commands.Context, message: str):
-        """Sets the goodbye message for members who leave the server.
+        """(Admin Only) Sets the goodbye message for members who leave the server.
 
         Parameters
         -----------
@@ -201,7 +207,7 @@ class SetupCommands(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     async def setjoinroles(self, ctx: commands.Context, role: discord.Role, botrole: Optional[discord.Role]):
-        """Sets the roles to give to new members who join the server.
+        """(Admin Only) Sets the roles to give to new members who join the server.
 
         Parameters
         -----------
@@ -229,7 +235,7 @@ class SetupCommands(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     async def activityroles(self, ctx: commands.Context, days: int, active: discord.Role, inactive: discord.Role):
-        """Assigns an active role to active members and an inactive role to inactive members.
+        """(Admin Only) Assigns an active role to active members and an inactive role to inactive members.
 
         Parameters
         -----------
@@ -252,7 +258,7 @@ class SetupCommands(commands.Cog):
         inactivemembers = []
         for channel in channels:
             async for message in channel.history(after=daysago):
-                if message.author not in activemembers:
+                if message.author is discord.Member and message.author not in activemembers:
                     activemembers.append(message.author)
         for member in members:
             if member not in newmembers and member not in activemembers:
@@ -279,7 +285,7 @@ class PurgeCommands(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     async def purgemember(self, ctx: commands.Context, member: discord.Member):
-        """Purge all of a member's unpinned messages in a set list of up to 25 channels. (Admin Only)
+        """(Admin Only) Purge all of a member's unpinned messages in a set list of up to 25 channels.
 
         Parameters
         -----------
@@ -311,6 +317,8 @@ class PurgeCommands(commands.Cog):
                 else:
                     embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just removed from {channel.mention}!')
                     await ctx.send(embed=embed)
+            embed = discord.Embed(title="✔️ Done ✔️", description=f'The purge is now complete!')
+            await ctx.send(embed=embed)
         elif view.value == False:
             embed = discord.Embed(title="❌ Cancelled ❌", description='This interaction has been cancelled. No messages have been purged.')
             await response.edit(embed=embed, view=None)
@@ -322,7 +330,7 @@ class PurgeCommands(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     async def purgechannels(self, ctx: commands.Context):
-        """Purge all unpinned messages in a set list of up to 25 channels. (Admin Only)"""
+        """(Admin Only) Purge all unpinned messages in a set list of up to 25 channels."""
         await ctx.defer()
         view = DropdownView()
         embed = discord.Embed(title="🗑️ Purge Channels 🗑️", description="Which channel(s) would you like to purge all unpinned messages from?")
@@ -348,6 +356,8 @@ class PurgeCommands(commands.Cog):
                 else:
                     embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just removed from {channel.mention}!')
                     await ctx.send(embed=embed)
+            embed = discord.Embed(title="✔️ Done ✔️", description=f'The purge is now complete!')
+            await ctx.send(embed=embed)
         elif view.value == False:
             embed = discord.Embed(title="❌ Cancelled ❌", description='This interaction has been cancelled. No messages have been purged.')
             await response.edit(embed=embed, view=None)
@@ -359,7 +369,7 @@ class PurgeCommands(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     async def purgeserver(self, ctx: commands.Context):
-        """Purges all unpinned messages in a server, excluding up to 25 channels. (Admin Only)"""
+        """(Admin Only) Purges all unpinned messages in a server, excluding up to 25 channels."""
         await ctx.defer()
         view = DropdownView()
         embed = discord.Embed(title="🗑️ Purge Server 🗑️", description="Which channels would you like to **exclude** from the purge of all unpinned messages?")
@@ -386,6 +396,8 @@ class PurgeCommands(commands.Cog):
                 else:
                     embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just removed from {channel.mention}!')
                     await ctx.send(embed=embed)
+            embed = discord.Embed(title="✔️ Done ✔️", description=f'The purge is now complete!')
+            await ctx.send(embed=embed)
         elif view.value == False:
             embed = discord.Embed(title="❌ Cancelled ❌", description='This interaction has been cancelled. No messages have been purged.')
             await response.edit(embed=embed, view=None)
@@ -401,7 +413,7 @@ class AwardCommands(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     async def setawards(self, ctx: commands.Context, name_singular: str, name_plural: str, emoji: str):
-        """Sets the name and emoji for the server awards.
+        """(Admin Only) Sets the name and emoji for the server awards.
 
         Parameters
         -----------
@@ -439,29 +451,29 @@ class AwardCommands(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     async def clearawards(self, ctx: commands.Context):
-        """Clears all of the awards in the server.
+        """(Admin Only) Clears all of the awards in the server.
         """
         await ctx.defer()
         guild = ctx.guild
-        sing_low = guilds[guild.id]["singular lower"] or "award"
-        sing_cap = guilds[guild.id]["singular caps"] or "Award"
-        plur_low = guilds[guild.id]["plural lower"] or "awards"
-        plur_cap = guilds[guild.id]["plural caps"] or "Awards"
+        sing_low = guilds[guild.id]["singular lower"] or 'award'
+        sing_cap = guilds[guild.id]["singular caps"] or 'Award'
+        plur_low = guilds[guild.id]["plural lower"] or 'awards'
+        plur_cap = guilds[guild.id]["plural caps"] or 'Awards'
         moji = guilds[guild.id]["emoji"] or "🏅"
         if guild.id in guilds:
             members = [m for m in guild.members]
             for member in members:
                 if member.id in guilds[guild.id]:
-                    guilds[guild.id][member.id]["awards"] = 0
+                    guilds[guild.id][member.id]['awards'] = 0
                 else:
                     guilds[guild.id][member.id] = {}
-                    guilds[guild.id][member.id]["awards"] = 0
+                    guilds[guild.id][member.id]['awards'] = 0
         else:
             guilds[guild.id] = {}
             members = [m for m in guild.members]
             for member in members:
                 guilds[guild.id][member.id] = {}
-                guilds[guild.id][member.id]["awards"] = 0
+                guilds[guild.id][member.id]['awards'] = 0
         embed = discord.Embed(title=f"{moji} {plur_cap} Cleared {moji}", description=f"{guild.name} has had all its {plur_low} cleared!")
         await ctx.send(embed=embed)
     
@@ -469,7 +481,7 @@ class AwardCommands(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     async def awardreactiontoggle(self, ctx: commands.Context, toggle: bool):
-        """Toggles the ability for users to add or remove awards with reactions.
+        """(Admin Only) Toggles the ability for users to add or remove awards with reactions.
 
         Parameters
         -----------
@@ -493,29 +505,29 @@ class AwardCommands(commands.Cog):
         guild = message.guild
         if guilds[guild.id]["award react toggle"] == True:
             member = message.author
-            sing_low = guilds[guild.id]["singular lower"] or "award"
-            sing_cap = guilds[guild.id]["singular caps"] or "Award"
-            plur_low = guilds[guild.id]["plural lower"] or "awards"
-            plur_cap = guilds[guild.id]["plural caps"] or "Awards"
+            sing_low = guilds[guild.id]["singular lower"] or 'award'
+            sing_cap = guilds[guild.id]["singular caps"] or 'Award'
+            plur_low = guilds[guild.id]["plural lower"] or 'awards'
+            plur_cap = guilds[guild.id]["plural caps"] or 'Awards'
             moji = guilds[guild.id]["emoji"] or "🏅"
             if str(reaction.emoji) == moji:
                 if guild.id in guilds:
                     if member.id in guilds[guild.id]:
-                        guilds[guild.id][member.id]["awards"] += 1
-                        awards = guilds[guild.id][member.id]["awards"]
+                        guilds[guild.id][member.id]['awards'] += 1
+                        awards = guilds[guild.id][member.id]['awards']
                         embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{user.mention} has added 1 {sing_low} to {member.mention}'s total via an emoji reaction. {member.mention}'s new total number of {plur_low} is {awards}!")
                         await message.channel.send(embed=embed, reference=message)
                     else:
                         guilds[guild.id][member.id] = {}
-                        guilds[guild.id][member.id]["awards"] = 1
-                        awards = guilds[guild.id][member.id]["awards"]
+                        guilds[guild.id][member.id]['awards'] = 1
+                        awards = guilds[guild.id][member.id]['awards']
                         embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{user.mention} has added 1 {sing_low} to {member.mention}'s total via an emoji reaction. {member.mention}'s new total number of {plur_low} is {awards}!")
                         await message.channel.send(embed=embed, reference=message)
                 else:
                     guilds[guild.id] = {}
                     guilds[guild.id][member.id] = {}
-                    guilds[guild.id][member.id]["awards"] = 1
-                    awards = guilds[guild.id][member.id]["awards"]
+                    guilds[guild.id][member.id]['awards'] = 1
+                    awards = guilds[guild.id][member.id]['awards']
                     embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{user.mention} has added 1 {sing_low} to {member.mention}'s total via an emoji reaction. {member.mention}'s new total number of {plur_low} is {awards}!")
                     await message.channel.send(embed=embed, reference=message)
 
@@ -525,18 +537,18 @@ class AwardCommands(commands.Cog):
         guild = message.guild
         if guilds[guild.id]["award react toggle"] == True:
             member = message.author
-            sing_low = guilds[guild.id]["singular lower"] or "award"
-            sing_cap = guilds[guild.id]["singular caps"] or "Award"
-            plur_low = guilds[guild.id]["plural lower"] or "awards"
-            plur_cap = guilds[guild.id]["plural caps"] or "Awards"
+            sing_low = guilds[guild.id]["singular lower"] or 'award'
+            sing_cap = guilds[guild.id]["singular caps"] or 'Award'
+            plur_low = guilds[guild.id]["plural lower"] or 'awards'
+            plur_cap = guilds[guild.id]["plural caps"] or 'Awards'
             moji = guilds[guild.id]["emoji"] or "🏅"
             if str(reaction.emoji) == moji:
                 if guild.id in guilds:
                     if member.id in guilds[guild.id]:
-                        if "awards" in guilds[guild.id][member.id]:
-                            if guilds[guild.id][member.id]["awards"] >= 1:
-                                guilds[guild.id][member.id]["awards"] -= 1
-                                awards = guilds[guild.id][member.id]["awards"]
+                        if 'awards' in guilds[guild.id][member.id]:
+                            if guilds[guild.id][member.id]['awards'] >= 1:
+                                guilds[guild.id][member.id]['awards'] -= 1
+                                awards = guilds[guild.id][member.id]['awards']
                                 embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{user.mention} has removed 1 {sing_low} from {member.mention}'s total via an emoji unreaction. {member.mention}'s new total number of {plur_low} is {awards}!")
                                 await message.channel.send(embed=embed, reference=message)
 
@@ -555,40 +567,40 @@ class AwardCommands(commands.Cog):
         guild = ctx.guild
         amount = amount or 1
         member = member or ctx.user
-        sing_low = guilds[guild.id]["singular lower"] or "award"
-        sing_cap = guilds[guild.id]["singular caps"] or "Award"
-        plur_low = guilds[guild.id]["plural lower"] or "awards"
-        plur_cap = guilds[guild.id]["plural caps"] or "Awards"
+        sing_low = guilds[guild.id]["singular lower"] or 'award'
+        sing_cap = guilds[guild.id]["singular caps"] or 'Award'
+        plur_low = guilds[guild.id]["plural lower"] or 'awards'
+        plur_cap = guilds[guild.id]["plural caps"] or 'Awards'
         moji = guilds[guild.id]["emoji"] or "🏅"
         if guild.id in guilds:
             if member.id in guilds[guild.id]:
-                if "awards" in guilds[guild.id][member.id]:
-                    guilds[guild.id][member.id]["awards"] += amount
-                    if guilds[guild.id][member.id]["awards"] == 1:
-                        embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
+                if 'awards' in guilds[guild.id][member.id]:
+                    guilds[guild.id][member.id]['awards'] += amount
+                    if guilds[guild.id][member.id]['awards'] == 1:
+                        embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {sing_low}!")
                     else:
-                        embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
+                        embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {plur_low}!")
                 else:
-                    guilds[guild.id][member.id]["awards"] = amount
-                    if guilds[guild.id][member.id]["awards"] == 1:
-                        embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
+                    guilds[guild.id][member.id]['awards'] = amount
+                    if guilds[guild.id][member.id]['awards'] == 1:
+                        embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {sing_low}!")
                     else:
-                        embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
+                        embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {plur_low}!")
             else:
                 guilds[guild.id][member.id] = {}
-                guilds[guild.id][member.id]["awards"] = amount
-                if guilds[guild.id][member.id]["awards"] == 1:
-                    embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
+                guilds[guild.id][member.id]['awards'] = amount
+                if guilds[guild.id][member.id]['awards'] == 1:
+                    embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {sing_low}!")
                 else:
-                    embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
+                    embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {plur_low}!")
         else:
             guilds[guild.id] = {}
             guilds[guild.id][member.id] = {}
-            guilds[guild.id][member.id]["awards"] = amount
-            if guilds[guild.id][member.id]["awards"] == 1:
-                embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
+            guilds[guild.id][member.id]['awards'] = amount
+            if guilds[guild.id][member.id]['awards'] == 1:
+                embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {sing_low}!")
             else:
-                embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
+                embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {plur_low}!")
         await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command(name="removeawards")
@@ -606,30 +618,30 @@ class AwardCommands(commands.Cog):
         guild = ctx.guild
         amount = amount or 1
         member = member or ctx.user
-        sing_low = guilds[guild.id]["singular lower"] or "award"
-        sing_cap = guilds[guild.id]["singular caps"] or "Award"
-        plur_low = guilds[guild.id]["plural lower"] or "awards"
-        plur_cap = guilds[guild.id]["plural caps"] or "Awards"
+        sing_low = guilds[guild.id]["singular lower"] or 'award'
+        sing_cap = guilds[guild.id]["singular caps"] or 'Award'
+        plur_low = guilds[guild.id]["plural lower"] or 'awards'
+        plur_cap = guilds[guild.id]["plural caps"] or 'Awards'
         moji = guilds[guild.id]["emoji"] or "🏅"
         if guild.id in guilds:
             if member.id in guilds[guild.id]:
-                if "awards" in guilds[guild.id][member.id]:
-                    if guilds[guild.id][member.id]["awards"] == 0:
+                if 'awards' in guilds[guild.id][member.id]:
+                    if guilds[guild.id][member.id]['awards'] == 0:
                         embed = discord.Embed(title="Error", description=f"{member.mention} doesn't have any {plur_low}!")
                         await ctx.send(embed=embed, ephemeral=True)
-                    elif guilds[guild.id][member.id]["awards"] < amount:
+                    elif guilds[guild.id][member.id]['awards'] < amount:
                         embed = discord.Embed(title="Error", description=f"{member.mention} doesn't have enough {plur_low}!")
                         await ctx.send(embed=embed, ephemeral=True)
                     else:
-                        guilds[guild.id][member.id]["awards"] -= amount
-                        if guilds[guild.id][member.id]["awards"] == 0:
+                        guilds[guild.id][member.id]['awards'] -= amount
+                        if guilds[guild.id][member.id]['awards'] == 0:
                             embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} no longer has any {plur_low}!")
                             await ctx.send(embed=embed, ephemeral=True)
-                        elif guilds[guild.id][member.id]["awards"] == 1:
-                            embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
+                        elif guilds[guild.id][member.id]['awards'] == 1:
+                            embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {sing_low}!")
                             await ctx.send(embed=embed, ephemeral=True)
                         else:
-                            embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
+                            embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {plur_low}!")
                             await ctx.send(embed=embed, ephemeral=True)
                 else:
                     embed = discord.Embed(title="Error", description=f"{member.mention} doesn't exist in the {sing_low} log.")
@@ -653,22 +665,22 @@ class AwardCommands(commands.Cog):
         await ctx.defer(ephemeral=True)
         guild = ctx.guild
         member = member or ctx.user
-        sing_low = guilds[guild.id]["singular lower"] or "award"
-        sing_cap = guilds[guild.id]["singular caps"] or "Award"
-        plur_low = guilds[guild.id]["plural lower"] or "awards"
-        plur_cap = guilds[guild.id]["plural caps"] or "Awards"
+        sing_low = guilds[guild.id]["singular lower"] or 'award'
+        sing_cap = guilds[guild.id]["singular caps"] or 'Award'
+        plur_low = guilds[guild.id]["plural lower"] or 'awards'
+        plur_cap = guilds[guild.id]["plural caps"] or 'Awards'
         moji = guilds[guild.id]["emoji"] or "🏅"
         if guild.id in guilds:
             if member.id in guilds[guild.id]:
-                if "awards" in guilds[guild.id][member.id]:
-                    if guilds[guild.id][member.id]["awards"] == 0:
+                if 'awards' in guilds[guild.id][member.id]:
+                    if guilds[guild.id][member.id]['awards'] == 0:
                         embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} doesn't have any {plur_low}!")
                         await ctx.send(embed=embed, ephemeral=True)
-                    elif guilds[guild.id][member.id]["awards"] == 1:
-                        embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {guilds[guild.id][member.id]["awards"]} {sing_low}!")
+                    elif guilds[guild.id][member.id]['awards'] == 1:
+                        embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {guilds[guild.id][member.id]['awards']} {sing_low}!")
                         await ctx.send(embed=embed, ephemeral=True)
                     else:
-                        embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {guilds[guild.id][member.id]["awards"]} {plur_low}!")
+                        embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {guilds[guild.id][member.id]['awards']} {plur_low}!")
                         await ctx.send(embed=embed, ephemeral=True)
                 else:
                     embed = discord.Embed(title="Error", description=f"{member.mention} doesn't exist in the {sing_low} log.")
@@ -685,18 +697,18 @@ class AwardCommands(commands.Cog):
         """Returns the current award leaderboard for the server."""
         await ctx.defer()
         guild = ctx.guild
-        sing_low = guilds[guild.id]["singular lower"] or "award"
-        sing_cap = guilds[guild.id]["singular caps"] or "Award"
-        plur_low = guilds[guild.id]["plural lower"] or "awards"
-        plur_cap = guilds[guild.id]["plural caps"] or "Awards"
+        sing_low = guilds[guild.id]["singular lower"] or 'award'
+        sing_cap = guilds[guild.id]["singular caps"] or 'Award'
+        plur_low = guilds[guild.id]["plural lower"] or 'awards'
+        plur_cap = guilds[guild.id]["plural caps"] or 'Awards'
         moji = guilds[guild.id]["emoji"] or "🏅"
         if guild.id in guilds:
             awardlog = {}
             for member in guild.members:
                 if member.id in guilds[guild.id]:
-                    if "awards" in guilds[guild.id][member.id]:
-                        if guilds[guild.id][member.id]["awards"] > 0:
-                            awards[member.id] = guilds[guild.id][member.id]["awards"]
+                    if 'awards' in guilds[guild.id][member.id]:
+                        if guilds[guild.id][member.id]['awards'] > 0:
+                            awards[member.id] = guilds[guild.id][member.id]['awards']
         else:
             embed = discord.Embed(title="Error", description=f"{guild.name} doesn't exist in the {sing_low} log.")
             await ctx.send(embed=embed, ephemeral=True)
