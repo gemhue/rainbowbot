@@ -89,10 +89,10 @@ class BackgroundTasks(commands.Cog):
         guild = member.guild
         guild_id = guild.id
         async with aiosqlite.connect('rainbowbot.db') as db:
-            channel_id = await db.execute("SELECT welcome_channel_id FROM guilds WHERE guild_id = ?", ({guild_id},))
-            message = await db.execute("SELECT welcome_message FROM guilds WHERE guild_id = ?", ({guild_id},))
-            role_id = await db.execute("SELECT join_role_id FROM guilds WHERE guild_id = ?", ({guild_id},))
-            botrole_id = await db.execute("SELECT bot_join_role_id FROM guilds WHERE guild_id = ?", ({guild_id},))
+            channel_id = await db.execute("SELECT welcome_channel_id FROM guilds WHERE guild_id = ?", (guild_id,))
+            message = await db.execute("SELECT welcome_message FROM guilds WHERE guild_id = ?", (guild_id,))
+            role_id = await db.execute("SELECT join_role_id FROM guilds WHERE guild_id = ?", (guild_id,))
+            botrole_id = await db.execute("SELECT bot_join_role_id FROM guilds WHERE guild_id = ?", (guild_id,))
             await db.close()
         if channel_id is not None:
             channel = guild.get_channel(channel_id)
@@ -112,8 +112,8 @@ class BackgroundTasks(commands.Cog):
         guild = member.guild
         guild_id = guild.id
         async with aiosqlite.connect('rainbowbot.db') as db:
-            channel_id = await db.execute("SELECT goodbye_channel_id FROM guilds WHERE guild_id = ?", ({guild_id},))
-            message = await db.execute("SELECT goodbye_message FROM guilds WHERE guild_id = ?", ({guild_id},))
+            channel_id = await db.execute("SELECT goodbye_channel_id FROM guilds WHERE guild_id = ?", (guild_id,))
+            message = await db.execute("SELECT goodbye_message FROM guilds WHERE guild_id = ?", (guild_id,))
             await db.close()
         if channel_id is not None:
             channel = guild.get_channel(channel_id)
@@ -169,14 +169,14 @@ class SetupCommands(commands.Cog):
         goodbye_id = goodbye_channel.id or None
         async with aiosqlite.connect('rainbowbot.db') as db:
             if logging_id is not None:
-                await db.execute("INSERT OR REPLACE INTO guilds (guild_id, logging_channel_id) VALUES (?,?)", ({guild_id}, {logging_id}))
-                logging_id = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", ({guild_id},))
+                await db.execute("INSERT OR REPLACE INTO guilds (guild_id, logging_channel_id) VALUES (?,?)", (guild_id, {logging_id}))
+                logging_id = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild_id,))
             if welcome_id is not None:
-                await db.execute("INSERT OR REPLACE INTO guilds (guild_id, welcome_channel_id) VALUES (?,?)", ({guild_id}, {welcome_id}))
-                welcome_id = await db.execute("SELECT welcome_channel_id FROM guilds WHERE guild_id = ?", ({guild_id},))
+                await db.execute("INSERT OR REPLACE INTO guilds (guild_id, welcome_channel_id) VALUES (?,?)", (guild_id, {welcome_id}))
+                welcome_id = await db.execute("SELECT welcome_channel_id FROM guilds WHERE guild_id = ?", (guild_id,))
             if goodbye_id is not None:
-                await db.execute("INSERT OR REPLACE INTO guilds (guild_id, goodbye_channel_id) VALUES (?,?)", ({guild_id}, {goodbye_id}))
-                goodbye_id = await db.execute("SELECT goodbye_channel_id FROM guilds WHERE guild_id = ?", ({guild_id},))
+                await db.execute("INSERT OR REPLACE INTO guilds (guild_id, goodbye_channel_id) VALUES (?,?)", (guild_id, {goodbye_id}))
+                goodbye_id = await db.execute("SELECT goodbye_channel_id FROM guilds WHERE guild_id = ?", (guild_id,))
             await db.close()
         logging = guild.get_channel(logging_id) or None
         welcome = guild.get_channel(welcome_id) or None
@@ -197,8 +197,8 @@ class SetupCommands(commands.Cog):
         guild = ctx.guild
         guild_id = guild.id
         async with aiosqlite.connect('rainbowbot.db') as db:
-            await db.execute("INSERT OR REPLACE INTO guilds (guild_id, welcome_message) VALUES (?,?)", ({guild_id}, {message}))
-            message = await db.execute("SELECT welcome_message FROM guilds WHERE guild_id = ?", ({guild_id},))
+            await db.execute("INSERT OR REPLACE INTO guilds (guild_id, welcome_message) VALUES (?,?)", (guild_id, {message}))
+            message = await db.execute("SELECT welcome_message FROM guilds WHERE guild_id = ?", (guild_id,))
             await db.close()
         await ctx.send(f"**Welcome Message**: {message}")
 
@@ -216,8 +216,8 @@ class SetupCommands(commands.Cog):
         guild = ctx.guild
         guild_id = guild.id
         async with aiosqlite.connect('rainbowbot.db') as db:
-            await db.execute("INSERT OR REPLACE INTO guilds (guild_id, goodbye_message) VALUES (?,?)", ({guild_id}, {message}))
-            message = await db.execute("SELECT goodbye_message FROM guilds WHERE guild_id = ?", ({guild_id},))
+            await db.execute("INSERT OR REPLACE INTO guilds (guild_id, goodbye_message) VALUES (?,?)", (guild_id, {message}))
+            message = await db.execute("SELECT goodbye_message FROM guilds WHERE guild_id = ?", (guild_id,))
             await db.close()
         await ctx.send(f"**Goodbye Message**: {message}")
 
@@ -238,13 +238,13 @@ class SetupCommands(commands.Cog):
         guild_id = guild.id
         role_id = role.id
         async with aiosqlite.connect('rainbowbot.db') as db:
-            await db.execute("INSERT OR REPLACE INTO guilds (guild_id, join_role_id) VALUES (?,?)", ({guild_id}, {role_id}))
-            role_id = await db.execute("SELECT join_role_id FROM guilds WHERE guild_id = ?", ({guild_id},))
+            await db.execute("INSERT OR REPLACE INTO guilds (guild_id, join_role_id) VALUES (?,?)", (guild_id, {role_id}))
+            role_id = await db.execute("SELECT join_role_id FROM guilds WHERE guild_id = ?", (guild_id,))
             role = guild.get_role(role_id)
             if botrole is not None:
                 botrole_id = botrole.id
-                await db.execute("INSERT OR REPLACE INTO guilds (guild_id, bot_join_role_id) VALUES (?,?)", ({guild_id}, {botrole_id}))
-                botrole_id = await db.execute("SELECT bot_join_role_id FROM guilds WHERE guild_id = ?", ({guild_id},))
+                await db.execute("INSERT OR REPLACE INTO guilds (guild_id, bot_join_role_id) VALUES (?,?)", (guild_id, {botrole_id}))
+                botrole_id = await db.execute("SELECT bot_join_role_id FROM guilds WHERE guild_id = ?", (guild_id,))
                 botrole = guild.get_role(botrole_id)
                 await ctx.send(f"**Join Role**: {role.mention}\n\n**Bot Role**: {botrole.mention}")
             else:
@@ -450,14 +450,14 @@ class AwardCommands(commands.Cog):
         sing_low = name_singular.lower()
         plur_low = name_plural.lower()
         async with aiosqlite.connect('rainbowbot.db') as db:
-            await db.execute("INSERT OR REPLACE INTO guilds (guild_id, award_singular) VALUES (?,?)", ({guild_id}, {sing_low}))
-            sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", ({guild_id},))
+            await db.execute("INSERT OR REPLACE INTO guilds (guild_id, award_singular) VALUES (?,?)", (guild_id, {sing_low}))
+            sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,))
             sing_cap = string.capwords(sing_low)
-            await db.execute("INSERT OR REPLACE INTO guilds (guild_id, award_plural) VALUES (?,?)", ({guild_id}, {plur_low}))
-            plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", ({guild_id},))
+            await db.execute("INSERT OR REPLACE INTO guilds (guild_id, award_plural) VALUES (?,?)", (guild_id, {plur_low}))
+            plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,))
             plur_cap = string.capwords(plur_low)
-            await db.execute("INSERT OR REPLACE INTO guilds (guild_id, award_emoji) VALUES (?,?)", ({guild_id}, {emoji}))
-            moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", ({guild_id},))
+            await db.execute("INSERT OR REPLACE INTO guilds (guild_id, award_emoji) VALUES (?,?)", (guild_id, {emoji}))
+            moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,))
             await db.close()
         embed = discord.Embed(title=f"{moji} {plur_cap} Set {moji}",description=f"The award name and emoji have been set!\n\n**Name** (singular, lowercase): {sing_low}\n\n**Name** (singular, capitalized): {sing_cap}\n\n**Name** (plural, lowercase): {plur_low}\n\n**Name** (plural, capitalized): {plur_cap}\n\n**Emoji**: {moji}")
         await ctx.send(embed=embed, ephemeral=True)
@@ -473,13 +473,13 @@ class AwardCommands(commands.Cog):
         guild_id = guild.id
         member_ids = [member.id for member in guild.members if not member.bot]
         async with aiosqlite.connect('rainbowbot.db') as db:
-            sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", ({guild_id},)) or 'award'
+            sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,)) or 'award'
             sing_cap = string.capwords(sing_low)
-            plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", ({guild_id},)) or 'awards'
+            plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,)) or 'awards'
             plur_cap = string.capwords(plur_low)
-            moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", ({guild_id},)) or '🏅'
+            moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,)) or '🏅'
             for member_id in member_ids:
-                await db.execute("INSERT OR REPLACE INTO members (member_id, awards) VALUES (?,?)", ({member_id}, {0}))
+                await db.execute("INSERT OR REPLACE INTO members (member_id, awards) VALUES (?,?)", (member_id, 0))
             await db.close()
         embed = discord.Embed(title=f"{moji} {plur_cap} Cleared {moji}", description=f"{guild.name} has had all its {plur_low} cleared!")
         await ctx.send(embed=embed, ephemeral=True)
@@ -501,11 +501,11 @@ class AwardCommands(commands.Cog):
         async with aiosqlite.connect('rainbowbot.db') as db:
             if toggle == True:
                 toggle = 1
-                await db.execute("INSERT OR REPLACE INTO guilds (guild_id, award_reaction_toggle) VALUES (?,?)", ({guild_id}, {toggle}))
+                await db.execute("INSERT OR REPLACE INTO guilds (guild_id, award_reaction_toggle) VALUES (?,?)", (guild_id, {toggle}))
                 embed = discord.Embed(title="Update", description=f"The toggle for award reactions has been set to **True**. Reacting and un-reacting to posts with the award emoji **will** now add and remove awards.")
             elif toggle == False:
                 toggle = 0
-                await db.execute("INSERT OR REPLACE INTO guilds (guild_id, award_reaction_toggle) VALUES (?,?)", ({guild_id}, {toggle}))
+                await db.execute("INSERT OR REPLACE INTO guilds (guild_id, award_reaction_toggle) VALUES (?,?)", (guild_id, {toggle}))
                 embed = discord.Embed(title="Update", description=f"The toggle for award reactions has been set to **False**. Reacting and un-reacting to posts with the award emoji **will not** add and remove awards.")
             else:
                 embed = discord.Embed(title="Error", description=f"Your input could not be parsed. Please enter either True to toggle award reactions ON or False to toggle award reactions OFF.")
@@ -521,18 +521,18 @@ class AwardCommands(commands.Cog):
         member = message.author
         member_id = member.id
         async with aiosqlite.connect('rainbowbot.db') as db:
-            sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", ({guild_id},)) or 'award'
+            sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,)) or 'award'
             sing_cap = string.capwords(sing_low)
-            plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", ({guild_id},)) or 'awards'
+            plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,)) or 'awards'
             plur_cap = string.capwords(plur_low)
-            moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", ({guild_id},)) or '🏅'
+            moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,)) or '🏅'
             if str(reaction.emoji) == moji:
-                toggle = await db.execute("SELECT award_react_toggle FROM guilds WHERE guild_id = ?", ({guild_id},))
+                toggle = await db.execute("SELECT award_react_toggle FROM guilds WHERE guild_id = ?", (guild_id,))
                 if toggle == 1:
-                    awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", ({member_id},)) or 0
+                    awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,)) or 0
                     awards += 1
-                    await db.execute("INSERT OR REPLACE INTO members (member_id, awards) VALUES (?,?)", ({member_id}, {awards}))
-                    awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", ({member_id},))
+                    await db.execute("INSERT OR REPLACE INTO members (member_id, awards) VALUES (?,?)", (member_id, awards))
+                    awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
                     if awards == 1:
                         embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{member.mention} now has {awards} {sing_low}! ({sing_cap} added by {user.mention}.)")
                     else:
@@ -549,19 +549,19 @@ class AwardCommands(commands.Cog):
         member = message.author
         member_id = member.id
         async with aiosqlite.connect('rainbowbot.db') as db:
-            sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", ({guild_id},)) or 'award'
+            sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,)) or 'award'
             sing_cap = string.capwords(sing_low)
-            plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", ({guild_id},)) or 'awards'
+            plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,)) or 'awards'
             plur_cap = string.capwords(plur_low)
-            moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", ({guild_id},)) or '🏅'
+            moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,)) or '🏅'
             if str(reaction.emoji) == moji:
-                toggle = await db.execute("SELECT award_react_toggle FROM guilds WHERE guild_id = ?", ({guild_id},))
+                toggle = await db.execute("SELECT award_react_toggle FROM guilds WHERE guild_id = ?", (guild_id,))
                 if toggle == 1:
-                    awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", ({member_id},)) or 0
+                    awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,)) or 0
                     if awards > 0:
                         awards -= 1
-                        await db.execute("INSERT OR REPLACE INTO members (member_id, awards) VALUES (?,?)", ({member_id}, {awards}))
-                        awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", ({member_id},))
+                        await db.execute("INSERT OR REPLACE INTO members (member_id, awards) VALUES (?,?)", (member_id, awards))
+                        awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
                         if awards == 0:
                             embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{member.mention} no longer has any awards! ({sing_cap} removed by {user.mention}.)")
                         elif awards == 1:
@@ -589,15 +589,15 @@ class AwardCommands(commands.Cog):
         member = member or ctx.author
         member_id = member.id
         async with aiosqlite.connect('rainbowbot.db') as db:
-            sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", ({guild_id},)) or 'award'
+            sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,)) or 'award'
             sing_cap = string.capwords(sing_low)
-            plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", ({guild_id},)) or 'awards'
+            plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,)) or 'awards'
             plur_cap = string.capwords(plur_low)
-            moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", ({guild_id},)) or '🏅'
-            awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", ({member_id},)) or 0
+            moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,)) or '🏅'
+            awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,)) or 0
             awards += amount
-            await db.execute("INSERT OR REPLACE INTO members (member_id, awards) VALUES (?,?)", ({member_id}, {awards}))
-            awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", ({member_id},))
+            await db.execute("INSERT OR REPLACE INTO members (member_id, awards) VALUES (?,?)", (member_id, awards))
+            awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
             await db.close()
         if awards == 1:
             embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{member.mention} now has {awards} {sing_low}!")
@@ -623,10 +623,10 @@ class AwardCommands(commands.Cog):
         member = member or ctx.author
         member_id = member.id
         async with aiosqlite.connect('rainbowbot.db') as db:
-            sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", ({guild_id},)) or 'award'
-            plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", ({guild_id},)) or 'awards'
-            moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", ({guild_id},)) or '🏅'
-            awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", ({member_id},)) or 0
+            sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,)) or 'award'
+            plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,)) or 'awards'
+            moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,)) or '🏅'
+            awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,)) or 0
             await db.close()
         sing_cap = string.capwords(sing_low)
         plur_cap = string.capwords(plur_low)
@@ -637,8 +637,8 @@ class AwardCommands(commands.Cog):
         else:
             async with aiosqlite.connect('rainbowbot.db') as db:
                 awards -= amount
-                await db.execute("INSERT OR REPLACE INTO members (member_id, awards) VALUES (?,?)", ({member_id}, {awards}))
-                awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", ({member_id},))
+                await db.execute("INSERT OR REPLACE INTO members (member_id, awards) VALUES (?,?)", (member_id, awards))
+                awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
                 await db.close()
             if awards == 0:
                 embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} no longer has any {plur_low}!")
@@ -662,10 +662,10 @@ class AwardCommands(commands.Cog):
         guild_id = guild.id
         member_id = member.id
         async with aiosqlite.connect('rainbowbot.db') as db:
-            sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", ({guild_id},)) or 'award'
-            plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", ({guild_id},)) or 'awards'
-            moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", ({guild_id},)) or '🏅'
-            awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", ({member_id},)) or 0
+            sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,)) or 'award'
+            plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,)) or 'awards'
+            moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,)) or '🏅'
+            awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,)) or 0
             await db.close()
         sing_cap = string.capwords(sing_low)
         plur_cap = string.capwords(plur_low)
@@ -685,12 +685,12 @@ class AwardCommands(commands.Cog):
         guild_id = guild.id
         member_ids = [member.id for member in guild.members if not member.bot]
         async with aiosqlite.connect('rainbowbot.db') as db:
-            sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", ({guild_id},)) or 'award'
-            plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", ({guild_id},)) or 'awards'
-            moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", ({guild_id},)) or '🏅'
+            sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,)) or 'award'
+            plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,)) or 'awards'
+            moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,)) or '🏅'
             member_awards = {}
             for member_id in member_ids:
-                awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", ({member_id},)) or 0
+                awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,)) or 0
                 if awards > 0:
                     member_awards[member_id] = awards
             await db.close()
@@ -743,32 +743,32 @@ class ProfileCommands(commands.Cog):
         embed.set_author(name=f"{member.name}", icon_url=f"{member.avatar}")
         async with aiosqlite.connect('rainbowbot.db') as db:
             if name is not None:
-                await db.execute("INSERT OR REPLACE INTO members (member_id, name) VALUES (?,?)", ({member_id}, {name}))
-            name = await db.execute("SELECT name FROM members WHERE member_id = ?", ({member_id},)) or None
+                await db.execute("INSERT OR REPLACE INTO members (member_id, name) VALUES (?,?)", (member_id, name))
+            name = await db.execute("SELECT name FROM members WHERE member_id = ?", (member_id,)) or None
             if age is not None:
-                await db.execute("INSERT OR REPLACE INTO members (member_id, age) VALUES (?,?)", ({member_id}, {age}))
-            age = await db.execute("SELECT age FROM members WHERE member_id = ?", ({member_id},)) or None
+                await db.execute("INSERT OR REPLACE INTO members (member_id, age) VALUES (?,?)", (member_id, age))
+            age = await db.execute("SELECT age FROM members WHERE member_id = ?", (member_id,)) or None
             if location is not None:
-                await db.execute("INSERT OR REPLACE INTO members (member_id, location) VALUES (?,?)", ({member_id}, {location}))
-            location = await db.execute("SELECT location FROM members WHERE member_id = ?", ({member_id},)) or None
+                await db.execute("INSERT OR REPLACE INTO members (member_id, location) VALUES (?,?)", (member_id, location))
+            location = await db.execute("SELECT location FROM members WHERE member_id = ?", (member_id,)) or None
             if pronouns is not None:
-                await db.execute("INSERT OR REPLACE INTO members (member_id, pronouns) VALUES (?,?)", ({member_id}, {pronouns}))
-            pronouns = await db.execute("SELECT pronouns FROM members WHERE member_id = ?", ({member_id},)) or None
+                await db.execute("INSERT OR REPLACE INTO members (member_id, pronouns) VALUES (?,?)", (member_id, pronouns))
+            pronouns = await db.execute("SELECT pronouns FROM members WHERE member_id = ?", (member_id,)) or None
             if gender is not None:
-                await db.execute("INSERT OR REPLACE INTO members (member_id, gender) VALUES (?,?)", ({member_id}, {gender}))
-            gender = await db.execute("SELECT gender FROM members WHERE member_id = ?", ({member_id},)) or None
+                await db.execute("INSERT OR REPLACE INTO members (member_id, gender) VALUES (?,?)", (member_id, gender))
+            gender = await db.execute("SELECT gender FROM members WHERE member_id = ?", (member_id,)) or None
             if sexuality is not None:
-                await db.execute("INSERT OR REPLACE INTO members (member_id, sexuality) VALUES (?,?)", ({member_id}, {sexuality}))
-            sexuality = await db.execute("SELECT sexuality FROM members WHERE member_id = ?", ({member_id},)) or None
+                await db.execute("INSERT OR REPLACE INTO members (member_id, sexuality) VALUES (?,?)", (member_id, sexuality))
+            sexuality = await db.execute("SELECT sexuality FROM members WHERE member_id = ?", (member_id,)) or None
             if relationship_status is not None:
-                await db.execute("INSERT OR REPLACE INTO members (member_id, relationship_status) VALUES (?,?)", ({member_id}, {relationship_status}))
-            relationship_status = await db.execute("SELECT relationship_status FROM members WHERE member_id = ?", ({member_id},)) or None
+                await db.execute("INSERT OR REPLACE INTO members (member_id, relationship_status) VALUES (?,?)", (member_id, relationship_status))
+            relationship_status = await db.execute("SELECT relationship_status FROM members WHERE member_id = ?", (member_id,)) or None
             if family_status is not None:
-                await db.execute("INSERT OR REPLACE INTO members (member_id, family_status) VALUES (?,?)", ({member_id}, {family_status}))
-            family_status = await db.execute("SELECT family_status FROM members WHERE member_id = ?", ({member_id},)) or None
+                await db.execute("INSERT OR REPLACE INTO members (member_id, family_status) VALUES (?,?)", (member_id, family_status))
+            family_status = await db.execute("SELECT family_status FROM members WHERE member_id = ?", (member_id,)) or None
             if biography is not None:
-                await db.execute("INSERT OR REPLACE INTO members (member_id, biography) VALUES (?,?)", ({member_id}, {biography}))
-            biography = await db.execute("SELECT biography FROM members WHERE member_id = ?", ({member_id},)) or None
+                await db.execute("INSERT OR REPLACE INTO members (member_id, biography) VALUES (?,?)", (member_id, biography))
+            biography = await db.execute("SELECT biography FROM members WHERE member_id = ?", (member_id,)) or None
             await db.close()
         if name is not None:
             embed.add_field(name="🏷️ Name", value=f"{name}", inline=True)
@@ -806,8 +806,8 @@ class ProfileCommands(commands.Cog):
         member = ctx.author
         member_id = int(ctx.author.id)
         async with aiosqlite.connect('rainbowbot.db') as db:
-            await db.execute("INSERT OR REPLACE INTO members (member_id, name) VALUES (?,?)", ({member_id}, {name}))
-            name = await db.execute("SELECT name FROM members WHERE member_id = ?", ({member_id},))
+            await db.execute("INSERT OR REPLACE INTO members (member_id, name) VALUES (?,?)", (member_id, name))
+            name = await db.execute("SELECT name FROM members WHERE member_id = ?", (member_id,))
             await db.close()
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile name is now set to: {name}")
         await ctx.send(embed=embed, ephemeral=True)
@@ -825,8 +825,8 @@ class ProfileCommands(commands.Cog):
         member = ctx.author
         member_id = int(ctx.author.id)
         async with aiosqlite.connect('rainbowbot.db') as db:
-            await db.execute("INSERT OR REPLACE INTO members (member_id, age) VALUES (?,?)", ({member_id}, {age}))
-            age = await db.execute("SELECT age FROM members WHERE member_id = ?", ({member_id},))
+            await db.execute("INSERT OR REPLACE INTO members (member_id, age) VALUES (?,?)", (member_id, age))
+            age = await db.execute("SELECT age FROM members WHERE member_id = ?", (member_id,))
             await db.close()
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile age is now set to: {age}")
         await ctx.send(embed=embed, ephemeral=True)
@@ -844,8 +844,8 @@ class ProfileCommands(commands.Cog):
         member = ctx.author
         member_id = int(ctx.author.id)
         async with aiosqlite.connect('rainbowbot.db') as db:
-            await db.execute("INSERT OR REPLACE INTO members (member_id, location) VALUES (?,?)", ({member_id}, {location}))
-            location = await db.execute("SELECT location FROM members WHERE member_id = ?", ({member_id},))
+            await db.execute("INSERT OR REPLACE INTO members (member_id, location) VALUES (?,?)", (member_id, location))
+            location = await db.execute("SELECT location FROM members WHERE member_id = ?", (member_id,))
             await db.close()
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile location is now set to: {location}")
         await ctx.send(embed=embed, ephemeral=True)
@@ -863,8 +863,8 @@ class ProfileCommands(commands.Cog):
         member = ctx.author
         member_id = int(ctx.author.id)
         async with aiosqlite.connect('rainbowbot.db') as db:
-            await db.execute("INSERT OR REPLACE INTO members (member_id, pronouns) VALUES (?,?)", ({member_id}, {pronouns}))
-            pronouns = await db.execute("SELECT pronouns FROM members WHERE member_id = ?", ({member_id},))
+            await db.execute("INSERT OR REPLACE INTO members (member_id, pronouns) VALUES (?,?)", (member_id, pronouns))
+            pronouns = await db.execute("SELECT pronouns FROM members WHERE member_id = ?", (member_id,))
             await db.close()
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile pronouns are now set to: {pronouns}")
         await ctx.send(embed=embed, ephemeral=True)
@@ -882,8 +882,8 @@ class ProfileCommands(commands.Cog):
         member = ctx.author
         member_id = int(ctx.author.id)
         async with aiosqlite.connect('rainbowbot.db') as db:
-            await db.execute("INSERT OR REPLACE INTO members (member_id, gender) VALUES (?,?)", ({member_id}, {gender}))
-            gender = await db.execute("SELECT gender FROM members WHERE member_id = ?", ({member_id},))
+            await db.execute("INSERT OR REPLACE INTO members (member_id, gender) VALUES (?,?)", (member_id, gender))
+            gender = await db.execute("SELECT gender FROM members WHERE member_id = ?", (member_id,))
             await db.close()
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile gender is now set to: {gender}")
         await ctx.send(embed=embed, ephemeral=True)
@@ -901,8 +901,8 @@ class ProfileCommands(commands.Cog):
         member = ctx.author
         member_id = int(ctx.author.id)
         async with aiosqlite.connect('rainbowbot.db') as db:
-            await db.execute("INSERT OR REPLACE INTO members (member_id, sexuality) VALUES (?,?)", ({member_id}, {sexuality}))
-            sexuality = await db.execute("SELECT sexuality FROM members WHERE member_id = ?", ({member_id},))
+            await db.execute("INSERT OR REPLACE INTO members (member_id, sexuality) VALUES (?,?)", (member_id, sexuality))
+            sexuality = await db.execute("SELECT sexuality FROM members WHERE member_id = ?", (member_id,))
             await db.close()
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile sexuality is now set to: {sexuality}")
         await ctx.send(embed=embed, ephemeral=True)
@@ -920,8 +920,8 @@ class ProfileCommands(commands.Cog):
         member = ctx.author
         member_id = int(ctx.author.id)
         async with aiosqlite.connect('rainbowbot.db') as db:
-            await db.execute("INSERT OR REPLACE INTO members (member_id, relationship_status) VALUES (?,?)", ({member_id}, {relationship_status}))
-            relationship_status = await db.execute("SELECT relationship_status FROM members WHERE member_id = ?", ({member_id},))
+            await db.execute("INSERT OR REPLACE INTO members (member_id, relationship_status) VALUES (?,?)", (member_id, relationship_status))
+            relationship_status = await db.execute("SELECT relationship_status FROM members WHERE member_id = ?", (member_id,))
             await db.close()
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile relationship status is now set to: {relationship_status}")
         await ctx.send(embed=embed, ephemeral=True)
@@ -939,8 +939,8 @@ class ProfileCommands(commands.Cog):
         member = ctx.author
         member_id = int(ctx.author.id)
         async with aiosqlite.connect('rainbowbot.db') as db:
-            await db.execute("INSERT OR REPLACE INTO members (member_id, family_status) VALUES (?,?)", ({member_id}, {family_status}))
-            family_status = await db.execute("SELECT family_status FROM members WHERE member_id = ?", ({member_id},))
+            await db.execute("INSERT OR REPLACE INTO members (member_id, family_status) VALUES (?,?)", (member_id, family_status))
+            family_status = await db.execute("SELECT family_status FROM members WHERE member_id = ?", (member_id,))
             await db.close()
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile family planning status is now set to: {family_status}")
         await ctx.send(embed=embed, ephemeral=True)
@@ -958,8 +958,8 @@ class ProfileCommands(commands.Cog):
         member = ctx.author
         member_id = int(ctx.author.id)
         async with aiosqlite.connect('rainbowbot.db') as db:
-            await db.execute("INSERT OR REPLACE INTO members (member_id, biography) VALUES (?,?)", ({member_id}, {biography}))
-            biography = await db.execute("SELECT biography FROM members WHERE member_id = ?", ({member_id},))
+            await db.execute("INSERT OR REPLACE INTO members (member_id, biography) VALUES (?,?)", (member_id, biography))
+            biography = await db.execute("SELECT biography FROM members WHERE member_id = ?", (member_id,))
             await db.close()
         embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile biography is now set to: {biography}")
         await ctx.send(embed=embed, ephemeral=True)
@@ -977,15 +977,15 @@ class ProfileCommands(commands.Cog):
         guild = ctx.guild
         member_id = int(member.id)
         async with aiosqlite.connect('rainbowbot.db') as db:
-            name = await db.execute("SELECT name FROM members WHERE member_id = ?", ({member_id},)) or None
-            age = await db.execute("SELECT age FROM members WHERE member_id = ?", ({member_id},)) or None
-            location = await db.execute("SELECT location FROM members WHERE member_id = ?", ({member_id},)) or None
-            pronouns = await db.execute("SELECT pronouns FROM members WHERE member_id = ?", ({member_id},)) or None
-            gender = await db.execute("SELECT gender FROM members WHERE member_id = ?", ({member_id},)) or None
-            sexuality = await db.execute("SELECT sexuality FROM members WHERE member_id = ?", ({member_id},)) or None
-            relationship_status = await db.execute("SELECT relationship_status FROM members WHERE member_id = ?", ({member_id},)) or None
-            family_status = await db.execute("SELECT family_status FROM members WHERE member_id = ?", ({member_id},)) or None
-            biography = await db.execute("SELECT biography FROM members WHERE member_id = ?", ({member_id},)) or None
+            name = await db.execute("SELECT name FROM members WHERE member_id = ?", (member_id,)) or None
+            age = await db.execute("SELECT age FROM members WHERE member_id = ?", (member_id,)) or None
+            location = await db.execute("SELECT location FROM members WHERE member_id = ?", (member_id,)) or None
+            pronouns = await db.execute("SELECT pronouns FROM members WHERE member_id = ?", (member_id,)) or None
+            gender = await db.execute("SELECT gender FROM members WHERE member_id = ?", (member_id,)) or None
+            sexuality = await db.execute("SELECT sexuality FROM members WHERE member_id = ?", (member_id,)) or None
+            relationship_status = await db.execute("SELECT relationship_status FROM members WHERE member_id = ?", (member_id,)) or None
+            family_status = await db.execute("SELECT family_status FROM members WHERE member_id = ?", (member_id,)) or None
+            biography = await db.execute("SELECT biography FROM members WHERE member_id = ?", (member_id,)) or None
             await db.close()
         joined = discord.utils.format_dt(member.joined_at, style="D")
         joinedago = discord.utils.format_dt(member.joined_at, style="R")
