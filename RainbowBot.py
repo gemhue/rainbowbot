@@ -604,7 +604,7 @@ class AwardCommands(commands.Cog):
                     plur_cap = plur_low.title()
                     awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
                     awards = await awards.fetchone()
-                    awards = awards[0] or 0
+                    awards = awards[0]
                     awards += 1
                     await db.execute("INSERT OR REPLACE INTO members (member_id, awards) VALUES (?,?)", (member_id, awards))
                     awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
@@ -644,7 +644,7 @@ class AwardCommands(commands.Cog):
                     plur_cap = plur_low.title()
                     awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
                     awards = await awards.fetchone()
-                    awards = awards[0] or 0
+                    awards = awards[0]
                     if awards > 0:
                         awards -= 1
                         await db.execute("INSERT OR REPLACE INTO members (member_id, awards) VALUES (?,?)", (member_id, awards))
@@ -689,7 +689,7 @@ class AwardCommands(commands.Cog):
             moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,))
             moji = await moji.fetchone()
             moji = moji[0] or '🏅'
-            awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,)) or 0
+            awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
             awards = await awards.fetchone()
             awards = awards[0]
             awards += amount
@@ -733,7 +733,7 @@ class AwardCommands(commands.Cog):
             moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,))
             moji = await moji.fetchone()
             moji = moji[0] or '🏅'
-            awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,)) or 0
+            awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
             awards = await awards.fetchone()
             awards = awards[0]
             await db.close()
@@ -782,7 +782,7 @@ class AwardCommands(commands.Cog):
             moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,))
             moji = await moji.fetchone()
             moji = moji[0] or '🏅'
-            awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,)) or 0
+            awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
             awards = await awards.fetchone()
             awards = awards[0]
             await db.close()
@@ -815,7 +815,7 @@ class AwardCommands(commands.Cog):
             member_awards = {}
             member_ids = [member.id for member in guild.members if not member.bot]
             for member_id in member_ids:
-                awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,)) or 0
+                awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
                 awards = await awards.fetchone()
                 awards = awards[0]
                 if awards > 0:
@@ -869,66 +869,66 @@ class ProfileCommands(commands.Cog):
         async with aiosqlite.connect('rainbowbot.db') as db:
             if name is not None:
                 await db.execute("INSERT OR REPLACE INTO members (member_id, name) VALUES (?,?)", (member_id, name))
-            cur = await db.execute("SELECT name FROM members WHERE member_id = ?", (member_id,)) or None
-            if cur is not None:
-                row = await cur.fetchone()
-                fetched_name = row[0]
+            cur = await db.execute("SELECT name FROM members WHERE member_id = ?", (member_id,))
+            row = await cur.fetchone()
+            fetched_name = row[0]
+            if fetched_name is not None:
                 embed.add_field(name="🏷️ Name", value=f"{fetched_name}", inline=True)
             if age is not None:
                 await db.execute("INSERT OR REPLACE INTO members (member_id, age) VALUES (?,?)", (member_id, age))
-            cur = await db.execute("SELECT age FROM members WHERE member_id = ?", (member_id,)) or None
-            if cur is not None:
-                row = await cur.fetchone()
-                fetched_age = row[0]
+            cur = await db.execute("SELECT age FROM members WHERE member_id = ?", (member_id,))
+            row = await cur.fetchone()
+            fetched_age = row[0]
+            if fetched_age is not None:
                 embed.add_field(name="🏷️ Age", value=f"{fetched_age}", inline=True)
             if location is not None:
                 await db.execute("INSERT OR REPLACE INTO members (member_id, location) VALUES (?,?)", (member_id, location))
-            cur = await db.execute("SELECT location FROM members WHERE member_id = ?", (member_id,)) or None
-            if cur is not None:
-                row = await cur.fetchone()
-                fetched_location = row[0]
+            cur = await db.execute("SELECT location FROM members WHERE member_id = ?", (member_id,))
+            row = await cur.fetchone()
+            fetched_location = row[0]
+            if fetched_location is not None:
                 embed.add_field(name="🏷️ Location", value=f"{fetched_location}", inline=True)
             if pronouns is not None:
                 await db.execute("INSERT OR REPLACE INTO members (member_id, pronouns) VALUES (?,?)", (member_id, pronouns))
-            cur = await db.execute("SELECT pronouns FROM members WHERE member_id = ?", (member_id,)) or None
-            if cur is not None:
-                row = await cur.fetchone()
-                fetched_pronouns = row[0]
+            cur = await db.execute("SELECT pronouns FROM members WHERE member_id = ?", (member_id,))
+            row = await cur.fetchone()
+            fetched_pronouns = row[0]
+            if fetched_pronouns is not None:
                 embed.add_field(name="🏷️ Pronouns", value=f"{fetched_pronouns}", inline=True)
             if gender is not None:
                 await db.execute("INSERT OR REPLACE INTO members (member_id, gender) VALUES (?,?)", (member_id, gender))
-            cur = await db.execute("SELECT gender FROM members WHERE member_id = ?", (member_id,)) or None
-            if cur is not None:
-                row = await cur.fetchone()
-                fetched_gender = row[0]
+            cur = await db.execute("SELECT gender FROM members WHERE member_id = ?", (member_id,))
+            row = await cur.fetchone()
+            fetched_gender = row[0]
+            if fetched_gender is not None:
                 embed.add_field(name="🏷️ Gender", value=f"{fetched_gender}", inline=True)
             if sexuality is not None:
                 await db.execute("INSERT OR REPLACE INTO members (member_id, sexuality) VALUES (?,?)", (member_id, sexuality))
-            cur = await db.execute("SELECT sexuality FROM members WHERE member_id = ?", (member_id,)) or None
-            if cur is not None:
-                row = cur.fetchone()
-                fetched_sexuality = row[0]
+            cur = await db.execute("SELECT sexuality FROM members WHERE member_id = ?", (member_id,))
+            row = cur.fetchone()
+            fetched_sexuality = row[0]
+            if fetched_sexuality is not None:
                 embed.add_field(name="🏷️ Sexuality", value=f"{fetched_sexuality}", inline=True)
             if relationship_status is not None:
                 await db.execute("INSERT OR REPLACE INTO members (member_id, relationship_status) VALUES (?,?)", (member_id, relationship_status))
-            cur = await db.execute("SELECT relationship_status FROM members WHERE member_id = ?", (member_id,)) or None
-            if cur is not None:
-                row = cur.fetchone()
-                fetched_relationship_status = row[0]
+            cur = await db.execute("SELECT relationship_status FROM members WHERE member_id = ?", (member_id,))
+            row = cur.fetchone()
+            fetched_relationship_status = row[0]
+            if fetched_relationship_status is not None:
                 embed.add_field(name="📝 Relationship Status", value=f"{fetched_relationship_status}", inline=True)
             if family_status is not None:
                 await db.execute("INSERT OR REPLACE INTO members (member_id, family_status) VALUES (?,?)", (member_id, family_status))
-            cur = await db.execute("SELECT family_status FROM members WHERE member_id = ?", (member_id,)) or None
-            if cur is not None:
-                row = await cur.fetchone()
-                fetched_family_status = row[0]
+            cur = await db.execute("SELECT family_status FROM members WHERE member_id = ?", (member_id,))
+            row = await cur.fetchone()
+            fetched_family_status = row[0]
+            if fetched_family_status is not None:
                 embed.add_field(name="📝 Family Planning Status", value=f"{fetched_family_status}", inline=True)
             if biography is not None:
                 await db.execute("INSERT OR REPLACE INTO members (member_id, biography) VALUES (?,?)", (member_id, biography))
-            cur = await db.execute("SELECT biography FROM members WHERE member_id = ?", (member_id,)) or None
-            if cur is not None:
-                row = await cur.fetchone()
-                fetched_biography = row[0]
+            cur = await db.execute("SELECT biography FROM members WHERE member_id = ?", (member_id,))
+            row = await cur.fetchone()
+            fetched_biography = row[0]
+            if fetched_biography is not None:
                 embed.add_field(name="📝 Biography", value=f"{fetched_biography}", inline=False)
             await db.close()
         roles = [r.mention for r in member.roles]
@@ -954,7 +954,10 @@ class ProfileCommands(commands.Cog):
             row = await cur.fetchone()
             await db.close()
         fetched = row[0]
-        embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile name is now set to: {fetched}")
+        if fetched is not None:
+            embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile name is now set to: {fetched}")
+        else:
+            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
         await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command(name="setprofileage")
@@ -975,7 +978,10 @@ class ProfileCommands(commands.Cog):
             row = await cur.fetchone()
             await db.close()
         fetched = row[0]
-        embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile age is now set to: {fetched}")
+        if fetched is not None:
+            embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile age is now set to: {fetched}")
+        else:
+            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
         await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command(name="setprofilelocation")
@@ -996,7 +1002,10 @@ class ProfileCommands(commands.Cog):
             row = await cur.fetchone()
             await db.close()
         fetched = row[0]
-        embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile location is now set to: {fetched}")
+        if fetched is not None:
+            embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile location is now set to: {fetched}")
+        else:
+            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
         await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command(name="setprofilepronouns")
@@ -1017,7 +1026,10 @@ class ProfileCommands(commands.Cog):
             row = await cur.fetchone()
             await db.close()
         fetched = row[0]
-        embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile pronouns are now set to: {fetched}")
+        if fetched is not None:
+            embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile pronouns are now set to: {fetched}")
+        else:
+            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
         await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command(name="setprofilegender")
@@ -1038,7 +1050,10 @@ class ProfileCommands(commands.Cog):
             row = await cur.fetchone()
             await db.close()
         fetched = row[0]
-        embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile gender is now set to: {fetched}")
+        if fetched is not None:
+            embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile gender is now set to: {fetched}")
+        else:
+            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
         await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command(name="setprofilesexuality")
@@ -1059,7 +1074,10 @@ class ProfileCommands(commands.Cog):
             row = await cur.fetchone()
             await db.close()
         fetched = row[0]
-        embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile sexuality is now set to: {fetched}")
+        if fetched is not None:
+            embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile sexuality is now set to: {fetched}")
+        else:
+            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
         await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command(name="setprofilerelationship")
@@ -1080,7 +1098,10 @@ class ProfileCommands(commands.Cog):
             row = await cur.fetchone()
             await db.close()
         fetched = row[0]
-        embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile relationship status is now set to: {fetched}")
+        if fetched is not None:
+            embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile relationship status is now set to: {fetched}")
+        else:
+            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
         await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command(name="setprofilefamily")
@@ -1101,7 +1122,10 @@ class ProfileCommands(commands.Cog):
             row = await cur.fetchone()
             await db.close()
         fetched = row[0]
-        embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile family planning status is now set to: {fetched}")
+        if fetched is not None:
+            embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile family planning status is now set to: {fetched}")
+        else:
+            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
         await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command(name="setprofilebiography")
@@ -1122,7 +1146,10 @@ class ProfileCommands(commands.Cog):
             row = await cur.fetchone()
             await db.close()
         fetched = row[0]
-        embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile biography is now set to: {fetched}")
+        if fetched is not None:
+            embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile biography is now set to: {fetched}")
+        else:
+            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
         await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command(name="getprofile")
@@ -1142,50 +1169,50 @@ class ProfileCommands(commands.Cog):
         embed = discord.Embed(color=member.accent_color, title=f"{member.name}'s Member Profile", description=f"Member of {guild.name} since {joined} ({joinedago}).")
         embed.set_author(name=f"{member.name}", icon_url=f"{member.avatar}")
         async with aiosqlite.connect('rainbowbot.db') as db:
-            name = await db.execute("SELECT name FROM members WHERE member_id = ?", (member_id,)) or None
+            name = await db.execute("SELECT name FROM members WHERE member_id = ?", (member_id,))
+            name = await name.fetchone()
+            name = name[0]
             if name is not None:
-                name = await name.fetchone()
-                name = name[0]
                 embed.add_field(name="🏷️ Name", value=f"{name}", inline=True)
-            age = await db.execute("SELECT age FROM members WHERE member_id = ?", (member_id,)) or None
+            age = await db.execute("SELECT age FROM members WHERE member_id = ?", (member_id,))
+            age = await age.fetchone()
+            age = age[0]
             if age is not None:
-                age = await age.fetchone()
-                age = age[0]
                 embed.add_field(name="🏷️ Age", value=f"{age}", inline=True)
-            location = await db.execute("SELECT location FROM members WHERE member_id = ?", (member_id,)) or None
+            location = await db.execute("SELECT location FROM members WHERE member_id = ?", (member_id,))
+            location = await location.fetchone()
+            location = location[0]
             if location is not None:
-                location = await location.fetchone()
-                location = location[0]
                 embed.add_field(name="🏷️ Location", value=f"{location}", inline=True)
-            pronouns = await db.execute("SELECT pronouns FROM members WHERE member_id = ?", (member_id,)) or None
+            pronouns = await db.execute("SELECT pronouns FROM members WHERE member_id = ?", (member_id,))
+            pronouns = await pronouns.fetchone()
+            pronouns = pronouns[0]
             if pronouns is not None:
-                pronouns = await pronouns.fetchone()
-                pronouns = pronouns[0]
                 embed.add_field(name="🏷️ Pronouns", value=f"{pronouns}", inline=True)
-            gender = await db.execute("SELECT gender FROM members WHERE member_id = ?", (member_id,)) or None
+            gender = await db.execute("SELECT gender FROM members WHERE member_id = ?", (member_id,))
+            gender = await gender.fetchone()
+            gender = gender[0]
             if gender is not None:
-                gender = await gender.fetchone()
-                gender = gender[0]
                 embed.add_field(name="🏷️ Gender", value=f"{gender}", inline=True)
-            sexuality = await db.execute("SELECT sexuality FROM members WHERE member_id = ?", (member_id,)) or None
+            sexuality = await db.execute("SELECT sexuality FROM members WHERE member_id = ?", (member_id,))
+            sexuality = await sexuality.fetchone()
+            sexuality = sexuality[0]
             if sexuality is not None:
-                sexuality = await sexuality.fetchone()
-                sexuality = sexuality[0]
                 embed.add_field(name="🏷️ Sexuality", value=f"{sexuality}", inline=True)
-            relationship_status = await db.execute("SELECT relationship_status FROM members WHERE member_id = ?", (member_id,)) or None
+            relationship_status = await db.execute("SELECT relationship_status FROM members WHERE member_id = ?", (member_id,))
+            relationship_status = await relationship_status.fetchone()
+            relationship_status = relationship_status[0]
             if relationship_status is not None:
-                relationship_status = await relationship_status.fetchone()
-                relationship_status = relationship_status[0]
                 embed.add_field(name="📝 Relationship Status", value=f"{relationship_status}", inline=True)
-            family_status = await db.execute("SELECT family_status FROM members WHERE member_id = ?", (member_id,)) or None
+            family_status = await db.execute("SELECT family_status FROM members WHERE member_id = ?", (member_id,))
+            family_status = await family_status.fetchone()
+            family_status = family_status[0]
             if family_status is not None:
-                family_status = await family_status.fetchone()
-                family_status = family_status[0]
                 embed.add_field(name="📝 Family Planning Status", value=f"{family_status}", inline=True)
-            biography = await db.execute("SELECT biography FROM members WHERE member_id = ?", (member_id,)) or None
+            biography = await db.execute("SELECT biography FROM members WHERE member_id = ?", (member_id,))
+            biography = await biography.fetchone()
+            biography = biography[0]
             if biography is not None:
-                biography = await biography.fetchone()
-                biography = biography[0]
                 embed.add_field(name="📝 Biography", value=f"{biography}", inline=False)
             await db.close()
         roles = [r.mention for r in member.roles]
