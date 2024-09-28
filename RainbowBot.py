@@ -87,33 +87,40 @@ class BackgroundTasks(commands.Cog):
     @commands.Cog.listener(name="member_join")
     async def on_member_join(self, member: discord.Member):
         guild = member.guild
-        con = await aiosqlite.connect('rainbow.db')
-        cur = await con.cursor()
-
-        channel = guilds[guild.id]["welcome channel"]
-        message = guilds[guild.id]["welcome message"]
-        role = guilds[guild.id]["join role"]
-        botrole = guilds[guild.id]["bot role"]
-        if channel is not None:
-            if message is None:
-                await channel.send(f"Welcome to {guild.name}, {member.mention}!")
-            else:
+        guild_id = guild.id
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            channel_id = await db.execute(f'SELECT welcome_channel_id FROM guilds WHERE guild_id = {guild_id}')
+            message = await db.execute(f'SELECT welcome_message FROM guilds WHERE guild_id = {guild_id}')
+            role_id = await db.execute(f'SELECT join_role_id FROM guilds WHERE guild_id = {guild_id}')
+            botrole_id = await db.execute(f'SELECT bot_join_role_id FROM guilds WHERE guild_id = {guild_id}')
+            await db.close()
+        if channel_id is not None:
+            channel = guild.get_channel(channel_id)
+            if message is not None:
                 await channel.send(f"{message}")
-        if role is not None and member.bot == False:
+            else:
+                await channel.send(f"Welcome to {guild.name}, {member.mention}!")
+        if role_id is not None and not member.bot:
+            role = guild.get_role(role_id)
             await member.add_roles(role)
-        if botrole is not None and member.bot == True:
+        if botrole_id is not None and member.bot:
+            botrole = guild.get_role(botrole_id)
             await member.add_roles(botrole)
 
     @commands.Cog.listener(name="member_remove")
     async def on_member_remove(self, member: discord.Member):
         guild = member.guild
-        channel = guilds[guild.id]["goodbye channel"]
-        message = guilds[guild.id]["goodbye message"]
-        if channel is not None:
-            if message is None:
-                await channel.send(f"{member.mention} has just left {guild.name}!")
-            else:
+        guild_id = guild.id
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            channel_id = await db.execute(f'SELECT goodbye_channel_id FROM guilds WHERE guild_id = {guild_id}')
+            message = await db.execute(f'SELECT goodbye_message FROM guilds WHERE guild_id = {guild_id}')
+            await db.close()
+        if channel_id is not None:
+            channel = guild.get_channel(channel_id)
+            if message is not None:
                 await channel.send(f"{message}")
+            else:
+                await channel.send(f"{member.mention} has just left {guild.name}!")
 
 class SetupCommands(commands.Cog):
     def __init__(self, bot):
@@ -156,34 +163,43 @@ class SetupCommands(commands.Cog):
             Set the channels for goodbye messages.
         """
         guild = ctx.guild
-        if guild in guilds:
-            guilds[guild.id]["logging channel"] = logging_channel
-            guilds[guild.id]["welcome channel"] = welcome_channel
-            guilds[guild.id]["goodbye channel"] = goodbye_channel
-        else:
-            guilds[guild.id] = {}
-            guilds[guild.id]["logging channel"] = logging_channel
-            guilds[guild.id]["welcome channel"] = welcome_channel
-            guilds[guild.id]["goodbye channel"] = goodbye_channel
-        await ctx.send(f"**Logging Channel**: {logging_channel.mention}\n**Welcome Channel**: {welcome_channel.mention}\n**Goodbye Channel**: {goodbye_channel.mention}")
+        guild_id = guild.id
+        logging_id = logging_channel.id or None
+        welcome_id = welcome_channel.id or None
+        goodbye_id = goodbye_channel.id or None
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            if logging_id is not None:
+                await db.execute(f'INSERT OR REPLACE INTO guilds (guild_id, logging_channel_id) VALUES ({guild_id}, {logging_id})')
+                logging_id = await db.execute(f'SELECT logging_channel_id FROM guilds WHERE guild_id = {guild_id}')
+            if welcome_id is not None:
+                await db.execute(f'INSERT OR REPLACE INTO guilds (guild_id, welcome_channel_id) VALUES ({guild_id}, {welcome_id})')
+                welcome_id = await db.execute(f'SELECT welcome_channel_id FROM guilds WHERE guild_id = {guild_id}')
+            if goodbye_id is not None:
+                await db.execute(f'INSERT OR REPLACE INTO guilds (guild_id, goodbye_channel_id) VALUES ({guild_id}, {goodbye_id})')
+                goodbye_id = await db.execute(f'SELECT goodbye_channel_id FROM guilds WHERE guild_id = {guild_id}')
+            await db.close()
+        logging = guild.get_channel(logging_id) or None
+        welcome = guild.get_channel(welcome_id) or None
+        goodbye = guild.get_channel(welcome_id) or None
+        await ctx.send(f"**Logging Channel**: {logging.mention}\n\n**Welcome Channel**: {welcome.mention}\n\n**Goodbye Channel**: {goodbye.mention}")
 
     @commands.hybrid_command(name="setwelcome")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     async def setwelcome(self, ctx: commands.Context, message: str):
-        """(Admin Only) Sets the welcome message for members who leave the server.
+        """(Admin Only) Sets the welcome message for members who join the server.
 
         Parameters
         -----------
         message : str
-            Set the welcome message for members who leave the server.
+            Set the welcome message for members who join the server.
         """
         guild = ctx.guild
-        if guild.id in guilds:
-            guilds[guild.id]["welcome message"] = message
-        else:
-            guilds[guild.id] = {}
-            guilds[guild.id]["welcome message"] = message
+        guild_id = guild.id
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            await db.execute(f'INSERT OR REPLACE INTO guilds (guild_id, welcome_message) VALUES ({guild_id}, {message})')
+            message = await db.execute(f'SELECT welcome_message FROM guilds WHERE guild_id = {guild_id}')
+            await db.close()
         await ctx.send(f"**Welcome Message**: {message}")
 
     @commands.hybrid_command(name="setgoodbye")
@@ -198,11 +214,11 @@ class SetupCommands(commands.Cog):
             Set the goodbye message for members who leave the server.
         """
         guild = ctx.guild
-        if guild.id in guilds:
-            guilds[guild.id]["goodbye message"] = message
-        else:
-            guilds[guild.id] = {}
-            guilds[guild.id]["goodbye message"] = message
+        guild_id = guild.id
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            await db.execute(f'INSERT OR REPLACE INTO guilds (guild_id, goodbye_message) VALUES ({guild_id}, {message})')
+            message = await db.execute(f'SELECT goodbye_message FROM guilds WHERE guild_id = {guild_id}')
+            await db.close()
         await ctx.send(f"**Goodbye Message**: {message}")
 
     @commands.hybrid_command(name="setjoinroles")
@@ -219,19 +235,21 @@ class SetupCommands(commands.Cog):
             Choose the role that you would like to give to new bots on join.
         """
         guild = ctx.guild
-        if guild.id in guilds:  
-            guilds[guild.id]["join role"] = role
-            message = await ctx.send(f"**Join Role**: {role.mention}")
+        guild_id = guild.id
+        role_id = role.id
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            await db.execute(f'INSERT OR REPLACE INTO guilds (guild_id, join_role_id) VALUES ({guild_id}, {role_id})')
+            role_id = await db.execute(f'SELECT join_role_id FROM guilds WHERE guild_id = {guild_id}')
+            role = guild.get_role(role_id)
             if botrole is not None:
-                guilds[guild.id]["bot role"] = botrole
-                await message.edit(f"**Join Role**: {role.mention}\n\n**Bot Role**: {botrole.mention}")
-        else:
-            guilds[guild.id] = {}
-            guilds[guild.id]["join role"] = role
-            message = await ctx.send(f"**Join Role**: {role.mention}")
-            if botrole is not None:
-                guilds[guild.id]["bot role"] = botrole
-                await message.edit(f"**Join Role**: {role.mention}\n\n**Bot Role**: {botrole.mention}")
+                botrole_id = botrole.id
+                await db.execute(f'INSERT OR REPLACE INTO guilds (guild_id, bot_join_role_id) VALUES ({guild_id}, {botrole_id})')
+                botrole_id = await db.execute(f'SELECT bot_join_role_id FROM guilds WHERE guild_id = {guild_id}')
+                botrole = guild.get_role(botrole_id)
+                await ctx.send(f"**Join Role**: {role.mention}\n\n**Bot Role**: {botrole.mention}")
+            else:
+                await ctx.send(f"**Join Role**: {role.mention}")
+            await db.close()
 
     @commands.hybrid_command(name="activityroles")
     @commands.has_guild_permissions(administrator=True)
@@ -428,26 +446,21 @@ class AwardCommands(commands.Cog):
         """
         await ctx.defer(ephemeral=True)
         guild = ctx.guild
-        if guild.id in guilds:
-            guilds[guild.id]["singular lower"] = name_singular.lower()
-            guilds[guild.id]["singular caps"] = string.capwords(name_singular)
-            guilds[guild.id]["plural lower"] = name_plural.lower()
-            guilds[guild.id]["plural caps"] = string.capwords(name_plural)
-            guilds[guild.id]["emoji"] = emoji
-        else:
-            guilds[guild.id] = {}
-            guilds[guild.id]["singular lower"] = name_singular.lower()
-            guilds[guild.id]["singular caps"] = string.capwords(name_singular)
-            guilds[guild.id]["plural lower"] = name_plural.lower()
-            guilds[guild.id]["plural caps"] = string.capwords(name_plural)
-            guilds[guild.id]["emoji"] = emoji
-        sing_low = guilds[guild.id]["singular lower"]
-        sing_cap = guilds[guild.id]["singular caps"]
-        plur_low = guilds[guild.id]["plural lower"]
-        plur_cap = guilds[guild.id]["plural caps"]
-        moji = guilds[guild.id]["emoji"]
+        guild_id = guild.id
+        sing_low = name_singular.lower()
+        plur_low = name_plural.lower()
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            await db.execute(f'INSERT OR REPLACE INTO guilds (guild_id, award_singular) VALUES ({guild_id}, {sing_low})')
+            sing_low = await db.execute(f'SELECT award_singular FROM guilds WHERE guild_id = {guild_id}')
+            sing_cap = string.capwords(sing_low)
+            await db.execute(f'INSERT OR REPLACE INTO guilds (guild_id, award_plural) VALUES ({guild_id}, {plur_low})')
+            plur_low = await db.execute(f'SELECT award_plural FROM guilds WHERE guild_id = {guild_id}')
+            plur_cap = string.capwords(plur_low)
+            await db.execute(f'INSERT OR REPLACE INTO guilds (guild_id, award_emoji) VALUES ({guild_id}, {emoji})')
+            moji = await db.execute(f'SELECT award_emoji FROM guilds WHERE guild_id = {guild_id}')
+            await db.close()
         embed = discord.Embed(title=f"{moji} {plur_cap} Set {moji}",description=f"The award name and emoji have been set!\n\n**Name** (singular, lowercase): {sing_low}\n\n**Name** (singular, capitalized): {sing_cap}\n\n**Name** (plural, lowercase): {plur_low}\n\n**Name** (plural, capitalized): {plur_cap}\n\n**Emoji**: {moji}")
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, ephemeral=True)   
 
     @commands.hybrid_command(name="clearawards")
     @commands.has_guild_permissions(administrator=True)
@@ -455,30 +468,22 @@ class AwardCommands(commands.Cog):
     async def clearawards(self, ctx: commands.Context):
         """(Admin Only) Clears all of the awards in the server.
         """
-        await ctx.defer()
+        await ctx.defer(ephemeral=True)
         guild = ctx.guild
-        sing_low = guilds[guild.id]["singular lower"] or 'award'
-        sing_cap = guilds[guild.id]["singular caps"] or 'Award'
-        plur_low = guilds[guild.id]["plural lower"] or 'awards'
-        plur_cap = guilds[guild.id]["plural caps"] or 'Awards'
-        moji = guilds[guild.id]["emoji"] or "🏅"
-        if guild.id in guilds:
-            members = [m for m in guild.members]
-            for member in members:
-                if member.id in guilds[guild.id]:
-                    guilds[guild.id][member.id]['awards'] = 0
-                else:
-                    guilds[guild.id][member.id] = {}
-                    guilds[guild.id][member.id]['awards'] = 0
-        else:
-            guilds[guild.id] = {}
-            members = [m for m in guild.members]
-            for member in members:
-                guilds[guild.id][member.id] = {}
-                guilds[guild.id][member.id]['awards'] = 0
+        guild_id = guild.id
+        member_ids = [member.id for member in guild.members if not member.bot]
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            sing_low = await db.execute(f'SELECT award_singular FROM guilds WHERE guild_id = {guild_id}') or 'award'
+            sing_cap = string.capwords(sing_low)
+            plur_low = await db.execute(f'SELECT award_plural FROM guilds WHERE guild_id = {guild_id}') or 'awards'
+            plur_cap = string.capwords(plur_low)
+            moji = await db.execute(f'SELECT award_emoji FROM guilds WHERE guild_id = {guild_id}') or '🏅'
+            for member_id in member_ids:
+                await db.execute(f'INSERT OR REPLACE INTO members (member_id, awards) VALUES ({member_id}, {0})')
+            await db.close()
         embed = discord.Embed(title=f"{moji} {plur_cap} Cleared {moji}", description=f"{guild.name} has had all its {plur_low} cleared!")
-        await ctx.send(embed=embed)
-    
+        await ctx.send(embed=embed, ephemeral=True)
+
     @commands.hybrid_command(name="awardreactiontoggle")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
@@ -490,69 +495,81 @@ class AwardCommands(commands.Cog):
         toggle : bool
             Set to True to toggle award reactions on. Set to False to toggle award reactions off.
         """
+        ctx.defer(ephemeral=True)
         guild = ctx.guild
-        if guild in guilds[guild.id]:
-            guilds[guild.id]["award react toggle"] = toggle
-            embed = discord.Embed(title="Update", description=f"The toggle for award reactions has been set to {toggle}.")
-            ctx.send(embed=embed)
-        else:
-            guilds[guild.id] = {}
-            guilds[guild.id]["award react toggle"] = toggle
-            embed = discord.Embed(title="Update", description=f"The toggle for award reactions has been set to {toggle}.")
-            ctx.send(embed=embed)
+        guild_id = guild.id
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            if toggle == True:
+                toggle = 1
+                await db.execute(f'INSERT OR REPLACE INTO guilds (guild_id, award_reaction_toggle) VALUES ({guild_id}, {toggle})')
+                embed = discord.Embed(title="Update", description=f"The toggle for award reactions has been set to **True**. Reacting and un-reacting to posts with the award emoji **will** now add and remove awards.")
+            elif toggle == False:
+                toggle = 0
+                await db.execute(f'INSERT OR REPLACE INTO guilds (guild_id, award_reaction_toggle) VALUES ({guild_id}, {toggle})')
+                embed = discord.Embed(title="Update", description=f"The toggle for award reactions has been set to **False**. Reacting and un-reacting to posts with the award emoji **will not** add and remove awards.")
+            else:
+                embed = discord.Embed(title="Error", description=f"Your input could not be parsed. Please enter either True to toggle award reactions ON or False to toggle award reactions OFF.")
+            await db.close()
+        ctx.send(embed=embed, ephemeral=True)
 
     @commands.Cog.listener(name="reactionadd")
     async def on_reaction_add(self, reaction: discord.Reaction, user: discord.Member):
         message = reaction.message
+        channel = message.channel
         guild = message.guild
-        if guilds[guild.id]["award react toggle"] == True:
-            member = message.author
-            sing_low = guilds[guild.id]["singular lower"] or 'award'
-            sing_cap = guilds[guild.id]["singular caps"] or 'Award'
-            plur_low = guilds[guild.id]["plural lower"] or 'awards'
-            plur_cap = guilds[guild.id]["plural caps"] or 'Awards'
-            moji = guilds[guild.id]["emoji"] or "🏅"
+        guild_id = guild.id
+        member = message.author
+        member_id = member.id
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            sing_low = await db.execute(f'SELECT award_singular FROM guilds WHERE guild_id = {guild_id}') or 'award'
+            sing_cap = string.capwords(sing_low)
+            plur_low = await db.execute(f'SELECT award_plural FROM guilds WHERE guild_id = {guild_id}') or 'awards'
+            plur_cap = string.capwords(plur_low)
+            moji = await db.execute(f'SELECT award_emoji FROM guilds WHERE guild_id = {guild_id}') or '🏅'
             if str(reaction.emoji) == moji:
-                if guild.id in guilds:
-                    if member.id in guilds[guild.id]:
-                        guilds[guild.id][member.id]['awards'] += 1
-                        awards = guilds[guild.id][member.id]['awards']
-                        embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{user.mention} has added 1 {sing_low} to {member.mention}'s total via an emoji reaction. {member.mention}'s new total number of {plur_low} is {awards}!")
-                        await message.channel.send(embed=embed, reference=message)
+                toggle = await db.execute(f'SELECT award_react_toggle FROM guilds WHERE guild_id = {guild_id}')
+                if toggle == 1:
+                    awards = await db.execute(f'SELECT awards FROM members WHERE member_id = {member_id}') or 0
+                    awards += 1
+                    await db.execute(f'INSERT OR REPLACE INTO members (member_id, awards) VALUES ({member_id}, {awards})')
+                    awards = await db.execute(f'SELECT awards FROM members WHERE member_id = {member_id}')
+                    if awards == 1:
+                        embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{member.mention} now has {awards} {sing_low}! ({sing_cap} added by {user.mention}.)")
                     else:
-                        guilds[guild.id][member.id] = {}
-                        guilds[guild.id][member.id]['awards'] = 1
-                        awards = guilds[guild.id][member.id]['awards']
-                        embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{user.mention} has added 1 {sing_low} to {member.mention}'s total via an emoji reaction. {member.mention}'s new total number of {plur_low} is {awards}!")
-                        await message.channel.send(embed=embed, reference=message)
-                else:
-                    guilds[guild.id] = {}
-                    guilds[guild.id][member.id] = {}
-                    guilds[guild.id][member.id]['awards'] = 1
-                    awards = guilds[guild.id][member.id]['awards']
-                    embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{user.mention} has added 1 {sing_low} to {member.mention}'s total via an emoji reaction. {member.mention}'s new total number of {plur_low} is {awards}!")
-                    await message.channel.send(embed=embed, reference=message)
+                        embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{member.mention} now has {awards} {plur_low}! ({sing_cap} added by {user.mention}.)")
+                    await channel.send(embed=embed, reference=message)
+            await db.close()
 
     @commands.Cog.listener(name="reactionremove")
     async def on_reaction_remove(self, reaction: discord.Reaction, user: discord.Member):
         message = reaction.message
+        channel = message.channel
         guild = message.guild
-        if guilds[guild.id]["award react toggle"] == True:
-            member = message.author
-            sing_low = guilds[guild.id]["singular lower"] or 'award'
-            sing_cap = guilds[guild.id]["singular caps"] or 'Award'
-            plur_low = guilds[guild.id]["plural lower"] or 'awards'
-            plur_cap = guilds[guild.id]["plural caps"] or 'Awards'
-            moji = guilds[guild.id]["emoji"] or "🏅"
+        guild_id = guild.id
+        member = message.author
+        member_id = member.id
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            sing_low = await db.execute(f'SELECT award_singular FROM guilds WHERE guild_id = {guild_id}') or 'award'
+            sing_cap = string.capwords(sing_low)
+            plur_low = await db.execute(f'SELECT award_plural FROM guilds WHERE guild_id = {guild_id}') or 'awards'
+            plur_cap = string.capwords(plur_low)
+            moji = await db.execute(f'SELECT award_emoji FROM guilds WHERE guild_id = {guild_id}') or '🏅'
             if str(reaction.emoji) == moji:
-                if guild.id in guilds:
-                    if member.id in guilds[guild.id]:
-                        if 'awards' in guilds[guild.id][member.id]:
-                            if guilds[guild.id][member.id]['awards'] >= 1:
-                                guilds[guild.id][member.id]['awards'] -= 1
-                                awards = guilds[guild.id][member.id]['awards']
-                                embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{user.mention} has removed 1 {sing_low} from {member.mention}'s total via an emoji unreaction. {member.mention}'s new total number of {plur_low} is {awards}!")
-                                await message.channel.send(embed=embed, reference=message)
+                toggle = await db.execute(f'SELECT award_react_toggle FROM guilds WHERE guild_id = {guild_id}')
+                if toggle == 1:
+                    awards = await db.execute(f'SELECT awards FROM members WHERE member_id = {member_id}') or 0
+                    if awards > 0:
+                        awards -= 1
+                        await db.execute(f'INSERT OR REPLACE INTO members (member_id, awards) VALUES ({member_id}, {awards})')
+                        awards = await db.execute(f'SELECT awards FROM members WHERE member_id = {member_id}')
+                        if awards == 0:
+                            embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{member.mention} no longer has any awards! ({sing_cap} removed by {user.mention}.)")
+                        elif awards == 1:
+                            embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{member.mention} now has {awards} {sing_low}! ({sing_cap} removed by {user.mention}.)")
+                        else:
+                            embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{member.mention} now has {awards} {plur_low}! ({sing_cap} removed by {user.mention}.)")
+                        await channel.send(embed=embed, reference=message)
+            await db.close()
 
     @commands.hybrid_command(name="addawards")
     async def addawards(self, ctx: commands.Context, amount: Optional[int] = None, member: Optional[discord.Member] = None):
@@ -567,42 +584,25 @@ class AwardCommands(commands.Cog):
         """
         await ctx.defer(ephemeral=True)
         guild = ctx.guild
+        guild_id = guild.id
         amount = amount or 1
         member = member or ctx.author
-        sing_low = guilds[guild.id]["singular lower"] or 'award'
-        sing_cap = guilds[guild.id]["singular caps"] or 'Award'
-        plur_low = guilds[guild.id]["plural lower"] or 'awards'
-        plur_cap = guilds[guild.id]["plural caps"] or 'Awards'
-        moji = guilds[guild.id]["emoji"] or "🏅"
-        if guild.id in guilds:
-            if member.id in guilds[guild.id]:
-                if 'awards' in guilds[guild.id][member.id]:
-                    guilds[guild.id][member.id]['awards'] += amount
-                    if guilds[guild.id][member.id]['awards'] == 1:
-                        embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {sing_low}!")
-                    else:
-                        embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {plur_low}!")
-                else:
-                    guilds[guild.id][member.id]['awards'] = amount
-                    if guilds[guild.id][member.id]['awards'] == 1:
-                        embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {sing_low}!")
-                    else:
-                        embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {plur_low}!")
-            else:
-                guilds[guild.id][member.id] = {}
-                guilds[guild.id][member.id]['awards'] = amount
-                if guilds[guild.id][member.id]['awards'] == 1:
-                    embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {sing_low}!")
-                else:
-                    embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {plur_low}!")
+        member_id = member.id
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            sing_low = await db.execute(f'SELECT award_singular FROM guilds WHERE guild_id = {guild_id}') or 'award'
+            sing_cap = string.capwords(sing_low)
+            plur_low = await db.execute(f'SELECT award_plural FROM guilds WHERE guild_id = {guild_id}') or 'awards'
+            plur_cap = string.capwords(plur_low)
+            moji = await db.execute(f'SELECT award_emoji FROM guilds WHERE guild_id = {guild_id}') or '🏅'
+            awards = await db.execute(f'SELECT awards FROM members WHERE member_id = {member_id}') or 0
+            awards += amount
+            await db.execute(f'INSERT OR REPLACE INTO members (member_id, awards) VALUES ({member_id}, {awards})')
+            awards = await db.execute(f'SELECT awards FROM members WHERE member_id = {member_id}')
+            await db.close()
+        if awards == 1:
+            embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{member.mention} now has {awards} {sing_low}!")
         else:
-            guilds[guild.id] = {}
-            guilds[guild.id][member.id] = {}
-            guilds[guild.id][member.id]['awards'] = amount
-            if guilds[guild.id][member.id]['awards'] == 1:
-                embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {sing_low}!")
-            else:
-                embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {guilds[guild.id][member.id]['awards']} {plur_low}!")
+            embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {awards} {plur_low}!")
         await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command(name="removeawards")
@@ -642,7 +642,7 @@ class AwardCommands(commands.Cog):
                 await db.close()
             if awards == 0:
                 embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} no longer has any {plur_low}!")
-            if awards == 1:
+            elif awards == 1:
                 embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {awards} {sing_low}!")
             else:
                 embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {awards} {plur_low}!")
