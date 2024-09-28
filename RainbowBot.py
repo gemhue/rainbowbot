@@ -1,6 +1,5 @@
 import discord
 import aiosqlite
-import string
 from discord import ChannelType, app_commands
 from discord.ui import ChannelSelect
 from discord.ext import commands
@@ -452,10 +451,10 @@ class AwardCommands(commands.Cog):
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR REPLACE INTO guilds (guild_id, award_singular) VALUES (?,?)", (guild_id, sing_low))
             sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,))
-            sing_cap = string.capwords(sing_low)
+            sing_cap = sing_low.title()
             await db.execute("INSERT OR REPLACE INTO guilds (guild_id, award_plural) VALUES (?,?)", (guild_id, plur_low))
             plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,))
-            plur_cap = string.capwords(plur_low)
+            plur_cap = plur_low.title()
             await db.execute("INSERT OR REPLACE INTO guilds (guild_id, award_emoji) VALUES (?,?)", (guild_id, emoji))
             moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,))
             await db.close()
@@ -474,9 +473,9 @@ class AwardCommands(commands.Cog):
         member_ids = [member.id for member in guild.members if not member.bot]
         async with aiosqlite.connect('rainbowbot.db') as db:
             sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,)) or 'award'
-            sing_cap = string.capwords(sing_low)
+            sing_cap = sing_low.title()
             plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,)) or 'awards'
-            plur_cap = string.capwords(plur_low)
+            plur_cap = plur_low.title()
             moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,)) or '🏅'
             for member_id in member_ids:
                 await db.execute("INSERT OR REPLACE INTO members (member_id, awards) VALUES (?,?)", (member_id, 0))
@@ -522,9 +521,9 @@ class AwardCommands(commands.Cog):
         member_id = member.id
         async with aiosqlite.connect('rainbowbot.db') as db:
             sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,)) or 'award'
-            sing_cap = string.capwords(sing_low)
+            sing_cap = sing_low.title()
             plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,)) or 'awards'
-            plur_cap = string.capwords(plur_low)
+            plur_cap = plur_low.title()
             moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,)) or '🏅'
             if str(reaction.emoji) == moji:
                 toggle = await db.execute("SELECT award_react_toggle FROM guilds WHERE guild_id = ?", (guild_id,))
@@ -550,9 +549,9 @@ class AwardCommands(commands.Cog):
         member_id = member.id
         async with aiosqlite.connect('rainbowbot.db') as db:
             sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,)) or 'award'
-            sing_cap = string.capwords(sing_low)
+            sing_cap = sing_low.title()
             plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,)) or 'awards'
-            plur_cap = string.capwords(plur_low)
+            plur_cap = plur_low.title()
             moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,)) or '🏅'
             if str(reaction.emoji) == moji:
                 toggle = await db.execute("SELECT award_react_toggle FROM guilds WHERE guild_id = ?", (guild_id,))
@@ -590,9 +589,9 @@ class AwardCommands(commands.Cog):
         member_id = member.id
         async with aiosqlite.connect('rainbowbot.db') as db:
             sing_low = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,)) or 'award'
-            sing_cap = string.capwords(sing_low)
+            sing_cap = sing_low.title()
             plur_low = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,)) or 'awards'
-            plur_cap = string.capwords(plur_low)
+            plur_cap = plur_low.title()
             moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,)) or '🏅'
             awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,)) or 0
             awards += amount
@@ -628,8 +627,8 @@ class AwardCommands(commands.Cog):
             moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,)) or '🏅'
             awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,)) or 0
             await db.close()
-        sing_cap = string.capwords(sing_low)
-        plur_cap = string.capwords(plur_low)
+        sing_cap = sing_low.title()
+        plur_cap = plur_low.title()
         if awards == 0:
             embed = discord.Embed(title=f"Error", description=f"{member.mention} doesn't have any {plur_low}!")
         elif awards < amount:
@@ -667,8 +666,8 @@ class AwardCommands(commands.Cog):
             moji = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,)) or '🏅'
             awards = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,)) or 0
             await db.close()
-        sing_cap = string.capwords(sing_low)
-        plur_cap = string.capwords(plur_low)
+        sing_cap = sing_low.title()
+        plur_cap = plur_low.title()
         if awards == 0:
             embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} doesn't have any {plur_low}!")
         elif awards == 1:
@@ -694,8 +693,8 @@ class AwardCommands(commands.Cog):
                 if awards > 0:
                     member_awards[member_id] = awards
             await db.close()
-        sing_cap = string.capwords(sing_low)
-        plur_cap = string.capwords(plur_low)
+        sing_cap = sing_low.title()
+        plur_cap = plur_low.title()
         desc = []
         for member, awards in member_awards.items():
             awards = awards * moji
