@@ -953,7 +953,10 @@ class ProfileCommands(commands.Cog):
         joined = discord.utils.format_dt(member.joined_at, style="D")
         joinedago = discord.utils.format_dt(member.joined_at, style="R")
         embed = discord.Embed(color=member.accent_color, title=f"{member.name}'s Member Profile", description=f"Member of {guild.name} since {joined} ({joinedago}).")
-        embed.set_author(name=f"{member.name}", icon_url=f"{member.avatar}")
+        if member.avatar is not None:
+            embed.set_author(name=f"{member.name}", icon_url=f"{member.avatar}")
+        else:
+            embed.set_author(name=f"{member.name}")
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR IGNORE INTO members (member_id) VALUES (?)", (member_id,))
             if name is not None:
@@ -1006,14 +1009,14 @@ class ProfileCommands(commands.Cog):
             if fetched_relationship_status is not None:
                 embed.add_field(name="📝 Relationship Status", value=f"{fetched_relationship_status}", inline=True)
             if family_status is not None:
-                await db.execute("UPDATE members SET family_status = ? WHERE guild_id = ?", (family_status, member_id))
+                await db.execute("UPDATE members SET family_status = ? WHERE member_id = ?", (family_status, member_id))
             cur = await db.execute("SELECT family_status FROM members WHERE member_id = ?", (member_id,))
             row = await cur.fetchone()
             fetched_family_status = row[0]
             if fetched_family_status is not None:
                 embed.add_field(name="📝 Family Planning Status", value=f"{fetched_family_status}", inline=True)
             if biography is not None:
-                await db.execute("UPDATE members SET biography = ? WHERE guild_id = ?", (biography, member_id))
+                await db.execute("UPDATE members SET biography = ? WHERE member_id = ?", (biography, member_id))
             cur = await db.execute("SELECT biography FROM members WHERE member_id = ?", (member_id,))
             row = await cur.fetchone()
             fetched_biography = row[0]
@@ -1222,7 +1225,7 @@ class ProfileCommands(commands.Cog):
         member_id = int(ctx.author.id)
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR IGNORE INTO members (member_id) VALUES (?)", (member_id,))
-            await db.execute("UPDATE members SET family_status = ? WHERE guild_id = ?", (family_status, member_id))
+            await db.execute("UPDATE members SET family_status = ? WHERE member_id = ?", (family_status, member_id))
             cur = await db.execute("SELECT family_status FROM members WHERE member_id = ?", (member_id,))
             row = await cur.fetchone()
             fetched_family_status = row[0]
@@ -1248,7 +1251,7 @@ class ProfileCommands(commands.Cog):
         member_id = int(ctx.author.id)
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR IGNORE INTO members (member_id) VALUES (?)", (member_id,))
-            await db.execute("UPDATE members SET biography = ? WHERE guild_id = ?", (biography, member_id))
+            await db.execute("UPDATE members SET biography = ? WHERE member_id = ?", (biography, member_id))
             cur = await db.execute("SELECT biography FROM members WHERE member_id = ?", (member_id,))
             row = await cur.fetchone()
             fetched_biography = row[0]
@@ -1275,7 +1278,10 @@ class ProfileCommands(commands.Cog):
         joined = discord.utils.format_dt(member.joined_at, style="D")
         joinedago = discord.utils.format_dt(member.joined_at, style="R")
         embed = discord.Embed(color=member.accent_color, title=f"{member.name}'s Member Profile", description=f"Member of {guild.name} since {joined} ({joinedago}).")
-        embed.set_author(name=f"{member.name}", icon_url=f"{member.avatar}")
+        if member.avatar is not None:
+            embed.set_author(name=f"{member.name}", icon_url=f"{member.avatar}")
+        else:
+            embed.set_author(name=f"{member.name}")
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR IGNORE INTO members (member_id) VALUES (?)", (member_id,))
             cur = await db.execute("SELECT name FROM members WHERE member_id = ?", (member_id,))
