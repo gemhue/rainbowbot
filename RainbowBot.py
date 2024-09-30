@@ -1,5 +1,7 @@
 import discord
 import aiosqlite
+import requests
+import feedparser
 from discord import ChannelType, app_commands
 from discord.ui import ChannelSelect
 from discord.ext import commands
@@ -1336,6 +1338,192 @@ class ProfileCommands(commands.Cog):
         embed.add_field(name="📝 Roles", value=f"{roles}", inline=False)
         await ctx.send(embed=embed, ephemeral=True)
 
+class RSSCommands(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.hybrid_command(name="createrssfeed")
+    async def setwebhook(self, ctx: commands.Context, webhook_url: str, webhook_name: str, webhook_avatar_url: str):
+        """Run this command to set a Webhook. All fields are required.
+
+        Parameters
+        -----------
+        webhook_url : str
+            Provide the URL for the webhook.
+        webhook_name : str
+            Provide the name of the webhook.
+        webhook_avatar_url : str
+            Provide the image URL for the webhook's avatar.
+        """
+        guild = ctx.guild
+        member = ctx.author
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            await db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
+            await db.execute("UPDATE webhooks SET name = ? WHERE url = ?", (webhook_name, webhook_url))
+            cur = await db.execute("SELECT name FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            name = row[0]
+            await db.execute("UPDATE webhooks SET avatar_url = ? WHERE url = ?", (webhook_avatar_url, webhook_url))
+            cur = await db.execute("SELECT avatar_url FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            avatar_url = row[0]
+            await db.commit()
+            await db.close()
+
+    @commands.hybrid_command(name="createrssfeed")
+    async def setrssfeed(self, ctx: commands.Context, webhook_url: str, rss_channel: discord.TextChannel, rss_feed_url: str):
+        """Run this command to set an RSS Feed. All fields are required.
+
+        Parameters
+        -----------
+        webhook_url : str
+            Provide the URL for the webhook. You can set the webhook's name and avatar using the /setwebhook command.
+        rss_channel : discord.TextChannel
+            Select the channel where you would like the RSS feed to post.
+        rss_feed_url : str
+            Provide the URL for the RSS feed.
+        """
+        await ctx.defer(ephemeral=True)
+        guild = ctx.guild
+        member = ctx.author
+        rss_channel_id = rss_channel.id
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            await db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
+            cur = await db.execute("SELECT rss_channel_id_1 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            name1 = row[0]
+            if name1 is None:
+                await db.execute("UPDATE webhooks SET rss_channel_id_1 = ? WHERE url = ?", (rss_channel_id, webhook_url))
+                cur = await db.execute("SELECT rss_channel_id_1 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_name = row[0]
+                await db.execute("UPDATE webhooks SET rss_url_1 = ? WHERE url = ?", (rss_feed_url, webhook_url))
+                cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_avatar_url = row[0]
+            else:
+                cur = await db.execute("SELECT rss_channel_id_2 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                name2 = row[0]
+                if name2 is None:
+                    await db.execute("UPDATE webhooks SET rss_channel_id_2 = ? WHERE url = ?", (rss_channel_id, webhook_url))
+                    cur = await db.execute("SELECT rss_channel_id_2 FROM webhooks WHERE url = ?", (webhook_url,))
+                    row = await cur.fetchone()
+                    fetched_name = row[0]
+                    await db.execute("UPDATE webhooks SET rss_url_2 = ? WHERE url = ?", (rss_feed_url, webhook_url))
+                    cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
+                    row = await cur.fetchone()
+                    fetched_avatar_url = row[0]
+                else:
+                    cur = await db.execute("SELECT rss_channel_id_3 FROM webhooks WHERE url = ?", (webhook_url,))
+                    row = await cur.fetchone()
+                    name3 = row[0]
+                    if name3 is None:
+                        await db.execute("UPDATE webhooks SET rss_channel_id_3 = ? WHERE url = ?", (rss_channel_id, webhook_url))
+                        cur = await db.execute("SELECT rss_channel_id_3 FROM webhooks WHERE url = ?", (webhook_url,))
+                        row = await cur.fetchone()
+                        fetched_name = row[0]
+                        await db.execute("UPDATE webhooks SET rss_url_3 = ? WHERE url = ?", (rss_feed_url, webhook_url))
+                        cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
+                        row = await cur.fetchone()
+                        fetched_avatar_url = row[0]
+                    else:
+                        cur = await db.execute("SELECT rss_channel_id_4 FROM webhooks WHERE url = ?", (webhook_url,))
+                        row = await cur.fetchone()
+                        name4 = row[0]
+                        if name4 is None:
+                            await db.execute("UPDATE webhooks SET rss_channel_id_4 = ? WHERE url = ?", (rss_channel_id, webhook_url))
+                            cur = await db.execute("SELECT rss_channel_id_4 FROM webhooks WHERE url = ?", (webhook_url,))
+                            row = await cur.fetchone()
+                            fetched_name = row[0]
+                            await db.execute("UPDATE webhooks SET rss_url_4 = ? WHERE url = ?", (rss_feed_url, webhook_url))
+                            cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
+                            row = await cur.fetchone()
+                            fetched_avatar_url = row[0]
+                        else:
+                            cur = await db.execute("SELECT rss_channel_id_5 FROM webhooks WHERE url = ?", (webhook_url,))
+                            row = await cur.fetchone()
+                            name5 = row[0]
+                            if name5 is None:
+                                await db.execute("UPDATE webhooks SET rss_channel_id_5 = ? WHERE url = ?", (rss_channel_id, webhook_url))
+                                cur = await db.execute("SELECT rss_channel_id_5 FROM webhooks WHERE url = ?", (webhook_url,))
+                                row = await cur.fetchone()
+                                fetched_name = row[0]
+                                await db.execute("UPDATE webhooks SET rss_url_5 = ? WHERE url = ?", (rss_feed_url, webhook_url))
+                                cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
+                                row = await cur.fetchone()
+                                fetched_avatar_url = row[0]
+                            else:
+                                cur = await db.execute("SELECT rss_channel_id_6 FROM webhooks WHERE url = ?", (webhook_url,))
+                                row = await cur.fetchone()
+                                name6 = row[0]
+                                if name6 is None:
+                                    await db.execute("UPDATE webhooks SET rss_channel_id_6 = ? WHERE url = ?", (rss_channel_id, webhook_url))
+                                    cur = await db.execute("SELECT rss_channel_id_6 FROM webhooks WHERE url = ?", (webhook_url,))
+                                    row = await cur.fetchone()
+                                    fetched_name = row[0]
+                                    await db.execute("UPDATE webhooks SET rss_url_6 = ? WHERE url = ?", (rss_feed_url, webhook_url))
+                                    cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
+                                    row = await cur.fetchone()
+                                    fetched_avatar_url = row[0]
+                                else:
+                                    cur = await db.execute("SELECT rss_channel_id_7 FROM webhooks WHERE url = ?", (webhook_url,))
+                                    row = await cur.fetchone()
+                                    name7 = row[0]
+                                    if name7 is None:
+                                        await db.execute("UPDATE webhooks SET rss_channel_id_7 = ? WHERE url = ?", (rss_channel_id, webhook_url))
+                                        cur = await db.execute("SELECT rss_channel_id_7 FROM webhooks WHERE url = ?", (webhook_url,))
+                                        row = await cur.fetchone()
+                                        fetched_name = row[0]
+                                        await db.execute("UPDATE webhooks SET rss_url_7 = ? WHERE url = ?", (rss_feed_url, webhook_url))
+                                        cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
+                                        row = await cur.fetchone()
+                                        fetched_avatar_url = row[0]
+                                    else:
+                                        cur = await db.execute("SELECT rss_channel_id_8 FROM webhooks WHERE url = ?", (webhook_url,))
+                                        row = await cur.fetchone()
+                                        name8 = row[0]
+                                        if name8 is None:
+                                            await db.execute("UPDATE webhooks SET rss_channel_id_8 = ? WHERE url = ?", (rss_channel_id, webhook_url))
+                                            cur = await db.execute("SELECT rss_channel_id_8 FROM webhooks WHERE url = ?", (webhook_url,))
+                                            row = await cur.fetchone()
+                                            fetched_name = row[0]
+                                            await db.execute("UPDATE webhooks SET rss_url_8 = ? WHERE url = ?", (rss_feed_url, webhook_url))
+                                            cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
+                                            row = await cur.fetchone()
+                                            fetched_avatar_url = row[0]
+                                        else:
+                                            cur = await db.execute("SELECT rss_channel_id_9 FROM webhooks WHERE url = ?", (webhook_url,))
+                                            row = await cur.fetchone()
+                                            name9 = row[0]
+                                            if name9 is None:
+                                                await db.execute("UPDATE webhooks SET rss_channel_id_9 = ? WHERE url = ?", (rss_channel_id, webhook_url))
+                                                cur = await db.execute("SELECT rss_channel_id_9 FROM webhooks WHERE url = ?", (webhook_url,))
+                                                row = await cur.fetchone()
+                                                fetched_name = row[0]
+                                                await db.execute("UPDATE webhooks SET rss_url_9 = ? WHERE url = ?", (rss_feed_url, webhook_url))
+                                                cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
+                                                row = await cur.fetchone()
+                                                fetched_avatar_url = row[0]
+                                            else:
+                                                cur = await db.execute("SELECT rss_channel_id_10 FROM webhooks WHERE url = ?", (webhook_url,))
+                                                row = await cur.fetchone()
+                                                name10 = row[0]
+                                                if name10 is None:
+                                                    await db.execute("UPDATE webhooks SET rss_channel_id_10 = ? WHERE url = ?", (rss_channel_id, webhook_url))
+                                                    cur = await db.execute("SELECT rss_channel_id_10 FROM webhooks WHERE url = ?", (webhook_url,))
+                                                    row = await cur.fetchone()
+                                                    fetched_name = row[0]
+                                                    await db.execute("UPDATE webhooks SET rss_url_10 = ? WHERE url = ?", (rss_feed_url, webhook_url))
+                                                    cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
+                                                    row = await cur.fetchone()
+                                                    fetched_avatar_url = row[0]
+                                                else:
+                                                    embed = discord.Embed(title="Error", description="This webhook is already associated with 10 RSS feeds. You will need to remove ")
+            await db.commit()
+            await db.close()
+        await ctx.send(embed=embed, ephemeral=True)
+
 async def setup(bot):
     async with aiosqlite.connect('rainbowbot.db') as db:
         await db.execute("""CREATE TABLE IF NOT EXISTS guilds(
@@ -1363,6 +1551,30 @@ async def setup(bot):
                          relationship_status TEXT DEFAULT NULL,
                          family_status TEXT DEFAULT NULL,
                          biography TEXT DEFAULT NULL)""")
+        await db.execute("""CREATE TABLE IF NOT EXISTS webhooks(
+                         url TEXT PRIMARY KEY,
+                         name TEXT DEFAULT NULL,
+                         avatar_url TEXT DEFAULT NULL,
+                         rss_channel_id_1
+                         rss_url_1
+                         rss_channel_id_2
+                         rss_url_2
+                         rss_channel_id_3
+                         rss_url_3
+                         rss_channel_id_4
+                         rss_url_4
+                         rss_channel_id_5
+                         rss_url_5
+                         rss_channel_id_6
+                         rss_url_6
+                         rss_channel_id_7
+                         rss_url_7
+                         rss_channel_id_8
+                         rss_url_8
+                         rss_channel_id_9
+                         rss_url_9
+                         rss_channel_id_10
+                         rss_url_10)""")
         await db.commit()
         await db.close()
     await bot.add_cog(BackgroundTasks(bot), override=True)
@@ -1370,6 +1582,7 @@ async def setup(bot):
     await bot.add_cog(PurgeCommands(bot), override=True)
     await bot.add_cog(AwardCommands(bot), override=True)
     await bot.add_cog(ProfileCommands(bot), override=True)
+    await bot.add_cog(RSSCommands(bot), override=True)
 
 @bot.event
 async def on_ready():
