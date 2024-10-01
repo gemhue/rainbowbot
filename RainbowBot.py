@@ -1355,8 +1355,7 @@ class RSSCommands(commands.Cog):
         webhook_avatar_url : str
             Provide the image URL for the webhook's avatar.
         """
-        guild = ctx.guild
-        member = ctx.author
+        await ctx.defer(ephemeral=True)
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
             await db.execute("UPDATE webhooks SET name = ? WHERE url = ?", (webhook_name, webhook_url))
@@ -1369,6 +1368,11 @@ class RSSCommands(commands.Cog):
             avatar_url = row[0]
             await db.commit()
             await db.close()
+        embed = discord.Embed(title="Webhook Set")
+        embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+        embed.add_field(name="Webhook Name", value=f"{name}")
+        embed.add_field(name="Webhook Avatar URL", value=f"{avatar_url}")
+        await ctx.send(embed=embed, ephemeral=True)
 
     @commands.hybrid_command(name="createrssfeed")
     async def setrssfeed(self, ctx: commands.Context, webhook_url: str, rss_channel: discord.TextChannel, rss_feed_url: str):
@@ -1385,141 +1389,190 @@ class RSSCommands(commands.Cog):
         """
         await ctx.defer(ephemeral=True)
         guild = ctx.guild
-        member = ctx.author
         rss_channel_id = rss_channel.id
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
             cur = await db.execute("SELECT rss_channel_id_1 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            name1 = row[0]
-            if name1 is None:
+            rss_channel_id1 = row[0]
+            if rss_channel_id1 is None:
                 await db.execute("UPDATE webhooks SET rss_channel_id_1 = ? WHERE url = ?", (rss_channel_id, webhook_url))
                 cur = await db.execute("SELECT rss_channel_id_1 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                fetched_name = row[0]
+                fetched_channel_id = row[0]
                 await db.execute("UPDATE webhooks SET rss_url_1 = ? WHERE url = ?", (rss_feed_url, webhook_url))
                 cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                fetched_avatar_url = row[0]
+                fetched_rss_url = row[0]
+                embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position one**!")
+                embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                channel = guild.get_channel(fetched_channel_id)
+                embed.add_field(name="RSS Channel", value=f"{channel.mention}")
+                embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
             else:
                 cur = await db.execute("SELECT rss_channel_id_2 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                name2 = row[0]
-                if name2 is None:
+                rss_channel_id2 = row[0]
+                if rss_channel_id2 is None:
                     await db.execute("UPDATE webhooks SET rss_channel_id_2 = ? WHERE url = ?", (rss_channel_id, webhook_url))
                     cur = await db.execute("SELECT rss_channel_id_2 FROM webhooks WHERE url = ?", (webhook_url,))
                     row = await cur.fetchone()
-                    fetched_name = row[0]
+                    fetched_channel_id = row[0]
                     await db.execute("UPDATE webhooks SET rss_url_2 = ? WHERE url = ?", (rss_feed_url, webhook_url))
                     cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
                     row = await cur.fetchone()
-                    fetched_avatar_url = row[0]
+                    fetched_rss_url = row[0]
+                    embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position two**!")
+                    embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                    channel = guild.get_channel(fetched_channel_id)
+                    embed.add_field(name="RSS Channel", value=f"{channel.mention}")
+                    embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
                 else:
                     cur = await db.execute("SELECT rss_channel_id_3 FROM webhooks WHERE url = ?", (webhook_url,))
                     row = await cur.fetchone()
-                    name3 = row[0]
-                    if name3 is None:
+                    rss_channel_id3 = row[0]
+                    if rss_channel_id3 is None:
                         await db.execute("UPDATE webhooks SET rss_channel_id_3 = ? WHERE url = ?", (rss_channel_id, webhook_url))
                         cur = await db.execute("SELECT rss_channel_id_3 FROM webhooks WHERE url = ?", (webhook_url,))
                         row = await cur.fetchone()
-                        fetched_name = row[0]
+                        fetched_channel_id = row[0]
                         await db.execute("UPDATE webhooks SET rss_url_3 = ? WHERE url = ?", (rss_feed_url, webhook_url))
                         cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
                         row = await cur.fetchone()
-                        fetched_avatar_url = row[0]
+                        fetched_rss_url = row[0]
+                        embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position three**!")
+                        embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                        channel = guild.get_channel(fetched_channel_id)
+                        embed.add_field(name="RSS Channel", value=f"{channel.mention}")
+                        embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
                     else:
                         cur = await db.execute("SELECT rss_channel_id_4 FROM webhooks WHERE url = ?", (webhook_url,))
                         row = await cur.fetchone()
-                        name4 = row[0]
-                        if name4 is None:
+                        rss_channel_id4 = row[0]
+                        if rss_channel_id4 is None:
                             await db.execute("UPDATE webhooks SET rss_channel_id_4 = ? WHERE url = ?", (rss_channel_id, webhook_url))
                             cur = await db.execute("SELECT rss_channel_id_4 FROM webhooks WHERE url = ?", (webhook_url,))
                             row = await cur.fetchone()
-                            fetched_name = row[0]
+                            fetched_channel_id = row[0]
                             await db.execute("UPDATE webhooks SET rss_url_4 = ? WHERE url = ?", (rss_feed_url, webhook_url))
                             cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
                             row = await cur.fetchone()
-                            fetched_avatar_url = row[0]
+                            fetched_rss_url = row[0]
+                            embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position four**!")
+                            embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                            channel = guild.get_channel(fetched_channel_id)
+                            embed.add_field(name="RSS Channel", value=f"{channel.mention}")
+                            embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
                         else:
                             cur = await db.execute("SELECT rss_channel_id_5 FROM webhooks WHERE url = ?", (webhook_url,))
                             row = await cur.fetchone()
-                            name5 = row[0]
-                            if name5 is None:
+                            rss_channel_id5 = row[0]
+                            if rss_channel_id5 is None:
                                 await db.execute("UPDATE webhooks SET rss_channel_id_5 = ? WHERE url = ?", (rss_channel_id, webhook_url))
                                 cur = await db.execute("SELECT rss_channel_id_5 FROM webhooks WHERE url = ?", (webhook_url,))
                                 row = await cur.fetchone()
-                                fetched_name = row[0]
+                                fetched_channel_id = row[0]
                                 await db.execute("UPDATE webhooks SET rss_url_5 = ? WHERE url = ?", (rss_feed_url, webhook_url))
                                 cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
                                 row = await cur.fetchone()
-                                fetched_avatar_url = row[0]
+                                fetched_rss_url = row[0]
+                                embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position five**!")
+                                embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                                channel = guild.get_channel(fetched_channel_id)
+                                embed.add_field(name="RSS Channel", value=f"{channel.mention}")
+                                embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
                             else:
                                 cur = await db.execute("SELECT rss_channel_id_6 FROM webhooks WHERE url = ?", (webhook_url,))
                                 row = await cur.fetchone()
-                                name6 = row[0]
-                                if name6 is None:
+                                rss_channel_id6 = row[0]
+                                if rss_channel_id6 is None:
                                     await db.execute("UPDATE webhooks SET rss_channel_id_6 = ? WHERE url = ?", (rss_channel_id, webhook_url))
                                     cur = await db.execute("SELECT rss_channel_id_6 FROM webhooks WHERE url = ?", (webhook_url,))
                                     row = await cur.fetchone()
-                                    fetched_name = row[0]
+                                    fetched_channel_id = row[0]
                                     await db.execute("UPDATE webhooks SET rss_url_6 = ? WHERE url = ?", (rss_feed_url, webhook_url))
                                     cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
                                     row = await cur.fetchone()
-                                    fetched_avatar_url = row[0]
+                                    fetched_rss_url = row[0]
+                                    embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position six**!")
+                                    embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                                    channel = guild.get_channel(fetched_channel_id)
+                                    embed.add_field(name="RSS Channel", value=f"{channel.mention}")
+                                    embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
                                 else:
                                     cur = await db.execute("SELECT rss_channel_id_7 FROM webhooks WHERE url = ?", (webhook_url,))
                                     row = await cur.fetchone()
-                                    name7 = row[0]
-                                    if name7 is None:
+                                    rss_channel_id7 = row[0]
+                                    if rss_channel_id7 is None:
                                         await db.execute("UPDATE webhooks SET rss_channel_id_7 = ? WHERE url = ?", (rss_channel_id, webhook_url))
                                         cur = await db.execute("SELECT rss_channel_id_7 FROM webhooks WHERE url = ?", (webhook_url,))
                                         row = await cur.fetchone()
-                                        fetched_name = row[0]
+                                        fetched_channel_id = row[0]
                                         await db.execute("UPDATE webhooks SET rss_url_7 = ? WHERE url = ?", (rss_feed_url, webhook_url))
                                         cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
                                         row = await cur.fetchone()
-                                        fetched_avatar_url = row[0]
+                                        fetched_rss_url = row[0]
+                                        embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position seven**!")
+                                        embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                                        channel = guild.get_channel(fetched_channel_id)
+                                        embed.add_field(name="RSS Channel", value=f"{channel.mention}")
+                                        embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
                                     else:
                                         cur = await db.execute("SELECT rss_channel_id_8 FROM webhooks WHERE url = ?", (webhook_url,))
                                         row = await cur.fetchone()
-                                        name8 = row[0]
-                                        if name8 is None:
+                                        rss_channel_id8 = row[0]
+                                        if rss_channel_id8 is None:
                                             await db.execute("UPDATE webhooks SET rss_channel_id_8 = ? WHERE url = ?", (rss_channel_id, webhook_url))
                                             cur = await db.execute("SELECT rss_channel_id_8 FROM webhooks WHERE url = ?", (webhook_url,))
                                             row = await cur.fetchone()
-                                            fetched_name = row[0]
+                                            fetched_channel_id = row[0]
                                             await db.execute("UPDATE webhooks SET rss_url_8 = ? WHERE url = ?", (rss_feed_url, webhook_url))
                                             cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
                                             row = await cur.fetchone()
-                                            fetched_avatar_url = row[0]
+                                            fetched_rss_url = row[0]
+                                            embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position eight**!")
+                                            embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                                            channel = guild.get_channel(fetched_channel_id)
+                                            embed.add_field(name="RSS Channel", value=f"{channel.mention}")
+                                            embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
                                         else:
                                             cur = await db.execute("SELECT rss_channel_id_9 FROM webhooks WHERE url = ?", (webhook_url,))
                                             row = await cur.fetchone()
-                                            name9 = row[0]
-                                            if name9 is None:
+                                            rss_channel_id9 = row[0]
+                                            if rss_channel_id9 is None:
                                                 await db.execute("UPDATE webhooks SET rss_channel_id_9 = ? WHERE url = ?", (rss_channel_id, webhook_url))
                                                 cur = await db.execute("SELECT rss_channel_id_9 FROM webhooks WHERE url = ?", (webhook_url,))
                                                 row = await cur.fetchone()
-                                                fetched_name = row[0]
+                                                fetched_channel_id = row[0]
                                                 await db.execute("UPDATE webhooks SET rss_url_9 = ? WHERE url = ?", (rss_feed_url, webhook_url))
                                                 cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
                                                 row = await cur.fetchone()
-                                                fetched_avatar_url = row[0]
+                                                fetched_rss_url = row[0]
+                                                embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position nine**!")
+                                                embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                                                channel = guild.get_channel(fetched_channel_id)
+                                                embed.add_field(name="RSS Channel", value=f"{channel.mention}")
+                                                embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
                                             else:
                                                 cur = await db.execute("SELECT rss_channel_id_10 FROM webhooks WHERE url = ?", (webhook_url,))
                                                 row = await cur.fetchone()
-                                                name10 = row[0]
-                                                if name10 is None:
+                                                rss_channel_id10 = row[0]
+                                                if rss_channel_id10 is None:
                                                     await db.execute("UPDATE webhooks SET rss_channel_id_10 = ? WHERE url = ?", (rss_channel_id, webhook_url))
                                                     cur = await db.execute("SELECT rss_channel_id_10 FROM webhooks WHERE url = ?", (webhook_url,))
                                                     row = await cur.fetchone()
-                                                    fetched_name = row[0]
+                                                    fetched_channel_id = row[0]
                                                     await db.execute("UPDATE webhooks SET rss_url_10 = ? WHERE url = ?", (rss_feed_url, webhook_url))
                                                     cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
                                                     row = await cur.fetchone()
-                                                    fetched_avatar_url = row[0]
+                                                    fetched_rss_url = row[0]
+                                                    embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position ten**!")
+                                                    embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                                                    channel = guild.get_channel(fetched_channel_id)
+                                                    embed.add_field(name="RSS Channel", value=f"{channel.mention}")
+                                                    embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
                                                 else:
-                                                    embed = discord.Embed(title="Error", description="This webhook is already associated with 10 RSS feeds. You will need to remove ")
+                                                    embed = discord.Embed(title="Error", description="This webhook is already associated with 10 RSS feeds.")
             await db.commit()
             await db.close()
         await ctx.send(embed=embed, ephemeral=True)
