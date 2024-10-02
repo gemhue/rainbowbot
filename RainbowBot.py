@@ -209,11 +209,11 @@ class SetupCommands(commands.Cog):
         Parameters
         -----------
         logging_channel : discord.TextChannel, optional
-            Set the channels for logging messages.
+            Set the channel for logging messages.
         welcome_channel : discord.TextChannel, optional
-            Set the channels for welcome messages.
+            Set the channel for welcome messages.
         goodbye_channel : discord.TextChannel, optional
-            Set the channels for goodbye messages.
+            Set the channel for goodbye messages.
         """
         guild = ctx.guild
         guild_id = guild.id
@@ -1093,7 +1093,7 @@ class ProfileCommands(commands.Cog):
 
     @profile.command(name="name")
     async def name(self, ctx: commands.Context, name: str):
-        """Run this command to set your profile name.
+        """Run this command to set or update your profile name.
 
         Parameters
         -----------
@@ -1119,7 +1119,7 @@ class ProfileCommands(commands.Cog):
 
     @profile.command(name="age")
     async def age(self, ctx: commands.Context, age: str):
-        """Run this command to set your profile age.
+        """Run this command to set or update your profile age.
 
         Parameters
         -----------
@@ -1145,7 +1145,7 @@ class ProfileCommands(commands.Cog):
 
     @profile.command(name="location")
     async def location(self, ctx: commands.Context, location: str):
-        """Run this command to set your profile location.
+        """Run this command to set or update your profile location.
 
         Parameters
         -----------
@@ -1171,7 +1171,7 @@ class ProfileCommands(commands.Cog):
 
     @profile.command(name="pronouns")
     async def pronouns(self, ctx: commands.Context, pronouns: str):
-        """Run this command to set your profile pronouns.
+        """Run this command to set or update your profile pronouns.
 
         Parameters
         -----------
@@ -1197,7 +1197,7 @@ class ProfileCommands(commands.Cog):
 
     @profile.command(name="gender")
     async def gender(self, ctx: commands.Context, gender: str):
-        """Run this command to set your profile gender.
+        """Run this command to set or update your profile gender.
 
         Parameters
         -----------
@@ -1223,7 +1223,7 @@ class ProfileCommands(commands.Cog):
 
     @profile.command(name="sexuality")
     async def sexuality(self, ctx: commands.Context, sexuality: str):
-        """Run this command to set your profile sexuality.
+        """Run this command to set or update your profile sexuality.
 
         Parameters
         -----------
@@ -1249,7 +1249,7 @@ class ProfileCommands(commands.Cog):
 
     @profile.command(name="relationship")
     async def relationship(self, ctx: commands.Context, relationship_status: str):
-        """Run this command to set your profile relationship status.
+        """Run this command to set or update your profile relationship status.
 
         Parameters
         -----------
@@ -1275,7 +1275,7 @@ class ProfileCommands(commands.Cog):
 
     @profile.command(name="family")
     async def family(self, ctx: commands.Context, family_status: str):
-        """Run this command to set your profile family planning status.
+        """Run this command to set or update your profile family planning status.
 
         Parameters
         -----------
@@ -1301,7 +1301,7 @@ class ProfileCommands(commands.Cog):
 
     @profile.command(name="biography")
     async def biography(self, ctx: commands.Context, biography: str):
-        """Run this command to set your profile biography.
+        """Run this command to set or update your profile biography.
 
         Parameters
         -----------
@@ -1326,16 +1326,18 @@ class ProfileCommands(commands.Cog):
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
     @profile.command(name="get")
-    async def get(self, ctx: commands.Context, member: discord.Member):
+    async def get(self, ctx: commands.Context, member: Optional[discord.Member]):
         """Run this command to retrieve a member's profile.
 
         Parameters
         -----------
-        member : str
+        member : str, optional
             Provide the member whose profile you would like to retrieve.
         """
         await ctx.defer(ephemeral=True)
         guild = ctx.guild
+        if member is None:
+            member = ctx.author
         member_id = int(member.id)
         joined = discord.utils.format_dt(member.joined_at, style="D")
         joinedago = discord.utils.format_dt(member.joined_at, style="R")
