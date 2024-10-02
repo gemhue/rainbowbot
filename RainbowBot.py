@@ -5,7 +5,7 @@ import feedparser
 from discord import ChannelType, app_commands, Webhook
 from discord.ui import ChannelSelect
 from discord.ext import commands, tasks
-from typing import Any, Optional
+from typing import Any, Optional, Literal
 from datetime import datetime, timezone, timedelta
 
 bot = commands.Bot(
@@ -151,26 +151,47 @@ class SetupCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="sync")
+    @commands.command(name="sync", hidden=True)
     @commands.is_owner()
     async def sync(self, ctx: commands.Context):
         """(Bot Owner Only) Syncs the local command tree.
         """
-        await ctx.defer()
+        await ctx.defer(ephemeral=True)
         guild = ctx.guild
         await bot.tree.sync(guild=guild)
         embed = discord.Embed(title="Update", description=f"The bot's local command tree has been synced!")
-        await ctx.send(embed=embed)
+        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
     
-    @commands.command(name="globalsync")
+    @commands.command(name="globalsync", hidden=True)
     @commands.is_owner()
     async def globalsync(self, ctx: commands.Context):
         """(Bot Owner Only) Syncs the global command tree.
         """
-        await ctx.defer()
+        await ctx.defer(ephemeral=True)
         await bot.tree.sync(guild=None)
         embed = discord.Embed(title="Update", description=f"The bot's global command tree has been synced!")
-        await ctx.send(embed=embed)
+        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+
+    @commands.command(name="clear", hidden=True)
+    @commands.is_owner()
+    async def clear(self, ctx: commands.Context):
+        """(Bot Owner Only) Clears the local command tree.
+        """
+        await ctx.defer(ephemeral=True)
+        guild = ctx.guild
+        await bot.tree.clear_commands(guild=guild)
+        embed = discord.Embed(title="Update", description=f"The bot's local command tree has been cleared!")
+        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+
+    @commands.command(name="globalclear", hidden=True)
+    @commands.is_owner()
+    async def globalclear(self, ctx: commands.Context):
+        """(Bot Owner Only) Clears the global command tree.
+        """
+        await ctx.defer(ephemeral=True)
+        await bot.tree.clear_commands(guild=None)
+        embed = discord.Embed(title="Update", description=f"The bot's global command tree has been cleared!")
+        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
     @commands.hybrid_command(name="setchannels")
     @commands.has_guild_permissions(administrator=True)
@@ -244,7 +265,7 @@ class SetupCommands(commands.Cog):
             embed.add_field(name="Welcome Message", value=f"{fetched_message}")
             await db.commit()
             await db.close()
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
     @commands.hybrid_command(name="setgoodbye")
     @commands.has_guild_permissions(administrator=True)
@@ -270,7 +291,7 @@ class SetupCommands(commands.Cog):
             embed.add_field(name="Goodbye Message", value=f"{fetched_message}")
             await db.commit()
             await db.close()
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
     @commands.hybrid_command(name="setjoinroles")
     @commands.has_guild_permissions(administrator=True)
@@ -308,7 +329,7 @@ class SetupCommands(commands.Cog):
                 embed.add_field(name="Bot Join Role", value=f"{botrole.mention}")
             await db.commit
             await db.close()
-        ctx.send(embed=embed, ephemeral=True)
+        ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
     @commands.hybrid_command(name="activityroles")
     @commands.has_guild_permissions(administrator=True)
@@ -354,7 +375,10 @@ class SetupCommands(commands.Cog):
                 await member.add_roles(inactive)
             if active in member.roles:
                 await member.remove_roles(active)
-        await ctx.send(f"{len(activemembers)} members now have the {active.mention} role!\n{len(inactivemembers)} members now have the {inactive.mention} role!")
+        embed = discord.Embed(color=ctx.author.accent_color, title="Activity Roles Assigned")
+        embed.add_field(name="Active Members", value=f"{len(activemembers)} members now have the {active.mention} role!")
+        embed.add_field(name="Inactive Members", value=f"{len(inactivemembers)} members now have the {inactive.mention} role!")
+        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
 class PurgeCommands(commands.Cog):
     def __init__(self, bot):
@@ -372,6 +396,7 @@ class PurgeCommands(commands.Cog):
             Provide the member who's unpinned messages you would like to purge.
         """
         await ctx.defer()
+        channel = ctx.channel
         view = DropdownView()
         embed = discord.Embed(title="🗑️ Purge Member 🗑️", description=f"Which channel(s) would you like to purge {member.mention}'s unpinned messages from?")
         response = await ctx.send(embed=embed, view=view)
@@ -381,7 +406,7 @@ class PurgeCommands(commands.Cog):
             mentions = [c.mention for c in selected]
             selectedlist = ", ".join(mentions)
             embed = discord.Embed(title="📋 Selected Channels 📋", description=f'{selectedlist}')
-            await response.edit(embed=embed, view=None)
+            await response.edit(embed=embed, delete_after=30.0, view=None)
             for channel in selected:
                 messages = [m async for m in channel.history(limit=None)]
                 unpinned = [m for m in messages if not m.pinned]
@@ -392,18 +417,18 @@ class PurgeCommands(commands.Cog):
                     unpinned = [m for m in messages if not m.pinned]
                 if len(deleted) == 1:
                     embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} message was just removed from {channel.mention}!')
-                    await ctx.send(embed=embed)
+                    await ctx.send(embed=embed, delete_after=30.0)
                 else:
                     embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just removed from {channel.mention}!')
-                    await ctx.send(embed=embed)
+                    await ctx.send(embed=embed, delete_after=30.0)
             embed = discord.Embed(title="✔️ Done ✔️", description=f'The purge is now complete!')
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed, delete_after=30.0)
         elif view.value == False:
             embed = discord.Embed(title="❌ Cancelled ❌", description='This interaction has been cancelled. No messages have been purged.')
-            await response.edit(embed=embed, view=None)
+            await response.edit(embed=embed, delete_after=30.0, view=None)
         else:
             embed = discord.Embed(title="⌛ Timed Out ⌛", description='This interaction has timed out. No messages have been purged.')
-            await response.edit(embed=embed, view=None)
+            await response.edit(embed=embed, delete_after=30.0, view=None)
 
     @commands.hybrid_command(name="purgechannels")
     @commands.has_guild_permissions(administrator=True)
@@ -420,7 +445,7 @@ class PurgeCommands(commands.Cog):
             mentions = [c.mention for c in selected]
             selectedlist = ", ".join(mentions)
             embed = discord.Embed(title="📋 Selected Channels 📋", description=f'{selectedlist}')
-            await response.edit(embed=embed, view=None)
+            await response.edit(embed=embed, delete_after=30.0, view=None)
             for channel in selected:
                 messages = [m async for m in channel.history(limit=None)]
                 unpinned = [m for m in messages if not m.pinned]
@@ -431,18 +456,18 @@ class PurgeCommands(commands.Cog):
                     unpinned = [m for m in messages if not m.pinned]
                 if len(deleted) == 1:
                     embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} message was just removed from {channel.mention}!')
-                    await ctx.send(embed=embed)
+                    await ctx.send(embed=embed, delete_after=30.0)
                 else:
                     embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just removed from {channel.mention}!')
-                    await ctx.send(embed=embed)
+                    await ctx.send(embed=embed, delete_after=30.0)
             embed = discord.Embed(title="✔️ Done ✔️", description=f'The purge is now complete!')
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed, delete_after=30.0)
         elif view.value == False:
             embed = discord.Embed(title="❌ Cancelled ❌", description='This interaction has been cancelled. No messages have been purged.')
-            await response.edit(embed=embed, view=None)
+            await response.edit(embed=embed, delete_after=30.0, view=None)
         else:
             embed = discord.Embed(title="⌛ Timed Out ⌛", description='This interaction has timed out. No messages have been purged.')
-            await response.edit(embed=embed, view=None)
+            await response.edit(embed=embed, delete_after=30.0, view=None)
 
     @commands.hybrid_command(name="purgeserver")
     @commands.has_guild_permissions(administrator=True)
@@ -459,7 +484,7 @@ class PurgeCommands(commands.Cog):
             mentions = [c.mention for c in excluded]
             excludedlist = ", ".join(mentions)
             embed = discord.Embed(title="📋 Excluded Channels 📋", description=f'{excludedlist}')
-            await response.edit(embed=embed, view=None)
+            await response.edit(embed=embed, delete_after=30.0, view=None)
             selected = [c for c in ctx.guild.text_channels if c not in excluded]
             for channel in selected:
                 messages = [m async for m in channel.history(limit=None)]
@@ -471,18 +496,18 @@ class PurgeCommands(commands.Cog):
                     unpinned = [m for m in messages if not m.pinned]
                 if len(deleted) == 1:
                     embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} message was just removed from {channel.mention}!')
-                    await ctx.send(embed=embed)
+                    await ctx.send(embed=embed, delete_after=30.0)
                 else:
                     embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just removed from {channel.mention}!')
-                    await ctx.send(embed=embed)
+                    await ctx.send(embed=embed, delete_after=30.0)
             embed = discord.Embed(title="✔️ Done ✔️", description=f'The purge is now complete!')
-            await ctx.send(embed=embed)
+            await ctx.send(embed=embed, delete_after=30.0)
         elif view.value == False:
             embed = discord.Embed(title="❌ Cancelled ❌", description='This interaction has been cancelled. No messages have been purged.')
-            await response.edit(embed=embed, view=None)
+            await response.edit(embed=embed, delete_after=30.0, view=None)
         else:
             embed = discord.Embed(title="⌛ Timed Out ⌛", description='This interaction has timed out. No messages have been purged.')
-            await response.edit(embed=embed, view=None)
+            await response.edit(embed=embed, delete_after=30.0, view=None)
 
 class AwardCommands(commands.Cog):
     def __init__(self, bot):
@@ -530,7 +555,7 @@ class AwardCommands(commands.Cog):
         embed.add_field(name="Name (Singular)", value=f"{fetched_sing_cap}")
         embed.add_field(name="Name (Plural)", value=f"{fetched_plur_cap}")
         embed.add_field(name="Emoji", value=f"{fetched_moji}")
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
     @commands.hybrid_command(name="clearawards")
     @commands.has_guild_permissions(administrator=True)
@@ -560,7 +585,7 @@ class AwardCommands(commands.Cog):
             await db.commit()
             await db.close()
         embed = discord.Embed(title=f"{moji} {plur_cap} Cleared {moji}", description=f"{guild.name} has had all its {plur_low} cleared!")
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
     @commands.hybrid_command(name="awardreactiontoggle")
     @commands.has_guild_permissions(administrator=True)
@@ -596,7 +621,7 @@ class AwardCommands(commands.Cog):
                 embed = discord.Embed(title="Error", description=f"Your input could not be parsed. Please enter either True to toggle award reactions ON or False to toggle award reactions OFF.")
             await db.commit()
             await db.close()
-        ctx.send(embed=embed, ephemeral=True)
+        ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
     @commands.Cog.listener(name="reactionadd")
     async def on_reaction_add(self, reaction: discord.Reaction, user: discord.Member):
@@ -644,7 +669,7 @@ class AwardCommands(commands.Cog):
                         embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{member.mention} now has {awards} {sing_low}! ({sing_cap} added by {user.mention}.)")
                     else:
                         embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{member.mention} now has {awards} {plur_low}! ({sing_cap} added by {user.mention}.)")
-                    await channel.send(embed=embed, reference=message)
+                    await channel.send(embed=embed, delete_after=30.0, reference=message)
             await db.commit()
             await db.close()
 
@@ -697,7 +722,7 @@ class AwardCommands(commands.Cog):
                             embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{member.mention} now has {awards} {sing_low}! ({sing_cap} removed by {user.mention}.)")
                         else:
                             embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{member.mention} now has {awards} {plur_low}! ({sing_cap} removed by {user.mention}.)")
-                        await channel.send(embed=embed, reference=message)
+                        await channel.send(embed=embed, delete_after=30.0, reference=message)
             await db.commit()
             await db.close()
 
@@ -759,7 +784,7 @@ class AwardCommands(commands.Cog):
             embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{member.mention} now has {awards} {sing_low}!")
         else:
             embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {awards} {plur_low}!")
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
     @commands.hybrid_command(name="removeawards")
     async def removeawards(self, ctx: commands.Context, amount: Optional[int], member: Optional[discord.Member]):
@@ -823,7 +848,7 @@ class AwardCommands(commands.Cog):
                     embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {awards} {sing_low}!")
                 else:
                     embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {awards} {plur_low}!")
-                await ctx.send(embed=embed, ephemeral=True)
+                await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
             await db.commit()
             await db.close()
         
@@ -877,7 +902,7 @@ class AwardCommands(commands.Cog):
                 embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {awards} {plur_low}!")
             await db.commit()
             await db.close()
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
     @commands.hybrid_command(name="leaderboard")
     async def leaderboard(self, ctx: commands.Context):
@@ -923,8 +948,8 @@ class ProfileCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @commands.hybrid_command(name="setprofile")
-    async def setprofile(self, ctx: commands.Context, name: Optional[str], age: Optional[str], location: Optional[str], pronouns: Optional[str], gender: Optional[str], sexuality: Optional[str], relationship_status: Optional[str], family_status: Optional[str], biography: Optional[str]):
+    @commands.hybrid_group(name="profile", fallback="set")
+    async def profile(self, ctx: commands.Context, name: Optional[str], age: Optional[str], location: Optional[str], pronouns: Optional[str], gender: Optional[str], sexuality: Optional[str], relationship_status: Optional[str], family_status: Optional[str], biography: Optional[str]):
         """Run this command to set up your member profile. Note that all fields are optional.
 
         Parameters
@@ -1029,10 +1054,10 @@ class ProfileCommands(commands.Cog):
         roles = [r.mention for r in member.roles]
         roles = ", ".join(roles)
         embed.add_field(name="📝 Roles", value=f"{roles}", inline=False)
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
-    @commands.hybrid_command(name="setprofilename")
-    async def setprofilename(self, ctx: commands.Context, name: str):
+    @profile.command(name="name")
+    async def name(self, ctx: commands.Context, name: str):
         """Run this command to set your profile name.
 
         Parameters
@@ -1055,10 +1080,10 @@ class ProfileCommands(commands.Cog):
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile name is now set to: {fetched_name}")
         else:
             embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
-    @commands.hybrid_command(name="setprofileage")
-    async def setprofileage(self, ctx: commands.Context, age: str):
+    @profile.command(name="age")
+    async def age(self, ctx: commands.Context, age: str):
         """Run this command to set your profile age.
 
         Parameters
@@ -1081,10 +1106,10 @@ class ProfileCommands(commands.Cog):
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile age is now set to: {fetched_age}")
         else:
             embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
-    @commands.hybrid_command(name="setprofilelocation")
-    async def setprofilelocation(self, ctx: commands.Context, location: str):
+    @profile.command(name="location")
+    async def location(self, ctx: commands.Context, location: str):
         """Run this command to set your profile location.
 
         Parameters
@@ -1107,10 +1132,10 @@ class ProfileCommands(commands.Cog):
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile location is now set to: {fetched_location}")
         else:
             embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
-    @commands.hybrid_command(name="setprofilepronouns")
-    async def setprofilepronouns(self, ctx: commands.Context, pronouns: str):
+    @profile.command(name="pronouns")
+    async def pronouns(self, ctx: commands.Context, pronouns: str):
         """Run this command to set your profile pronouns.
 
         Parameters
@@ -1133,10 +1158,10 @@ class ProfileCommands(commands.Cog):
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile pronouns are now set to: {fetched_pronouns}")
         else:
             embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
-    @commands.hybrid_command(name="setprofilegender")
-    async def setprofilegender(self, ctx: commands.Context, gender: str):
+    @profile.command(name="gender")
+    async def gender(self, ctx: commands.Context, gender: str):
         """Run this command to set your profile gender.
 
         Parameters
@@ -1159,10 +1184,10 @@ class ProfileCommands(commands.Cog):
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile gender is now set to: {fetched_gender}")
         else:
             embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
-    @commands.hybrid_command(name="setprofilesexuality")
-    async def setprofilesexuality(self, ctx: commands.Context, sexuality: str):
+    @profile.command(name="sexuality")
+    async def sexuality(self, ctx: commands.Context, sexuality: str):
         """Run this command to set your profile sexuality.
 
         Parameters
@@ -1185,10 +1210,10 @@ class ProfileCommands(commands.Cog):
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile sexuality is now set to: {fetched_sexuality}")
         else:
             embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
-    @commands.hybrid_command(name="setprofilerelationship")
-    async def setprofilerelationship(self, ctx: commands.Context, relationship_status: str):
+    @profile.command(name="relationship")
+    async def relationship(self, ctx: commands.Context, relationship_status: str):
         """Run this command to set your profile relationship status.
 
         Parameters
@@ -1211,10 +1236,10 @@ class ProfileCommands(commands.Cog):
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile relationship status is now set to: {fetched_relationship_status}")
         else:
             embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
-    @commands.hybrid_command(name="setprofilefamily")
-    async def setprofilefamily(self, ctx: commands.Context, family_status: str):
+    @profile.command(name="family")
+    async def family(self, ctx: commands.Context, family_status: str):
         """Run this command to set your profile family planning status.
 
         Parameters
@@ -1237,10 +1262,10 @@ class ProfileCommands(commands.Cog):
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile family planning status is now set to: {fetched_family_status}")
         else:
             embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
-    @commands.hybrid_command(name="setprofilebiography")
-    async def setprofilebiography(self, ctx: commands.Context, biography: str):
+    @profile.command(name="biography")
+    async def biography(self, ctx: commands.Context, biography: str):
         """Run this command to set your profile biography.
 
         Parameters
@@ -1263,7 +1288,7 @@ class ProfileCommands(commands.Cog):
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile biography is now set to: {fetched_biography}")
         else:
             embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
     @commands.hybrid_command(name="getprofile")
     async def getprofile(self, ctx: commands.Context, member: discord.Member):
@@ -1336,7 +1361,7 @@ class ProfileCommands(commands.Cog):
         roles = [r.mention for r in member.roles]
         roles = ", ".join(roles)
         embed.add_field(name="📝 Roles", value=f"{roles}", inline=False)
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
 class RSSCommands(commands.Cog):
     def __init__(self, bot):
@@ -1374,7 +1399,7 @@ class RSSCommands(commands.Cog):
         embed.add_field(name="Webhook URL", value=f"{webhook_url}")
         embed.add_field(name="Webhook Name", value=f"{name}")
         embed.add_field(name="Webhook Avatar URL", value=f"{avatar_url}")
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
     @commands.hybrid_command(name="setrssfeed")
     @commands.has_guild_permissions(administrator=True)
@@ -1579,7 +1604,7 @@ class RSSCommands(commands.Cog):
                                                     embed = discord.Embed(title="Error", description="This webhook is already associated with 10 RSS feeds.")
             await db.commit()
             await db.close()
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
     @commands.hybrid_command(name="checkwebhook")
     @commands.has_guild_permissions(administrator=True)
@@ -1689,7 +1714,7 @@ class RSSCommands(commands.Cog):
                 embed.add_field(name="Position Ten", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
             await db.commit()
             await db.close()
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
     @commands.hybrid_command(name="clearwebhook")
     @commands.has_guild_permissions(administrator=True)
@@ -1703,7 +1728,6 @@ class RSSCommands(commands.Cog):
             Provide the URL for the webhook.
         """
         await ctx.defer(ephemeral=True)
-        guild = ctx.guild
         embed = discord.Embed(title="Webhook Cleared", description=f"**Webhook URL**: {webhook_url}")
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR REPLACE INTO webhooks (url) VALUES (?)", (webhook_url,))
@@ -1799,12 +1823,12 @@ class RSSCommands(commands.Cog):
                     embed.add_field(name="Position Ten", value=f"Cleared!")
             await db.commit()
             await db.close()
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
     @commands.hybrid_command(name="clearrssfeed")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def clearrssfeed(self, ctx: commands.Context, webhook_url: str, rss_feed_position: int):
+    async def clearrssfeed(self, ctx: commands.Context, webhook_url: str, rss_feed_position: Literal[1,2,3,4,5,6,7,8,9,10]):
         """(Admin Only) Run this command to clear one RSS feed from a webhook.
 
         Parameters
@@ -1815,7 +1839,6 @@ class RSSCommands(commands.Cog):
             Provide the position (1-10) for the RSS feed you want to clear. Check position with /checkwebhook.
         """
         await ctx.defer(ephemeral=True)
-        guild = ctx.guild
         embed = discord.Embed(title="Webhook Update", description=f"**Webhook URL**: {webhook_url}")
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR REPLACE INTO webhooks (url) VALUES (?)", (webhook_url,))
@@ -1943,7 +1966,7 @@ class RSSCommands(commands.Cog):
                 embed = discord.Embed(title="Error", description="You must enter a number from 1 to 10 as the RSS feed position. Check which position on the Webhook the RSS feed is stored at by using `/checkwebhook`.")
             await db.commit()
             await db.close()
-        await ctx.send(embed=embed, ephemeral=True)
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
 class RSSFeeds(commands.Cog):
     def __init__(self, bot):
@@ -2361,6 +2384,8 @@ async def setup(bot):
     await bot.add_cog(PurgeCommands(bot), override=True)
     await bot.add_cog(AwardCommands(bot), override=True)
     await bot.add_cog(ProfileCommands(bot), override=True)
+    await bot.add_cog(RSSCommands(bot), override=True)
+    await bot.add_cog(RSSFeeds(bot), override=True)
 
 @bot.event
 async def on_ready():
