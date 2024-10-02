@@ -25,6 +25,7 @@ class ChannelsSelector(ChannelSelect):
         )
 
     async def callback(self, interaction: discord.Interaction) -> Any:
+        await interaction.response.defer()
         channels: list[DropdownView] = self.values
         self.view.values = [c for c in channels]
 
@@ -36,11 +37,13 @@ class DropdownView(discord.ui.View):
 
     @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         self.value = True
         self.stop()
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         self.value = False
         self.stop()
 
@@ -161,6 +164,7 @@ class SetupCommands(commands.Cog):
         await bot.tree.sync(guild=guild)
         embed = discord.Embed(title="Update", description=f"The bot's local command tree has been synced!")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+        await ctx.message.delete()
     
     @commands.command(name="globalsync", hidden=True)
     @commands.is_owner()
@@ -171,6 +175,7 @@ class SetupCommands(commands.Cog):
         await bot.tree.sync(guild=None)
         embed = discord.Embed(title="Update", description=f"The bot's global command tree has been synced!")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+        await ctx.message.delete()
 
     @commands.command(name="clear", hidden=True)
     @commands.is_owner()
@@ -179,9 +184,10 @@ class SetupCommands(commands.Cog):
         """
         await ctx.defer(ephemeral=True)
         guild = ctx.guild
-        await bot.tree.clear_commands(guild=guild)
+        bot.tree.clear_commands(guild=guild)
         embed = discord.Embed(title="Update", description=f"The bot's local command tree has been cleared!")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+        await ctx.message.delete()
 
     @commands.command(name="globalclear", hidden=True)
     @commands.is_owner()
@@ -189,14 +195,15 @@ class SetupCommands(commands.Cog):
         """(Bot Owner Only) Clears the global command tree.
         """
         await ctx.defer(ephemeral=True)
-        await bot.tree.clear_commands(guild=None)
+        bot.tree.clear_commands(guild=None)
         embed = discord.Embed(title="Update", description=f"The bot's global command tree has been cleared!")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+        await ctx.message.delete()
 
-    @commands.hybrid_command(name="setchannels")
+    @commands.hybrid_group(name="setup", fallback="channels")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def setchannels(self, ctx: commands.Context, logging_channel: Optional[discord.TextChannel], welcome_channel: Optional[discord.TextChannel], goodbye_channel: Optional[discord.TextChannel]):
+    async def setup(self, ctx: commands.Context, logging_channel: Optional[discord.TextChannel], welcome_channel: Optional[discord.TextChannel], goodbye_channel: Optional[discord.TextChannel]):
         """(Admin Only) Sets the channels for logging messages, welcome messages, and goodbye messages.
 
         Parameters
@@ -241,10 +248,10 @@ class SetupCommands(commands.Cog):
             await db.close()
         await ctx.send(embed=embed, ephemeral=True)
 
-    @commands.hybrid_command(name="setwelcome")
+    @setup.command(name="welcome_message")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def setwelcome(self, ctx: commands.Context, message: str):
+    async def welcome_message(self, ctx: commands.Context, message: str):
         """(Admin Only) Sets the welcome message for members who join the server.
 
         Parameters
@@ -267,10 +274,10 @@ class SetupCommands(commands.Cog):
             await db.close()
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
-    @commands.hybrid_command(name="setgoodbye")
+    @setup.command(name="goodbye_message")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def setgoodbye(self, ctx: commands.Context, message: str):
+    async def goodbye_message(self, ctx: commands.Context, message: str):
         """(Admin Only) Sets the goodbye message for members who leave the server.
 
         Parameters
@@ -293,10 +300,10 @@ class SetupCommands(commands.Cog):
             await db.close()
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
-    @commands.hybrid_command(name="setjoinroles")
+    @setup.command(name="join_roles")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def setjoinroles(self, ctx: commands.Context, role: discord.Role, botrole: Optional[discord.Role]):
+    async def join_roles(self, ctx: commands.Context, role: discord.Role, botrole: Optional[discord.Role]):
         """(Admin Only) Sets the roles to give to new members who join the server.
 
         Parameters
@@ -331,10 +338,10 @@ class SetupCommands(commands.Cog):
             await db.close()
         ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
-    @commands.hybrid_command(name="activityroles")
+    @setup.command(name="activity_roles")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def activityroles(self, ctx: commands.Context, days: int, active: discord.Role, inactive: discord.Role):
+    async def activity_roles(self, ctx: commands.Context, days: int, active: discord.Role, inactive: discord.Role):
         """(Admin Only) Assigns an active role to active members and an inactive role to inactive members.
 
         Parameters
@@ -384,10 +391,37 @@ class PurgeCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_command(name="purgemember")
+    @commands.hybrid_group(name="purge", fallback="here")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def purgemember(self, ctx: commands.Context, member: discord.Member):
+    async def purge(self, ctx: commands.Context):
+        """(Admin Only) Purge all unpinned messages in the current channel.
+        """
+        await ctx.defer()
+        channel = ctx.channel
+        messages = [m async for m in channel.history(limit=None)]
+        unpinned = [m for m in messages if not m.pinned]
+        deleted = []
+        while len(unpinned) > 0:
+            deleted += await channel.purge(check=lambda message: message.pinned == False, oldest_first=True)
+            messages = [m async for m in channel.history(limit=None)]
+            unpinned = [m for m in messages if not m.pinned]
+        if len(deleted) == 0:
+            embed = discord.Embed(title="❌ Error ❌", description=f"{channel.mention} doesn't have any messages to purge!")
+            await ctx.send(embed=embed, delete_after=30.0)
+        elif len(deleted) == 1:
+            embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} message was just purged from {channel.mention}!')
+            await ctx.send(embed=embed, delete_after=30.0)
+        else:
+            embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just purged from {channel.mention}!')
+            await ctx.send(embed=embed, delete_after=30.0)
+        embed = discord.Embed(title="✔️ Done ✔️", description=f'The purge is now complete!')
+        await ctx.send(embed=embed, delete_after=30.0)
+
+    @purge.command(name="member")
+    @commands.has_guild_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
+    async def member(self, ctx: commands.Context, member: discord.Member):
         """(Admin Only) Purge all of a member's unpinned messages in a set list of up to 25 channels.
 
         Parameters
@@ -406,7 +440,7 @@ class PurgeCommands(commands.Cog):
             mentions = [c.mention for c in selected]
             selectedlist = ", ".join(mentions)
             embed = discord.Embed(title="📋 Selected Channels 📋", description=f'{selectedlist}')
-            await response.edit(embed=embed, delete_after=30.0, view=None)
+            await response.edit(embed=embed, view=None)
             for channel in selected:
                 messages = [m async for m in channel.history(limit=None)]
                 unpinned = [m for m in messages if not m.pinned]
@@ -416,25 +450,26 @@ class PurgeCommands(commands.Cog):
                     messages = [m async for m in channel.history(limit=None)]
                     unpinned = [m for m in messages if not m.pinned]
                 if len(deleted) == 1:
-                    embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} message was just removed from {channel.mention}!')
+                    embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} message was just purged from {channel.mention}!')
                     await ctx.send(embed=embed, delete_after=30.0)
                 else:
-                    embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just removed from {channel.mention}!')
+                    embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just purged from {channel.mention}!')
                     await ctx.send(embed=embed, delete_after=30.0)
             embed = discord.Embed(title="✔️ Done ✔️", description=f'The purge is now complete!')
             await ctx.send(embed=embed, delete_after=30.0)
         elif view.value == False:
             embed = discord.Embed(title="❌ Cancelled ❌", description='This interaction has been cancelled. No messages have been purged.')
-            await response.edit(embed=embed, delete_after=30.0, view=None)
+            await response.edit(embed=embed, view=None)
         else:
             embed = discord.Embed(title="⌛ Timed Out ⌛", description='This interaction has timed out. No messages have been purged.')
-            await response.edit(embed=embed, delete_after=30.0, view=None)
+            await response.edit(embed=embed, view=None)
 
-    @commands.hybrid_command(name="purgechannels")
+    @purge.command(name="channels")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def purgechannels(self, ctx: commands.Context):
-        """(Admin Only) Purge all unpinned messages in a set list of up to 25 channels."""
+    async def channels(self, ctx: commands.Context):
+        """(Admin Only) Purge all unpinned messages in a set list of up to 25 channels.
+        """
         await ctx.defer()
         view = DropdownView()
         embed = discord.Embed(title="🗑️ Purge Channels 🗑️", description="Which channel(s) would you like to purge all unpinned messages from?")
@@ -445,7 +480,7 @@ class PurgeCommands(commands.Cog):
             mentions = [c.mention for c in selected]
             selectedlist = ", ".join(mentions)
             embed = discord.Embed(title="📋 Selected Channels 📋", description=f'{selectedlist}')
-            await response.edit(embed=embed, delete_after=30.0, view=None)
+            await response.edit(embed=embed, view=None)
             for channel in selected:
                 messages = [m async for m in channel.history(limit=None)]
                 unpinned = [m for m in messages if not m.pinned]
@@ -455,25 +490,26 @@ class PurgeCommands(commands.Cog):
                     messages = [m async for m in channel.history(limit=None)]
                     unpinned = [m for m in messages if not m.pinned]
                 if len(deleted) == 1:
-                    embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} message was just removed from {channel.mention}!')
+                    embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} message was just purged from {channel.mention}!')
                     await ctx.send(embed=embed, delete_after=30.0)
                 else:
-                    embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just removed from {channel.mention}!')
+                    embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just purged from {channel.mention}!')
                     await ctx.send(embed=embed, delete_after=30.0)
             embed = discord.Embed(title="✔️ Done ✔️", description=f'The purge is now complete!')
             await ctx.send(embed=embed, delete_after=30.0)
         elif view.value == False:
             embed = discord.Embed(title="❌ Cancelled ❌", description='This interaction has been cancelled. No messages have been purged.')
-            await response.edit(embed=embed, delete_after=30.0, view=None)
+            await response.edit(embed=embed, view=None)
         else:
             embed = discord.Embed(title="⌛ Timed Out ⌛", description='This interaction has timed out. No messages have been purged.')
-            await response.edit(embed=embed, delete_after=30.0, view=None)
+            await response.edit(embed=embed, view=None)
 
-    @commands.hybrid_command(name="purgeserver")
+    @purge.command(name="server")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def purgeserver(self, ctx: commands.Context):
-        """(Admin Only) Purges all unpinned messages in a server, excluding up to 25 channels."""
+    async def server(self, ctx: commands.Context):
+        """(Admin Only) Purges all unpinned messages in a server, excluding up to 25 channels.
+        """
         await ctx.defer()
         view = DropdownView()
         embed = discord.Embed(title="🗑️ Purge Server 🗑️", description="Which channels would you like to **exclude** from the purge of all unpinned messages?")
@@ -484,7 +520,7 @@ class PurgeCommands(commands.Cog):
             mentions = [c.mention for c in excluded]
             excludedlist = ", ".join(mentions)
             embed = discord.Embed(title="📋 Excluded Channels 📋", description=f'{excludedlist}')
-            await response.edit(embed=embed, delete_after=30.0, view=None)
+            await response.edit(embed=embed, view=None)
             selected = [c for c in ctx.guild.text_channels if c not in excluded]
             for channel in selected:
                 messages = [m async for m in channel.history(limit=None)]
@@ -495,28 +531,28 @@ class PurgeCommands(commands.Cog):
                     messages = [m async for m in channel.history(limit=None)]
                     unpinned = [m for m in messages if not m.pinned]
                 if len(deleted) == 1:
-                    embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} message was just removed from {channel.mention}!')
+                    embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} message was just purged from {channel.mention}!')
                     await ctx.send(embed=embed, delete_after=30.0)
                 else:
-                    embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just removed from {channel.mention}!')
+                    embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just purged from {channel.mention}!')
                     await ctx.send(embed=embed, delete_after=30.0)
             embed = discord.Embed(title="✔️ Done ✔️", description=f'The purge is now complete!')
             await ctx.send(embed=embed, delete_after=30.0)
         elif view.value == False:
             embed = discord.Embed(title="❌ Cancelled ❌", description='This interaction has been cancelled. No messages have been purged.')
-            await response.edit(embed=embed, delete_after=30.0, view=None)
+            await response.edit(embed=embed, view=None)
         else:
             embed = discord.Embed(title="⌛ Timed Out ⌛", description='This interaction has timed out. No messages have been purged.')
-            await response.edit(embed=embed, delete_after=30.0, view=None)
+            await response.edit(embed=embed, view=None)
 
 class AwardCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @commands.hybrid_command(name="setawards")
+    @commands.hybrid_group(name="awards", fallback="set")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def setawards(self, ctx: commands.Context, name_singular: str, name_plural: str, emoji: str):
+    async def awards(self, ctx: commands.Context, name_singular: str, name_plural: str, emoji: str):
         """(Admin Only) Sets the name and emoji for the server awards.
 
         Parameters
@@ -557,10 +593,10 @@ class AwardCommands(commands.Cog):
         embed.add_field(name="Emoji", value=f"{fetched_moji}")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
-    @commands.hybrid_command(name="clearawards")
+    @awards.command(name="clear")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def clearawards(self, ctx: commands.Context):
+    async def clear(self, ctx: commands.Context):
         """(Admin Only) Clears all of the awards in the server.
         """
         await ctx.defer(ephemeral=True)
@@ -587,10 +623,10 @@ class AwardCommands(commands.Cog):
         embed = discord.Embed(title=f"{moji} {plur_cap} Cleared {moji}", description=f"{guild.name} has had all its {plur_low} cleared!")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
-    @commands.hybrid_command(name="awardreactiontoggle")
+    @awards.command(name="reaction_toggle")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def awardreactiontoggle(self, ctx: commands.Context, toggle: bool):
+    async def reaction_toggle(self, ctx: commands.Context, toggle: bool):
         """(Admin Only) Toggles the ability for users to add or remove awards with reactions.
 
         Parameters
@@ -726,8 +762,8 @@ class AwardCommands(commands.Cog):
             await db.commit()
             await db.close()
 
-    @commands.hybrid_command(name="addawards")
-    async def addawards(self, ctx: commands.Context, amount: Optional[int], member: Optional[discord.Member]):
+    @awards.command(name="add")
+    async def add(self, ctx: commands.Context, amount: Optional[int], member: Optional[discord.Member]):
         """Adds awards to the command user or another selected member.
 
         Parameters
@@ -786,8 +822,8 @@ class AwardCommands(commands.Cog):
             embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {awards} {plur_low}!")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
-    @commands.hybrid_command(name="removeawards")
-    async def removeawards(self, ctx: commands.Context, amount: Optional[int], member: Optional[discord.Member]):
+    @awards.command(name="remove")
+    async def remove(self, ctx: commands.Context, amount: Optional[int], member: Optional[discord.Member]):
         """Removes awards from the command user or another selected member.
 
         Parameters
@@ -851,10 +887,9 @@ class AwardCommands(commands.Cog):
                 await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
             await db.commit()
             await db.close()
-        
 
-    @commands.hybrid_command(name="checkawards")
-    async def checkawards(self, ctx: commands.Context, member: Optional[discord.Member]):
+    @awards.command(name="check")
+    async def check(self, ctx: commands.Context, member: Optional[discord.Member]):
         """Returns the number of awards that the user or another selected user currently has.
 
         Parameters
@@ -904,7 +939,7 @@ class AwardCommands(commands.Cog):
             await db.close()
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
-    @commands.hybrid_command(name="leaderboard")
+    @awards.command(name="leaderboard")
     async def leaderboard(self, ctx: commands.Context):
         """Returns the current award leaderboard for the server."""
         await ctx.defer()
@@ -1290,8 +1325,8 @@ class ProfileCommands(commands.Cog):
             embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
-    @commands.hybrid_command(name="getprofile")
-    async def getprofile(self, ctx: commands.Context, member: discord.Member):
+    @profile.command(name="get")
+    async def get(self, ctx: commands.Context, member: discord.Member):
         """Run this command to retrieve a member's profile.
 
         Parameters
@@ -1367,10 +1402,10 @@ class RSSCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_command(name="setwebhook")
+    @commands.hybrid_group(name="rss", fallback="webhook_setup")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def setwebhook(self, ctx: commands.Context, webhook_url: str, webhook_name: str, webhook_avatar_url: str):
+    async def rss(self, ctx: commands.Context, webhook_url: str, webhook_name: str, webhook_avatar_url: str):
         """(Admin Only) Run this command to set a Webhook. All fields are required.
 
         Parameters
@@ -1401,10 +1436,229 @@ class RSSCommands(commands.Cog):
         embed.add_field(name="Webhook Avatar URL", value=f"{avatar_url}")
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
-    @commands.hybrid_command(name="setrssfeed")
+    @rss.command(name="webhook_check")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def setrssfeed(self, ctx: commands.Context, webhook_url: str, rss_channel: discord.TextChannel, rss_feed_url: str):
+    async def webhook_check(self, ctx: commands.Context, webhook_url: str):
+        """(Admin Only) Run this command to check what RSS feeds are set to the webhook.
+
+        Parameters
+        -----------
+        webhook_url : str
+            Provide the URL for the webhook.
+        """
+        await ctx.defer(ephemeral=True)
+        guild = ctx.guild
+        embed = discord.Embed(title="Webhook", description=f"**Webhook URL**: {webhook_url}")
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            await db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
+            cur = await db.execute("SELECT rss_channel_id_1 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id1 = row[0]
+            if rss_channel_id1 is not None:
+                cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                channel = guild.get_channel(rss_channel_id1)
+                embed.add_field(name="Position One", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
+            cur = await db.execute("SELECT rss_channel_id_2 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id2 = row[0]
+            if rss_channel_id2 is not None:
+                cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                channel = guild.get_channel(rss_channel_id2)
+                embed.add_field(name="Position Two", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
+            cur = await db.execute("SELECT rss_channel_id_3 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id3 = row[0]
+            if rss_channel_id3 is not None:
+                cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                channel = guild.get_channel(rss_channel_id3)
+                embed.add_field(name="Position Three", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
+            cur = await db.execute("SELECT rss_channel_id_4 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id4 = row[0]
+            if rss_channel_id4 is not None:
+                cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                channel = guild.get_channel(rss_channel_id4)
+                embed.add_field(name="Position Four", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
+            cur = await db.execute("SELECT rss_channel_id_5 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id5 = row[0]
+            if rss_channel_id5 is not None:
+                cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                channel = guild.get_channel(rss_channel_id5)
+                embed.add_field(name="Position Five", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
+            cur = await db.execute("SELECT rss_channel_id_6 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id6 = row[0]
+            if rss_channel_id6 is not None:
+                cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                channel = guild.get_channel(rss_channel_id6)
+                embed.add_field(name="Position Six", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
+            cur = await db.execute("SELECT rss_channel_id_7 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id7 = row[0]
+            if rss_channel_id7 is not None:
+                cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                channel = guild.get_channel(rss_channel_id7)
+                embed.add_field(name="Position Seven", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
+            cur = await db.execute("SELECT rss_channel_id_8 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id8 = row[0]
+            if rss_channel_id8 is not None:
+                cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                channel = guild.get_channel(rss_channel_id8)
+                embed.add_field(name="Position Eight", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
+            cur = await db.execute("SELECT rss_channel_id_9 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id9 = row[0]
+            if rss_channel_id9 is not None:
+                cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                channel = guild.get_channel(rss_channel_id9)
+                embed.add_field(name="Position Nine", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
+            cur = await db.execute("SELECT rss_channel_id_10 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id10 = row[0]
+            if rss_channel_id10 is not None:
+                cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                channel = guild.get_channel(rss_channel_id10)
+                embed.add_field(name="Position Ten", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
+            await db.commit()
+            await db.close()
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
+
+    @rss.command(name="webhook_clear")
+    @commands.has_guild_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
+    async def webhook_clear(self, ctx: commands.Context, webhook_url: str):
+        """(Admin Only) Run this command to clear all RSS feeds set to the webhook.
+
+        Parameters
+        -----------
+        webhook_url : str
+            Provide the URL for the webhook.
+        """
+        await ctx.defer(ephemeral=True)
+        embed = discord.Embed(title="Webhook Cleared", description=f"**Webhook URL**: {webhook_url}")
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            await db.execute("INSERT OR REPLACE INTO webhooks (url) VALUES (?)", (webhook_url,))
+            cur = await db.execute("SELECT rss_channel_id_1 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id1 = row[0]
+            if rss_channel_id1 is None:
+                cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="Position One", value=f"Cleared!")
+            cur = await db.execute("SELECT rss_channel_id_2 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id2 = row[0]
+            if rss_channel_id2 is None:
+                cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="Position Two", value=f"Cleared!")
+            cur = await db.execute("SELECT rss_channel_id_3 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id3 = row[0]
+            if rss_channel_id3 is None:
+                cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="Position Three", value=f"Cleared!")
+            cur = await db.execute("SELECT rss_channel_id_4 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id4 = row[0]
+            if rss_channel_id4 is None:
+                cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="Position Four", value=f"Cleared!")
+            cur = await db.execute("SELECT rss_channel_id_5 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id5 = row[0]
+            if rss_channel_id5 is None:
+                cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="Position Five", value=f"Cleared!")
+            cur = await db.execute("SELECT rss_channel_id_6 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id6 = row[0]
+            if rss_channel_id6 is None:
+                cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="Position Six", value=f"Cleared!")
+            cur = await db.execute("SELECT rss_channel_id_7 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id7 = row[0]
+            if rss_channel_id7 is None:
+                cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="Position Seven", value=f"Cleared!")
+            cur = await db.execute("SELECT rss_channel_id_8 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id8 = row[0]
+            if rss_channel_id8 is None:
+                cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="Position Eight", value=f"Cleared!")
+            cur = await db.execute("SELECT rss_channel_id_9 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id9 = row[0]
+            if rss_channel_id9 is None:
+                cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="Position Nine", value=f"Cleared!")
+            cur = await db.execute("SELECT rss_channel_id_10 FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            rss_channel_id10 = row[0]
+            if rss_channel_id10 is None:
+                cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
+                row = await cur.fetchone()
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="Position Ten", value=f"Cleared!")
+            await db.commit()
+            await db.close()
+        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
+
+    @rss.command(name="feed_setup")
+    @commands.has_guild_permissions(administrator=True)
+    @app_commands.checks.has_permissions(administrator=True)
+    async def feed_setup(self, ctx: commands.Context, webhook_url: str, rss_channel: discord.TextChannel, rss_feed_url: str):
         """(Admin Only) Run this command to set an RSS Feed. All fields are required.
 
         Parameters
@@ -1606,229 +1860,10 @@ class RSSCommands(commands.Cog):
             await db.close()
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
-    @commands.hybrid_command(name="checkwebhook")
+    @rss.command(name="feed_clear")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def checkwebhook(self, ctx: commands.Context, webhook_url: str):
-        """(Admin Only) Run this command to check what RSS feeds are set to the webhook.
-
-        Parameters
-        -----------
-        webhook_url : str
-            Provide the URL for the webhook.
-        """
-        await ctx.defer(ephemeral=True)
-        guild = ctx.guild
-        embed = discord.Embed(title="Webhook", description=f"**Webhook URL**: {webhook_url}")
-        async with aiosqlite.connect('rainbowbot.db') as db:
-            await db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
-            cur = await db.execute("SELECT rss_channel_id_1 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id1 = row[0]
-            if rss_channel_id1 is not None:
-                cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id1)
-                embed.add_field(name="Position One", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_2 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id2 = row[0]
-            if rss_channel_id2 is not None:
-                cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id2)
-                embed.add_field(name="Position Two", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_3 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id3 = row[0]
-            if rss_channel_id3 is not None:
-                cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id3)
-                embed.add_field(name="Position Three", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_4 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id4 = row[0]
-            if rss_channel_id4 is not None:
-                cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id4)
-                embed.add_field(name="Position Four", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_5 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id5 = row[0]
-            if rss_channel_id5 is not None:
-                cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id5)
-                embed.add_field(name="Position Five", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_6 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id6 = row[0]
-            if rss_channel_id6 is not None:
-                cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id6)
-                embed.add_field(name="Position Six", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_7 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id7 = row[0]
-            if rss_channel_id7 is not None:
-                cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id7)
-                embed.add_field(name="Position Seven", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_8 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id8 = row[0]
-            if rss_channel_id8 is not None:
-                cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id8)
-                embed.add_field(name="Position Eight", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_9 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id9 = row[0]
-            if rss_channel_id9 is not None:
-                cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id9)
-                embed.add_field(name="Position Nine", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_10 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id10 = row[0]
-            if rss_channel_id10 is not None:
-                cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id10)
-                embed.add_field(name="Position Ten", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            await db.commit()
-            await db.close()
-        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
-
-    @commands.hybrid_command(name="clearwebhook")
-    @commands.has_guild_permissions(administrator=True)
-    @app_commands.checks.has_permissions(administrator=True)
-    async def clearwebhook(self, ctx: commands.Context, webhook_url: str):
-        """(Admin Only) Run this command to clear all RSS feeds set to the webhook.
-
-        Parameters
-        -----------
-        webhook_url : str
-            Provide the URL for the webhook.
-        """
-        await ctx.defer(ephemeral=True)
-        embed = discord.Embed(title="Webhook Cleared", description=f"**Webhook URL**: {webhook_url}")
-        async with aiosqlite.connect('rainbowbot.db') as db:
-            await db.execute("INSERT OR REPLACE INTO webhooks (url) VALUES (?)", (webhook_url,))
-            cur = await db.execute("SELECT rss_channel_id_1 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id1 = row[0]
-            if rss_channel_id1 is None:
-                cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position One", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_2 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id2 = row[0]
-            if rss_channel_id2 is None:
-                cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Two", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_3 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id3 = row[0]
-            if rss_channel_id3 is None:
-                cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Three", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_4 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id4 = row[0]
-            if rss_channel_id4 is None:
-                cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Four", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_5 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id5 = row[0]
-            if rss_channel_id5 is None:
-                cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Five", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_6 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id6 = row[0]
-            if rss_channel_id6 is None:
-                cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Six", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_7 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id7 = row[0]
-            if rss_channel_id7 is None:
-                cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Seven", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_8 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id8 = row[0]
-            if rss_channel_id8 is None:
-                cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Eight", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_9 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id9 = row[0]
-            if rss_channel_id9 is None:
-                cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Nine", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_10 FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            rss_channel_id10 = row[0]
-            if rss_channel_id10 is None:
-                cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Ten", value=f"Cleared!")
-            await db.commit()
-            await db.close()
-        await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
-
-    @commands.hybrid_command(name="clearrssfeed")
-    @commands.has_guild_permissions(administrator=True)
-    @app_commands.checks.has_permissions(administrator=True)
-    async def clearrssfeed(self, ctx: commands.Context, webhook_url: str, rss_feed_position: Literal[1,2,3,4,5,6,7,8,9,10]):
+    async def feed_clear(self, ctx: commands.Context, webhook_url: str, rss_feed_position: Literal[1,2,3,4,5,6,7,8,9,10]):
         """(Admin Only) Run this command to clear one RSS feed from a webhook.
 
         Parameters
@@ -2376,7 +2411,7 @@ async def setup(bot):
                          rss_last_sent_9 TEXT DEFAULT NULL,
                          rss_channel_id_10 INTEGER DEFAULT NULL,
                          rss_url_10 TEXT DEFAULT NULL,
-                         rss_last_sent_10 TEXT DEFAULT NULL,)""")
+                         rss_last_sent_10 TEXT DEFAULT NULL)""")
         await db.commit()
         await db.close()
     await bot.add_cog(BackgroundTasks(bot), override=True)
