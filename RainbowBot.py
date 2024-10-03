@@ -1652,6 +1652,7 @@ class RSSCommands(commands.Cog):
             Provide the URL for the RSS feed.
         """
         await ctx.defer(ephemeral=True)
+        embed = discord.Embed(title="RSS Feed Setup")
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
             cur = await db.execute("SELECT name FROM webhooks WHERE url = ?", (webhook_url,))
@@ -1661,13 +1662,13 @@ class RSSCommands(commands.Cog):
             row = await cur.fetchone()
             avatar_url = row[0]
             if name is not None and avatar_url is not None:
-                embed.set_author(name=name,icon_url=avatar_url)
+                embed.set_author(name = name, icon_url = avatar_url)
             cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
             fetched_rss_url = row[0]
             if fetched_rss_url is None:
                 await db.execute("UPDATE webhooks SET rss_url_1 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position one**!")
+                embed.add_field(name="✔️ Success ✔️", value="The RSS feed has been set to the webhook at **position one**!")
                 embed.add_field(name="Webhook URL", value=f"{webhook_url}", inline=False)
                 embed.add_field(name="RSS Feed URL", value=f"{rss_feed_url}", inline=False)
             else:
@@ -1676,7 +1677,7 @@ class RSSCommands(commands.Cog):
                 fetched_rss_url = row[0]
                 if fetched_rss_url is None:
                     await db.execute("UPDATE webhooks SET rss_url_2 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                    embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position two**!")
+                    embed.add_field(name="✔️ Success ✔️", value="The RSS feed has been set to the webhook at **position two**!")
                     embed.add_field(name="Webhook URL", value=f"{webhook_url}", inline=False)
                     embed.add_field(name="RSS Feed URL", value=f"{rss_feed_url}", inline=False)
                 else:
@@ -1685,7 +1686,7 @@ class RSSCommands(commands.Cog):
                     fetched_rss_url = row[0]
                     if fetched_rss_url is None:
                         await db.execute("UPDATE webhooks SET rss_url_3 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                        embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position three**!")
+                        embed.add_field(name="✔️ Success ✔️", value="The RSS feed has been set to the webhook at **position three**!")
                         embed.add_field(name="Webhook URL", value=f"{webhook_url}", inline=False)
                         embed.add_field(name="RSS Feed URL", value=f"{rss_feed_url}", inline=False)
                     else:
@@ -1694,7 +1695,7 @@ class RSSCommands(commands.Cog):
                         fetched_rss_url = row[0]
                         if fetched_rss_url is None:
                             await db.execute("UPDATE webhooks SET rss_url_4 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                            embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position four**!")
+                            embed.add_field(name="✔️ Success ✔️", value="The RSS feed has been set to the webhook at **position four**!")
                             embed.add_field(name="Webhook URL", value=f"{webhook_url}", inline=False)
                             embed.add_field(name="RSS Feed URL", value=f"{rss_feed_url}", inline=False)
                         else:
@@ -1703,7 +1704,7 @@ class RSSCommands(commands.Cog):
                             fetched_rss_url = row[0]
                             if fetched_rss_url is None:
                                 await db.execute("UPDATE webhooks SET rss_url_5 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                                embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position five**!")
+                                embed.add_field(name="✔️ Success ✔️", value="The RSS feed has been set to the webhook at **position five**!")
                                 embed.add_field(name="Webhook URL", value=f"{webhook_url}", inline=False)
                                 embed.add_field(name="RSS Feed URL", value=f"{rss_feed_url}", inline=False)
                             else:
@@ -1712,7 +1713,7 @@ class RSSCommands(commands.Cog):
                                 fetched_rss_url = row[0]
                                 if fetched_rss_url is None:
                                     await db.execute("UPDATE webhooks SET rss_url_6 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                                    embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position six**!")
+                                    embed.add_field(name="✔️ Success ✔️", value="The RSS feed has been set to the webhook at **position six**!")
                                     embed.add_field(name="Webhook URL", value=f"{webhook_url}", inline=False)
                                     embed.add_field(name="RSS Feed URL", value=f"{rss_feed_url}", inline=False)
                                 else:
@@ -1721,7 +1722,7 @@ class RSSCommands(commands.Cog):
                                     fetched_rss_url = row[0]
                                     if fetched_rss_url is None:
                                         await db.execute("UPDATE webhooks SET rss_url_7 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                                        embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position seven**!")
+                                        embed.add_field(name="✔️ Success ✔️", value="The RSS feed has been set to the webhook at **position seven**!")
                                         embed.add_field(name="Webhook URL", value=f"{webhook_url}", inline=False)
                                         embed.add_field(name="RSS Feed URL", value=f"{rss_feed_url}", inline=False)
                                     else:
@@ -1730,7 +1731,7 @@ class RSSCommands(commands.Cog):
                                         fetched_rss_url = row[0]
                                         if fetched_rss_url is None:
                                             await db.execute("UPDATE webhooks SET rss_url_8 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                                            embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position eight**!")
+                                            embed.add_field(name="✔️ Success ✔️", value="The RSS feed has been set to the webhook at **position eight**!")
                                             embed.add_field(name="Webhook URL", value=f"{webhook_url}", inline=False)
                                             embed.add_field(name="RSS Feed URL", value=f"{rss_feed_url}", inline=False)
                                         else:
@@ -1739,7 +1740,7 @@ class RSSCommands(commands.Cog):
                                             fetched_rss_url = row[0]
                                             if fetched_rss_url is None:
                                                 await db.execute("UPDATE webhooks SET rss_url_9 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                                                embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position nine**!")
+                                                embed.add_field(name="✔️ Success ✔️", value="The RSS feed has been set to the webhook at **position nine**!")
                                                 embed.add_field(name="Webhook URL", value=f"{webhook_url}", inline=False)
                                                 embed.add_field(name="RSS Feed URL", value=f"{rss_feed_url}", inline=False)
                                             else:
@@ -1748,11 +1749,11 @@ class RSSCommands(commands.Cog):
                                                 fetched_rss_url = row[0]
                                                 if fetched_rss_url is None:
                                                     await db.execute("UPDATE webhooks SET rss_url_10 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                                                    embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position ten**!")
+                                                    embed.add_field(name="✔️ Success ✔️", value="The RSS feed has been set to the webhook at **position ten**!")
                                                     embed.add_field(name="Webhook URL", value=f"{webhook_url}", inline=False)
                                                     embed.add_field(name="RSS Feed URL", value=f"{rss_feed_url}", inline=False)
                                                 else:
-                                                    embed = discord.Embed(title="❌ Error ❌", description="This webhook is already associated with 10 RSS feeds. Please use `/rss feed_clear` or `/rss webhook_clear` to remove one or all RSS feeds from this webhook.")
+                                                    embed.add_field(name="❌ Error ❌", value="This webhook is already associated with 10 RSS feeds. Please use `/rss feed_clear` or `/rss webhook_clear` to remove one or all RSS feeds from this webhook.")
             await db.commit()
             await db.close()
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
