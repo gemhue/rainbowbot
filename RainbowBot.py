@@ -2145,7 +2145,7 @@ class RSSFeeds(commands.Cog):
         else:
             return None
 
-    @tasks.loop(minutes=10)
+    @tasks.loop(minutes=5)
     async def webhooksessions(self):
         urls = self.getwebhooks()
         async with aiohttp.ClientSession() as session:
@@ -2166,16 +2166,10 @@ class RSSFeeds(commands.Cog):
                                 avatar_url = row[0]
                                 db.commit()
                                 db.close()
-                            if name is not None:
-                                if avatar_url is not None:
-                                    await webhook.send(embed=embed, username=name, avatar_url=avatar_url)
-                                else:
-                                    await webhook.send(embed=embed, username=name)
+                            if name is not None and avatar_url is not None:
+                                await webhook.send(embed=embed, username=name, avatar_url=avatar_url)
                             else:
-                                if avatar_url is not None:
-                                    await webhook.send(embed=embed, avatar_url=avatar_url)
-                                else:
-                                    await webhook.send(embed=embed)
+                                await webhook.send(embed=embed)
 
 async def setup(bot):
     async with aiosqlite.connect('rainbowbot.db') as db:
