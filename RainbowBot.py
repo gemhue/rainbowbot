@@ -1457,6 +1457,14 @@ class RSSCommands(commands.Cog):
         embed = discord.Embed(title="Webhook", description=f"**Webhook URL**: {webhook_url}")
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
+            cur = await db.execute("SELECT name FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            name = row[0]
+            cur = await db.execute("SELECT avatar_url FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            avatar_url = row[0]
+            if name is not None and avatar_url is not None:
+                embed.set_author(name=name,icon_url=avatar_url)
             cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
             fetched_rss_url = row[0]
@@ -1546,6 +1554,14 @@ class RSSCommands(commands.Cog):
         embed = discord.Embed(title="Webhook Cleared", description=f"**Webhook URL**: {webhook_url}")
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR REPLACE INTO webhooks (url) VALUES (?)", (webhook_url,))
+            cur = await db.execute("SELECT name FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            name = row[0]
+            cur = await db.execute("SELECT avatar_url FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            avatar_url = row[0]
+            if name is not None and avatar_url is not None:
+                embed.set_author(name=name,icon_url=avatar_url)
             cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
             fetched_rss_url = row[0]
@@ -1638,6 +1654,14 @@ class RSSCommands(commands.Cog):
         await ctx.defer(ephemeral=True)
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
+            cur = await db.execute("SELECT name FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            name = row[0]
+            cur = await db.execute("SELECT avatar_url FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            avatar_url = row[0]
+            if name is not None and avatar_url is not None:
+                embed.set_author(name=name,icon_url=avatar_url)
             cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
             fetched_rss_url = row[0]
@@ -1750,6 +1774,14 @@ class RSSCommands(commands.Cog):
         embed = discord.Embed(title="Webhook Update", description=f"**Webhook URL**: {webhook_url}")
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR REPLACE INTO webhooks (url) VALUES (?)", (webhook_url,))
+            cur = await db.execute("SELECT name FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            name = row[0]
+            cur = await db.execute("SELECT avatar_url FROM webhooks WHERE url = ?", (webhook_url,))
+            row = await cur.fetchone()
+            avatar_url = row[0]
+            if name is not None and avatar_url is not None:
+                embed.set_author(name=name,icon_url=avatar_url)
             if rss_feed_position == 1:
                 await db.execute("INSERT OR REPLACE INTO webhooks (rss_url_1) VALUES (NULL) WHERE url = ?", (webhook_url,))
                 cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
@@ -2112,7 +2144,7 @@ class RSSFeeds(commands.Cog):
         else:
             return None
 
-    @tasks.loop(hours=1)
+    @tasks.loop(minutes=10)
     async def webhooksessions(self):
         urls = self.getwebhooks()
         async with aiohttp.ClientSession() as session:
