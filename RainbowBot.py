@@ -9,9 +9,11 @@ from typing import Any, Optional, Literal
 from datetime import datetime, timezone, timedelta
 
 bot = commands.Bot(
-    command_prefix='rb!',
-    description="A multi-purpose Discord bot made by GitHub user gemhue.",
-    intents=discord.Intents.all()
+    command_prefix = 'rb!',
+    description = "A multi-purpose Discord bot made by GitHub user gemhue.",
+    intents = discord.Intents.all(),
+    activity = discord.Activity(type=discord.ActivityType.listening, name="rb!help"),
+    status = discord.Status.online
 )
 
 class ChannelsSelector(ChannelSelect):
@@ -408,15 +410,15 @@ class PurgeCommands(commands.Cog):
             unpinned = [m for m in messages if not m.pinned]
         if len(deleted) == 0:
             embed = discord.Embed(title="❌ Error ❌", description=f"{channel.mention} doesn't have any messages to purge!")
-            await ctx.send(embed=embed, delete_after=30.0)
+            await channel.send(embed=embed, delete_after=30.0)
         elif len(deleted) == 1:
             embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} message was just purged from {channel.mention}!')
-            await ctx.send(embed=embed, delete_after=30.0)
+            await channel.send(embed=embed, delete_after=30.0)
         else:
             embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just purged from {channel.mention}!')
-            await ctx.send(embed=embed, delete_after=30.0)
+            await channel.send(embed=embed, delete_after=30.0)
         embed = discord.Embed(title="✔️ Done ✔️", description=f'The purge is now complete!')
-        await ctx.send(embed=embed, delete_after=30.0)
+        await channel.send(embed=embed, delete_after=30.0)
 
     @purge.command(name="member")
     @commands.has_guild_permissions(administrator=True)
@@ -430,7 +432,7 @@ class PurgeCommands(commands.Cog):
             Provide the member who's unpinned messages you would like to purge.
         """
         await ctx.defer()
-        channel = ctx.channel
+        ctxchannel = ctx.channel
         view = DropdownView()
         embed = discord.Embed(title="🗑️ Purge Member 🗑️", description=f"Which channel(s) would you like to purge {member.mention}'s unpinned messages from?")
         response = await ctx.send(embed=embed, view=view)
@@ -451,12 +453,12 @@ class PurgeCommands(commands.Cog):
                     unpinned = [m for m in messages if not m.pinned]
                 if len(deleted) == 1:
                     embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} message was just purged from {channel.mention}!')
-                    await ctx.send(embed=embed, delete_after=30.0)
+                    await ctxchannel.send(embed=embed, delete_after=30.0)
                 else:
                     embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just purged from {channel.mention}!')
-                    await ctx.send(embed=embed, delete_after=30.0)
+                    await ctxchannel.send(embed=embed, delete_after=30.0)
             embed = discord.Embed(title="✔️ Done ✔️", description=f'The purge is now complete!')
-            await ctx.send(embed=embed, delete_after=30.0)
+            await ctxchannel.send(embed=embed, delete_after=30.0)
         elif view.value == False:
             embed = discord.Embed(title="❌ Cancelled ❌", description='This interaction has been cancelled. No messages have been purged.')
             await response.edit(embed=embed, view=None)
@@ -471,6 +473,7 @@ class PurgeCommands(commands.Cog):
         """(Admin Only) Purge all unpinned messages in a set list of up to 25 channels.
         """
         await ctx.defer()
+        ctxchannel = ctx.channel
         view = DropdownView()
         embed = discord.Embed(title="🗑️ Purge Channels 🗑️", description="Which channel(s) would you like to purge all unpinned messages from?")
         response = await ctx.send(embed=embed, view=view)
@@ -491,12 +494,12 @@ class PurgeCommands(commands.Cog):
                     unpinned = [m for m in messages if not m.pinned]
                 if len(deleted) == 1:
                     embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} message was just purged from {channel.mention}!')
-                    await ctx.send(embed=embed, delete_after=30.0)
+                    await ctxchannel.send(embed=embed, delete_after=30.0)
                 else:
                     embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just purged from {channel.mention}!')
-                    await ctx.send(embed=embed, delete_after=30.0)
+                    await ctxchannel.send(embed=embed, delete_after=30.0)
             embed = discord.Embed(title="✔️ Done ✔️", description=f'The purge is now complete!')
-            await ctx.send(embed=embed, delete_after=30.0)
+            await ctxchannel.send(embed=embed, delete_after=30.0)
         elif view.value == False:
             embed = discord.Embed(title="❌ Cancelled ❌", description='This interaction has been cancelled. No messages have been purged.')
             await response.edit(embed=embed, view=None)
@@ -511,6 +514,7 @@ class PurgeCommands(commands.Cog):
         """(Admin Only) Purges all unpinned messages in a server, excluding up to 25 channels.
         """
         await ctx.defer()
+        ctxchannel = ctx.channel
         view = DropdownView()
         embed = discord.Embed(title="🗑️ Purge Server 🗑️", description="Which channels would you like to **exclude** from the purge of all unpinned messages?")
         response = await ctx.send(embed=embed, view=view)
@@ -532,12 +536,12 @@ class PurgeCommands(commands.Cog):
                     unpinned = [m for m in messages if not m.pinned]
                 if len(deleted) == 1:
                     embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} message was just purged from {channel.mention}!')
-                    await ctx.send(embed=embed, delete_after=30.0)
+                    await ctxchannel.send(embed=embed, delete_after=30.0)
                 else:
                     embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just purged from {channel.mention}!')
-                    await ctx.send(embed=embed, delete_after=30.0)
+                    await ctxchannel.send(embed=embed, delete_after=30.0)
             embed = discord.Embed(title="✔️ Done ✔️", description=f'The purge is now complete!')
-            await ctx.send(embed=embed, delete_after=30.0)
+            await ctxchannel.send(embed=embed, delete_after=30.0)
         elif view.value == False:
             embed = discord.Embed(title="❌ Cancelled ❌", description='This interaction has been cancelled. No messages have been purged.')
             await response.edit(embed=embed, view=None)
@@ -654,7 +658,7 @@ class AwardCommands(commands.Cog):
                 fetched_toggle = row[0]
                 embed = discord.Embed(title="Update", description=f"The toggle for award reactions has been set to **False** AKA {fetched_toggle}. Reacting and un-reacting to posts with the award emoji **will not** add and remove awards.")
             else:
-                embed = discord.Embed(title="Error", description=f"Your input could not be parsed. Please enter either True to toggle award reactions ON or False to toggle award reactions OFF.")
+                embed = discord.Embed(title="❌ Error ❌", description=f"Your input could not be parsed. Please enter either True to toggle award reactions ON or False to toggle award reactions OFF.")
             await db.commit()
             await db.close()
         ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
@@ -869,9 +873,9 @@ class AwardCommands(commands.Cog):
                 awards = 0
             if awards == 0:
                 await db.execute("UPDATE members SET awards = ? WHERE member_id = ?", (awards, member_id))
-                embed = discord.Embed(title=f"Error", description=f"{member.mention} doesn't have any {plur_low}!")
+                embed = discord.Embed(title=f"❌ Error ❌", description=f"{member.mention} doesn't have any {plur_low}!")
             elif awards < amount:
-                embed = discord.Embed(title=f"Error", description=f"{member.mention} doesn't have enough {plur_low}!")
+                embed = discord.Embed(title=f"❌ Error ❌", description=f"{member.mention} doesn't have enough {plur_low}!")
             else:
                 awards -= amount
                 await db.execute("UPDATE members SET awards = ? WHERE member_id = ?", (awards, member_id))
@@ -1114,7 +1118,7 @@ class ProfileCommands(commands.Cog):
         if fetched_name is not None:
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile name is now set to: {fetched_name}")
         else:
-            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
+            embed = discord.Embed(color=member.accent_color, title="❌ Error ❌", description="There was an error! Try again later.")
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
     @profile.command(name="age")
@@ -1140,7 +1144,7 @@ class ProfileCommands(commands.Cog):
         if fetched_age is not None:
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile age is now set to: {fetched_age}")
         else:
-            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
+            embed = discord.Embed(color=member.accent_color, title="❌ Error ❌", description="There was an error! Try again later.")
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
     @profile.command(name="location")
@@ -1166,7 +1170,7 @@ class ProfileCommands(commands.Cog):
         if fetched_location is not None:
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile location is now set to: {fetched_location}")
         else:
-            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
+            embed = discord.Embed(color=member.accent_color, title="❌ Error ❌", description="There was an error! Try again later.")
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
     @profile.command(name="pronouns")
@@ -1192,7 +1196,7 @@ class ProfileCommands(commands.Cog):
         if fetched_pronouns is not None:
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile pronouns are now set to: {fetched_pronouns}")
         else:
-            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
+            embed = discord.Embed(color=member.accent_color, title="❌ Error ❌", description="There was an error! Try again later.")
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
     @profile.command(name="gender")
@@ -1218,7 +1222,7 @@ class ProfileCommands(commands.Cog):
         if fetched_gender is not None:
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile gender is now set to: {fetched_gender}")
         else:
-            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
+            embed = discord.Embed(color=member.accent_color, title="❌ Error ❌", description="There was an error! Try again later.")
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
     @profile.command(name="sexuality")
@@ -1244,7 +1248,7 @@ class ProfileCommands(commands.Cog):
         if fetched_sexuality is not None:
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile sexuality is now set to: {fetched_sexuality}")
         else:
-            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
+            embed = discord.Embed(color=member.accent_color, title="❌ Error ❌", description="There was an error! Try again later.")
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
     @profile.command(name="relationship")
@@ -1270,7 +1274,7 @@ class ProfileCommands(commands.Cog):
         if fetched_relationship_status is not None:
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile relationship status is now set to: {fetched_relationship_status}")
         else:
-            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
+            embed = discord.Embed(color=member.accent_color, title="❌ Error ❌", description="There was an error! Try again later.")
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
     @profile.command(name="family")
@@ -1296,7 +1300,7 @@ class ProfileCommands(commands.Cog):
         if fetched_family_status is not None:
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile family planning status is now set to: {fetched_family_status}")
         else:
-            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
+            embed = discord.Embed(color=member.accent_color, title="❌ Error ❌", description="There was an error! Try again later.")
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
     @profile.command(name="biography")
@@ -1322,7 +1326,7 @@ class ProfileCommands(commands.Cog):
         if fetched_biography is not None:
             embed = discord.Embed(color=member.accent_color, title="✔️ Success ✔️", description=f"Your profile biography is now set to: {fetched_biography}")
         else:
-            embed = discord.Embed(color=member.accent_color, title="Error", description="There was an error! Try again later.")
+            embed = discord.Embed(color=member.accent_color, title="❌ Error ❌", description="There was an error! Try again later.")
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
     @profile.command(name="get")
@@ -1450,100 +1454,79 @@ class RSSCommands(commands.Cog):
             Provide the URL for the webhook.
         """
         await ctx.defer(ephemeral=True)
-        guild = ctx.guild
         embed = discord.Embed(title="Webhook", description=f"**Webhook URL**: {webhook_url}")
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
-            cur = await db.execute("SELECT rss_channel_id_1 FROM webhooks WHERE url = ?", (webhook_url,))
+            cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id1 = row[0]
-            if rss_channel_id1 is not None:
-                cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id1)
-                embed.add_field(name="Position One", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_2 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                embed.add_field(name="Position One", value=f"**RSS URL**: {fetched_rss_url}")
+            else:
+                embed.add_field(name="Position One", value="Empty")
+            cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id2 = row[0]
-            if rss_channel_id2 is not None:
-                cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id2)
-                embed.add_field(name="Position Two", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_3 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                embed.add_field(name="Position Two", value=f"**RSS URL**: {fetched_rss_url}")
+            else:
+                embed.add_field(name="Position One", value="Empty")
+            cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id3 = row[0]
-            if rss_channel_id3 is not None:
-                cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id3)
-                embed.add_field(name="Position Three", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_4 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                embed.add_field(name="Position Three", value=f"**RSS URL**: {fetched_rss_url}")
+            else:
+                embed.add_field(name="Position One", value="Empty")
+            cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id4 = row[0]
-            if rss_channel_id4 is not None:
-                cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id4)
-                embed.add_field(name="Position Four", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_5 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                embed.add_field(name="Position Four", value=f"**RSS URL**: {fetched_rss_url}")
+            else:
+                embed.add_field(name="Position One", value="Empty")
+            cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id5 = row[0]
-            if rss_channel_id5 is not None:
-                cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id5)
-                embed.add_field(name="Position Five", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_6 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                embed.add_field(name="Position Five", value=f"**RSS URL**: {fetched_rss_url}")
+            else:
+                embed.add_field(name="Position One", value="Empty")
+            cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id6 = row[0]
-            if rss_channel_id6 is not None:
-                cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id6)
-                embed.add_field(name="Position Six", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_7 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                embed.add_field(name="Position Six", value=f"**RSS URL**: {fetched_rss_url}")
+            else:
+                embed.add_field(name="Position One", value="Empty")
+            cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id7 = row[0]
-            if rss_channel_id7 is not None:
-                cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id7)
-                embed.add_field(name="Position Seven", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_8 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                embed.add_field(name="Position Seven", value=f"**RSS URL**: {fetched_rss_url}")
+            else:
+                embed.add_field(name="Position One", value="Empty")
+            cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id8 = row[0]
-            if rss_channel_id8 is not None:
-                cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id8)
-                embed.add_field(name="Position Eight", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_9 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                embed.add_field(name="Position Eight", value=f"**RSS URL**: {fetched_rss_url}")
+            else:
+                embed.add_field(name="Position One", value="Empty")
+            cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id9 = row[0]
-            if rss_channel_id9 is not None:
-                cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id9)
-                embed.add_field(name="Position Nine", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
-            cur = await db.execute("SELECT rss_channel_id_10 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                embed.add_field(name="Position Nine", value=f"**RSS URL**: {fetched_rss_url}")
+            else:
+                embed.add_field(name="Position One", value="Empty")
+            cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id10 = row[0]
-            if rss_channel_id10 is not None:
-                cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                channel = guild.get_channel(rss_channel_id10)
-                embed.add_field(name="Position Ten", value=f"**RSS Channel**: {channel.mention}\n\n**RSS URL**: {fetched_rss_url}")
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                embed.add_field(name="Position Ten", value=f"**RSS URL**: {fetched_rss_url}")
+            else:
+                embed.add_field(name="Position One", value="Empty")
             await db.commit()
             await db.close()
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
@@ -1563,96 +1546,76 @@ class RSSCommands(commands.Cog):
         embed = discord.Embed(title="Webhook Cleared", description=f"**Webhook URL**: {webhook_url}")
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR REPLACE INTO webhooks (url) VALUES (?)", (webhook_url,))
-            cur = await db.execute("SELECT rss_channel_id_1 FROM webhooks WHERE url = ?", (webhook_url,))
+            cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id1 = row[0]
-            if rss_channel_id1 is None:
-                cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position One", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_2 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is None:
+                embed.add_field(name="Position One", value="Cleared!")
+            else:
+                embed.add_field(name="Position One Error", value=f"{fetched_rss_url}")
+            cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id2 = row[0]
-            if rss_channel_id2 is None:
-                cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Two", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_3 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is None:
+                embed.add_field(name="Position Two", value="Cleared!")
+            else:
+                embed.add_field(name="Position Two Error", value=f"{fetched_rss_url}")
+            cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id3 = row[0]
-            if rss_channel_id3 is None:
-                cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Three", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_4 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is None:
+                embed.add_field(name="Position Three", value="Cleared!")
+            else:
+                embed.add_field(name="Position Three Error", value=f"{fetched_rss_url}")
+            cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id4 = row[0]
-            if rss_channel_id4 is None:
-                cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Four", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_5 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is None:
+                embed.add_field(name="Position Four", value="Cleared!")
+            else:
+                embed.add_field(name="Position Four Error", value=f"{fetched_rss_url}")
+            cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id5 = row[0]
-            if rss_channel_id5 is None:
-                cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Five", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_6 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is None:
+                embed.add_field(name="Position Five", value="Cleared")
+            else:
+                embed.add_field(name="Position Five Error", value=f"{fetched_rss_url}")
+            cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id6 = row[0]
-            if rss_channel_id6 is None:
-                cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Six", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_7 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is None:
+                embed.add_field(name="Position Six", value="Cleared!")
+            else:
+                embed.add_field(name="Position Six Error", value=f"{fetched_rss_url}")
+            cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id7 = row[0]
-            if rss_channel_id7 is None:
-                cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Seven", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_8 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is None:
+                embed.add_field(name="Position Seven", value="Cleared!")
+            else:
+                embed.add_field(name="Position Seven Error", value=f"{fetched_rss_url}")
+            cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id8 = row[0]
-            if rss_channel_id8 is None:
-                cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Eight", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_9 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is None:
+                embed.add_field(name="Position Eight", value="Cleared!")
+            else:
+                embed.add_field(name="Position Eight Error", value=f"{fetched_rss_url}")
+            cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id9 = row[0]
-            if rss_channel_id9 is None:
-                cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Nine", value=f"Cleared!")
-            cur = await db.execute("SELECT rss_channel_id_10 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is None:
+                embed.add_field(name="Position Nine", value="Cleared!")
+            else:
+                embed.add_field(name="Position Nine Error", value=f"{fetched_rss_url}")
+            cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id10 = row[0]
-            if rss_channel_id10 is None:
-                cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is None:
-                    embed.add_field(name="Position Ten", value=f"Cleared!")
+            fetched_rss_url = row[0]
+            if fetched_rss_url is None:
+                embed.add_field(name="Position Ten", value="Cleared!")
+            else:
+                embed.add_field(name="Position Ten Error", value=f"{fetched_rss_url}")
             await db.commit()
             await db.close()
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
@@ -1660,7 +1623,7 @@ class RSSCommands(commands.Cog):
     @rss.command(name="feed_setup")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def feed_setup(self, ctx: commands.Context, webhook_url: str, rss_channel: discord.TextChannel, rss_feed_url: str):
+    async def feed_setup(self, ctx: commands.Context, webhook_url: str, rss_feed_url: str):
         """(Admin Only) Run this command to set an RSS Feed. All fields are required.
 
         Parameters
@@ -1673,191 +1636,99 @@ class RSSCommands(commands.Cog):
             Provide the URL for the RSS feed.
         """
         await ctx.defer(ephemeral=True)
-        guild = ctx.guild
-        rss_channel_id = rss_channel.id
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
-            cur = await db.execute("SELECT rss_channel_id_1 FROM webhooks WHERE url = ?", (webhook_url,))
+            cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id1 = row[0]
-            if rss_channel_id1 is None:
-                await db.execute("UPDATE webhooks SET rss_channel_id_1 = ? WHERE url = ?", (rss_channel_id, webhook_url))
-                cur = await db.execute("SELECT rss_channel_id_1 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_channel_id = row[0]
+            fetched_rss_url = row[0]
+            if fetched_rss_url is None:
                 await db.execute("UPDATE webhooks SET rss_url_1 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
+                embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position one**!")
+                embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                embed.add_field(name="RSS Feed URL", value=f"{fetched_rss_url}")
+            else:
+                cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
                 fetched_rss_url = row[0]
-                embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position one**!")
-                embed.add_field(name="Webhook URL", value=f"{webhook_url}")
-                channel = guild.get_channel(fetched_channel_id)
-                embed.add_field(name="RSS Channel", value=f"{channel.mention}")
-                embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
-            else:
-                cur = await db.execute("SELECT rss_channel_id_2 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                rss_channel_id2 = row[0]
-                if rss_channel_id2 is None:
-                    await db.execute("UPDATE webhooks SET rss_channel_id_2 = ? WHERE url = ?", (rss_channel_id, webhook_url))
-                    cur = await db.execute("SELECT rss_channel_id_2 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_channel_id = row[0]
+                if fetched_rss_url is None:
                     await db.execute("UPDATE webhooks SET rss_url_2 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                    cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
+                    embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position two**!")
+                    embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                    embed.add_field(name="RSS Feed URL", value=f"{fetched_rss_url}")
+                else:
+                    cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
                     row = await cur.fetchone()
                     fetched_rss_url = row[0]
-                    embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position two**!")
-                    embed.add_field(name="Webhook URL", value=f"{webhook_url}")
-                    channel = guild.get_channel(fetched_channel_id)
-                    embed.add_field(name="RSS Channel", value=f"{channel.mention}")
-                    embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
-                else:
-                    cur = await db.execute("SELECT rss_channel_id_3 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    rss_channel_id3 = row[0]
-                    if rss_channel_id3 is None:
-                        await db.execute("UPDATE webhooks SET rss_channel_id_3 = ? WHERE url = ?", (rss_channel_id, webhook_url))
-                        cur = await db.execute("SELECT rss_channel_id_3 FROM webhooks WHERE url = ?", (webhook_url,))
-                        row = await cur.fetchone()
-                        fetched_channel_id = row[0]
+                    if fetched_rss_url is None:
                         await db.execute("UPDATE webhooks SET rss_url_3 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                        cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
+                        embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position three**!")
+                        embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                        embed.add_field(name="RSS Feed URL", value=f"{fetched_rss_url}")
+                    else:
+                        cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
                         row = await cur.fetchone()
                         fetched_rss_url = row[0]
-                        embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position three**!")
-                        embed.add_field(name="Webhook URL", value=f"{webhook_url}")
-                        channel = guild.get_channel(fetched_channel_id)
-                        embed.add_field(name="RSS Channel", value=f"{channel.mention}")
-                        embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
-                    else:
-                        cur = await db.execute("SELECT rss_channel_id_4 FROM webhooks WHERE url = ?", (webhook_url,))
-                        row = await cur.fetchone()
-                        rss_channel_id4 = row[0]
-                        if rss_channel_id4 is None:
-                            await db.execute("UPDATE webhooks SET rss_channel_id_4 = ? WHERE url = ?", (rss_channel_id, webhook_url))
-                            cur = await db.execute("SELECT rss_channel_id_4 FROM webhooks WHERE url = ?", (webhook_url,))
-                            row = await cur.fetchone()
-                            fetched_channel_id = row[0]
+                        if fetched_rss_url is None:
                             await db.execute("UPDATE webhooks SET rss_url_4 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                            cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
+                            embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position four**!")
+                            embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                            embed.add_field(name="RSS Feed URL", value=f"{fetched_rss_url}")
+                        else:
+                            cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
                             row = await cur.fetchone()
                             fetched_rss_url = row[0]
-                            embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position four**!")
-                            embed.add_field(name="Webhook URL", value=f"{webhook_url}")
-                            channel = guild.get_channel(fetched_channel_id)
-                            embed.add_field(name="RSS Channel", value=f"{channel.mention}")
-                            embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
-                        else:
-                            cur = await db.execute("SELECT rss_channel_id_5 FROM webhooks WHERE url = ?", (webhook_url,))
-                            row = await cur.fetchone()
-                            rss_channel_id5 = row[0]
-                            if rss_channel_id5 is None:
-                                await db.execute("UPDATE webhooks SET rss_channel_id_5 = ? WHERE url = ?", (rss_channel_id, webhook_url))
-                                cur = await db.execute("SELECT rss_channel_id_5 FROM webhooks WHERE url = ?", (webhook_url,))
-                                row = await cur.fetchone()
-                                fetched_channel_id = row[0]
+                            if fetched_rss_url is None:
                                 await db.execute("UPDATE webhooks SET rss_url_5 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                                cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
+                                embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position five**!")
+                                embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                                embed.add_field(name="RSS Feed URL", value=f"{fetched_rss_url}")
+                            else:
+                                cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
                                 row = await cur.fetchone()
                                 fetched_rss_url = row[0]
-                                embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position five**!")
-                                embed.add_field(name="Webhook URL", value=f"{webhook_url}")
-                                channel = guild.get_channel(fetched_channel_id)
-                                embed.add_field(name="RSS Channel", value=f"{channel.mention}")
-                                embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
-                            else:
-                                cur = await db.execute("SELECT rss_channel_id_6 FROM webhooks WHERE url = ?", (webhook_url,))
-                                row = await cur.fetchone()
-                                rss_channel_id6 = row[0]
-                                if rss_channel_id6 is None:
-                                    await db.execute("UPDATE webhooks SET rss_channel_id_6 = ? WHERE url = ?", (rss_channel_id, webhook_url))
-                                    cur = await db.execute("SELECT rss_channel_id_6 FROM webhooks WHERE url = ?", (webhook_url,))
-                                    row = await cur.fetchone()
-                                    fetched_channel_id = row[0]
+                                if fetched_rss_url is None:
                                     await db.execute("UPDATE webhooks SET rss_url_6 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                                    cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
+                                    embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position six**!")
+                                    embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                                    embed.add_field(name="RSS Feed URL", value=f"{fetched_rss_url}")
+                                else:
+                                    cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
                                     row = await cur.fetchone()
                                     fetched_rss_url = row[0]
-                                    embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position six**!")
-                                    embed.add_field(name="Webhook URL", value=f"{webhook_url}")
-                                    channel = guild.get_channel(fetched_channel_id)
-                                    embed.add_field(name="RSS Channel", value=f"{channel.mention}")
-                                    embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
-                                else:
-                                    cur = await db.execute("SELECT rss_channel_id_7 FROM webhooks WHERE url = ?", (webhook_url,))
-                                    row = await cur.fetchone()
-                                    rss_channel_id7 = row[0]
-                                    if rss_channel_id7 is None:
-                                        await db.execute("UPDATE webhooks SET rss_channel_id_7 = ? WHERE url = ?", (rss_channel_id, webhook_url))
-                                        cur = await db.execute("SELECT rss_channel_id_7 FROM webhooks WHERE url = ?", (webhook_url,))
-                                        row = await cur.fetchone()
-                                        fetched_channel_id = row[0]
+                                    if fetched_rss_url is None:
                                         await db.execute("UPDATE webhooks SET rss_url_7 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                                        cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
+                                        embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position seven**!")
+                                        embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                                        embed.add_field(name="RSS Feed URL", value=f"{fetched_rss_url}")
+                                    else:
+                                        cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
                                         row = await cur.fetchone()
                                         fetched_rss_url = row[0]
-                                        embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position seven**!")
-                                        embed.add_field(name="Webhook URL", value=f"{webhook_url}")
-                                        channel = guild.get_channel(fetched_channel_id)
-                                        embed.add_field(name="RSS Channel", value=f"{channel.mention}")
-                                        embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
-                                    else:
-                                        cur = await db.execute("SELECT rss_channel_id_8 FROM webhooks WHERE url = ?", (webhook_url,))
-                                        row = await cur.fetchone()
-                                        rss_channel_id8 = row[0]
-                                        if rss_channel_id8 is None:
-                                            await db.execute("UPDATE webhooks SET rss_channel_id_8 = ? WHERE url = ?", (rss_channel_id, webhook_url))
-                                            cur = await db.execute("SELECT rss_channel_id_8 FROM webhooks WHERE url = ?", (webhook_url,))
-                                            row = await cur.fetchone()
-                                            fetched_channel_id = row[0]
+                                        if fetched_rss_url is None:
                                             await db.execute("UPDATE webhooks SET rss_url_8 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                                            cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
+                                            embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position eight**!")
+                                            embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                                            embed.add_field(name="RSS Feed URL", value=f"{fetched_rss_url}")
+                                        else:
+                                            cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
                                             row = await cur.fetchone()
                                             fetched_rss_url = row[0]
-                                            embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position eight**!")
-                                            embed.add_field(name="Webhook URL", value=f"{webhook_url}")
-                                            channel = guild.get_channel(fetched_channel_id)
-                                            embed.add_field(name="RSS Channel", value=f"{channel.mention}")
-                                            embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
-                                        else:
-                                            cur = await db.execute("SELECT rss_channel_id_9 FROM webhooks WHERE url = ?", (webhook_url,))
-                                            row = await cur.fetchone()
-                                            rss_channel_id9 = row[0]
-                                            if rss_channel_id9 is None:
-                                                await db.execute("UPDATE webhooks SET rss_channel_id_9 = ? WHERE url = ?", (rss_channel_id, webhook_url))
-                                                cur = await db.execute("SELECT rss_channel_id_9 FROM webhooks WHERE url = ?", (webhook_url,))
-                                                row = await cur.fetchone()
-                                                fetched_channel_id = row[0]
+                                            if fetched_rss_url is None:
                                                 await db.execute("UPDATE webhooks SET rss_url_9 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                                                cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
+                                                embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position nine**!")
+                                                embed.add_field(name="Webhook URL", value=f"{webhook_url}")
+                                                embed.add_field(name="RSS Feed URL", value=f"{fetched_rss_url}")
+                                            else:
+                                                cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
                                                 row = await cur.fetchone()
                                                 fetched_rss_url = row[0]
-                                                embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position nine**!")
-                                                embed.add_field(name="Webhook URL", value=f"{webhook_url}")
-                                                channel = guild.get_channel(fetched_channel_id)
-                                                embed.add_field(name="RSS Channel", value=f"{channel.mention}")
-                                                embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
-                                            else:
-                                                cur = await db.execute("SELECT rss_channel_id_10 FROM webhooks WHERE url = ?", (webhook_url,))
-                                                row = await cur.fetchone()
-                                                rss_channel_id10 = row[0]
-                                                if rss_channel_id10 is None:
-                                                    await db.execute("UPDATE webhooks SET rss_channel_id_10 = ? WHERE url = ?", (rss_channel_id, webhook_url))
-                                                    cur = await db.execute("SELECT rss_channel_id_10 FROM webhooks WHERE url = ?", (webhook_url,))
-                                                    row = await cur.fetchone()
-                                                    fetched_channel_id = row[0]
+                                                if fetched_rss_url is None:
                                                     await db.execute("UPDATE webhooks SET rss_url_10 = ? WHERE url = ?", (rss_feed_url, webhook_url))
-                                                    cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
-                                                    row = await cur.fetchone()
-                                                    fetched_rss_url = row[0]
-                                                    embed = discord.Embed(title="Success", description="The RSS feed has been set to the webhook at **position ten**!")
+                                                    embed = discord.Embed(title="✔️ Success ✔️", description="The RSS feed has been set to the webhook at **position ten**!")
                                                     embed.add_field(name="Webhook URL", value=f"{webhook_url}")
-                                                    channel = guild.get_channel(fetched_channel_id)
-                                                    embed.add_field(name="RSS Channel", value=f"{channel.mention}")
-                                                    embed.add_field(name="RSS URL", value=f"{fetched_rss_url}")
+                                                    embed.add_field(name="RSS Feed URL", value=f"{fetched_rss_url}")
                                                 else:
-                                                    embed = discord.Embed(title="Error", description="This webhook is already associated with 10 RSS feeds.")
+                                                    embed = discord.Embed(title="❌ Error ❌", description="This webhook is already associated with 10 RSS feeds. Please use `/rss feed_clear` or `/rss webhook_clear` to remove one or all RSS feeds from this webhook.")
             await db.commit()
             await db.close()
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
@@ -1880,127 +1751,97 @@ class RSSCommands(commands.Cog):
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR REPLACE INTO webhooks (url) VALUES (?)", (webhook_url,))
             if rss_feed_position == 1:
-                await db.execute("INSERT OR REPLACE INTO webhooks (rss_channel_id_1) VALUES (NULL) WHERE url = ?", (webhook_url,))
                 await db.execute("INSERT OR REPLACE INTO webhooks (rss_url_1) VALUES (NULL) WHERE url = ?", (webhook_url,))
-                cur = await db.execute("SELECT rss_channel_id_1 FROM webhooks WHERE url = ?", (webhook_url,))
+                cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                rss_channel_id1 = row[0]
-                if rss_channel_id1 is None:
-                    cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_rss_url = row[0]
-                    if fetched_rss_url is None:
-                        embed.add_field(name="Position One", value=f"Cleared!")
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="✔️ Success ✔️", value=f"Position one cleared!")
+                else:
+                    embed.add_field(name="❌ Error ❌", value=f"Position one **not** cleared!")
             elif rss_feed_position == 2:
-                await db.execute("INSERT OR REPLACE INTO webhooks (rss_channel_id_2) VALUES (NULL) WHERE url = ?", (webhook_url,))
                 await db.execute("INSERT OR REPLACE INTO webhooks (rss_url_2) VALUES (NULL) WHERE url = ?", (webhook_url,))
-                cur = await db.execute("SELECT rss_channel_id_2 FROM webhooks WHERE url = ?", (webhook_url,))
+                cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                rss_channel_id2 = row[0]
-                if rss_channel_id2 is None:
-                    cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_rss_url = row[0]
-                    if fetched_rss_url is None:
-                        embed.add_field(name="Position Two", value=f"Cleared!")
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="✔️ Success ✔️", value=f"Position two cleared!")
+                else:
+                    embed.add_field(name="❌ Error ❌", value=f"Position two **not** cleared!")
             elif rss_feed_position == 3:
-                await db.execute("INSERT OR REPLACE INTO webhooks (rss_channel_id_3) VALUES (NULL) WHERE url = ?", (webhook_url,))
                 await db.execute("INSERT OR REPLACE INTO webhooks (rss_url_3) VALUES (NULL) WHERE url = ?", (webhook_url,))
-                cur = await db.execute("SELECT rss_channel_id_3 FROM webhooks WHERE url = ?", (webhook_url,))
+                cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                rss_channel_id3 = row[0]
-                if rss_channel_id3 is None:
-                    cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_rss_url = row[0]
-                    if fetched_rss_url is None:
-                        embed.add_field(name="Position Three", value=f"Cleared!")
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="✔️ Success ✔️", value=f"Position three cleared!")
+                else:
+                    embed.add_field(name="❌ Error ❌", value=f"Position three **not** cleared!")
             elif rss_feed_position == 4:
-                await db.execute("INSERT OR REPLACE INTO webhooks (rss_channel_id_4) VALUES (NULL) WHERE url = ?", (webhook_url,))
                 await db.execute("INSERT OR REPLACE INTO webhooks (rss_url_4) VALUES (NULL) WHERE url = ?", (webhook_url,))
-                cur = await db.execute("SELECT rss_channel_id_4 FROM webhooks WHERE url = ?", (webhook_url,))
+                cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                rss_channel_id4 = row[0]
-                if rss_channel_id4 is None:
-                    cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_rss_url = row[0]
-                    if fetched_rss_url is None:
-                        embed.add_field(name="Position Four", value=f"Cleared!")
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="✔️ Success ✔️", value=f"Position four cleared!")
+                else:
+                    embed.add_field(name="❌ Error ❌", value=f"Position four **not** cleared!")
             elif rss_feed_position == 5:
-                await db.execute("INSERT OR REPLACE INTO webhooks (rss_channel_id_5) VALUES (NULL) WHERE url = ?", (webhook_url,))
                 await db.execute("INSERT OR REPLACE INTO webhooks (rss_url_5) VALUES (NULL) WHERE url = ?", (webhook_url,))
-                cur = await db.execute("SELECT rss_channel_id_5 FROM webhooks WHERE url = ?", (webhook_url,))
+                cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                rss_channel_id5 = row[0]
-                if rss_channel_id5 is None:
-                    cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_rss_url = row[0]
-                    if fetched_rss_url is None:
-                        embed.add_field(name="Position Five", value=f"Cleared!")
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="✔️ Success ✔️", value=f"Position five cleared!")
+                else:
+                    embed.add_field(name="❌ Error ❌", value=f"Position five **not** cleared!")
             elif rss_feed_position == 6:
-                await db.execute("INSERT OR REPLACE INTO webhooks (rss_channel_id_6) VALUES (NULL) WHERE url = ?", (webhook_url,))
                 await db.execute("INSERT OR REPLACE INTO webhooks (rss_url_6) VALUES (NULL) WHERE url = ?", (webhook_url,))
-                cur = await db.execute("SELECT rss_channel_id_6 FROM webhooks WHERE url = ?", (webhook_url,))
+                cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                rss_channel_id6 = row[0]
-                if rss_channel_id6 is None:
-                    cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_rss_url = row[0]
-                    if fetched_rss_url is None:
-                        embed.add_field(name="Position Six", value=f"Cleared!")
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="✔️ Success ✔️", value=f"Position six cleared!")
+                else:
+                    embed.add_field(name="❌ Error ❌", value=f"Position six **not** cleared!")
             elif rss_feed_position == 7:
-                await db.execute("INSERT OR REPLACE INTO webhooks (rss_channel_id_7) VALUES (NULL) WHERE url = ?", (webhook_url,))
                 await db.execute("INSERT OR REPLACE INTO webhooks (rss_url_7) VALUES (NULL) WHERE url = ?", (webhook_url,))
-                cur = await db.execute("SELECT rss_channel_id_7 FROM webhooks WHERE url = ?", (webhook_url,))
+                cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                rss_channel_id7 = row[0]
-                if rss_channel_id7 is None:
-                    cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_rss_url = row[0]
-                    if fetched_rss_url is None:
-                        embed.add_field(name="Position Seven", value=f"Cleared!")
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="✔️ Success ✔️", value=f"Position seven cleared!")
+                else:
+                    embed.add_field(name="❌ Error ❌", value=f"Position seven **not** cleared!")
             elif rss_feed_position == 8:
-                await db.execute("INSERT OR REPLACE INTO webhooks (rss_channel_id_8) VALUES (NULL) WHERE url = ?", (webhook_url,))
                 await db.execute("INSERT OR REPLACE INTO webhooks (rss_url_8) VALUES (NULL) WHERE url = ?", (webhook_url,))
-                cur = await db.execute("SELECT rss_channel_id_8 FROM webhooks WHERE url = ?", (webhook_url,))
+                cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                rss_channel_id8 = row[0]
-                if rss_channel_id8 is None:
-                    cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_rss_url = row[0]
-                    if fetched_rss_url is None:
-                        embed.add_field(name="Position Eight", value=f"Cleared!")
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="✔️ Success ✔️", value=f"Position eight cleared!")
+                else:
+                    embed.add_field(name="❌ Error ❌", value=f"Position eight **not** cleared!")
             elif rss_feed_position == 9:
-                await db.execute("INSERT OR REPLACE INTO webhooks (rss_channel_id_9) VALUES (NULL) WHERE url = ?", (webhook_url,))
                 await db.execute("INSERT OR REPLACE INTO webhooks (rss_url_9) VALUES (NULL) WHERE url = ?", (webhook_url,))
-                cur = await db.execute("SELECT rss_channel_id_9 FROM webhooks WHERE url = ?", (webhook_url,))
+                cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                rss_channel_id9 = row[0]
-                if rss_channel_id9 is None:
-                    cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_rss_url = row[0]
-                    if fetched_rss_url is None:
-                        embed.add_field(name="Position Nine", value=f"Cleared!")
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="✔️ Success ✔️", value=f"Position nine cleared!")
+                else:
+                    embed.add_field(name="❌ Error ❌", value=f"Position nine **not** cleared!")
             elif rss_feed_position == 10:
-                await db.execute("INSERT OR REPLACE INTO webhooks (rss_channel_id_10) VALUES (NULL) WHERE url = ?", (webhook_url,))
                 await db.execute("INSERT OR REPLACE INTO webhooks (rss_url_10) VALUES (NULL) WHERE url = ?", (webhook_url,))
-                cur = await db.execute("SELECT rss_channel_id_10 FROM webhooks WHERE url = ?", (webhook_url,))
+                cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                rss_channel_id10 = row[0]
-                if rss_channel_id10 is None:
-                    cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_rss_url = row[0]
-                    if fetched_rss_url is None:
-                        embed.add_field(name="Position Ten", value=f"Cleared!")
+                fetched_rss_url = row[0]
+                if fetched_rss_url is None:
+                    embed.add_field(name="✔️ Success ✔️", value=f"Position ten cleared!")
+                else:
+                    embed.add_field(name="❌ Error ❌", value=f"Position ten **not** cleared!")
             else:
-                embed = discord.Embed(title="Error", description="You must enter a number from 1 to 10 as the RSS feed position. Check which position on the Webhook the RSS feed is stored at by using `/checkwebhook`.")
+                embed = discord.Embed(title="❌ Error ❌", description="You must enter a number from 1 to 10 as the RSS feed position. Check which position on the Webhook the RSS feed is stored at by using `/checkwebhook`.")
             await db.commit()
             await db.close()
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
@@ -2023,165 +1864,115 @@ class RSSFeeds(commands.Cog):
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
             feed1 = []
-            cur = await db.execute("SELECT rss_channel_id_1 FROM webhooks WHERE url = ?", (webhook_url,))
+            cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id1 = row[0]
-            if rss_channel_id1 is not None:
-                feed1.append(rss_channel_id1)
-                cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                feed1.append(fetched_rss_url)
+                cur = await db.execute("SELECT rss_last_sent_1 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is not None:
-                    feed1.append(fetched_rss_url)
-                    cur = await db.execute("SELECT rss_last_sent_1 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_last_sent = row[0]
-                    if fetched_last_sent is not None:
-                        feed1.append(fetched_last_sent)
+                fetched_last_sent = row[0]
+                if fetched_last_sent is not None:
+                    feed1.append(fetched_last_sent)
             feed2 = []
-            cur = await db.execute("SELECT rss_channel_id_2 FROM webhooks WHERE url = ?", (webhook_url,))
+            cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id2 = row[0]
-            if rss_channel_id2 is not None:
-                feed2.append(rss_channel_id2)
-                cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                feed2.append(fetched_rss_url)
+                cur = await db.execute("SELECT rss_last_sent_2 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is not None:
-                    feed2.append(fetched_rss_url)
-                    cur = await db.execute("SELECT rss_last_sent_2 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_last_sent = row[0]
-                    if fetched_last_sent is not None:
-                        feed2.append(fetched_last_sent)
+                fetched_last_sent = row[0]
+                if fetched_last_sent is not None:
+                    feed2.append(fetched_last_sent)
             feed3 = []
-            cur = await db.execute("SELECT rss_channel_id_3 FROM webhooks WHERE url = ?", (webhook_url,))
+            cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id3 = row[0]
-            if rss_channel_id3 is not None:
-                feed3.append(rss_channel_id3)
-                cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                feed3.append(fetched_rss_url)
+                cur = await db.execute("SELECT rss_last_sent_3 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is not None:
-                    feed3.append(fetched_rss_url)
-                    cur = await db.execute("SELECT rss_last_sent_3 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_last_sent = row[0]
-                    if fetched_last_sent is not None:
-                        feed3.append(fetched_last_sent)
+                fetched_last_sent = row[0]
+                if fetched_last_sent is not None:
+                    feed3.append(fetched_last_sent)
             feed4 = []
-            cur = await db.execute("SELECT rss_channel_id_4 FROM webhooks WHERE url = ?", (webhook_url,))
+            cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id4 = row[0]
-            if rss_channel_id4 is not None:
-                feed4.append(rss_channel_id4)
-                cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                feed4.append(fetched_rss_url)
+                cur = await db.execute("SELECT rss_last_sent_4 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is not None:
-                    feed4.append(fetched_rss_url)
-                    cur = await db.execute("SELECT rss_last_sent_4 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_last_sent = row[0]
-                    if fetched_last_sent is not None:
-                        feed4.append(fetched_last_sent)
+                fetched_last_sent = row[0]
+                if fetched_last_sent is not None:
+                    feed4.append(fetched_last_sent)
             feed5 = []
-            cur = await db.execute("SELECT rss_channel_id_5 FROM webhooks WHERE url = ?", (webhook_url,))
+            cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id5 = row[0]
-            if rss_channel_id5 is not None:
-                feed5.append(rss_channel_id5)
-                cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                feed5.append(fetched_rss_url)
+                cur = await db.execute("SELECT rss_last_sent_5 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is not None:
-                    feed5.append(fetched_rss_url)
-                    cur = await db.execute("SELECT rss_last_sent_5 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_last_sent = row[0]
-                    if fetched_last_sent is not None:
-                        feed5.append(fetched_last_sent)
+                fetched_last_sent = row[0]
+                if fetched_last_sent is not None:
+                    feed5.append(fetched_last_sent)
             feed6 = []
-            cur = await db.execute("SELECT rss_channel_id_6 FROM webhooks WHERE url = ?", (webhook_url,))
+            cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id6 = row[0]
-            if rss_channel_id6 is not None:
-                feed6.append(rss_channel_id6)
-                cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                feed6.append(fetched_rss_url)
+                cur = await db.execute("SELECT rss_last_sent_6 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is not None:
-                    feed6.append(fetched_rss_url)
-                    cur = await db.execute("SELECT rss_last_sent_6 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_last_sent = row[0]
-                    if fetched_last_sent is not None:
-                        feed6.append(fetched_last_sent)
+                fetched_last_sent = row[0]
+                if fetched_last_sent is not None:
+                    feed6.append(fetched_last_sent)
             feed7 = []
-            cur = await db.execute("SELECT rss_channel_id_7 FROM webhooks WHERE url = ?", (webhook_url,))
+            cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id7 = row[0]
-            if rss_channel_id7 is not None:
-                feed7.append(rss_channel_id6)
-                cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                feed7.append(fetched_rss_url)
+                cur = await db.execute("SELECT rss_last_sent_7 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is not None:
-                    feed7.append(fetched_rss_url)
-                    cur = await db.execute("SELECT rss_last_sent_7 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_last_sent = row[0]
-                    if fetched_last_sent is not None:
-                        feed7.append(fetched_last_sent)
+                fetched_last_sent = row[0]
+                if fetched_last_sent is not None:
+                    feed7.append(fetched_last_sent)
             feed8 = []
-            cur = await db.execute("SELECT rss_channel_id_8 FROM webhooks WHERE url = ?", (webhook_url,))
+            cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id8 = row[0]
-            if rss_channel_id8 is not None:
-                feed8.append(rss_channel_id6)
-                cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                feed8.append(fetched_rss_url)
+                cur = await db.execute("SELECT rss_last_sent_8 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is not None:
-                    feed8.append(fetched_rss_url)
-                    cur = await db.execute("SELECT rss_last_sent_8 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_last_sent = row[0]
-                    if fetched_last_sent is not None:
-                        feed8.append(fetched_last_sent)
+                fetched_last_sent = row[0]
+                if fetched_last_sent is not None:
+                    feed8.append(fetched_last_sent)
             feed9 = []
-            cur = await db.execute("SELECT rss_channel_id_9 FROM webhooks WHERE url = ?", (webhook_url,))
+            cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id9 = row[0]
-            if rss_channel_id9 is not None:
-                feed9.append(rss_channel_id6)
-                cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                feed9.append(fetched_rss_url)
+                cur = await db.execute("SELECT rss_last_sent_9 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is not None:
-                    feed9.append(fetched_rss_url)
-                    cur = await db.execute("SELECT rss_last_sent_9 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_last_sent = row[0]
-                    if fetched_last_sent is not None:
-                        feed9.append(fetched_last_sent)
+                fetched_last_sent = row[0]
+                if fetched_last_sent is not None:
+                    feed9.append(fetched_last_sent)
             feed10 = []
-            cur = await db.execute("SELECT rss_channel_id_10 FROM webhooks WHERE url = ?", (webhook_url,))
+            cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
-            rss_channel_id10 = row[0]
-            if rss_channel_id10 is not None:
-                feed10.append(rss_channel_id1)
-                cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
+            fetched_rss_url = row[0]
+            if fetched_rss_url is not None:
+                feed10.append(fetched_rss_url)
+                cur = await db.execute("SELECT rss_last_sent_10 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                fetched_rss_url = row[0]
-                if fetched_rss_url is not None:
-                    feed10.append(fetched_rss_url)
-                    cur = await db.execute("SELECT rss_last_sent_10 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    fetched_last_sent = row[0]
-                    if fetched_last_sent is not None:
-                        feed10.append(fetched_last_sent)
+                fetched_last_sent = row[0]
+                if fetched_last_sent is not None:
+                    feed10.append(fetched_last_sent)
             db.commit()
             db.close()
         allfeeds = [feed1,feed2,feed3,feed4,feed5,feed6,feed7,feed8,feed9,feed10]
@@ -2200,54 +1991,54 @@ class RSSFeeds(commands.Cog):
             async with aiosqlite.connect('rainbowbot.db') as db:
                 cur = await db.execute("SELECT rss_last_sent_1 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                last_sent_1 = row[0]
-                if last_sent_1 is not None:
-                    last_sent_messages.append(last_sent_1)
+                last_sent = row[0]
+                if last_sent is not None:
+                    last_sent_messages.append(last_sent)
                 cur = await db.execute("SELECT rss_last_sent_2 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                last_sent_2 = row[0]
-                if last_sent_2 is not None:
-                    last_sent_messages.append(last_sent_2)
+                last_sent = row[0]
+                if last_sent is not None:
+                    last_sent_messages.append(last_sent)
                 cur = await db.execute("SELECT rss_last_sent_3 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                last_sent_3 = row[0]
-                if last_sent_3 is not None:
-                    last_sent_messages.append(last_sent_3)
+                last_sent = row[0]
+                if last_sent is not None:
+                    last_sent_messages.append(last_sent)
                 cur = await db.execute("SELECT rss_last_sent_4 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                last_sent_4 = row[0]
-                if last_sent_4 is not None:
-                    last_sent_messages.append(last_sent_4)
+                last_sent = row[0]
+                if last_sent is not None:
+                    last_sent_messages.append(last_sent)
                 cur = await db.execute("SELECT rss_last_sent_5 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                last_sent_5 = row[0]
-                if last_sent_5 is not None:
-                    last_sent_messages.append(last_sent_5)
+                last_sent = row[0]
+                if last_sent is not None:
+                    last_sent_messages.append(last_sent)
                 cur = await db.execute("SELECT rss_last_sent_6 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                last_sent_6 = row[0]
-                if last_sent_6 is not None:
-                    last_sent_messages.append(last_sent_6)
+                last_sent = row[0]
+                if last_sent is not None:
+                    last_sent_messages.append(last_sent)
                 cur = await db.execute("SELECT rss_last_sent_7 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                last_sent_7 = row[0]
-                if last_sent_7 is not None:
-                    last_sent_messages.append(last_sent_7)
+                last_sent = row[0]
+                if last_sent is not None:
+                    last_sent_messages.append(last_sent)
                 cur = await db.execute("SELECT rss_last_sent_8 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                last_sent_8 = row[0]
-                if last_sent_8 is not None:
-                    last_sent_messages.append(last_sent_8)
+                last_sent = row[0]
+                if last_sent is not None:
+                    last_sent_messages.append(last_sent)
                 cur = await db.execute("SELECT rss_last_sent_9 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                last_sent_9 = row[0]
-                if last_sent_9 is not None:
-                    last_sent_messages.append(last_sent_9)
+                last_sent = row[0]
+                if last_sent is not None:
+                    last_sent_messages.append(last_sent)
                 cur = await db.execute("SELECT rss_last_sent_10 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
-                last_sent_10 = row[0]
-                if last_sent_10 is not None:
-                    last_sent_messages.append(last_sent_10)
+                last_sent = row[0]
+                if last_sent is not None:
+                    last_sent_messages.append(last_sent)
                 db.commit()
                 db.close()
             all_last_messages = [x for x in last_sent_messages if len(x) > 0]
@@ -2330,7 +2121,7 @@ class RSSFeeds(commands.Cog):
                 feeds = self.getfeeds(url)
                 if len(feeds) > 0:
                     for feed in feeds:
-                        feed_url = feed[1]
+                        feed_url = feed[0]
                         embed = self.parsefeed(url, feed_url)
                         if embed is not None:
                             async with aiosqlite.connect('rainbowbot.db') as db:
@@ -2384,34 +2175,24 @@ async def setup(bot):
                          url TEXT PRIMARY KEY,
                          name TEXT DEFAULT NULL,
                          avatar_url TEXT DEFAULT NULL,
-                         rss_channel_id_1 INTEGER DEFAULT NULL,
                          rss_url_1 TEXT DEFAULT NULL,
                          rss_last_sent_1 TEXT DEFAULT NULL,
-                         rss_channel_id_2 INTEGER DEFAULT NULL,
                          rss_url_2 TEXT DEFAULT NULL,
                          rss_last_sent_2 TEXT DEFAULT NULL,
-                         rss_channel_id_3 INTEGER DEFAULT NULL,
                          rss_url_3 TEXT DEFAULT NULL,
                          rss_last_sent_3 TEXT DEFAULT NULL,
-                         rss_channel_id_4 INTEGER DEFAULT NULL,
                          rss_url_4 TEXT DEFAULT NULL,
                          rss_last_sent_4 TEXT DEFAULT NULL,
-                         rss_channel_id_5 INTEGER DEFAULT NULL,
                          rss_url_5 TEXT DEFAULT NULL,
                          rss_last_sent_5 TEXT DEFAULT NULL,
-                         rss_channel_id_6 INTEGER DEFAULT NULL,
                          rss_url_6 TEXT DEFAULT NULL,
                          rss_last_sent_6 TEXT DEFAULT NULL,
-                         rss_channel_id_7 INTEGER DEFAULT NULL,
                          rss_url_7 TEXT DEFAULT NULL,
                          rss_last_sent_7 TEXT DEFAULT NULL,
-                         rss_channel_id_8 INTEGER DEFAULT NULL,
                          rss_url_8 TEXT DEFAULT NULL,
                          rss_last_sent_8 TEXT DEFAULT NULL,
-                         rss_channel_id_9 INTEGER DEFAULT NULL,
                          rss_url_9 TEXT DEFAULT NULL,
                          rss_last_sent_9 TEXT DEFAULT NULL,
-                         rss_channel_id_10 INTEGER DEFAULT NULL,
                          rss_url_10 TEXT DEFAULT NULL,
                          rss_last_sent_10 TEXT DEFAULT NULL)""")
         await db.commit()
