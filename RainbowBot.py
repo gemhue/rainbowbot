@@ -1884,149 +1884,144 @@ class RSSFeeds(commands.Cog):
         self.bot = bot
     
     async def getwebhooks(self):
+        urls = []
         async with aiosqlite.connect('rainbowbot.db') as db:
-            cur = await db.execute("SELECT url FROM webhooks")
-            urls = []
-            async for row in cur:
-                urls.append(row[0])
-            db.commit()
-            db.close()
-        print("getwebhooks() output: " + str(urls))
+            async with db.execute("SELECT url FROM webhooks") as cur:
+                async for row in cur:
+                    url = str(row[0])
+                    if "https://discord.com/api/webhooks/" in url:
+                        urls.append(url)
         return urls
     
     async def getfeeds(self, webhook_url):
+        allfeeds = {}
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
-            allfeeds = []
-            feed1 = []
+            feed1 = {}
             cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
-                feed1.append(fetched_rss_url)
+                feed1["url"] = fetched_rss_url
                 cur = await db.execute("SELECT rss_last_sent_1 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
-                    feed1.append(fetched_last_sent)
-                    allfeeds.append(feed1)
-            feed2 = []
+                    feed1["last sent"] = fetched_last_sent
+                allfeeds["feed1"] = feed1
+            feed2 = {}
             cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
-                feed2.append(fetched_rss_url)
+                feed2["url"] = fetched_rss_url
                 cur = await db.execute("SELECT rss_last_sent_2 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
-                    feed2.append(fetched_last_sent)
-                    allfeeds.append(feed2)
-            feed3 = []
+                    feed2["last sent"] = fetched_last_sent
+                allfeeds["feed2"] = feed2
+            feed3 = {}
             cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
-                feed3.append(fetched_rss_url)
+                feed3["url"] = fetched_rss_url
                 cur = await db.execute("SELECT rss_last_sent_3 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
-                    feed3.append(fetched_last_sent)
-                    allfeeds.append(feed3)
-            feed4 = []
+                    feed3["last sent"] = fetched_last_sent
+                allfeeds["feed3"] = feed3
+            feed4 = {}
             cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
-                feed4.append(fetched_rss_url)
+                feed4["url"] = fetched_rss_url
                 cur = await db.execute("SELECT rss_last_sent_4 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
-                    feed4.append(fetched_last_sent)
-                    allfeeds.append(feed4)
-            feed5 = []
+                    feed4["last sent"] = fetched_last_sent
+                allfeeds["feed4"] = feed4
+            feed5 = {}
             cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
-                feed5.append(fetched_rss_url)
+                feed5["url"] = fetched_rss_url
                 cur = await db.execute("SELECT rss_last_sent_5 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
-                    feed5.append(fetched_last_sent)
-                    allfeeds.append(feed5)
-            feed6 = []
+                    feed5["last sent"] = fetched_last_sent
+                allfeeds["feed5"] = feed5
+            feed6 = {}
             cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
-                feed6.append(fetched_rss_url)
+                feed6["url"] = fetched_rss_url
                 cur = await db.execute("SELECT rss_last_sent_6 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
-                    feed6.append(fetched_last_sent)
-                    allfeeds.append(feed6)
-            feed7 = []
+                    feed6["last sent"] = fetched_last_sent
+                allfeeds["feed6"] = feed6
+            feed7 = {}
             cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
-                feed7.append(fetched_rss_url)
+                feed7["url"] = fetched_rss_url
                 cur = await db.execute("SELECT rss_last_sent_7 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
-                    feed7.append(fetched_last_sent)
-                    allfeeds.append(feed7)
-            feed8 = []
+                    feed7["last sent"] = fetched_last_sent
+                allfeeds["feed7"] = feed7
+            feed8 = {}
             cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
-                feed8.append(fetched_rss_url)
+                feed8["url"] = fetched_rss_url
                 cur = await db.execute("SELECT rss_last_sent_8 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
-                    feed8.append(fetched_last_sent)
-                    allfeeds.append(feed8)
-            feed9 = []
+                    feed8["last sent"] = fetched_last_sent
+                allfeeds["feed8"] = feed8
+            feed9 = {}
             cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
-                feed9.append(fetched_rss_url)
+                feed9["url"] = fetched_rss_url
                 cur = await db.execute("SELECT rss_last_sent_9 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
-                    feed9.append(fetched_last_sent)
-                    allfeeds.append(feed9)
-            feed10 = []
+                    feed9["last sent"] = fetched_last_sent
+                allfeeds["feed9"] = feed9
+            feed10 = {}
             cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
-                feed10.append(fetched_rss_url)
+                feed10["url"] = fetched_rss_url
                 cur = await db.execute("SELECT rss_last_sent_10 FROM webhooks WHERE url = ?", (webhook_url,))
                 row = await cur.fetchone()
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
-                    feed10.append(fetched_last_sent)
-                    allfeeds.append(feed10)
-            db.commit()
-            db.close()
-        feeds = [f for f in allfeeds if len(f) > 0]
-        print("getfeeds() output: " + str(feeds))
-        return feeds
+                    feed10["last sent"] = fetched_last_sent
+                allfeeds["feed10"] = feed10
+        return allfeeds
 
     async def parsefeed(self, webhook_url, feed_url):
         feedparser.USER_AGENT = "RainbowBot/1.0 +https://rainbowbot.carrd.co/#"
-        feed = feedparser.parse({feed_url})
+        feed = feedparser.parse(feed_url)
         entries = feed.entries
         entry = entries[0]
         title = entry.title
@@ -2084,11 +2079,8 @@ class RSSFeeds(commands.Cog):
                 last_sent = row[0]
                 if last_sent is not None:
                     last_sent_messages.append(last_sent)
-                db.commit()
-                db.close()
-            all_last_messages = [x for x in last_sent_messages if len(x) > 0]
-            if link not in all_last_messages:
-                async with aiosqlite.connect('rainbowbot.db') as db:
+                all_last_messages = [x for x in last_sent_messages if len(x) > 0]
+                if link not in all_last_messages:
                     cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
                     row = await cur.fetchone()
                     url1 = row[0]
@@ -2148,44 +2140,43 @@ class RSSFeeds(commands.Cog):
                                                         url10 = row[0]
                                                         if feed_url == url10:
                                                             await db.execute("UPDATE webhooks SET rss_last_sent_10 = ? WHERE url = ?", (link, webhook_url))
-                    db.commit()
-                    db.close()
-                embed = discord.Embed(title=f"{title}", url=f"{link}")
-                print("parsefeed() output: " + str(title) + " " + str(link))
-                return embed
-            else:
-                return None
+                    embed = discord.Embed(title=f"{title}", url=f"{link}")
+                    return embed
+                else:
+                    return None
         else:
             return None
 
     @commands.command(name="postrss")
     @commands.has_guild_permissions(administrator=True)
     async def postrss(self, ctx: commands.Context):
-        urls = self.getwebhooks()
-        print(f"Post RSS URLS: {urls}")
-        async with aiohttp.ClientSession() as session:
+        urls = await self.getwebhooks()
+        print(f"Post RSS URLs: {urls}")
+        async with aiosqlite.connect('rainbowbot.db') as db:
             for url in urls:
-                webhook = Webhook.from_url(url=url, session=session)
-                feeds = self.getfeeds(url)
+                feeds = await self.getfeeds(url)
                 print(f"Post RSS Feeds: {feeds}")
                 if len(feeds) > 0:
-                    for feed in feeds:
-                        feed_url = feed[0]
-                        embed = self.parsefeed(url, feed_url)
+                    for feed in feeds.items():
+                        print(f"Post RSS Feed: {feed}")
+                        feed_url = feed[1]['url']
+                        print(f"Post RSS Feed URL: {feed_url}")
+                        embed = await self.parsefeed(url, feed_url)
                         if embed is not None:
-                            async with aiosqlite.connect('rainbowbot.db') as db:
-                                cur = await db.execute("SELECT name FROM webhooks WHERE url = ?", (url))
-                                row = await cur.fetchone()
-                                name = row[0]
-                                cur = await db.execute("SELECT avatar_url FROM webhooks WHERE url = ?", (url))
-                                row = await cur.fetchone()
-                                avatar_url = row[0]
-                                db.commit()
-                                db.close()
-                            if name is not None and avatar_url is not None:
-                                await webhook.send(embed=embed, username=name, avatar_url=avatar_url)
-                            else:
-                                await webhook.send(embed=embed)
+                            cur = await db.execute("SELECT name FROM webhooks WHERE url = ?", (url,))
+                            row = await cur.fetchone()
+                            name = row[0]
+                            cur = await db.execute("SELECT avatar_url FROM webhooks WHERE url = ?", (url,))
+                            row = await cur.fetchone()
+                            avatar_url = row[0]
+                            async with aiohttp.ClientSession() as session:
+                                webhook = Webhook.from_url(url=url, session=session)
+                                if name is not None and avatar_url is not None:
+                                    await webhook.send(embed=embed, username=name, avatar_url=avatar_url)
+                                else:
+                                    await webhook.send(embed=embed)
+            await db.commit()
+            await db.close()
 
 async def setup(bot):
     async with aiosqlite.connect('rainbowbot.db') as db:
