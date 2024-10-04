@@ -1887,15 +1887,17 @@ class RSSFeeds(commands.Cog):
         async with aiosqlite.connect('rainbowbot.db') as db:
             cur = await db.execute("SELECT url FROM webhooks")
             urls = []
-            for row in cur:
+            async for row in cur:
                 urls.append(row[0])
             db.commit()
             db.close()
+        print("getwebhooks() output: " + str(urls))
         return urls
     
     async def getfeeds(self, webhook_url):
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
+            allfeeds = []
             feed1 = []
             cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
@@ -1907,6 +1909,7 @@ class RSSFeeds(commands.Cog):
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
                     feed1.append(fetched_last_sent)
+                    allfeeds.append(feed1)
             feed2 = []
             cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
@@ -1918,6 +1921,7 @@ class RSSFeeds(commands.Cog):
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
                     feed2.append(fetched_last_sent)
+                    allfeeds.append(feed2)
             feed3 = []
             cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
@@ -1929,6 +1933,7 @@ class RSSFeeds(commands.Cog):
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
                     feed3.append(fetched_last_sent)
+                    allfeeds.append(feed3)
             feed4 = []
             cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
@@ -1940,6 +1945,7 @@ class RSSFeeds(commands.Cog):
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
                     feed4.append(fetched_last_sent)
+                    allfeeds.append(feed4)
             feed5 = []
             cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
@@ -1951,6 +1957,7 @@ class RSSFeeds(commands.Cog):
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
                     feed5.append(fetched_last_sent)
+                    allfeeds.append(feed5)
             feed6 = []
             cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
@@ -1962,6 +1969,7 @@ class RSSFeeds(commands.Cog):
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
                     feed6.append(fetched_last_sent)
+                    allfeeds.append(feed6)
             feed7 = []
             cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
@@ -1973,6 +1981,7 @@ class RSSFeeds(commands.Cog):
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
                     feed7.append(fetched_last_sent)
+                    allfeeds.append(feed7)
             feed8 = []
             cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
@@ -1984,6 +1993,7 @@ class RSSFeeds(commands.Cog):
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
                     feed8.append(fetched_last_sent)
+                    allfeeds.append(feed8)
             feed9 = []
             cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
@@ -1995,6 +2005,7 @@ class RSSFeeds(commands.Cog):
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
                     feed9.append(fetched_last_sent)
+                    allfeeds.append(feed9)
             feed10 = []
             cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
@@ -2006,10 +2017,11 @@ class RSSFeeds(commands.Cog):
                 fetched_last_sent = row[0]
                 if fetched_last_sent is not None:
                     feed10.append(fetched_last_sent)
+                    allfeeds.append(feed10)
             db.commit()
             db.close()
-        allfeeds = [feed1,feed2,feed3,feed4,feed5,feed6,feed7,feed8,feed9,feed10]
         feeds = [f for f in allfeeds if len(f) > 0]
+        print("getfeeds() output: " + str(feeds))
         return feeds
 
     async def parsefeed(self, webhook_url, feed_url):
@@ -2139,19 +2151,23 @@ class RSSFeeds(commands.Cog):
                     db.commit()
                     db.close()
                 embed = discord.Embed(title=f"{title}", url=f"{link}")
+                print("parsefeed() output: " + str(title) + " " + str(link))
                 return embed
             else:
                 return None
         else:
             return None
 
-    @tasks.loop(minutes=5)
-    async def webhooksessions(self):
+    @commands.command(name="postrss")
+    @commands.has_guild_permissions(administrator=True)
+    async def postrss(self, ctx: commands.Context):
         urls = self.getwebhooks()
+        print(f"Post RSS URLS: {urls}")
         async with aiohttp.ClientSession() as session:
             for url in urls:
                 webhook = Webhook.from_url(url=url, session=session)
                 feeds = self.getfeeds(url)
+                print(f"Post RSS Feeds: {feeds}")
                 if len(feeds) > 0:
                     for feed in feeds:
                         feed_url = feed[0]
