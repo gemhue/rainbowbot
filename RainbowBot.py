@@ -1882,6 +1882,10 @@ class RSSCommands(commands.Cog):
 class RSSFeeds(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.postrss.start()
+    
+    def cog_unload(self):
+        self.postrss.cancel()
     
     async def getwebhooks(self):
         urls = []
@@ -2024,7 +2028,6 @@ class RSSFeeds(commands.Cog):
         feed = feedparser.parse(feed_url)
         entries = feed.entries
         entry = entries[0]
-        title = entry.title
         link = entry.link
         if link is not None:
             last_sent_messages = []
@@ -2140,41 +2143,26 @@ class RSSFeeds(commands.Cog):
                                                         url10 = row[0]
                                                         if feed_url == url10:
                                                             await db.execute("UPDATE webhooks SET rss_last_sent_10 = ? WHERE url = ?", (link, webhook_url))
-                    embed = discord.Embed(title=f"{title}", url=f"{link}")
-                    return embed
+                    return link
                 else:
                     return None
         else:
             return None
 
-    @commands.command(name="postrss")
-    @commands.has_guild_permissions(administrator=True)
-    async def postrss(self, ctx: commands.Context):
+    @tasks.loop(minutes=5.0)
+    async def postrss(self):
         urls = await self.getwebhooks()
-        print(f"Post RSS URLs: {urls}")
         async with aiosqlite.connect('rainbowbot.db') as db:
             for url in urls:
                 feeds = await self.getfeeds(url)
-                print(f"Post RSS Feeds: {feeds}")
                 if len(feeds) > 0:
                     for feed in feeds.items():
-                        print(f"Post RSS Feed: {feed}")
                         feed_url = feed[1]['url']
-                        print(f"Post RSS Feed URL: {feed_url}")
-                        embed = await self.parsefeed(url, feed_url)
-                        if embed is not None:
-                            cur = await db.execute("SELECT name FROM webhooks WHERE url = ?", (url,))
-                            row = await cur.fetchone()
-                            name = row[0]
-                            cur = await db.execute("SELECT avatar_url FROM webhooks WHERE url = ?", (url,))
-                            row = await cur.fetchone()
-                            avatar_url = row[0]
+                        link = await self.parsefeed(url, feed_url)
+                        if link is not None:
                             async with aiohttp.ClientSession() as session:
                                 webhook = Webhook.from_url(url=url, session=session)
-                                if name is not None and avatar_url is not None:
-                                    await webhook.send(embed=embed, username=name, avatar_url=avatar_url)
-                                else:
-                                    await webhook.send(embed=embed)
+                                await webhook.send(link)
             await db.commit()
             await db.close()
 
