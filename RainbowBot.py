@@ -7,6 +7,8 @@ from discord.ui import ChannelSelect
 from discord.ext import commands, tasks
 from typing import Any, Optional, Literal
 from datetime import datetime, timezone, timedelta
+from time import mktime
+from bs4 import BeautifulSoup
 
 bot = commands.Bot(
     command_prefix = 'rb!',
@@ -621,7 +623,9 @@ class AwardCommands(commands.Cog):
             if moji is None:
                 moji = "🏅"
             for member_id in member_ids:
-                await db.execute("UPDATE members SET awards = ? WHERE member_id = ?", (0, member_id))
+                guild_member_id = int(str(guild_id) + str(member_id))
+                await db.execute("INSERT OR IGNORE INTO awards (guild_member_id) VALUES (?)", (guild_member_id,))
+                await db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (0, guild_member_id))
             await db.commit()
             await db.close()
         embed = discord.Embed(title=f"{moji} {plur_cap} Cleared {moji}", description=f"{guild.name} has had all its {plur_low} cleared!")
@@ -694,21 +698,22 @@ class AwardCommands(commands.Cog):
                     plur_low = row[0]
                     if plur_low is None:
                         plur_low = "awards"
-                    await db.execute("INSERT OR IGNORE INTO members (member_id) VALUES (?)", (member_id,))
-                    cur = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
+                    guild_member_id = int(str(guild_id) + str(member_id))
+                    await db.execute("INSERT OR IGNORE INTO awards (guild_member_id) VALUES (?)", (guild_member_id,))
+                    cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
                     row = await cur.fetchone()
-                    awards = row[0]
-                    if awards is None:
-                        awards = 0
-                    awards += 1
-                    await db.execute("UPDATE members SET awards = ? WHERE member_id = ?", (awards, member_id))
-                    cur = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
+                    current = row[0]
+                    if current is None:
+                        current = 0
+                    new = current + 1
+                    await db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (new, guild_member_id))
+                    cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
                     row = await cur.fetchone()
-                    awards = row[0]
-                    if awards == 1:
-                        embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{member.mention} now has {awards} {sing_low}! ({sing_cap} added by {user.mention}.)")
+                    new = row[0]
+                    if new == 1:
+                        embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{member.mention} now has {new} {sing_low}! ({sing_cap} added by {user.mention}.)")
                     else:
-                        embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{member.mention} now has {awards} {plur_low}! ({sing_cap} added by {user.mention}.)")
+                        embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{member.mention} now has {new} {plur_low}! ({sing_cap} added by {user.mention}.)")
                     await channel.send(embed=embed, delete_after=30.0, reference=message)
             await db.commit()
             await db.close()
@@ -744,24 +749,25 @@ class AwardCommands(commands.Cog):
                     plur_low = row[0]
                     if plur_low is None:
                         plur_low = "awards"
-                    await db.execute("INSERT OR IGNORE INTO members (member_id) VALUES (?)", (member_id,))
-                    cur = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
+                    guild_member_id = int(str(guild_id) + str(member_id))
+                    await db.execute("INSERT OR IGNORE INTO awards (guild_member_id) VALUES (?)", (guild_member_id,))
+                    cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
                     row = await cur.fetchone()
-                    awards = row[0]
-                    if awards is None:
-                        awards = 0
-                    if awards > 0:
-                        awards -= 1
-                        await db.execute("UPDATE members SET awards = ? WHERE member_id = ?", (awards, member_id))
-                        cur = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
+                    current = row[0]
+                    if current is None:
+                        current = 0
+                    if current > 0:
+                        new = current - 1
+                        await db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (new, guild_member_id))
+                        cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
                         row = await cur.fetchone()
-                        awards = row[0]
-                        if awards == 0:
+                        new = row[0]
+                        if new == 0:
                             embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{member.mention} no longer has any awards! ({sing_cap} removed by {user.mention}.)")
-                        elif awards == 1:
-                            embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{member.mention} now has {awards} {sing_low}! ({sing_cap} removed by {user.mention}.)")
+                        elif new == 1:
+                            embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{member.mention} now has {new} {sing_low}! ({sing_cap} removed by {user.mention}.)")
                         else:
-                            embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{member.mention} now has {awards} {plur_low}! ({sing_cap} removed by {user.mention}.)")
+                            embed = discord.Embed(title=f"{moji} {sing_cap} Removed {moji}", description=f"{member.mention} now has {new} {plur_low}! ({sing_cap} removed by {user.mention}.)")
                         await channel.send(embed=embed, delete_after=30.0, reference=message)
             await db.commit()
             await db.close()
@@ -780,10 +786,8 @@ class AwardCommands(commands.Cog):
         await ctx.defer(ephemeral=True)
         guild = ctx.guild
         guild_id = guild.id
-        amount = amount
         if amount is None:
             amount = 1
-        member = member
         if member is None:
             member = ctx.author
         member_id = member.id
@@ -806,24 +810,25 @@ class AwardCommands(commands.Cog):
             moji = row[0]
             if moji is None:
                 moji = "🏅"
-            await db.execute("INSERT OR IGNORE INTO members (member_id) VALUES (?)", (member_id,))
-            cur = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
+            guild_member_id = int(str(guild_id) + str(member_id))
+            await db.execute("INSERT OR IGNORE INTO awards (guild_member_id) VALUES (?)", (guild_member_id,))
+            cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
             row = await cur.fetchone()
-            awards = row[0]
-            if awards is None:
-                await db.execute("UPDATE members SET awards = ? WHERE member_id = ?", (amount, member_id))
+            current = row[0]
+            if current is None:
+                await db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (amount, guild_member_id))
             else:
-                awards += amount
-                await db.execute("UPDATE members SET awards = ? WHERE member_id = ?", (amount, member_id))
-            cur = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
+                new = current + amount
+                await db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (new, guild_member_id))
+            cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
             row = await cur.fetchone()
-            awards = row[0]
+            new = row[0]
             await db.commit()
             await db.close()
-        if awards == 1:
-            embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{member.mention} now has {awards} {sing_low}!")
+        if new == 1:
+            embed = discord.Embed(title=f"{moji} {sing_cap} Added {moji}", description=f"{member.mention} now has {new} {sing_low}!")
         else:
-            embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {awards} {plur_low}!")
+            embed = discord.Embed(title=f"{moji} {plur_cap} Added {moji}", description=f"{member.mention} now has {new} {plur_low}!")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
     @awards.command(name="remove")
@@ -840,10 +845,8 @@ class AwardCommands(commands.Cog):
         await ctx.defer(ephemeral=True)
         guild = ctx.guild
         guild_id = guild.id
-        amount = amount
         if amount is None:
             amount = 1
-        member = member
         if member is None:
             member = ctx.author
         member_id = member.id
@@ -865,29 +868,30 @@ class AwardCommands(commands.Cog):
             moji = row[0]
             if moji is None:
                 moji = "🏅"
-            await db.execute("INSERT OR IGNORE INTO members (member_id) VALUES (?)", (member_id,))
-            cur = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
+            guild_member_id = int(str(guild_id) + str(member_id))
+            await db.execute("INSERT OR IGNORE INTO awards (guild_member_id) VALUES (?)", (guild_member_id,))
+            cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
             row = await cur.fetchone()
-            awards = row[0]
-            if awards is None:
-                awards = 0
-            if awards == 0:
-                await db.execute("UPDATE members SET awards = ? WHERE member_id = ?", (awards, member_id))
+            current = row[0]
+            if current is None:
+                current = 0
+            if current == 0:
+                await db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (current, guild_member_id))
                 embed = discord.Embed(title=f"❌ Error ❌", description=f"{member.mention} doesn't have any {plur_low}!")
-            elif awards < amount:
+            elif current < amount:
                 embed = discord.Embed(title=f"❌ Error ❌", description=f"{member.mention} doesn't have enough {plur_low}!")
             else:
-                awards -= amount
-                await db.execute("UPDATE members SET awards = ? WHERE member_id = ?", (awards, member_id))
-                cur = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
+                new = current - amount
+                await db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (new, guild_member_id))
+                cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
                 row = await cur.fetchone()
-                awards = row[0]
-                if awards == 0:
+                new = row[0]
+                if new == 0:
                     embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} no longer has any {plur_low}!")
-                elif awards == 1:
-                    embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {awards} {sing_low}!")
+                elif new == 1:
+                    embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {new} {sing_low}!")
                 else:
-                    embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {awards} {plur_low}!")
+                    embed = discord.Embed(title=f"{moji} {plur_cap} Removed {moji}", description=f"{member.mention} now has {new} {plur_low}!")
                 await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
             await db.commit()
             await db.close()
@@ -904,7 +908,6 @@ class AwardCommands(commands.Cog):
         await ctx.defer(ephemeral=True)
         guild = ctx.guild
         guild_id = guild.id
-        member = member
         if member is None:
             member = ctx.author
         member_id = member.id
@@ -926,19 +929,20 @@ class AwardCommands(commands.Cog):
             moji = row[0]
             if moji is None:
                 moji = "🏅"
-            await db.execute("INSERT OR IGNORE INTO members (member_id) VALUES (?)", (member_id,))
-            cur = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
+            guild_member_id = int(str(guild_id) + str(member_id))
+            await db.execute("INSERT OR IGNORE INTO awards (guild_member_id) VALUES (?)", (guild_member_id,))
+            cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
             row = await cur.fetchone()
-            awards = row[0]
-            if awards is None:
-                awards = 0
-            if awards == 0:
-                await db.execute("INSERT OR IGNORE INTO members (member_id, awards) VALUES (?,?)", (member_id, 0))
+            amount = row[0]
+            if amount is None:
+                amount = 0
+            if amount == 0:
+                await db.execute("INSERT OR IGNORE INTO awards (guild_member_id, amount) VALUES (?,?)", (guild_member_id,0))
                 embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} doesn't have any {plur_low}!")
-            elif awards == 1:
-                embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {awards} {sing_low}!")
+            elif amount == 1:
+                embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {amount} {sing_low}!")
             else:
-                embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {awards} {plur_low}!")
+                embed = discord.Embed(title=f"{moji} Number of {plur_cap} {moji}", description=f"{member.mention} has {amount} {plur_low}!")
             await db.commit()
             await db.close()
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
@@ -965,14 +969,15 @@ class AwardCommands(commands.Cog):
             member_awards = {}
             member_ids = [member.id for member in guild.members if not member.bot]
             for member_id in member_ids:
-                await db.execute("INSERT OR IGNORE INTO members (member_id) VALUES (?)", (member_id,))
-                cur = await db.execute("SELECT awards FROM members WHERE member_id = ?", (member_id,))
+                guild_member_id = int(str(guild_id) + str(member_id))
+                await db.execute("INSERT OR IGNORE INTO awards (guild_member_id) VALUES (?)", (guild_member_id,))
+                cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
                 row = await cur.fetchone()
-                awards = row[0]
-                if awards is None:
-                    await db.execute("UPDATE members SET awards = ? WHERE member_id = ?", (awards, member_id))
-                elif awards > 0:
-                    member_awards[member_id] = awards
+                amount = row[0]
+                if amount is None:
+                    await db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (awards, guild_member_id))
+                elif amount > 0:
+                    member_awards[member_id] = amount
             await db.commit()
             await db.close()
         desc = []
@@ -2027,127 +2032,37 @@ class RSSFeeds(commands.Cog):
         feedparser.USER_AGENT = "RainbowBot/1.0 +https://rainbowbot.carrd.co/#"
         feed = feedparser.parse(feed_url)
         entries = feed.entries
-        entry = entries[0]
-        link = entry.link
-        if link is not None:
-            last_sent_messages = []
-            async with aiosqlite.connect('rainbowbot.db') as db:
-                cur = await db.execute("SELECT rss_last_sent_1 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                last_sent = row[0]
-                if last_sent is not None:
-                    last_sent_messages.append(last_sent)
-                cur = await db.execute("SELECT rss_last_sent_2 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                last_sent = row[0]
-                if last_sent is not None:
-                    last_sent_messages.append(last_sent)
-                cur = await db.execute("SELECT rss_last_sent_3 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                last_sent = row[0]
-                if last_sent is not None:
-                    last_sent_messages.append(last_sent)
-                cur = await db.execute("SELECT rss_last_sent_4 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                last_sent = row[0]
-                if last_sent is not None:
-                    last_sent_messages.append(last_sent)
-                cur = await db.execute("SELECT rss_last_sent_5 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                last_sent = row[0]
-                if last_sent is not None:
-                    last_sent_messages.append(last_sent)
-                cur = await db.execute("SELECT rss_last_sent_6 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                last_sent = row[0]
-                if last_sent is not None:
-                    last_sent_messages.append(last_sent)
-                cur = await db.execute("SELECT rss_last_sent_7 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                last_sent = row[0]
-                if last_sent is not None:
-                    last_sent_messages.append(last_sent)
-                cur = await db.execute("SELECT rss_last_sent_8 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                last_sent = row[0]
-                if last_sent is not None:
-                    last_sent_messages.append(last_sent)
-                cur = await db.execute("SELECT rss_last_sent_9 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                last_sent = row[0]
-                if last_sent is not None:
-                    last_sent_messages.append(last_sent)
-                cur = await db.execute("SELECT rss_last_sent_10 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                last_sent = row[0]
-                if last_sent is not None:
-                    last_sent_messages.append(last_sent)
-                all_last_messages = [x for x in last_sent_messages if len(x) > 0]
-                if link not in all_last_messages:
-                    cur = await db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
-                    row = await cur.fetchone()
-                    url1 = row[0]
-                    if feed_url == url1:
-                        await db.execute("UPDATE webhooks SET rss_last_sent_1 = ? WHERE url = ?", (link, webhook_url))
-                    else:
-                        cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
-                        row = await cur.fetchone()
-                        url2 = row[0]
-                        if feed_url == url2:
-                            await db.execute("UPDATE webhooks SET rss_last_sent_2 = ? WHERE url = ?", (link, webhook_url))
-                        else:
-                            cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
-                            row = await cur.fetchone()
-                            url3 = row[0]
-                            if feed_url == url3:
-                                await db.execute("UPDATE webhooks SET rss_last_sent_3 = ? WHERE url = ?", (link, webhook_url))
-                            else:
-                                cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
-                                row = await cur.fetchone()
-                                url4 = row[0]
-                                if feed_url == url4:
-                                    await db.execute("UPDATE webhooks SET rss_last_sent_4 = ? WHERE url = ?", (link, webhook_url))
-                                else:
-                                    cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
-                                    row = await cur.fetchone()
-                                    url5 = row[0]
-                                    if feed_url == url5:
-                                        await db.execute("UPDATE webhooks SET rss_last_sent_5 = ? WHERE url = ?", (link, webhook_url))
-                                    else:
-                                        cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
-                                        row = await cur.fetchone()
-                                        url6 = row[0]
-                                        if feed_url == url6:
-                                            await db.execute("UPDATE webhooks SET rss_last_sent_6 = ? WHERE url = ?", (link, webhook_url))
-                                        else:
-                                            cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
-                                            row = await cur.fetchone()
-                                            url7 = row[0]
-                                            if feed_url == url7:
-                                                await db.execute("UPDATE webhooks SET rss_last_sent_7 = ? WHERE url = ?", (link, webhook_url))
-                                            else:
-                                                cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
-                                                row = await cur.fetchone()
-                                                url8 = row[0]
-                                                if feed_url == url8:
-                                                    await db.execute("UPDATE webhooks SET rss_last_sent_8 = ? WHERE url = ?", (link, webhook_url))
-                                                else:
-                                                    cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
-                                                    row = await cur.fetchone()
-                                                    url9 = row[0]
-                                                    if feed_url == url9:
-                                                        await db.execute("UPDATE webhooks SET rss_last_sent_9 = ? WHERE url = ?", (link, webhook_url))
-                                                    else:
-                                                        cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
-                                                        row = await cur.fetchone()
-                                                        url10 = row[0]
-                                                        if feed_url == url10:
-                                                            await db.execute("UPDATE webhooks SET rss_last_sent_10 = ? WHERE url = ?", (link, webhook_url))
-                    return link
-                else:
-                    return None
-        else:
-            return None
+        embeds = {}
+        for entry in entries:
+            color = discord.Colour.blurple()
+            title = entry.title[:256]
+            print(f"Title: {title}")
+            link = entry.link
+            print(f"Link: {link}")
+            async with aiohttp.ClientSession() as session:
+                partialwebhook = Webhook.from_url(url=webhook_url, session=session)
+                webhook = await partialwebhook.fetch()
+                channel = webhook.channel
+                embeds = [message.embeds async for message in channel.history(limit=100)]
+                for embedlist in embeds:
+                    for embed in embedlist:
+                        if embed.url != link:
+                            soup = BeautifulSoup(entry.summary, "html.parser")
+                            parsedsoup = soup.get_text()
+                            summary = parsedsoup[:256] + "..."
+                            print(f"Summary: {summary}")
+                            time = datetime.fromtimestamp(mktime(entry.published_parsed))
+                            print(f"Timestamp: {time}")
+                            embed = discord.Embed(colour=color, title=title, url=link, description=summary, timestamp=time)
+                            embed.set_thumbnail(url=link)
+                            author = entry.author[:256]
+                            print(f"Author: {author}")
+                            author_url = entry.href
+                            print(f"Author URL: {author_url}")
+                            embed.set_author(name=author, url=author_url)
+                            print(embed)
+                            embeds.append(embed)
+        return embeds
 
     @tasks.loop(minutes=5.0)
     async def postrss(self):
@@ -2158,19 +2073,11 @@ class RSSFeeds(commands.Cog):
                 if len(feeds) > 0:
                     for feed in feeds.items():
                         feed_url = feed[1]['url']
-                        link = await self.parsefeed(url, feed_url)
-                        if link is not None:
+                        embeds = await self.parsefeed(url, feed_url)
+                        for embed in embeds:
                             async with aiohttp.ClientSession() as session:
-                                partialwebhook = Webhook.from_url(url=url, session=session)
-                                webhook = await partialwebhook.fetch()
-                                channel = webhook.channel
-                                messages = [message.content async for message in channel.history(limit=100)]
-                                if link not in messages:
-                                    await webhook.send(link)
-                                else:
-                                    return
-                        else:
-                            return
+                                webhook = Webhook.from_url(url=url, session=session)
+                                await webhook.send(embed=embed)
                 else:
                     return
             await db.commit()
@@ -2191,9 +2098,11 @@ async def setup(bot):
                          award_plural TEXT DEFAULT NULL,
                          award_emoji TEXT DEFAULT NULL,
                          award_react_toggle INTEGER DEFAULT 0)""")
+        await db.execute("""CREATE TABLE IF NOT EXISTS awards(
+                         guild_member_id INTEGER PRIMARY KEY,
+                         amount INTEGER DEFAULT NULL)""")
         await db.execute("""CREATE TABLE IF NOT EXISTS members(
                          member_id INTEGER PRIMARY KEY,
-                         awards INTEGER DEFAULT NULL,
                          name TEXT DEFAULT NULL,
                          age TEXT DEFAULT NULL,
                          location TEXT DEFAULT NULL,
@@ -2205,28 +2114,16 @@ async def setup(bot):
                          biography TEXT DEFAULT NULL)""")
         await db.execute("""CREATE TABLE IF NOT EXISTS webhooks(
                          url TEXT PRIMARY KEY,
-                         name TEXT DEFAULT NULL,
-                         avatar_url TEXT DEFAULT NULL,
                          rss_url_1 TEXT DEFAULT NULL,
-                         rss_last_sent_1 TEXT DEFAULT NULL,
                          rss_url_2 TEXT DEFAULT NULL,
-                         rss_last_sent_2 TEXT DEFAULT NULL,
                          rss_url_3 TEXT DEFAULT NULL,
-                         rss_last_sent_3 TEXT DEFAULT NULL,
                          rss_url_4 TEXT DEFAULT NULL,
-                         rss_last_sent_4 TEXT DEFAULT NULL,
                          rss_url_5 TEXT DEFAULT NULL,
-                         rss_last_sent_5 TEXT DEFAULT NULL,
                          rss_url_6 TEXT DEFAULT NULL,
-                         rss_last_sent_6 TEXT DEFAULT NULL,
                          rss_url_7 TEXT DEFAULT NULL,
-                         rss_last_sent_7 TEXT DEFAULT NULL,
                          rss_url_8 TEXT DEFAULT NULL,
-                         rss_last_sent_8 TEXT DEFAULT NULL,
                          rss_url_9 TEXT DEFAULT NULL,
-                         rss_last_sent_9 TEXT DEFAULT NULL,
-                         rss_url_10 TEXT DEFAULT NULL,
-                         rss_last_sent_10 TEXT DEFAULT NULL)""")
+                         rss_url_10 TEXT DEFAULT NULL)""")
         await db.commit()
         await db.close()
     await bot.add_cog(BackgroundTasks(bot), override=True)
