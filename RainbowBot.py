@@ -2,7 +2,7 @@ import discord
 import aiosqlite
 import aiohttp
 import feedparser
-from discord import ChannelType, app_commands, Webhook
+from discord import ChannelType, app_commands, Webhook, Colour
 from discord.ui import ChannelSelect
 from discord.ext import commands, tasks
 from typing import Any, Optional, Literal
