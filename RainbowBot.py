@@ -1912,11 +1912,6 @@ class RSSFeeds(commands.Cog):
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
                 feed1["url"] = fetched_rss_url
-                cur = await db.execute("SELECT rss_last_sent_1 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_last_sent = row[0]
-                if fetched_last_sent is not None:
-                    feed1["last sent"] = fetched_last_sent
                 allfeeds["feed1"] = feed1
             feed2 = {}
             cur = await db.execute("SELECT rss_url_2 FROM webhooks WHERE url = ?", (webhook_url,))
@@ -1924,11 +1919,6 @@ class RSSFeeds(commands.Cog):
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
                 feed2["url"] = fetched_rss_url
-                cur = await db.execute("SELECT rss_last_sent_2 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_last_sent = row[0]
-                if fetched_last_sent is not None:
-                    feed2["last sent"] = fetched_last_sent
                 allfeeds["feed2"] = feed2
             feed3 = {}
             cur = await db.execute("SELECT rss_url_3 FROM webhooks WHERE url = ?", (webhook_url,))
@@ -1936,11 +1926,6 @@ class RSSFeeds(commands.Cog):
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
                 feed3["url"] = fetched_rss_url
-                cur = await db.execute("SELECT rss_last_sent_3 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_last_sent = row[0]
-                if fetched_last_sent is not None:
-                    feed3["last sent"] = fetched_last_sent
                 allfeeds["feed3"] = feed3
             feed4 = {}
             cur = await db.execute("SELECT rss_url_4 FROM webhooks WHERE url = ?", (webhook_url,))
@@ -1948,11 +1933,6 @@ class RSSFeeds(commands.Cog):
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
                 feed4["url"] = fetched_rss_url
-                cur = await db.execute("SELECT rss_last_sent_4 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_last_sent = row[0]
-                if fetched_last_sent is not None:
-                    feed4["last sent"] = fetched_last_sent
                 allfeeds["feed4"] = feed4
             feed5 = {}
             cur = await db.execute("SELECT rss_url_5 FROM webhooks WHERE url = ?", (webhook_url,))
@@ -1960,11 +1940,6 @@ class RSSFeeds(commands.Cog):
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
                 feed5["url"] = fetched_rss_url
-                cur = await db.execute("SELECT rss_last_sent_5 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_last_sent = row[0]
-                if fetched_last_sent is not None:
-                    feed5["last sent"] = fetched_last_sent
                 allfeeds["feed5"] = feed5
             feed6 = {}
             cur = await db.execute("SELECT rss_url_6 FROM webhooks WHERE url = ?", (webhook_url,))
@@ -1972,11 +1947,6 @@ class RSSFeeds(commands.Cog):
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
                 feed6["url"] = fetched_rss_url
-                cur = await db.execute("SELECT rss_last_sent_6 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_last_sent = row[0]
-                if fetched_last_sent is not None:
-                    feed6["last sent"] = fetched_last_sent
                 allfeeds["feed6"] = feed6
             feed7 = {}
             cur = await db.execute("SELECT rss_url_7 FROM webhooks WHERE url = ?", (webhook_url,))
@@ -1984,11 +1954,6 @@ class RSSFeeds(commands.Cog):
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
                 feed7["url"] = fetched_rss_url
-                cur = await db.execute("SELECT rss_last_sent_7 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_last_sent = row[0]
-                if fetched_last_sent is not None:
-                    feed7["last sent"] = fetched_last_sent
                 allfeeds["feed7"] = feed7
             feed8 = {}
             cur = await db.execute("SELECT rss_url_8 FROM webhooks WHERE url = ?", (webhook_url,))
@@ -1996,11 +1961,6 @@ class RSSFeeds(commands.Cog):
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
                 feed8["url"] = fetched_rss_url
-                cur = await db.execute("SELECT rss_last_sent_8 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_last_sent = row[0]
-                if fetched_last_sent is not None:
-                    feed8["last sent"] = fetched_last_sent
                 allfeeds["feed8"] = feed8
             feed9 = {}
             cur = await db.execute("SELECT rss_url_9 FROM webhooks WHERE url = ?", (webhook_url,))
@@ -2008,11 +1968,6 @@ class RSSFeeds(commands.Cog):
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
                 feed9["url"] = fetched_rss_url
-                cur = await db.execute("SELECT rss_last_sent_9 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_last_sent = row[0]
-                if fetched_last_sent is not None:
-                    feed9["last sent"] = fetched_last_sent
                 allfeeds["feed9"] = feed9
             feed10 = {}
             cur = await db.execute("SELECT rss_url_10 FROM webhooks WHERE url = ?", (webhook_url,))
@@ -2020,11 +1975,6 @@ class RSSFeeds(commands.Cog):
             fetched_rss_url = row[0]
             if fetched_rss_url is not None:
                 feed10["url"] = fetched_rss_url
-                cur = await db.execute("SELECT rss_last_sent_10 FROM webhooks WHERE url = ?", (webhook_url,))
-                row = await cur.fetchone()
-                fetched_last_sent = row[0]
-                if fetched_last_sent is not None:
-                    feed10["last sent"] = fetched_last_sent
                 allfeeds["feed10"] = feed10
         return allfeeds
 
