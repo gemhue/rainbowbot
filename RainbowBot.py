@@ -2036,9 +2036,7 @@ class RSSFeeds(commands.Cog):
         for entry in entries:
             color = discord.Colour.blurple()
             title = entry.title[:256]
-            print(f"Title: {title}")
             link = entry.link
-            print(f"Link: {link}")
             async with aiohttp.ClientSession() as session:
                 partialwebhook = Webhook.from_url(url=webhook_url, session=session)
                 webhook = await partialwebhook.fetch()
@@ -2050,17 +2048,12 @@ class RSSFeeds(commands.Cog):
                             soup = BeautifulSoup(entry.summary, "html.parser")
                             parsedsoup = soup.get_text()
                             summary = parsedsoup[:256] + "..."
-                            print(f"Summary: {summary}")
                             time = datetime.fromtimestamp(mktime(entry.published_parsed))
-                            print(f"Timestamp: {time}")
                             embed = discord.Embed(colour=color, title=title, url=link, description=summary, timestamp=time)
                             embed.set_thumbnail(url=link)
                             author = entry.author[:256]
-                            print(f"Author: {author}")
                             author_url = entry.href
-                            print(f"Author URL: {author_url}")
                             embed.set_author(name=author, url=author_url)
-                            print(embed)
                             embeds.append(embed)
         return embeds
 
@@ -2074,12 +2067,11 @@ class RSSFeeds(commands.Cog):
                     for feed in feeds.items():
                         feed_url = feed[1]['url']
                         embeds = await self.parsefeed(url, feed_url)
-                        for embed in embeds:
-                            async with aiohttp.ClientSession() as session:
-                                webhook = Webhook.from_url(url=url, session=session)
-                                await webhook.send(embed=embed)
-                else:
-                    return
+                        if len(embeds) > 0:
+                            for embed in embeds:
+                                async with aiohttp.ClientSession() as session:
+                                    webhook = Webhook.from_url(url=url, session=session)
+                                    await webhook.send(embed=embed)
             await db.commit()
             await db.close()
 
