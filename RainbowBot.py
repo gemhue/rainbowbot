@@ -2,7 +2,7 @@ import discord
 import aiosqlite
 import aiohttp
 import feedparser
-from discord import ChannelType, app_commands, Webhook, Colour
+from discord import ChannelType, app_commands, Webhook
 from discord.ui import ChannelSelect
 from discord.ext import commands, tasks
 from typing import Any, Optional, Literal
@@ -18,7 +18,7 @@ bot = commands.Bot(
     status = discord.Status.online
 )
 
-class ChannelsSelector(ChannelSelect):
+class ChannelSelector(ChannelSelect):
     def __init__(self):
         super().__init__(
             channel_types=[ChannelType.text],
@@ -37,7 +37,7 @@ class DropdownView(discord.ui.View):
     def __init__(self, *, timeout=180.0):
         super().__init__(timeout=timeout)
         self.value = None
-        self.add_item(ChannelsSelector())
+        self.add_item(ChannelSelector())
 
     @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -58,11 +58,11 @@ class BackgroundTasks(commands.Cog):
     @commands.Cog.listener(name="on_message")
     async def on_message(self, message: discord.Message):
         messagecont = message.content.lower()
-        list1 = ['lesbian','sapphic','wlw']
+        list1 = ['lesbian','dyke','sapphic','wlw']
         moji1 = bot.get_emoji(1274435288499884094)
         if any(x in messagecont for x in list1):
             await message.add_reaction(moji1)
-        list2 = ['gay','achillean','mlm']
+        list2 = ['gay','queer','faggot','achillean','mlm']
         moji2 = bot.get_emoji(1274435330174615624)
         if any(x in messagecont for x in list2):
             await message.add_reaction(moji2)
@@ -1982,7 +1982,7 @@ class RSSFeeds(commands.Cog):
         feedparser.USER_AGENT = "RainbowBot/1.0 +https://rainbowbot.carrd.co/#"
         feed = feedparser.parse(feed_url)
         entries = feed.entries
-        embeds = {}
+        embeds = []
         for entry in entries:
             color = discord.Colour.blurple()
             title = entry.title[:256]
@@ -1991,20 +1991,23 @@ class RSSFeeds(commands.Cog):
                 partialwebhook = Webhook.from_url(url=webhook_url, session=session)
                 webhook = await partialwebhook.fetch()
                 channel = webhook.channel
-                embeds = [message.embeds async for message in channel.history(limit=100)]
-                for embedlist in embeds:
+                embedhist = [message.embeds async for message in channel.history(limit=100)]
+                posted = False
+                for embedlist in embedhist:
                     for embed in embedlist:
-                        if embed.url != link:
-                            soup = BeautifulSoup(entry.summary, "html.parser")
-                            parsedsoup = soup.get_text()
-                            summary = parsedsoup[:256] + "..."
-                            time = datetime.fromtimestamp(mktime(entry.published_parsed))
-                            embed = discord.Embed(colour=color, title=title, url=link, description=summary, timestamp=time)
-                            embed.set_thumbnail(url=link)
-                            author = entry.author[:256]
-                            author_url = entry.href
-                            embed.set_author(name=author, url=author_url)
-                            embeds.append(embed)
+                        if embed.url == link:
+                            posted = True
+                if posted == False:
+                    soup = BeautifulSoup(entry.summary, "html.parser")
+                    parsedsoup = soup.get_text()
+                    summary = parsedsoup[:256] + "..."
+                    time = datetime.fromtimestamp(mktime(entry.published_parsed))
+                    embed = discord.Embed(colour=color, title=title, url=link, description=summary, timestamp=time)
+                    embed.set_thumbnail(url=link)
+                    author = entry.author[:256]
+                    author_url = entry.href
+                    embed.set_author(name=author, url=author_url)
+                    embeds.append(embed)
         return embeds
 
     @tasks.loop(minutes=5.0)
