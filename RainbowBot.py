@@ -527,21 +527,22 @@ class PurgeCommands(commands.Cog):
             excludedlist = ", ".join(mentions)
             embed = discord.Embed(title="📋 Excluded Channels 📋", description=f'{excludedlist}')
             await response.edit(embed=embed, view=None)
-            selected = [c for c in ctx.guild.text_channels if c not in excluded]
+            selected = [c for c in ctx.guild.text_channels]
             for channel in selected:
-                messages = [m async for m in channel.history(limit=None)]
-                unpinned = [m for m in messages if not m.pinned]
-                deleted = []
-                while len(unpinned) > 0:
-                    deleted += await channel.purge(check=lambda message: message.pinned == False, oldest_first=True)
+                if channel not in excluded:
                     messages = [m async for m in channel.history(limit=None)]
                     unpinned = [m for m in messages if not m.pinned]
-                if len(deleted) == 1:
-                    embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} message was just purged from {channel.mention}!')
-                    await ctxchannel.send(embed=embed, delete_after=30.0)
-                else:
-                    embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just purged from {channel.mention}!')
-                    await ctxchannel.send(embed=embed, delete_after=30.0)
+                    deleted = []
+                    while len(unpinned) > 0:
+                        deleted += await channel.purge(check=lambda message: message.pinned == False, oldest_first=True)
+                        messages = [m async for m in channel.history(limit=None)]
+                        unpinned = [m for m in messages if not m.pinned]
+                    if len(deleted) == 1:
+                        embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} message was just purged from {channel.mention}!')
+                        await ctxchannel.send(embed=embed, delete_after=30.0)
+                    else:
+                        embed = discord.Embed(title="✔️ Success ✔️", description=f'{len(deleted)} messages were just purged from {channel.mention}!')
+                        await ctxchannel.send(embed=embed, delete_after=30.0)
             embed = discord.Embed(title="✔️ Done ✔️", description=f'The purge is now complete!')
             await ctxchannel.send(embed=embed, delete_after=30.0)
         elif view.value == False:
