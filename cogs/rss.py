@@ -10,7 +10,7 @@ from time import mktime
 from bs4 import BeautifulSoup
 
 class CommandsCog(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @commands.hybrid_group(name="rss", fallback="webhook_setup")
@@ -581,7 +581,7 @@ class FeedCog(commands.Cog):
     async def parsefeed(self, webhook_url, feed_url):
         feedparser.USER_AGENT = "RainbowBot/1.0 +https://rainbowbot.carrd.co/#"
         feed = feedparser.parse(feed_url)
-        entries = feed.entries[0]
+        entries = feed.entries[:1]
         embeds = []
         for entry in entries:
             color = discord.Colour.blurple()
@@ -634,6 +634,6 @@ class FeedCog(commands.Cog):
             await db.commit()
             await db.close()
 
-async def setup(bot):
-    await bot.add_cog(CommandsCog(bot))
-    await bot.add_cog(FeedCog(bot))
+async def setup(bot: commands.Bot):
+    await bot.add_cog(CommandsCog(bot), override=True)
+    await bot.add_cog(FeedCog(bot), override=True)

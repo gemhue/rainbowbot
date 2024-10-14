@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Literal
 
 class Cog(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.autodel = {}
         self.autodeleter.start()
@@ -75,5 +75,5 @@ class Cog(commands.Cog):
         for message in messages:
             await message.delete()
 
-async def setup(bot):
-	await bot.add_cog(Cog(bot))
+async def setup(bot: commands.Bot):
+	await bot.add_cog(Cog(bot), override=True)

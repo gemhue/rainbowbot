@@ -4,7 +4,7 @@ from typing import Optional
 import aiosqlite
 
 class Cog(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
     
     @commands.hybrid_group(name="profile", fallback="set")
@@ -424,5 +424,5 @@ class Cog(commands.Cog):
         embed.add_field(name="📝 Roles", value=f"{roles}", inline=False)
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
-async def setup(bot):
-	await bot.add_cog(Cog(bot))
+async def setup(bot: commands.Bot):
+	await bot.add_cog(Cog(bot), override=True)

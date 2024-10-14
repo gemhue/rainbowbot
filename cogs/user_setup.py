@@ -2,105 +2,12 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import aiosqlite
-from typing import Optional, Literal
+from typing import Optional
 from datetime import datetime, timedelta, timezone
-from cogs import autodelete, award, background, profile, purge, rss
 
 class Cog(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
-
-    @commands.command(name="sync", hidden=True)
-    @commands.is_owner()
-    async def sync(self, ctx: commands.Context):
-        """(Bot Owner Only) Syncs the local command tree.
-        """
-        await ctx.defer(ephemeral=True)
-        guild = ctx.guild
-        await self.bot.tree.sync(guild=guild)
-        embed = discord.Embed(title="Update", description=f"The bot's local command tree has been synced!")
-        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
-        await ctx.message.delete()
-    
-    @commands.command(name="globalsync", hidden=True)
-    @commands.is_owner()
-    async def globalsync(self, ctx: commands.Context):
-        """(Bot Owner Only) Syncs the global command tree.
-        """
-        await ctx.defer(ephemeral=True)
-        await self.bot.tree.sync(guild=None)
-        embed = discord.Embed(title="Update", description=f"The bot's global command tree has been synced!")
-        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
-        await ctx.message.delete()
-
-    @commands.command(name="clear", hidden=True)
-    @commands.is_owner()
-    async def clear(self, ctx: commands.Context):
-        """(Bot Owner Only) Clears the local command tree.
-        """
-        await ctx.defer(ephemeral=True)
-        guild = ctx.guild
-        self.bot.tree.clear_commands(guild=guild)
-        embed = discord.Embed(title="Update", description=f"The bot's local command tree has been cleared!")
-        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
-        await ctx.message.delete()
-
-    @commands.command(name="globalclear", hidden=True)
-    @commands.is_owner()
-    async def globalclear(self, ctx: commands.Context):
-        """(Bot Owner Only) Clears the global command tree.
-        """
-        await ctx.defer(ephemeral=True)
-        self.bot.tree.clear_commands(guild=None)
-        embed = discord.Embed(title="Update", description=f"The bot's global command tree has been cleared!")
-        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
-        await ctx.message.delete()
-
-    @commands.command(name="load_cog", hidden=True)
-    @commands.is_owner()
-    async def load_cog(self, ctx: commands.Context, extension: Literal["all","autodelete","award","background","profile","purge","rss"]):
-        """(Bot Owner Only) Reloads one or all of the bot's cogs.
-        """
-        if extension == "all":
-            await self.bot.load_extension('autodelete')
-            await self.bot.load_extension('award')
-            await self.bot.load_extension('background')
-            await self.bot.load_extension('profile')
-            await self.bot.load_extension('purge')
-            await self.bot.load_extension('rss')
-            embed = discord.Embed(title="Update", description=f"The bot's cogs were successfully reloaded!")
-            await ctx.send(embed=embed, delete_after=30.0)
-        else:
-            await self.bot.reload_extension(f'{extension}')
-            embed = discord.Embed(title="Update", description=f"The bot's cog, \`{extension}\` was just reloaded.")
-            await ctx.send(embed=embed, delete_after=30.0)
-    
-    @commands.command(name="reload_cog", hidden=True)
-    @commands.is_owner()
-    async def reload_cog(self, ctx: commands.Context, extension: Literal["all","autodelete","award","background","profile","purge","rss"]):
-        """(Bot Owner Only) Reloads one or all of the bot's cogs.
-        """
-        if extension == "all":
-            await self.bot.reload_extension('autodelete')
-            await self.bot.reload_extension('award')
-            await self.bot.reload_extension('background')
-            await self.bot.reload_extension('profile')
-            await self.bot.reload_extension('purge')
-            await self.bot.reload_extension('rss')
-            embed = discord.Embed(title="Update", description=f"The bot's cogs were successfully reloaded!")
-            await ctx.send(embed=embed, delete_after=30.0)
-        else:
-            await self.bot.reload_extension(f'{extension}')
-            embed = discord.Embed(title="Update", description=f"The bot's cog, \`{extension}\` was just reloaded.")
-            await ctx.send(embed=embed, delete_after=30.0)
-    
-    @commands.command(name="ping")
-    async def ping(self, ctx: commands.Context):
-        """Retrieve the bot's current latency.
-        """
-        latency = self.bot.latency()
-        embed = discord.Embed(color=ctx.author.accent_color, title="Pong", description=f"The bot's current latency is {latency} seconds!")
-        await ctx.send(embed=embed, delete_after=30.0)
 
     @commands.hybrid_group(name="setup", fallback="channels")
     @commands.has_guild_permissions(administrator=True)
@@ -289,5 +196,5 @@ class Cog(commands.Cog):
         embed.add_field(name="Inactive Members", value=f"{len(inactivemembers)} members now have the {inactive.mention} role!", inline=False)
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
-async def setup(bot):
-	await bot.add_cog(Cog(bot))
+async def setup(bot: commands.Bot):
+	await bot.add_cog(Cog(bot), override=True)

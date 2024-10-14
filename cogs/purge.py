@@ -38,7 +38,7 @@ class DropdownView(discord.ui.View):
         self.stop()
 
 class Cog(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @commands.hybrid_group(name="purge", fallback="here")
@@ -198,5 +198,5 @@ class Cog(commands.Cog):
             embed = discord.Embed(title="⌛ Timed Out ⌛", description='This interaction has timed out. No messages have been purged.')
             await response.edit(embed=embed, view=None)
 
-async def setup(bot):
-	await bot.add_cog(Cog(bot))
+async def setup(bot: commands.Bot):
+	await bot.add_cog(Cog(bot), override=True)

@@ -4,7 +4,7 @@ import aiosqlite
 import datetime
 
 class Cog(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @commands.Cog.listener(name="on_message")
@@ -106,5 +106,5 @@ class Cog(commands.Cog):
                 embed = discord.Embed(color=member.accent_color, description=description, timestamp=datetime.now())
                 await channel.send(embed=embed)
 
-async def setup(bot):
-	await bot.add_cog(Cog(bot))
+async def setup(bot: commands.Bot):
+	await bot.add_cog(Cog(bot), override=True)
