@@ -6,14 +6,6 @@ from typing import Optional, Literal
 from datetime import datetime, timedelta, timezone
 from cogs import autodelete, award, background, profile, purge, rss, user_setup
 
-bot = commands.Bot(
-    command_prefix = 'rb!',
-    description = "A multi-purpose Discord bot made by GitHub user gemhue.",
-    intents = discord.Intents.all(),
-    activity = discord.Activity(type=discord.ActivityType.listening, name="rb!help"),
-    status = discord.Status.online
-)
-
 class Cog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -25,7 +17,7 @@ class Cog(commands.Cog):
         """
         await ctx.defer(ephemeral=True)
         guild = ctx.guild
-        await bot.tree.sync(guild=guild)
+        await self.bot.tree.sync(guild=guild)
         embed = discord.Embed(title="Update", description=f"The bot's local command tree has been synced!")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
         await ctx.message.delete()
@@ -36,7 +28,7 @@ class Cog(commands.Cog):
         """(Bot Owner Only) Syncs the global command tree.
         """
         await ctx.defer(ephemeral=True)
-        await bot.tree.sync(guild=None)
+        await self.bot.tree.sync(guild=None)
         embed = discord.Embed(title="Update", description=f"The bot's global command tree has been synced!")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
         await ctx.message.delete()
@@ -48,7 +40,7 @@ class Cog(commands.Cog):
         """
         await ctx.defer(ephemeral=True)
         guild = ctx.guild
-        bot.tree.clear_commands(guild=guild)
+        self.bot.tree.clear_commands(guild=guild)
         embed = discord.Embed(title="Update", description=f"The bot's local command tree has been cleared!")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
         await ctx.message.delete()
@@ -59,7 +51,7 @@ class Cog(commands.Cog):
         """(Bot Owner Only) Clears the global command tree.
         """
         await ctx.defer(ephemeral=True)
-        bot.tree.clear_commands(guild=None)
+        self.bot.tree.clear_commands(guild=None)
         embed = discord.Embed(title="Update", description=f"The bot's global command tree has been cleared!")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
         await ctx.message.delete()
@@ -68,36 +60,36 @@ class Cog(commands.Cog):
     @commands.is_owner()
     async def reload_cog(self, ctx: commands.Context, extension: Literal["all","autodelete","award","background","profile","purge","rss"]):
         if extension == "all":
-            await bot.reload_extension(autodelete)
-            await bot.reload_extension(award)
-            await bot.reload_extension(background)
-            await bot.reload_extension(profile)
-            await bot.reload_extension(purge)
-            await bot.reload_extension(rss)
+            await self.bot.reload_extension(autodelete)
+            await self.bot.reload_extension(award)
+            await self.bot.reload_extension(background)
+            await self.bot.reload_extension(profile)
+            await self.bot.reload_extension(purge)
+            await self.bot.reload_extension(rss)
             embed = discord.Embed(title="Update", description=f"The bot's cogs were successfully reloaded!")
             await ctx.send(embed=embed, delete_after=30.0)
         elif extension == "autodelete":
-            await bot.reload_extension(autodelete)
+            await self.bot.reload_extension(autodelete)
             embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
             await ctx.send(embed=embed, delete_after=30.0)
         elif extension == "award":
-            await bot.reload_extension(award)
+            await self.bot.reload_extension(award)
             embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
             await ctx.send(embed=embed, delete_after=30.0)
         elif extension == "background":
-            await bot.reload_extension(background)
+            await self.bot.reload_extension(background)
             embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
             await ctx.send(embed=embed, delete_after=30.0)
         elif extension == "profile":
-            await bot.reload_extension(profile)
+            await self.bot.reload_extension(profile)
             embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
             await ctx.send(embed=embed, delete_after=30.0)
         elif extension == "purge":
-            await bot.reload_extension(purge)
+            await self.bot.reload_extension(purge)
             embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
             await ctx.send(embed=embed, delete_after=30.0)
         elif extension == "rss":
-            await bot.reload_extension(rss)
+            await self.bot.reload_extension(rss)
             embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
             await ctx.send(embed=embed, delete_after=30.0)
         else:
@@ -290,3 +282,6 @@ class Cog(commands.Cog):
         embed.add_field(name="Active Members", value=f"{len(activemembers)} members now have the {active.mention} role!", inline=False)
         embed.add_field(name="Inactive Members", value=f"{len(inactivemembers)} members now have the {inactive.mention} role!", inline=False)
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+
+def setup(bot):
+	bot.add_cog(Cog(bot))

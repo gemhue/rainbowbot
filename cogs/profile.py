@@ -3,14 +3,6 @@ from discord.ext import commands
 from typing import Optional
 import aiosqlite
 
-bot = commands.Bot(
-    command_prefix = 'rb!',
-    description = "A multi-purpose Discord bot made by GitHub user gemhue.",
-    intents = discord.Intents.all(),
-    activity = discord.Activity(type=discord.ActivityType.listening, name="rb!help"),
-    status = discord.Status.online
-)
-
 class Cog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -431,3 +423,6 @@ class Cog(commands.Cog):
         roles = ", ".join(roles)
         embed.add_field(name="📝 Roles", value=f"{roles}", inline=False)
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
+
+def setup(bot):
+	bot.add_cog(Cog(bot))

@@ -9,14 +9,6 @@ from datetime import datetime
 from time import mktime
 from bs4 import BeautifulSoup
 
-bot = commands.Bot(
-    command_prefix = 'rb!',
-    description = "A multi-purpose Discord bot made by GitHub user gemhue.",
-    intents = discord.Intents.all(),
-    activity = discord.Activity(type=discord.ActivityType.listening, name="rb!help"),
-    status = discord.Status.online
-)
-
 class CommandsCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -596,7 +588,7 @@ class FeedCog(commands.Cog):
             title = entry.title[:256]
             link = entry.link
             async with aiohttp.ClientSession() as session:
-                partialwebhook = Webhook.from_url(url=webhook_url, session=session, client=bot)
+                partialwebhook = Webhook.from_url(url=webhook_url, session=session, client=self.bot)
                 webhook = await partialwebhook.fetch()
                 channel = webhook.channel
                 embedhist = [message.embeds async for message in channel.history(limit=100)]
@@ -631,7 +623,11 @@ class FeedCog(commands.Cog):
                         if len(embeds) > 0:
                             for embed in embeds:
                                 async with aiohttp.ClientSession() as session:
-                                    webhook = Webhook.from_url(url=url, session=session, client=bot)
+                                    webhook = Webhook.from_url(url=url, session=session, client=self.bot)
                                     await webhook.send(embed=embed)
             await db.commit()
             await db.close()
+
+def setup(bot):
+    bot.add_cog(CommandsCog(bot))
+    bot.add_cog(FeedCog(bot))

@@ -4,14 +4,6 @@ from discord.ui import ChannelSelect
 from discord.ext import commands
 from typing import Any
 
-bot = commands.Bot(
-    command_prefix = 'rb!',
-    description = "A multi-purpose Discord bot made by GitHub user gemhue.",
-    intents = discord.Intents.all(),
-    activity = discord.Activity(type=discord.ActivityType.listening, name="rb!help"),
-    status = discord.Status.online
-)
-
 class ChannelSelector(ChannelSelect):
     def __init__(self):
         super().__init__(
@@ -205,3 +197,6 @@ class Cog(commands.Cog):
         else:
             embed = discord.Embed(title="⌛ Timed Out ⌛", description='This interaction has timed out. No messages have been purged.')
             await response.edit(embed=embed, view=None)
+
+def setup(bot):
+	bot.add_cog(Cog(bot))

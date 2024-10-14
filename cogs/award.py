@@ -4,14 +4,6 @@ from discord.ext import commands
 import aiosqlite
 from typing import Optional
 
-bot = commands.Bot(
-    command_prefix = 'rb!',
-    description = "A multi-purpose Discord bot made by GitHub user gemhue.",
-    intents = discord.Intents.all(),
-    activity = discord.Activity(type=discord.ActivityType.listening, name="rb!help"),
-    status = discord.Status.online
-)
-
 class Cog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -448,3 +440,6 @@ class Cog(commands.Cog):
         description = "\n\n".join(x for x in desc)
         embed = discord.Embed(title=f"{moji} {sing_cap} Leaderboard {moji}", description=description)
         await ctx.send(embed=embed)
+
+def setup(bot):
+	bot.add_cog(Cog(bot))

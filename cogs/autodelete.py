@@ -4,14 +4,6 @@ from discord.ext import commands, tasks
 from datetime import datetime, timedelta, timezone
 from typing import Literal
 
-bot = commands.Bot(
-    command_prefix = 'rb!',
-    description = "A multi-purpose Discord bot made by GitHub user gemhue.",
-    intents = discord.Intents.all(),
-    activity = discord.Activity(type=discord.ActivityType.listening, name="rb!help"),
-    status = discord.Status.online
-)
-
 class Cog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -61,9 +53,12 @@ class Cog(commands.Cog):
     @tasks.loop(minutes=5.0)
     async def autodeleter(self):
         for chanel_id, time in self.autodel:
-            channel = await bot.fetch_channel(chanel_id)
+            channel = await self.bot.fetch_channel(chanel_id)
         today =  datetime.now(timezone.utc)
         timeago = today-time
         messages = [message async for message in channel.history(limit=None, before=timeago)]
         for message in messages:
             await message.delete()
+
+def setup(bot):
+	bot.add_cog(Cog(bot))
