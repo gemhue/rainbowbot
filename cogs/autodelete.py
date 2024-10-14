@@ -69,12 +69,11 @@ class Cog(commands.Cog):
     async def autodeleter(self):
         for chanel_id, time in self.autodel:
             channel = await self.bot.fetch_channel(chanel_id)
-            starttime = timedelta(time)
-        today =  datetime.now(timezone.utc)
-        timeago = today-starttime
-        messages = [message async for message in channel.history(limit=None, before=timeago)]
-        for message in messages:
-            await message.delete()
+            today = datetime.now(timezone.utc)
+            timeago = today-time
+            messages = [message async for message in channel.history(limit=None, before=timeago)]
+            for message in messages:
+                await message.delete()
 
 async def setup(bot: commands.Bot):
 	await bot.add_cog(Cog(bot), override=True)
