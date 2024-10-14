@@ -581,7 +581,7 @@ class FeedCog(commands.Cog):
     async def parsefeed(self, webhook_url, feed_url):
         feedparser.USER_AGENT = "RainbowBot/1.0 +https://rainbowbot.carrd.co/#"
         feed = feedparser.parse(feed_url)
-        entries = feed.entries[:24]
+        entries = feed.entries[0]
         embeds = []
         for entry in entries:
             color = discord.Colour.blurple()
@@ -592,7 +592,7 @@ class FeedCog(commands.Cog):
                 partialwebhook = Webhook.from_url(url=webhook_url, session=session, client=self.bot)
                 webhook = await partialwebhook.fetch()
                 channel = webhook.channel
-                embedhist = [message.embeds async for message in channel.history(limit=100)]
+                embedhist = [message.embeds async for message in channel.history(limit=None)]
                 posted = False
                 for embedlist in embedhist:
                     for embed in embedlist:
@@ -609,7 +609,6 @@ class FeedCog(commands.Cog):
                     else:
                         time = datetime.fromtimestamp(mktime(entry.published_parsed))
                     embed = discord.Embed(colour=color, title=title, url=link, description=summary, timestamp=time)
-                    embed.set_thumbnail(url=link)
                     getauthor = entry.get('author', 'No Author Found')
                     author = getauthor[:256]
                     author_url = entry.get('href', feed_url)
