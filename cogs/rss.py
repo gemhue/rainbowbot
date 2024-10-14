@@ -5,7 +5,7 @@ import aiosqlite
 from typing import Literal
 import feedparser
 import aiohttp
-from datetime import datetime
+from datetime import datetime, timezone
 from time import mktime
 from bs4 import BeautifulSoup
 
@@ -585,8 +585,9 @@ class FeedCog(commands.Cog):
         embeds = []
         for entry in entries:
             color = discord.Colour.blurple()
-            title = entry.title[:256]
-            link = entry.link
+            gettitle = entry.get('title', 'No Title Found')
+            title = gettitle[:256]
+            link = entry.get('link', feed_url)
             async with aiohttp.ClientSession() as session:
                 partialwebhook = Webhook.from_url(url=webhook_url, session=session, client=self.bot)
                 webhook = await partialwebhook.fetch()
@@ -598,16 +599,21 @@ class FeedCog(commands.Cog):
                         if embed.url == link:
                             posted = True
                 if posted == False:
-                    soup = BeautifulSoup(entry.summary, "html.parser")
-                    parsedsoup = soup.get_text()
-                    summary = parsedsoup[:256] + "..."
-                    time = datetime.fromtimestamp(mktime(entry.published_parsed))
+                    unparsed = entry.get('summary', 'No Summary Found')
+                    soup = BeautifulSoup(unparsed, "html.parser")
+                    getsummary = soup.get_text()
+                    summary = getsummary[:256] + "..."
+                    parsedtime = entry.get('published_parsed', datetime.now(timezone.utc))
+                    if isinstance(parsedtime, datetime):
+                        time = parsedtime
+                    else:
+                        time = datetime.fromtimestamp(mktime(entry.published_parsed))
                     embed = discord.Embed(colour=color, title=title, url=link, description=summary, timestamp=time)
                     embed.set_thumbnail(url=link)
-                    author = entry.author[:256]
-                    author_url = entry.href
-                    if author is not None:
-                        embed.set_author(name=author, url=author_url)
+                    getauthor = entry.get('author', 'No Author Found')
+                    author = getauthor[:256]
+                    author_url = entry.get('href', feed_url)
+                    embed.set_author(name=author, url=author_url)
                     embeds.append(embed)
         return embeds
 
