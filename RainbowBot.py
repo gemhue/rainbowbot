@@ -12,7 +12,7 @@ bot = commands.Bot(
     status = discord.Status.online
 )
 
-@commands.command(name="sync", hidden=True)
+@bot.command(name="sync", hidden=True)
 @commands.is_owner()
 async def sync(ctx: commands.Context):
     """(Bot Owner Only) Syncs the local command tree.
@@ -24,7 +24,7 @@ async def sync(ctx: commands.Context):
     await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
     await ctx.message.delete()
 
-@commands.command(name="globalsync", hidden=True)
+@bot.command(name="globalsync", hidden=True)
 @commands.is_owner()
 async def globalsync(ctx: commands.Context):
     """(Bot Owner Only) Syncs the global command tree.
@@ -35,7 +35,7 @@ async def globalsync(ctx: commands.Context):
     await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
     await ctx.message.delete()
 
-@commands.command(name="clear", hidden=True)
+@bot.command(name="clear", hidden=True)
 @commands.is_owner()
 async def clear(ctx: commands.Context):
     """(Bot Owner Only) Clears the local command tree.
@@ -47,7 +47,7 @@ async def clear(ctx: commands.Context):
     await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
     await ctx.message.delete()
 
-@commands.command(name="globalclear", hidden=True)
+@bot.command(name="globalclear", hidden=True)
 @commands.is_owner()
 async def globalclear(ctx: commands.Context):
     """(Bot Owner Only) Clears the global command tree.
@@ -58,7 +58,7 @@ async def globalclear(ctx: commands.Context):
     await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
     await ctx.message.delete()
 
-@commands.command(name="load_cog", hidden=True)
+@bot.command(name="load_cog", hidden=True)
 @commands.is_owner()
 async def load_cog(ctx: commands.Context, extension: Literal["all","autodelete","award","background","profile","purge","rss","user_setup"]):
     """(Bot Owner Only) Loads one or all of the bot's cogs.
@@ -69,50 +69,48 @@ async def load_cog(ctx: commands.Context, extension: Literal["all","autodelete",
         Provide the extension that you would like to load.
     """
     if extension == "all":
-        await bot.load_extension(autodelete.Cog(bot=bot))
-        await bot.load_extension(award.Cog(bot=bot))
-        await bot.load_extension(background.Cog(bot=bot))
-        await bot.load_extension(profile.Cog(bot=bot))
-        await bot.load_extension(purge.Cog(bot=bot))
-        await bot.load_extension(rss.CommandsCog(bot=bot))
-        await bot.load_extension(rss.FeedCog(bot=bot))
-        await bot.load_extension(user_setup.Cog(bot=bot))
+        await bot.load_extension('autodelete')
+        await bot.load_extension('award')
+        await bot.load_extension('background')
+        await bot.load_extension('profile')
+        await bot.load_extension('purge')
+        await bot.load_extension('rss')
+        await bot.load_extension('user_setup')
         embed = discord.Embed(title="Update", description=f"The bot's cogs were successfully loaded!")
         await ctx.send(embed=embed, delete_after=30.0)
     elif extension == "autodelete":
-        await bot.load_extension(autodelete.Cog(bot=bot))
+        await bot.load_extension(extension)
         embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully loaded!")
         await ctx.send(embed=embed, delete_after=30.0)
     elif extension == "award":
-        await bot.load_extension(award.Cog(bot=bot))
+        await bot.load_extension(extension)
         embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully loaded!")
         await ctx.send(embed=embed, delete_after=30.0)
     elif extension == "background":
-        await bot.load_extension(background.Cog(bot=bot))
+        await bot.load_extension(extension)
         embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully loaded!")
         await ctx.send(embed=embed, delete_after=30.0)
     elif extension == "profile":
-        await bot.load_extension(profile.Cog(bot=bot))
+        await bot.load_extension(extension)
         embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully loaded!")
         await ctx.send(embed=embed, delete_after=30.0)
     elif extension == "purge":
-        await bot.load_extension(purge.Cog(bot=bot))
+        await bot.load_extension(extension)
         embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully loaded!")
         await ctx.send(embed=embed, delete_after=30.0)
     elif extension == "rss":
-        await bot.load_extension(rss.CommandsCog(bot=bot))
-        await bot.load_extension(rss.FeedCog(bot=bot))
+        await bot.load_extension(extension)
         embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully loaded!")
         await ctx.send(embed=embed, delete_after=30.0)
     elif extension == "user_setup":
-        await bot.load_extension(user_setup.Cog(bot=bot))
+        await bot.load_extension(extension)
         embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully loaded!")
         await ctx.send(embed=embed, delete_after=30.0)
     else:
         embed = discord.Embed(title="Error", description=f"No cog was found with the name \`{extension}\`.")
         await ctx.send(embed=embed, delete_after=30.0)
 
-@commands.command(name="reload_cog", hidden=True)
+@bot.command(name="reload_cog", hidden=True)
 @commands.is_owner()
 async def reload_cog(ctx: commands.Context, extension: Literal["all","autodelete","award","background","profile","purge","rss","user_setup"]):
     """(Bot Owner Only) Reloads one or all of the bot's cogs.
@@ -123,50 +121,48 @@ async def reload_cog(ctx: commands.Context, extension: Literal["all","autodelete
         Provide the extension that you would like to reload.
     """
     if extension == "all":
-        await bot.reload_extension(autodelete.Cog(bot=bot))
-        await bot.reload_extension(award.Cog(bot=bot))
-        await bot.reload_extension(background.Cog(bot=bot))
-        await bot.reload_extension(profile.Cog(bot=bot))
-        await bot.reload_extension(purge.Cog(bot=bot))
-        await bot.reload_extension(rss.CommandsCog(bot=bot))
-        await bot.reload_extension(rss.FeedCog(bot=bot))
-        await bot.reload_extension(user_setup.Cog(bot=bot))
+        await bot.reload_extension('autodelete')
+        await bot.reload_extension('award')
+        await bot.reload_extension('background')
+        await bot.reload_extension('profile')
+        await bot.reload_extension('purge')
+        await bot.reload_extension('rss')
+        await bot.reload_extension('user_setup')
         embed = discord.Embed(title="Update", description=f"The bot's cogs were successfully reloaded!")
         await ctx.send(embed=embed, delete_after=30.0)
     elif extension == "autodelete":
-        await bot.reload_extension(autodelete.Cog(bot=bot))
+        await bot.reload_extension(extension)
         embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
         await ctx.send(embed=embed, delete_after=30.0)
     elif extension == "award":
-        await bot.reload_extension(award.Cog(bot=bot))
+        await bot.reload_extension(extension)
         embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
         await ctx.send(embed=embed, delete_after=30.0)
     elif extension == "background":
-        await bot.reload_extension(background.Cog(bot=bot))
+        await bot.reload_extension(extension)
         embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
         await ctx.send(embed=embed, delete_after=30.0)
     elif extension == "profile":
-        await bot.reload_extension(profile.Cog(bot=bot))
+        await bot.reload_extension(extension)
         embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
         await ctx.send(embed=embed, delete_after=30.0)
     elif extension == "purge":
-        await bot.reload_extension(purge.Cog(bot=bot))
+        await bot.reload_extension(extension)
         embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
         await ctx.send(embed=embed, delete_after=30.0)
     elif extension == "rss":
-        await bot.reload_extension(rss.CommandsCog(bot=bot))
-        await bot.reload_extension(rss.FeedCog(bot=bot))
+        await bot.reload_extension(extension)
         embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
         await ctx.send(embed=embed, delete_after=30.0)
     elif extension == "user_setup":
-        await bot.reload_extension(user_setup.Cog(bot=bot))
+        await bot.reload_extension(extension)
         embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
         await ctx.send(embed=embed, delete_after=30.0)
     else:
         embed = discord.Embed(title="Error", description=f"No cog was found with the name \`{extension}\`.")
         await ctx.send(embed=embed, delete_after=30.0)
 
-@commands.command(name="ping")
+@bot.command(name="ping")
 async def ping(ctx: commands.Context):
     """Retrieve the bot's current latency.
     """
