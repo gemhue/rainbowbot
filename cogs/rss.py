@@ -581,7 +581,7 @@ class FeedCog(commands.Cog):
     async def parsefeed(self, webhook_url, feed_url):
         feedparser.USER_AGENT = "RainbowBot/1.0 +https://rainbowbot.carrd.co/#"
         feed = feedparser.parse(feed_url)
-        entries = feed.entries
+        entries = feed.entries[:24]
         embeds = []
         for entry in entries:
             color = discord.Colour.blurple()
