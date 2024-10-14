@@ -1,7 +1,6 @@
 import discord
 import aiosqlite
 from discord.ext import commands
-from typing import Literal
 from cogs import autodelete, award, background, profile, purge, rss, user_setup
 
 bot = commands.Bot(
