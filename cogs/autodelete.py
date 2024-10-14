@@ -16,6 +16,10 @@ class Cog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.autodel = {}
+        self.autodeleter.start()
+    
+    def cog_unload(self):
+        self.autodeleter.cancel()
     
     @commands.hybrid_group(name="autodelete", fallback="here")
     @commands.has_guild_permissions(administrator=True)

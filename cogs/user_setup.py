@@ -2,8 +2,9 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 import aiosqlite
-from typing import Optional
+from typing import Optional, Literal
 from datetime import datetime, timedelta, timezone
+from cogs import autodelete, award, background, profile, purge, rss, user_setup
 
 bot = commands.Bot(
     command_prefix = 'rb!',
@@ -62,6 +63,46 @@ class Cog(commands.Cog):
         embed = discord.Embed(title="Update", description=f"The bot's global command tree has been cleared!")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
         await ctx.message.delete()
+    
+    @commands.command(name="reload_cog")
+    @commands.is_owner()
+    async def reload_cog(self, ctx: commands.Context, extension: Literal["all","autodelete","award","background","profile","purge","rss"]):
+        if extension == "all":
+            await bot.reload_extension(autodelete)
+            await bot.reload_extension(award)
+            await bot.reload_extension(background)
+            await bot.reload_extension(profile)
+            await bot.reload_extension(purge)
+            await bot.reload_extension(rss)
+            embed = discord.Embed(title="Update", description=f"The bot's cogs were successfully reloaded!")
+            await ctx.send(embed=embed, delete_after=30.0)
+        elif extension == "autodelete":
+            await bot.reload_extension(autodelete)
+            embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
+            await ctx.send(embed=embed, delete_after=30.0)
+        elif extension == "award":
+            await bot.reload_extension(award)
+            embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
+            await ctx.send(embed=embed, delete_after=30.0)
+        elif extension == "background":
+            await bot.reload_extension(background)
+            embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
+            await ctx.send(embed=embed, delete_after=30.0)
+        elif extension == "profile":
+            await bot.reload_extension(profile)
+            embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
+            await ctx.send(embed=embed, delete_after=30.0)
+        elif extension == "purge":
+            await bot.reload_extension(purge)
+            embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
+            await ctx.send(embed=embed, delete_after=30.0)
+        elif extension == "rss":
+            await bot.reload_extension(rss)
+            embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
+            await ctx.send(embed=embed, delete_after=30.0)
+        else:
+            embed = discord.Embed(title="Error", description=f"None of the bot's cogs were reloaded! Enter a valid cog name or \`all\`.")
+            await ctx.send(embed=embed, delete_after=30.0)
 
     @commands.hybrid_group(name="setup", fallback="channels")
     @commands.has_guild_permissions(administrator=True)

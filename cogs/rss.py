@@ -596,7 +596,7 @@ class FeedCog(commands.Cog):
             title = entry.title[:256]
             link = entry.link
             async with aiohttp.ClientSession() as session:
-                partialwebhook = Webhook.from_url(url=webhook_url, session=session)
+                partialwebhook = Webhook.from_url(url=webhook_url, session=session, client=bot)
                 webhook = await partialwebhook.fetch()
                 channel = webhook.channel
                 embedhist = [message.embeds async for message in channel.history(limit=100)]
@@ -631,7 +631,7 @@ class FeedCog(commands.Cog):
                         if len(embeds) > 0:
                             for embed in embeds:
                                 async with aiohttp.ClientSession() as session:
-                                    webhook = Webhook.from_url(url=url, session=session)
+                                    webhook = Webhook.from_url(url=url, session=session, client=bot)
                                     await webhook.send(embed=embed)
             await db.commit()
             await db.close()
