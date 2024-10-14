@@ -1,3 +1,4 @@
+import discord
 from discord import app_commands
 from discord.ext import commands, tasks
 from datetime import datetime, timedelta, timezone
@@ -30,24 +31,39 @@ class Cog(commands.Cog):
         amt = float(amount)
         if interval == "Seconds":
             time = timedelta(seconds=amt)
-        if interval == "Minutes":
+            self.autodel[channel_id] = time
+            embed = discord.Embed(title="Success", description=f"The autodelete for the current channel has been set up. Any messages in the current channel older than {amount} {interval} will be automatically deleted.")
+        elif interval == "Minutes":
             time = timedelta(minutes=amt)
-        if interval == "Hours":
+            self.autodel[channel_id] = time
+            embed = discord.Embed(title="Success", description=f"The autodelete for the current channel has been set up. Any messages in the current channel older than {amount} {interval} will be automatically deleted.")
+        elif interval == "Hours":
             time = timedelta(hours=amt)
-        if interval == "Days":
+            self.autodel[channel_id] = time
+            embed = discord.Embed(title="Success", description=f"The autodelete for the current channel has been set up. Any messages in the current channel older than {amount} {interval} will be automatically deleted.")
+        elif interval == "Days":
             time = timedelta(days=amt)
-        self.autodel[channel_id] = time
+            self.autodel[channel_id] = time
+            embed = discord.Embed(title="Success", description=f"The autodelete for the current channel has been set up. Any messages in the current channel older than {amount} {interval} will be automatically deleted.")
+        else:
+            embed = discord.Embed(title="Error", description="The time could not be parsed. Please try again!")
+        await ctx.send(embed=embed, delete_after=30.0)
 
     @autodelete.command(name="cancel")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     async def cancel(self, ctx: commands.Context):
-        """(Admin Only) Cancels the autodelete.
+        """(Admin Only) Cancels the autodelete in the current channel.
         """
         channel = ctx.channel
         channel_id = channel.id
         if channel_id in self.autodel:
             del self.autodel[channel_id]
+            embed = discord.Embed(title="Success", description="The autodelete for the current channel has been deleted.")
+            await ctx.send(embed=embed, delete_after=30.0)
+        else:
+            embed = discord.Embed(title="Error", description="There is no autodelete set up for the current channel.")
+            await ctx.send(embed=embed, delete_after=30.0)
 
     @tasks.loop(minutes=5.0)
     async def autodeleter(self):
