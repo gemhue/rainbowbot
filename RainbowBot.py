@@ -60,107 +60,459 @@ async def globalclear(ctx: commands.Context):
 
 @bot.command(name="load_cog", hidden=True)
 @commands.is_owner()
-async def load_cog(ctx: commands.Context, extension: Literal["all","autodelete","award","background","profile","purge","rss","user_setup"]):
+async def load_cog(ctx: commands.Context, extension: str):
     """(Bot Owner Only) Loads one or all of the bot's cogs.
 
     Parameters
     -----------
     extension : str
-        Provide the extension that you would like to load.
+        Provide the extension that you would like to load (or all).
     """
+    embed = discord.Embed(title="Load Cogs")
     if extension == "all":
-        await bot.load_extension('autodelete')
-        await bot.load_extension('award')
-        await bot.load_extension('background')
-        await bot.load_extension('profile')
-        await bot.load_extension('purge')
-        await bot.load_extension('rss')
-        await bot.load_extension('user_setup')
-        embed = discord.Embed(title="Update", description=f"The bot's cogs were successfully loaded!")
-        await ctx.send(embed=embed, delete_after=30.0)
+        try:
+            await bot.load_extension('cogs.autodelete')
+            embed.add_field(name="cogs.autodelete", value="Loaded successfully!")
+        except Exception as e:
+            print(f"Error loading cogs.autodelete: {e}")
+            embed.add_field(name="cogs.autodelete", value=f"Error: {e}")
+        try:
+            await bot.load_extension('cogs.award')
+            embed.add_field(name="cogs.award", value="Loaded successfully!")
+        except Exception as e:
+            print(f"Error loading cogs.award: {e}")
+            embed.add_field(name="cogs.award", value=f"Error: {e}")
+        try:
+            await bot.load_extension('cogs.background')
+            embed.add_field(name="cogs.background", value="Loaded successfully!")
+        except Exception as e:
+            print(f"Error loading cogs.background: {e}")
+            embed.add_field(name="cogs.background", value=f"Error: {e}")
+        try:
+            await bot.load_extension('cogs.profile')
+            embed.add_field(name="cogs.profile", value="Loaded successfully!")
+        except Exception as e:
+            print(f"Error loading cogs.profile: {e}")
+            embed.add_field(name="cogs.profile", value=f"Error: {e}")
+        try:
+            await bot.load_extension('cogs.purge')
+            embed.add_field(name="cogs.purge", value="Loaded successfully!")
+        except Exception as e:
+            print(f"Error loading cogs.purge: {e}")
+            embed.add_field(name="cogs.purge", value=f"Error: {e}")
+        try:
+            await bot.load_extension('cogs.rss')
+            embed.add_field(name="cogs.rss", value="Loaded successfully!")
+        except Exception as e:
+            print(f"Error loading cogs.rss: {e}")
+            embed.add_field(name="cogs.rss", value=f"Error: {e}")
+        try:
+            await bot.load_extension('cogs.user_setup')
+            embed.add_field(name="cogs.user_setup", value="Loaded successfully!")
+        except Exception as e:
+            print(f"Error loading cogs.user_setup: {e}")
+            embed.add_field(name="cogs.user_setup", value=f"Error: {e}")
     elif extension == "autodelete":
-        await bot.load_extension(extension)
-        embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully loaded!")
-        await ctx.send(embed=embed, delete_after=30.0)
+        try:
+            await bot.load_extension('cogs.autodelete')
+            embed.add_field(name="cogs.autodelete", value="Loaded successfully!")
+        except Exception as e:
+            print(f"Error loading cogs.autodelete: {e}")
+            embed.add_field(name="cogs.autodelete", value=f"Error: {e}")
     elif extension == "award":
-        await bot.load_extension(extension)
-        embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully loaded!")
-        await ctx.send(embed=embed, delete_after=30.0)
+        try:
+            await bot.load_extension('cogs.award')
+            embed.add_field(name="cogs.award", value="Loaded successfully!")
+        except Exception as e:
+            print(f"Error loading cogs.award: {e}")
+            embed.add_field(name="cogs.award", value=f"Error: {e}")
     elif extension == "background":
-        await bot.load_extension(extension)
-        embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully loaded!")
-        await ctx.send(embed=embed, delete_after=30.0)
+        try:
+            await bot.load_extension('cogs.background')
+            embed.add_field(name="cogs.background", value="Loaded successfully!")
+        except Exception as e:
+            print(f"Error loading cogs.background: {e}")
+            embed.add_field(name="cogs.background", value=f"Error: {e}")
     elif extension == "profile":
-        await bot.load_extension(extension)
-        embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully loaded!")
-        await ctx.send(embed=embed, delete_after=30.0)
+        try:
+            await bot.load_extension('cogs.profile')
+            embed.add_field(name="cogs.profile", value="Loaded successfully!")
+        except Exception as e:
+            print(f"Error loading cogs.profile: {e}")
+            embed.add_field(name="cogs.profile", value=f"Error: {e}")
     elif extension == "purge":
-        await bot.load_extension(extension)
-        embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully loaded!")
-        await ctx.send(embed=embed, delete_after=30.0)
+        try:
+            await bot.load_extension('cogs.purge')
+            embed.add_field(name="cogs.purge", value="Loaded successfully!")
+        except Exception as e:
+            print(f"Error loading cogs.purge: {e}")
+            embed.add_field(name="cogs.purge", value=f"Error: {e}")
     elif extension == "rss":
-        await bot.load_extension(extension)
-        embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully loaded!")
-        await ctx.send(embed=embed, delete_after=30.0)
+        try:
+            await bot.load_extension('cogs.rss')
+            embed.add_field(name="cogs.rss", value="Loaded successfully!")
+        except Exception as e:
+            print(f"Error loading cogs.rss: {e}")
+            embed.add_field(name="cogs.rss", value=f"Error: {e}")
     elif extension == "user_setup":
-        await bot.load_extension(extension)
-        embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully loaded!")
-        await ctx.send(embed=embed, delete_after=30.0)
+        try:
+            await bot.load_extension('cogs.user_setup')
+            embed.add_field(name="cogs.user_setup", value="Loaded successfully!")
+        except Exception as e:
+            print(f"Error loading cogs.user_setup: {e}")
+            embed.add_field(name="cogs.user_setup", value=f"Error: {e}")
     else:
-        embed = discord.Embed(title="Error", description=f"No cog was found with the name \`{extension}\`.")
-        await ctx.send(embed=embed, delete_after=30.0)
+        embed.add_field(name="Error", value="No cogs could be loaded.")
+    await ctx.send(embed=embed, delete_after=30.0)
+    await ctx.message.delete()
 
 @bot.command(name="reload_cog", hidden=True)
 @commands.is_owner()
-async def reload_cog(ctx: commands.Context, extension: Literal["all","autodelete","award","background","profile","purge","rss","user_setup"]):
+async def reload_cog(ctx: commands.Context, extension: str):
     """(Bot Owner Only) Reloads one or all of the bot's cogs.
 
     Parameters
     -----------
     extension : str
-        Provide the extension that you would like to reload.
+        Provide the extension that you would like to reload (or all).
     """
+    embed = discord.Embed(title="Reload Cogs")
     if extension == "all":
-        await bot.reload_extension('autodelete')
-        await bot.reload_extension('award')
-        await bot.reload_extension('background')
-        await bot.reload_extension('profile')
-        await bot.reload_extension('purge')
-        await bot.reload_extension('rss')
-        await bot.reload_extension('user_setup')
-        embed = discord.Embed(title="Update", description=f"The bot's cogs were successfully reloaded!")
-        await ctx.send(embed=embed, delete_after=30.0)
+        try:
+            await bot.reload_extension('cogs.autodelete')
+            embed.add_field(name="cogs.autodelete", value="Reloaded successfully!")
+        except Exception as e:
+            print(f"Error reloading cogs.autodelete: {e}")
+            embed.add_field(name="cogs.autodelete", value=f"Error: {e}")
+        try:
+            await bot.reload_extension('cogs.award')
+            embed.add_field(name="cogs.award", value="Reloaded successfully!")
+        except Exception as e:
+            print(f"Error reloading cogs.award: {e}")
+            embed.add_field(name="cogs.award", value=f"Error: {e}")
+        try:
+            await bot.reload_extension('cogs.background')
+            embed.add_field(name="cogs.background", value="Reloaded successfully!")
+        except Exception as e:
+            print(f"Error reloading cogs.background: {e}")
+            embed.add_field(name="cogs.background", value=f"Error: {e}")
+        try:
+            await bot.reload_extension('cogs.profile')
+            embed.add_field(name="cogs.profile", value="Reloaded successfully!")
+        except Exception as e:
+            print(f"Error reloading cogs.profile: {e}")
+            embed.add_field(name="cogs.profile", value=f"Error: {e}")
+        try:
+            await bot.reload_extension('cogs.purge')
+            embed.add_field(name="cogs.purge", value="Reloaded successfully!")
+        except Exception as e:
+            print(f"Error reloading cogs.purge: {e}")
+            embed.add_field(name="cogs.purge", value=f"Error: {e}")
+        try:
+            await bot.reload_extension('cogs.rss')
+            embed.add_field(name="cogs.rss", value="Reloaded successfully!")
+        except Exception as e:
+            print(f"Error reloading cogs.rss: {e}")
+            embed.add_field(name="cogs.rss", value=f"Error: {e}")
+        try:
+            await bot.reload_extension('cogs.user_setup')
+            embed.add_field(name="cogs.user_setup", value="Reloaded successfully!")
+        except Exception as e:
+            print(f"Error reloading cogs.user_setup: {e}")
+            embed.add_field(name="cogs.user_setup", value=f"Error: {e}")
     elif extension == "autodelete":
-        await bot.reload_extension(extension)
-        embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
-        await ctx.send(embed=embed, delete_after=30.0)
+        try:
+            await bot.reload_extension('cogs.autodelete')
+            embed.add_field(name="cogs.autodelete", value="Reloaded successfully!")
+        except Exception as e:
+            print(f"Error reloading cogs.autodelete: {e}")
+            embed.add_field(name="cogs.autodelete", value=f"Error: {e}")
     elif extension == "award":
-        await bot.reload_extension(extension)
-        embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
-        await ctx.send(embed=embed, delete_after=30.0)
+        try:
+            await bot.reload_extension('cogs.award')
+            embed.add_field(name="cogs.award", value="Reloaded successfully!")
+        except Exception as e:
+            print(f"Error reloading cogs.award: {e}")
+            embed.add_field(name="cogs.award", value=f"Error: {e}")
     elif extension == "background":
-        await bot.reload_extension(extension)
-        embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
-        await ctx.send(embed=embed, delete_after=30.0)
+        try:
+            await bot.reload_extension('cogs.background')
+            embed.add_field(name="cogs.background", value="Reloaded successfully!")
+        except Exception as e:
+            print(f"Error reloading cogs.background: {e}")
+            embed.add_field(name="cogs.background", value=f"Error: {e}")
     elif extension == "profile":
-        await bot.reload_extension(extension)
-        embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
-        await ctx.send(embed=embed, delete_after=30.0)
+        try:
+            await bot.reload_extension('cogs.profile')
+            embed.add_field(name="cogs.profile", value="Reloaded successfully!")
+        except Exception as e:
+            print(f"Error reloading cogs.profile: {e}")
+            embed.add_field(name="cogs.profile", value=f"Error: {e}")
     elif extension == "purge":
-        await bot.reload_extension(extension)
-        embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
-        await ctx.send(embed=embed, delete_after=30.0)
+        try:
+            await bot.reload_extension('cogs.purge')
+            embed.add_field(name="cogs.purge", value="Reloaded successfully!")
+        except Exception as e:
+            print(f"Error reloading cogs.purge: {e}")
+            embed.add_field(name="cogs.purge", value=f"Error: {e}")
     elif extension == "rss":
-        await bot.reload_extension(extension)
-        embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
-        await ctx.send(embed=embed, delete_after=30.0)
+        try:
+            await bot.reload_extension('cogs.rss')
+            embed.add_field(name="cogs.rss", value="Reloaded successfully!")
+        except Exception as e:
+            print(f"Error reloading cogs.rss: {e}")
+            embed.add_field(name="cogs.rss", value=f"Error: {e}")
     elif extension == "user_setup":
-        await bot.reload_extension(extension)
-        embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
-        await ctx.send(embed=embed, delete_after=30.0)
+        try:
+            await bot.reload_extension('cogs.user_setup')
+            embed.add_field(name="cogs.user_setup", value="Reloaded successfully!")
+        except Exception as e:
+            print(f"Error reloading cogs.user_setup: {e}")
+            embed.add_field(name="cogs.user_setup", value=f"Error: {e}")
     else:
-        embed = discord.Embed(title="Error", description=f"No cog was found with the name \`{extension}\`.")
-        await ctx.send(embed=embed, delete_after=30.0)
+        embed.add_field(name="Error", value="No cogs could be reloaded.")
+    await ctx.send(embed=embed, delete_after=30.0)
+    await ctx.message.delete()
+
+@bot.command(name="add_cog", hidden=True)
+@commands.is_owner()
+async def add_cog(ctx: commands.Context, extension: str):
+    """(Bot Owner Only) Adds one or all of the bot's cogs.
+
+    Parameters
+    -----------
+    extension : str
+        Provide the extension that you would like to add (or all).
+    """
+    embed = discord.Embed(title="Add Cogs")
+    if extension == "all":
+        try:
+            await bot.add_cog(autodelete.Cog(bot=bot), override=True)
+            embed.add_field(name="autodelete.Cog", value="Added successfully!")
+        except Exception as e:
+            print(f"Error adding autodelete.Cog: {e}")
+            embed.add_field(name="autodelete.Cog", value=f"Error: {e}")
+        try:
+            await bot.add_cog(award.Cog(bot=bot), override=True)
+            embed.add_field(name="award.Cog", value="Added successfully!")
+        except Exception as e:
+            print(f"Error adding award.Cog: {e}")
+            embed.add_field(name="award.Cog", value=f"Error: {e}")
+        try:
+            await bot.add_cog(background.Cog(bot=bot), override=True)
+            embed.add_field(name="background.Cog", value="Added successfully!")
+        except Exception as e:
+            print(f"Error adding background.Cog: {e}")
+            embed.add_field(name="background.Cog", value=f"Error: {e}")
+        try:
+            await bot.add_cog(profile.Cog(bot=bot), override=True)
+            embed.add_field(name="profile.Cog", value="Added successfully!")
+        except Exception as e:
+            print(f"Error adding profile.Cog: {e}")
+            embed.add_field(name="profile.Cog", value=f"Error: {e}")
+        try:
+            await bot.add_cog(purge.Cog(bot=bot), override=True)
+            embed.add_field(name="purge.Cog", value="Added successfully!")
+        except Exception as e:
+            print(f"Error adding purge.Cog: {e}")
+            embed.add_field(name="purge.Cog", value=f"Error: {e}")
+        try:
+            await bot.add_cog(rss.CommandsCog(bot=bot), override=True)
+            embed.add_field(name="rss.CommandsCog", value="Added successfully!")
+        except Exception as e:
+            print(f"Error adding rss.CommandsCog: {e}")
+            embed.add_field(name="rss.CommandsCog", value=f"Error: {e}")
+        try:
+            await bot.add_cog(rss.FeedCog(bot=bot), override=True)
+            embed.add_field(name="rss.FeedCog", value="Added successfully!")
+        except Exception as e:
+            print(f"Error adding rss.FeedCog: {e}")
+            embed.add_field(name="rss.FeedCog", value=f"Error: {e}")
+        try:
+            await bot.add_cog(user_setup.Cog(bot=bot), override=True)
+            embed.add_field(name="user_setup.Cog", value="Added successfully!")
+        except Exception as e:
+            print(f"Error adding user_setup.Cog: {e}")
+            embed.add_field(name="user_setup.Cog", value=f"Error: {e}")
+    elif extension == "autodelete":
+        try:
+            await bot.add_cog(autodelete.Cog(bot=bot), override=True)
+            embed.add_field(name="autodelete.Cog", value="Added successfully!")
+        except Exception as e:
+            print(f"Error adding autodelete.Cog: {e}")
+            embed.add_field(name="autodelete.Cog", value=f"Error: {e}")
+    elif extension == "award":
+        try:
+            await bot.add_cog(award.Cog(bot=bot), override=True)
+            embed.add_field(name="award.Cog", value="Added successfully!")
+        except Exception as e:
+            print(f"Error adding award.Cog: {e}")
+            embed.add_field(name="award.Cog", value=f"Error: {e}")
+    elif extension == "background":
+        try:
+            await bot.add_cog(background.Cog(bot=bot), override=True)
+            embed.add_field(name="background.Cog", value="Added successfully!")
+        except Exception as e:
+            print(f"Error adding background.Cog: {e}")
+            embed.add_field(name="background.Cog", value=f"Error: {e}")
+    elif extension == "profile":
+        try:
+            await bot.add_cog(profile.Cog(bot=bot), override=True)
+            embed.add_field(name="profile.Cog", value="Added successfully!")
+        except Exception as e:
+            print(f"Error adding profile.Cog: {e}")
+            embed.add_field(name="profile.Cog", value=f"Error: {e}")
+    elif extension == "purge":
+        try:
+            await bot.add_cog(purge.Cog(bot=bot), override=True)
+            embed.add_field(name="purge.Cog", value="Added successfully!")
+        except Exception as e:
+            print(f"Error adding purge.Cog: {e}")
+            embed.add_field(name="purge.Cog", value=f"Error: {e}")
+    elif extension == "rss":
+        try:
+            await bot.add_cog(rss.CommandsCog(bot=bot), override=True)
+            embed.add_field(name="rss.CommandsCog", value="Added successfully!")
+        except Exception as e:
+            print(f"Error adding rss.CommandsCog: {e}")
+            embed.add_field(name="rss.CommandsCog", value=f"Error: {e}")
+        try:
+            await bot.add_cog(rss.FeedCog(bot=bot), override=True)
+            embed.add_field(name="rss.FeedCog", value="Added successfully!")
+        except Exception as e:
+            print(f"Error adding rss.FeedCog: {e}")
+            embed.add_field(name="rss.FeedCog", value=f"Error: {e}")
+    elif extension == "user_setup":
+        try:
+            await bot.add_cog(user_setup.Cog(bot=bot), override=True)
+            embed.add_field(name="user_setup.Cog", value="Added successfully!")
+        except Exception as e:
+            print(f"Error adding user_setup.Cog: {e}")
+            embed.add_field(name="user_setup.Cog", value=f"Error: {e}")
+    else:
+        embed.add_field(name="Error", value="No cogs could be added.")
+    await ctx.send(embed=embed, delete_after=30.0)
+    await ctx.message.delete()
+
+@bot.command(name="remove_cog", hidden=True)
+@commands.is_owner()
+async def remove_cog(ctx: commands.Context, extension: str):
+    """(Bot Owner Only) Removes one or all of the bot's cogs.
+
+    Parameters
+    -----------
+    extension : str
+        Provide the extension that you would like to remove (or all).
+    """
+    embed = discord.Embed(title="Remove Cogs")
+    if extension == "all":
+        try:
+            await bot.remove_cog(autodelete.Cog(bot=bot), override=True)
+            embed.add_field(name="autodelete.Cog", value="Removed successfully!")
+        except Exception as e:
+            print(f"Error removing autodelete.Cog: {e}")
+            embed.add_field(name="autodelete.Cog", value=f"Error: {e}")
+        try:
+            await bot.remove_cog(award.Cog(bot=bot), override=True)
+            embed.add_field(name="award.Cog", value="Removed successfully!")
+        except Exception as e:
+            print(f"Error removing award.Cog: {e}")
+            embed.add_field(name="award.Cog", value=f"Error: {e}")
+        try:
+            await bot.remove_cog(background.Cog(bot=bot), override=True)
+            embed.add_field(name="background.Cog", value="Removed successfully!")
+        except Exception as e:
+            print(f"Error removing background.Cog: {e}")
+            embed.add_field(name="background.Cog", value=f"Error: {e}")
+        try:
+            await bot.remove_cog(profile.Cog(bot=bot), override=True)
+            embed.add_field(name="profile.Cog", value="Removed successfully!")
+        except Exception as e:
+            print(f"Error removing profile.Cog: {e}")
+            embed.add_field(name="profile.Cog", value=f"Error: {e}")
+        try:
+            await bot.remove_cog(purge.Cog(bot=bot), override=True)
+            embed.add_field(name="purge.Cog", value="Removed successfully!")
+        except Exception as e:
+            print(f"Error removing purge.Cog: {e}")
+            embed.add_field(name="purge.Cog", value=f"Error: {e}")
+        try:
+            await bot.remove_cog(rss.CommandsCog(bot=bot), override=True)
+            embed.add_field(name="rss.CommandsCog", value="Removed successfully!")
+        except Exception as e:
+            print(f"Error removing rss.CommandsCog: {e}")
+            embed.add_field(name="rss.CommandsCog", value=f"Error: {e}")
+        try:
+            await bot.remove_cog(rss.FeedCog(bot=bot), override=True)
+            embed.add_field(name="rss.FeedCog", value="Removed successfully!")
+        except Exception as e:
+            print(f"Error removing rss.FeedCog: {e}")
+            embed.add_field(name="rss.FeedCog", value=f"Error: {e}")
+        try:
+            await bot.remove_cog(user_setup.Cog(bot=bot), override=True)
+            embed.add_field(name="user_setup.Cog", value="Removed successfully!")
+        except Exception as e:
+            print(f"Error removing user_setup.Cog: {e}")
+            embed.add_field(name="user_setup.Cog", value=f"Error: {e}")
+    elif extension == "autodelete":
+        try:
+            await bot.remove_cog(autodelete.Cog(bot=bot), override=True)
+            embed.add_field(name="autodelete.Cog", value="Removed successfully!")
+        except Exception as e:
+            print(f"Error removing autodelete.Cog: {e}")
+            embed.add_field(name="autodelete.Cog", value=f"Error: {e}")
+    elif extension == "award":
+        try:
+            await bot.remove_cog(award.Cog(bot=bot), override=True)
+            embed.add_field(name="award.Cog", value="Removed successfully!")
+        except Exception as e:
+            print(f"Error removing award.Cog: {e}")
+            embed.add_field(name="award.Cog", value=f"Error: {e}")
+    elif extension == "background":
+        try:
+            await bot.remove_cog(background.Cog(bot=bot), override=True)
+            embed.add_field(name="background.Cog", value="Removed successfully!")
+        except Exception as e:
+            print(f"Error removing background.Cog: {e}")
+            embed.add_field(name="background.Cog", value=f"Error: {e}")
+    elif extension == "profile":
+        try:
+            await bot.remove_cog(profile.Cog(bot=bot), override=True)
+            embed.add_field(name="profile.Cog", value="Removed successfully!")
+        except Exception as e:
+            print(f"Error removing profile.Cog: {e}")
+            embed.add_field(name="profile.Cog", value=f"Error: {e}")
+    elif extension == "purge":
+        try:
+            await bot.remove_cog(purge.Cog(bot=bot), override=True)
+            embed.add_field(name="purge.Cog", value="Removed successfully!")
+        except Exception as e:
+            print(f"Error removing purge.Cog: {e}")
+            embed.add_field(name="purge.Cog", value=f"Error: {e}")
+    elif extension == "rss":
+        try:
+            await bot.remove_cog(rss.CommandsCog(bot=bot), override=True)
+            embed.add_field(name="rss.CommandsCog", value="Removed successfully!")
+        except Exception as e:
+            print(f"Error removing rss.CommandsCog: {e}")
+            embed.add_field(name="rss.CommandsCog", value=f"Error: {e}")
+        try:
+            await bot.remove_cog(rss.FeedCog(bot=bot), override=True)
+            embed.add_field(name="rss.FeedCog", value="Removed successfully!")
+        except Exception as e:
+            print(f"Error removing rss.FeedCog: {e}")
+            embed.add_field(name="rss.FeedCog", value=f"Error: {e}")
+    elif extension == "user_setup":
+        try:
+            await bot.remove_cog(user_setup.Cog(bot=bot), override=True)
+            embed.add_field(name="user_setup.Cog", value="Removed successfully!")
+        except Exception as e:
+            print(f"Error removing user_setup.Cog: {e}")
+            embed.add_field(name="user_setup.Cog", value=f"Error: {e}")
+    else:
+        embed.add_field(name="Error", value="No cogs could be removed.")
+    await ctx.send(embed=embed, delete_after=30.0)
+    await ctx.message.delete()
 
 @bot.command(name="ping")
 async def ping(ctx: commands.Context):
@@ -169,6 +521,7 @@ async def ping(ctx: commands.Context):
     latency = bot.latency()
     embed = discord.Embed(color=ctx.author.accent_color, title="Pong", description=f"The bot's current latency is {latency} seconds!")
     await ctx.send(embed=embed, delete_after=30.0)
+    await ctx.message.delete()
 
 async def setup(bot: commands.Bot):
     async with aiosqlite.connect('rainbowbot.db') as db:
