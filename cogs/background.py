@@ -106,5 +106,5 @@ class Cog(commands.Cog):
                 embed = discord.Embed(color=member.accent_color, description=description, timestamp=datetime.now())
                 await channel.send(embed=embed)
 
-def setup(bot):
-	bot.add_cog(Cog(bot))
+async def setup(bot):
+	await bot.add_cog(Cog(bot))

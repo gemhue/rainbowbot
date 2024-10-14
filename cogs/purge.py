@@ -198,5 +198,5 @@ class Cog(commands.Cog):
             embed = discord.Embed(title="⌛ Timed Out ⌛", description='This interaction has timed out. No messages have been purged.')
             await response.edit(embed=embed, view=None)
 
-def setup(bot):
-	bot.add_cog(Cog(bot))
+async def setup(bot):
+	await bot.add_cog(Cog(bot))

@@ -424,5 +424,5 @@ class Cog(commands.Cog):
         embed.add_field(name="📝 Roles", value=f"{roles}", inline=False)
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
-def setup(bot):
-	bot.add_cog(Cog(bot))
+async def setup(bot):
+	await bot.add_cog(Cog(bot))

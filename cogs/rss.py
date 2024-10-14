@@ -606,7 +606,8 @@ class FeedCog(commands.Cog):
                     embed.set_thumbnail(url=link)
                     author = entry.author[:256]
                     author_url = entry.href
-                    embed.set_author(name=author, url=author_url)
+                    if author is not None:
+                        embed.set_author(name=author, url=author_url)
                     embeds.append(embed)
         return embeds
 
@@ -628,6 +629,6 @@ class FeedCog(commands.Cog):
             await db.commit()
             await db.close()
 
-def setup(bot):
-    bot.add_cog(CommandsCog(bot))
-    bot.add_cog(FeedCog(bot))
+async def setup(bot):
+    await bot.add_cog(CommandsCog(bot))
+    await bot.add_cog(FeedCog(bot))

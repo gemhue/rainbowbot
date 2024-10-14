@@ -441,5 +441,5 @@ class Cog(commands.Cog):
         embed = discord.Embed(title=f"{moji} {sing_cap} Leaderboard {moji}", description=description)
         await ctx.send(embed=embed)
 
-def setup(bot):
-	bot.add_cog(Cog(bot))
+async def setup(bot):
+	await bot.add_cog(Cog(bot))

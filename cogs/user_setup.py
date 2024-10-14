@@ -55,6 +55,25 @@ class Cog(commands.Cog):
         embed = discord.Embed(title="Update", description=f"The bot's global command tree has been cleared!")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
         await ctx.message.delete()
+
+    @commands.command(name="load_cog", hidden=True)
+    @commands.is_owner()
+    async def load_cog(self, ctx: commands.Context, extension: Literal["all","autodelete","award","background","profile","purge","rss"]):
+        """(Bot Owner Only) Reloads one or all of the bot's cogs.
+        """
+        if extension == "all":
+            await self.bot.load_extension('autodelete')
+            await self.bot.load_extension('award')
+            await self.bot.load_extension('background')
+            await self.bot.load_extension('profile')
+            await self.bot.load_extension('purge')
+            await self.bot.load_extension('rss')
+            embed = discord.Embed(title="Update", description=f"The bot's cogs were successfully reloaded!")
+            await ctx.send(embed=embed, delete_after=30.0)
+        else:
+            await self.bot.reload_extension(f'{extension}')
+            embed = discord.Embed(title="Update", description=f"The bot's cog, \`{extension}\` was just reloaded.")
+            await ctx.send(embed=embed, delete_after=30.0)
     
     @commands.command(name="reload_cog", hidden=True)
     @commands.is_owner()
@@ -62,40 +81,17 @@ class Cog(commands.Cog):
         """(Bot Owner Only) Reloads one or all of the bot's cogs.
         """
         if extension == "all":
-            await self.bot.reload_extension(autodelete)
-            await self.bot.reload_extension(award)
-            await self.bot.reload_extension(background)
-            await self.bot.reload_extension(profile)
-            await self.bot.reload_extension(purge)
-            await self.bot.reload_extension(rss)
+            await self.bot.reload_extension('autodelete')
+            await self.bot.reload_extension('award')
+            await self.bot.reload_extension('background')
+            await self.bot.reload_extension('profile')
+            await self.bot.reload_extension('purge')
+            await self.bot.reload_extension('rss')
             embed = discord.Embed(title="Update", description=f"The bot's cogs were successfully reloaded!")
             await ctx.send(embed=embed, delete_after=30.0)
-        elif extension == "autodelete":
-            await self.bot.reload_extension(autodelete)
-            embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
-            await ctx.send(embed=embed, delete_after=30.0)
-        elif extension == "award":
-            await self.bot.reload_extension(award)
-            embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
-            await ctx.send(embed=embed, delete_after=30.0)
-        elif extension == "background":
-            await self.bot.reload_extension(background)
-            embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
-            await ctx.send(embed=embed, delete_after=30.0)
-        elif extension == "profile":
-            await self.bot.reload_extension(profile)
-            embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
-            await ctx.send(embed=embed, delete_after=30.0)
-        elif extension == "purge":
-            await self.bot.reload_extension(purge)
-            embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
-            await ctx.send(embed=embed, delete_after=30.0)
-        elif extension == "rss":
-            await self.bot.reload_extension(rss)
-            embed = discord.Embed(title="Update", description=f"The bot's cog \`{extension}\` was successfully reloaded!")
-            await ctx.send(embed=embed, delete_after=30.0)
         else:
-            embed = discord.Embed(title="Error", description=f"None of the bot's cogs were reloaded! Enter a valid cog name or \`all\`.")
+            await self.bot.reload_extension(f'{extension}')
+            embed = discord.Embed(title="Update", description=f"The bot's cog, \`{extension}\` was just reloaded.")
             await ctx.send(embed=embed, delete_after=30.0)
     
     @commands.command(name="ping")
@@ -293,5 +289,5 @@ class Cog(commands.Cog):
         embed.add_field(name="Inactive Members", value=f"{len(inactivemembers)} members now have the {inactive.mention} role!", inline=False)
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
-def setup(bot):
-	bot.add_cog(Cog(bot))
+async def setup(bot):
+	await bot.add_cog(Cog(bot))
