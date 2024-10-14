@@ -4,7 +4,7 @@ from discord.ext import commands
 import aiosqlite
 from typing import Optional, Literal
 from datetime import datetime, timedelta, timezone
-from cogs import autodelete, award, background, profile, purge, rss, user_setup
+from cogs import autodelete, award, background, profile, purge, rss
 
 class Cog(commands.Cog):
     def __init__(self, bot):
@@ -56,9 +56,11 @@ class Cog(commands.Cog):
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
         await ctx.message.delete()
     
-    @commands.command(name="reload_cog")
+    @commands.command(name="reload_cog", hidden=True)
     @commands.is_owner()
     async def reload_cog(self, ctx: commands.Context, extension: Literal["all","autodelete","award","background","profile","purge","rss"]):
+        """(Bot Owner Only) Reloads one or all of the bot's cogs.
+        """
         if extension == "all":
             await self.bot.reload_extension(autodelete)
             await self.bot.reload_extension(award)
@@ -95,6 +97,14 @@ class Cog(commands.Cog):
         else:
             embed = discord.Embed(title="Error", description=f"None of the bot's cogs were reloaded! Enter a valid cog name or \`all\`.")
             await ctx.send(embed=embed, delete_after=30.0)
+    
+    @commands.command(name="ping")
+    async def ping(self, ctx: commands.Context):
+        """Retrieve the bot's current latency.
+        """
+        latency = self.bot.latency()
+        embed = discord.Embed(color=ctx.author.accent_color, title="Pong", description=f"The bot's current latency is {latency} seconds!")
+        await ctx.send(embed=embed, delete_after=30.0)
 
     @commands.hybrid_group(name="setup", fallback="channels")
     @commands.has_guild_permissions(administrator=True)
