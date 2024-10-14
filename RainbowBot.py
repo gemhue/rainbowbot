@@ -517,8 +517,7 @@ async def remove_cog(ctx: commands.Context, extension: str):
 async def ping(ctx: commands.Context):
     """Retrieve the bot's current latency.
     """
-    latency = bot.latency()
-    embed = discord.Embed(color=ctx.author.accent_color, title="Pong", description=f"The bot's current latency is {latency} seconds!")
+    embed = discord.Embed(color=ctx.author.accent_color, title="Pong", description=f"The bot's current latency is {bot.latency} seconds!")
     await ctx.send(embed=embed, delete_after=30.0)
     await ctx.message.delete()
 
