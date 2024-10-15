@@ -3,7 +3,7 @@ from discord.ext import commands
 import aiosqlite
 import datetime
 
-class Cog(commands.Cog):
+class BackgroundTasks(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
@@ -107,4 +107,4 @@ class Cog(commands.Cog):
                 await channel.send(embed=embed)
 
 async def setup(bot: commands.Bot):
-	await bot.add_cog(Cog(bot), override=True)
+	await bot.add_cog(BackgroundTasks(bot), override=True)

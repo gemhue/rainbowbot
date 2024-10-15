@@ -5,7 +5,7 @@ import aiosqlite
 from typing import Optional
 from datetime import datetime, timedelta, timezone
 
-class Cog(commands.Cog):
+class UserSetup(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
@@ -197,4 +197,4 @@ class Cog(commands.Cog):
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
 async def setup(bot: commands.Bot):
-	await bot.add_cog(Cog(bot), override=True)
+	await bot.add_cog(UserSetup(bot), override=True)

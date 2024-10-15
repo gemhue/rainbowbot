@@ -9,9 +9,13 @@ from datetime import datetime, timezone
 from time import mktime
 from bs4 import BeautifulSoup
 
-class CommandsCog(commands.Cog):
+class RSSFeeds(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.postrss.start()
+    
+    def cog_unload(self):
+        self.postrss.cancel()
 
     @commands.hybrid_group(name="rss", fallback="webhook_setup")
     @commands.has_guild_permissions(administrator=True)
@@ -483,15 +487,7 @@ class CommandsCog(commands.Cog):
             await db.commit()
             await db.close()
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
-
-class FeedCog(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-        self.postrss.start()
-    
-    def cog_unload(self):
-        self.postrss.cancel()
-    
+ 
     async def getwebhooks(self):
         urls = []
         async with aiosqlite.connect('rainbowbot.db') as db:
@@ -635,5 +631,4 @@ class FeedCog(commands.Cog):
             await db.close()
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(CommandsCog(bot), override=True)
-    await bot.add_cog(FeedCog(bot), override=True)
+    await bot.add_cog(RSSFeeds(bot), override=True)

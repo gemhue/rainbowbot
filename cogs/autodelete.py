@@ -4,7 +4,7 @@ from discord.ext import commands, tasks
 from datetime import datetime, timedelta, timezone
 from typing import Literal
 
-class Cog(commands.Cog):
+class AutoDelete(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.autodel = {}
@@ -76,4 +76,4 @@ class Cog(commands.Cog):
                 await message.delete()
 
 async def setup(bot: commands.Bot):
-	await bot.add_cog(Cog(bot), override=True)
+	await bot.add_cog(AutoDelete(bot), override=True)

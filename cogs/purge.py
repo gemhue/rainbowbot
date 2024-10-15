@@ -37,7 +37,7 @@ class DropdownView(discord.ui.View):
         self.value = False
         self.stop()
 
-class Cog(commands.Cog):
+class Purge(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
@@ -199,4 +199,4 @@ class Cog(commands.Cog):
             await response.edit(embed=embed, view=None)
 
 async def setup(bot: commands.Bot):
-	await bot.add_cog(Cog(bot), override=True)
+	await bot.add_cog(Purge(bot), override=True)

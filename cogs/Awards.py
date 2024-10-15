@@ -4,7 +4,7 @@ from discord.ext import commands
 import aiosqlite
 from typing import Optional
 
-class Cog(commands.Cog):
+class Awards(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
     
@@ -442,4 +442,4 @@ class Cog(commands.Cog):
         await ctx.send(embed=embed)
 
 async def setup(bot: commands.Bot):
-	await bot.add_cog(Cog(bot), override=True)
+	await bot.add_cog(Awards(bot), override=True)
