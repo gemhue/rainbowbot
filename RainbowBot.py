@@ -1,7 +1,7 @@
 import discord
 import aiosqlite
 from discord.ext import commands
-from cogs import BackgroundTasks, RSSFeeds, UserSetup, autodelete, awards, profiles, purge
+from cogs import AutoDelete, Awards, BackgroundTasks, Profiles, Purge, RSSFeeds, UserSetup
 
 bot = commands.Bot(
     command_prefix = 'rb!',
@@ -286,108 +286,96 @@ async def add_cog(ctx: commands.Context, extension: str):
     embed = discord.Embed(title="Add Cogs")
     if extension == "all":
         try:
-            await bot.add_cog(autodelete.Cog(bot=bot), override=True)
-            embed.add_field(name="autodelete.Cog", value="Added successfully!")
+            await bot.add_cog(AutoDelete.AutoDelete(bot=bot), override=True)
+            embed.add_field(name="AutoDelete.AutoDelete", value="Added successfully!")
         except Exception as e:
-            print(f"Error adding autodelete.Cog: {e}")
-            embed.add_field(name="autodelete.Cog", value=f"Error: {e}")
+            print(f"Error adding AutoDelete.AutoDelete: {e}")
+            embed.add_field(name="AutoDelete.AutoDelete", value=f"Error: {e}")
         try:
-            await bot.add_cog(awards.Cog(bot=bot), override=True)
-            embed.add_field(name="award.Cog", value="Added successfully!")
+            await bot.add_cog(Awards.Awards(bot=bot), override=True)
+            embed.add_field(name="Awards.Awards", value="Added successfully!")
         except Exception as e:
-            print(f"Error adding award.Cog: {e}")
-            embed.add_field(name="award.Cog", value=f"Error: {e}")
+            print(f"Error adding Awards.Awards: {e}")
+            embed.add_field(name="Awards.Awards", value=f"Error: {e}")
         try:
-            await bot.add_cog(BackgroundTasks.Cog(bot=bot), override=True)
-            embed.add_field(name="background.Cog", value="Added successfully!")
+            await bot.add_cog(BackgroundTasks.BackgroundTasks(bot=bot), override=True)
+            embed.add_field(name="BackgroundTasks.BackgroundTasks", value="Added successfully!")
         except Exception as e:
-            print(f"Error adding background.Cog: {e}")
-            embed.add_field(name="background.Cog", value=f"Error: {e}")
+            print(f"Error adding BackgroundTasks.BackgroundTasks: {e}")
+            embed.add_field(name="BackgroundTasks.BackgroundTasks", value=f"Error: {e}")
         try:
-            await bot.add_cog(profiles.Cog(bot=bot), override=True)
-            embed.add_field(name="profile.Cog", value="Added successfully!")
+            await bot.add_cog(Profiles.Profiles(bot=bot), override=True)
+            embed.add_field(name="Profiles.Profiles", value="Added successfully!")
         except Exception as e:
-            print(f"Error adding profile.Cog: {e}")
-            embed.add_field(name="profile.Cog", value=f"Error: {e}")
+            print(f"Error adding Profiles.Profiles: {e}")
+            embed.add_field(name="Profiles.Profiles", value=f"Error: {e}")
         try:
-            await bot.add_cog(purge.Cog(bot=bot), override=True)
-            embed.add_field(name="purge.Cog", value="Added successfully!")
+            await bot.add_cog(Purge.Purge(bot=bot), override=True)
+            embed.add_field(name="Purge.Purge", value="Added successfully!")
         except Exception as e:
-            print(f"Error adding purge.Cog: {e}")
-            embed.add_field(name="purge.Cog", value=f"Error: {e}")
+            print(f"Error adding Purge.Purge: {e}")
+            embed.add_field(name="Purge.Purge", value=f"Error: {e}")
         try:
-            await bot.add_cog(RSSFeeds.CommandsCog(bot=bot), override=True)
-            embed.add_field(name="rss.CommandsCog", value="Added successfully!")
+            await bot.add_cog(RSSFeeds.RSSFeeds(bot=bot), override=True)
+            embed.add_field(name="RSSFeeds.RSSFeeds", value="Added successfully!")
         except Exception as e:
-            print(f"Error adding rss.CommandsCog: {e}")
-            embed.add_field(name="rss.CommandsCog", value=f"Error: {e}")
+            print(f"Error adding RSSFeeds.RSSFeeds: {e}")
+            embed.add_field(name="RSSFeeds.RSSFeeds", value=f"Error: {e}")
         try:
-            await bot.add_cog(RSSFeeds.FeedCog(bot=bot), override=True)
-            embed.add_field(name="rss.FeedCog", value="Added successfully!")
+            await bot.add_cog(UserSetup.UserSetup(bot=bot), override=True)
+            embed.add_field(name="UserSetup.UserSetup", value="Added successfully!")
         except Exception as e:
-            print(f"Error adding rss.FeedCog: {e}")
-            embed.add_field(name="rss.FeedCog", value=f"Error: {e}")
-        try:
-            await bot.add_cog(UserSetup.Cog(bot=bot), override=True)
-            embed.add_field(name="user_setup.Cog", value="Added successfully!")
-        except Exception as e:
-            print(f"Error adding user_setup.Cog: {e}")
-            embed.add_field(name="user_setup.Cog", value=f"Error: {e}")
+            print(f"Error adding UserSetup.UserSetup: {e}")
+            embed.add_field(name="UserSetup.UserSetup", value=f"Error: {e}")
     elif extension == "autodelete":
         try:
-            await bot.add_cog(autodelete.Cog(bot=bot), override=True)
-            embed.add_field(name="autodelete.Cog", value="Added successfully!")
+            await bot.add_cog(AutoDelete.AutoDelete(bot=bot), override=True)
+            embed.add_field(name="AutoDelete.AutoDelete", value="Added successfully!")
         except Exception as e:
-            print(f"Error adding autodelete.Cog: {e}")
-            embed.add_field(name="autodelete.Cog", value=f"Error: {e}")
+            print(f"Error adding AutoDelete.AutoDelete: {e}")
+            embed.add_field(name="AutoDelete.AutoDelete", value=f"Error: {e}")
     elif extension == "award":
         try:
-            await bot.add_cog(awards.Cog(bot=bot), override=True)
-            embed.add_field(name="award.Cog", value="Added successfully!")
+            await bot.add_cog(Awards.Awards(bot=bot), override=True)
+            embed.add_field(name="Awards.Awards", value="Added successfully!")
         except Exception as e:
-            print(f"Error adding award.Cog: {e}")
-            embed.add_field(name="award.Cog", value=f"Error: {e}")
+            print(f"Error adding Awards.Awards: {e}")
+            embed.add_field(name="Awards.Awards", value=f"Error: {e}")
     elif extension == "background":
         try:
-            await bot.add_cog(BackgroundTasks.Cog(bot=bot), override=True)
-            embed.add_field(name="background.Cog", value="Added successfully!")
+            await bot.add_cog(BackgroundTasks.BackgroundTasks(bot=bot), override=True)
+            embed.add_field(name="BackgroundTasks.BackgroundTasks", value="Added successfully!")
         except Exception as e:
-            print(f"Error adding background.Cog: {e}")
-            embed.add_field(name="background.Cog", value=f"Error: {e}")
+            print(f"Error adding BackgroundTasks.BackgroundTasks: {e}")
+            embed.add_field(name="BackgroundTasks.BackgroundTasks", value=f"Error: {e}")
     elif extension == "profile":
         try:
-            await bot.add_cog(profiles.Cog(bot=bot), override=True)
-            embed.add_field(name="profile.Cog", value="Added successfully!")
+            await bot.add_cog(Profiles.Profiles(bot=bot), override=True)
+            embed.add_field(name="Profiles.Profiles", value="Added successfully!")
         except Exception as e:
-            print(f"Error adding profile.Cog: {e}")
-            embed.add_field(name="profile.Cog", value=f"Error: {e}")
+            print(f"Error adding Profiles.Profiles: {e}")
+            embed.add_field(name="Profiles.Profiles", value=f"Error: {e}")
     elif extension == "purge":
         try:
-            await bot.add_cog(purge.Cog(bot=bot), override=True)
-            embed.add_field(name="purge.Cog", value="Added successfully!")
+            await bot.add_cog(Purge.Purge(bot=bot), override=True)
+            embed.add_field(name="Purge.Purge", value="Added successfully!")
         except Exception as e:
-            print(f"Error adding purge.Cog: {e}")
-            embed.add_field(name="purge.Cog", value=f"Error: {e}")
+            print(f"Error adding Purge.Purge: {e}")
+            embed.add_field(name="Purge.Purge", value=f"Error: {e}")
     elif extension == "rss":
         try:
-            await bot.add_cog(RSSFeeds.CommandsCog(bot=bot), override=True)
-            embed.add_field(name="rss.CommandsCog", value="Added successfully!")
+            await bot.add_cog(RSSFeeds.RSSFeeds(bot=bot), override=True)
+            embed.add_field(name="RSSFeeds.RSSFeeds", value="Added successfully!")
         except Exception as e:
-            print(f"Error adding rss.CommandsCog: {e}")
-            embed.add_field(name="rss.CommandsCog", value=f"Error: {e}")
-        try:
-            await bot.add_cog(RSSFeeds.FeedCog(bot=bot), override=True)
-            embed.add_field(name="rss.FeedCog", value="Added successfully!")
-        except Exception as e:
-            print(f"Error adding rss.FeedCog: {e}")
-            embed.add_field(name="rss.FeedCog", value=f"Error: {e}")
+            print(f"Error adding RSSFeeds.RSSFeeds: {e}")
+            embed.add_field(name="RSSFeeds.RSSFeeds", value=f"Error: {e}")
     elif extension == "user_setup":
         try:
-            await bot.add_cog(UserSetup.Cog(bot=bot), override=True)
-            embed.add_field(name="user_setup.Cog", value="Added successfully!")
+            await bot.add_cog(UserSetup.UserSetup(bot=bot), override=True)
+            embed.add_field(name="UserSetup.UserSetup", value="Added successfully!")
         except Exception as e:
-            print(f"Error adding user_setup.Cog: {e}")
-            embed.add_field(name="user_setup.Cog", value=f"Error: {e}")
+            print(f"Error adding UserSetup.UserSetup: {e}")
+            embed.add_field(name="UserSetup.UserSetup", value=f"Error: {e}")
     else:
         embed.add_field(name="Error", value="No cogs could be added.")
     await ctx.send(embed=embed, delete_after=30.0)
@@ -406,108 +394,96 @@ async def remove_cog(ctx: commands.Context, extension: str):
     embed = discord.Embed(title="Remove Cogs")
     if extension == "all":
         try:
-            await bot.remove_cog(autodelete.Cog(bot=bot))
-            embed.add_field(name="autodelete.Cog", value="Removed successfully!")
+            await bot.remove_cog(AutoDelete.AutoDelete(bot=bot))
+            embed.add_field(name="AutoDelete.AutoDelete", value="Removed successfully!")
         except Exception as e:
-            print(f"Error removing autodelete.Cog: {e}")
-            embed.add_field(name="autodelete.Cog", value=f"Error: {e}")
+            print(f"Error removing AutoDelete.AutoDelete: {e}")
+            embed.add_field(name="AutoDelete.AutoDelete", value=f"Error: {e}")
         try:
-            await bot.remove_cog(awards.Cog(bot=bot))
-            embed.add_field(name="award.Cog", value="Removed successfully!")
+            await bot.remove_cog(Awards.Awards(bot=bot))
+            embed.add_field(name="Awards.Awards", value="Removed successfully!")
         except Exception as e:
-            print(f"Error removing award.Cog: {e}")
-            embed.add_field(name="award.Cog", value=f"Error: {e}")
+            print(f"Error removing Awards.Awards: {e}")
+            embed.add_field(name="Awards.Awards", value=f"Error: {e}")
         try:
-            await bot.remove_cog(BackgroundTasks.Cog(bot=bot))
-            embed.add_field(name="background.Cog", value="Removed successfully!")
+            await bot.remove_cog(BackgroundTasks.BackgroundTasks(bot=bot))
+            embed.add_field(name="BackgroundTasks.BackgroundTasks", value="Removed successfully!")
         except Exception as e:
-            print(f"Error removing background.Cog: {e}")
-            embed.add_field(name="background.Cog", value=f"Error: {e}")
+            print(f"Error removing BackgroundTasks.BackgroundTasks: {e}")
+            embed.add_field(name="BackgroundTasks.BackgroundTasks", value=f"Error: {e}")
         try:
-            await bot.remove_cog(profiles.Cog(bot=bot))
-            embed.add_field(name="profile.Cog", value="Removed successfully!")
+            await bot.remove_cog(Profiles.Profiles(bot=bot))
+            embed.add_field(name="Profiles.Profiles", value="Removed successfully!")
         except Exception as e:
-            print(f"Error removing profile.Cog: {e}")
-            embed.add_field(name="profile.Cog", value=f"Error: {e}")
+            print(f"Error removing Profiles.Profiles: {e}")
+            embed.add_field(name="Profiles.Profiles", value=f"Error: {e}")
         try:
-            await bot.remove_cog(purge.Cog(bot=bot))
-            embed.add_field(name="purge.Cog", value="Removed successfully!")
+            await bot.remove_cog(Purge.Purge(bot=bot))
+            embed.add_field(name="Purge.Purge", value="Removed successfully!")
         except Exception as e:
-            print(f"Error removing purge.Cog: {e}")
-            embed.add_field(name="purge.Cog", value=f"Error: {e}")
+            print(f"Error removing Purge.Purge: {e}")
+            embed.add_field(name="Purge.Purge", value=f"Error: {e}")
         try:
-            await bot.remove_cog(RSSFeeds.CommandsCog(bot=bot))
-            embed.add_field(name="rss.CommandsCog", value="Removed successfully!")
+            await bot.remove_cog(RSSFeeds.RSSFeeds(bot=bot))
+            embed.add_field(name="RSSFeeds.RSSFeeds", value="Removed successfully!")
         except Exception as e:
-            print(f"Error removing rss.CommandsCog: {e}")
-            embed.add_field(name="rss.CommandsCog", value=f"Error: {e}")
+            print(f"Error removing RSSFeeds.RSSFeeds: {e}")
+            embed.add_field(name="RSSFeeds.RSSFeeds", value=f"Error: {e}")
         try:
-            await bot.remove_cog(RSSFeeds.FeedCog(bot=bot))
-            embed.add_field(name="rss.FeedCog", value="Removed successfully!")
+            await bot.remove_cog(UserSetup.UserSetup(bot=bot))
+            embed.add_field(name="UserSetup.UserSetup", value="Removed successfully!")
         except Exception as e:
-            print(f"Error removing rss.FeedCog: {e}")
-            embed.add_field(name="rss.FeedCog", value=f"Error: {e}")
-        try:
-            await bot.remove_cog(UserSetup.Cog(bot=bot))
-            embed.add_field(name="user_setup.Cog", value="Removed successfully!")
-        except Exception as e:
-            print(f"Error removing user_setup.Cog: {e}")
-            embed.add_field(name="user_setup.Cog", value=f"Error: {e}")
+            print(f"Error removing UserSetup.UserSetup: {e}")
+            embed.add_field(name="UserSetup.UserSetup", value=f"Error: {e}")
     elif extension == "autodelete":
         try:
-            await bot.remove_cog(autodelete.Cog(bot=bot))
-            embed.add_field(name="autodelete.Cog", value="Removed successfully!")
+            await bot.remove_cog(AutoDelete.AutoDelete(bot=bot))
+            embed.add_field(name="AutoDelete.AutoDelete", value="Removed successfully!")
         except Exception as e:
-            print(f"Error removing autodelete.Cog: {e}")
-            embed.add_field(name="autodelete.Cog", value=f"Error: {e}")
+            print(f"Error removing AutoDelete.AutoDelete: {e}")
+            embed.add_field(name="AutoDelete.AutoDelete", value=f"Error: {e}")
     elif extension == "award":
         try:
-            await bot.remove_cog(awards.Cog(bot=bot))
-            embed.add_field(name="award.Cog", value="Removed successfully!")
+            await bot.remove_cog(Awards.Awards(bot=bot))
+            embed.add_field(name="Awards.Awards", value="Removed successfully!")
         except Exception as e:
-            print(f"Error removing award.Cog: {e}")
-            embed.add_field(name="award.Cog", value=f"Error: {e}")
+            print(f"Error removing Awards.Awards: {e}")
+            embed.add_field(name="Awards.Awards", value=f"Error: {e}")
     elif extension == "background":
         try:
-            await bot.remove_cog(BackgroundTasks.Cog(bot=bot))
-            embed.add_field(name="background.Cog", value="Removed successfully!")
+            await bot.remove_cog(BackgroundTasks.BackgroundTasks(bot=bot))
+            embed.add_field(name="BackgroundTasks.BackgroundTasks", value="Removed successfully!")
         except Exception as e:
-            print(f"Error removing background.Cog: {e}")
-            embed.add_field(name="background.Cog", value=f"Error: {e}")
+            print(f"Error removing BackgroundTasks.BackgroundTasks: {e}")
+            embed.add_field(name="BackgroundTasks.BackgroundTasks", value=f"Error: {e}")
     elif extension == "profile":
         try:
-            await bot.remove_cog(profiles.Cog(bot=bot))
-            embed.add_field(name="profile.Cog", value="Removed successfully!")
+            await bot.remove_cog(Profiles.Profiles(bot=bot))
+            embed.add_field(name="Profiles.Profiles", value="Removed successfully!")
         except Exception as e:
-            print(f"Error removing profile.Cog: {e}")
-            embed.add_field(name="profile.Cog", value=f"Error: {e}")
+            print(f"Error removing Profiles.Profiles: {e}")
+            embed.add_field(name="Profiles.Profiles", value=f"Error: {e}")
     elif extension == "purge":
         try:
-            await bot.remove_cog(purge.Cog(bot=bot))
-            embed.add_field(name="purge.Cog", value="Removed successfully!")
+            await bot.remove_cog(Purge.Purge(bot=bot))
+            embed.add_field(name="Purge.Purge", value="Removed successfully!")
         except Exception as e:
-            print(f"Error removing purge.Cog: {e}")
-            embed.add_field(name="purge.Cog", value=f"Error: {e}")
+            print(f"Error removing Purge.Purge: {e}")
+            embed.add_field(name="Purge.Purge", value=f"Error: {e}")
     elif extension == "rss":
         try:
-            await bot.remove_cog(RSSFeeds.CommandsCog(bot=bot))
-            embed.add_field(name="rss.CommandsCog", value="Removed successfully!")
+            await bot.remove_cog(RSSFeeds.RSSFeeds(bot=bot))
+            embed.add_field(name="RSSFeeds.RSSFeeds", value="Removed successfully!")
         except Exception as e:
-            print(f"Error removing rss.CommandsCog: {e}")
-            embed.add_field(name="rss.CommandsCog", value=f"Error: {e}")
-        try:
-            await bot.remove_cog(RSSFeeds.FeedCog(bot=bot))
-            embed.add_field(name="rss.FeedCog", value="Removed successfully!")
-        except Exception as e:
-            print(f"Error removing rss.FeedCog: {e}")
-            embed.add_field(name="rss.FeedCog", value=f"Error: {e}")
+            print(f"Error removing RSSFeeds.RSSFeeds: {e}")
+            embed.add_field(name="RSSFeeds.RSSFeeds", value=f"Error: {e}")
     elif extension == "user_setup":
         try:
-            await bot.remove_cog(UserSetup.Cog(bot=bot))
-            embed.add_field(name="user_setup.Cog", value="Removed successfully!")
+            await bot.remove_cog(UserSetup.UserSetup(bot=bot))
+            embed.add_field(name="UserSetup.UserSetup", value="Removed successfully!")
         except Exception as e:
-            print(f"Error removing user_setup.Cog: {e}")
-            embed.add_field(name="user_setup.Cog", value=f"Error: {e}")
+            print(f"Error removing UserSetup.UserSetup: {e}")
+            embed.add_field(name="UserSetup.UserSetup", value=f"Error: {e}")
     else:
         embed.add_field(name="Error", value="No cogs could be removed.")
     await ctx.send(embed=embed, delete_after=30.0)
