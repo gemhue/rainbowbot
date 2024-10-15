@@ -57,9 +57,9 @@ async def globalclear(ctx: commands.Context):
     await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
     await ctx.message.delete()
 
-@bot.command(name="load_cog", hidden=True)
+@bot.command(name="load_cogs", hidden=True)
 @commands.is_owner()
-async def load_cog(ctx: commands.Context, extension: str):
+async def load_cogs(ctx: commands.Context, extension: str):
     """(Bot Owner Only) Loads one or all of the bot's cogs.
 
     Parameters
@@ -165,9 +165,9 @@ async def load_cog(ctx: commands.Context, extension: str):
     await ctx.send(embed=embed, delete_after=30.0)
     await ctx.message.delete()
 
-@bot.command(name="reload_cog", hidden=True)
+@bot.command(name="reload_cogs", hidden=True)
 @commands.is_owner()
-async def reload_cog(ctx: commands.Context, extension: str):
+async def reload_cogs(ctx: commands.Context, extension: str):
     """(Bot Owner Only) Reloads one or all of the bot's cogs.
 
     Parameters
