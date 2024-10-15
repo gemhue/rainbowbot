@@ -70,96 +70,96 @@ async def load_cog(ctx: commands.Context, extension: str):
     embed = discord.Embed(title="Load Cogs")
     if extension == "all":
         try:
-            await bot.load_extension('cogs.autodelete')
-            embed.add_field(name="cogs.autodelete", value="Loaded successfully!")
+            await bot.load_extension('cogs.AutoDelete')
+            embed.add_field(name="cogs.AutoDelete", value="Loaded successfully!")
         except Exception as e:
-            print(f"Error loading cogs.autodelete: {e}")
-            embed.add_field(name="cogs.autodelete", value=f"Error: {e}")
+            print(f"Error loading cogs.AutoDelete: {e}")
+            embed.add_field(name="cogs.AutoDelete", value=f"Error: {e}")
         try:
-            await bot.load_extension('cogs.award')
-            embed.add_field(name="cogs.award", value="Loaded successfully!")
+            await bot.load_extension('cogs.Awards')
+            embed.add_field(name="cogs.Awards", value="Loaded successfully!")
         except Exception as e:
-            print(f"Error loading cogs.award: {e}")
-            embed.add_field(name="cogs.award", value=f"Error: {e}")
+            print(f"Error loading cogs.Awards: {e}")
+            embed.add_field(name="cogs.Awards", value=f"Error: {e}")
         try:
-            await bot.load_extension('cogs.background')
-            embed.add_field(name="cogs.background", value="Loaded successfully!")
+            await bot.load_extension('cogs.BackgroundTasks')
+            embed.add_field(name="cogs.BackgroundTasks", value="Loaded successfully!")
         except Exception as e:
-            print(f"Error loading cogs.background: {e}")
-            embed.add_field(name="cogs.background", value=f"Error: {e}")
+            print(f"Error loading cogs.BackgroundTasks: {e}")
+            embed.add_field(name="cogs.BackgroundTasks", value=f"Error: {e}")
         try:
-            await bot.load_extension('cogs.profile')
-            embed.add_field(name="cogs.profile", value="Loaded successfully!")
+            await bot.load_extension('cogs.Profiles')
+            embed.add_field(name="cogs.Profiles", value="Loaded successfully!")
         except Exception as e:
-            print(f"Error loading cogs.profile: {e}")
-            embed.add_field(name="cogs.profile", value=f"Error: {e}")
+            print(f"Error loading cogs.Profiles: {e}")
+            embed.add_field(name="cogs.Profiles", value=f"Error: {e}")
         try:
-            await bot.load_extension('cogs.purge')
-            embed.add_field(name="cogs.purge", value="Loaded successfully!")
+            await bot.load_extension('cogs.Purge')
+            embed.add_field(name="cogs.Purge", value="Loaded successfully!")
         except Exception as e:
-            print(f"Error loading cogs.purge: {e}")
-            embed.add_field(name="cogs.purge", value=f"Error: {e}")
+            print(f"Error loading cogs.Purge: {e}")
+            embed.add_field(name="cogs.Purge", value=f"Error: {e}")
         try:
-            await bot.load_extension('cogs.rss')
-            embed.add_field(name="cogs.rss", value="Loaded successfully!")
+            await bot.load_extension('cogs.RSSFeeds')
+            embed.add_field(name="cogs.RSSFeeds", value="Loaded successfully!")
         except Exception as e:
-            print(f"Error loading cogs.rss: {e}")
-            embed.add_field(name="cogs.rss", value=f"Error: {e}")
+            print(f"Error loading cogs.RSSFeeds: {e}")
+            embed.add_field(name="cogs.RSSFeeds", value=f"Error: {e}")
         try:
-            await bot.load_extension('cogs.user_setup')
-            embed.add_field(name="cogs.user_setup", value="Loaded successfully!")
+            await bot.load_extension('cogs.UserSetup')
+            embed.add_field(name="cogs.UserSetup", value="Loaded successfully!")
         except Exception as e:
-            print(f"Error loading cogs.user_setup: {e}")
-            embed.add_field(name="cogs.user_setup", value=f"Error: {e}")
+            print(f"Error loading cogs.UserSetup: {e}")
+            embed.add_field(name="cogs.UserSetup", value=f"Error: {e}")
     elif extension == "autodelete":
         try:
-            await bot.load_extension('cogs.autodelete')
-            embed.add_field(name="cogs.autodelete", value="Loaded successfully!")
+            await bot.load_extension('cogs.AutoDelete')
+            embed.add_field(name="cogs.AutoDelete", value="Loaded successfully!")
         except Exception as e:
-            print(f"Error loading cogs.autodelete: {e}")
-            embed.add_field(name="cogs.autodelete", value=f"Error: {e}")
+            print(f"Error loading cogs.AutoDelete: {e}")
+            embed.add_field(name="cogs.AutoDelete", value=f"Error: {e}")
     elif extension == "award":
         try:
-            await bot.load_extension('cogs.award')
-            embed.add_field(name="cogs.award", value="Loaded successfully!")
+            await bot.load_extension('cogs.Awards')
+            embed.add_field(name="cogs.Awards", value="Loaded successfully!")
         except Exception as e:
-            print(f"Error loading cogs.award: {e}")
-            embed.add_field(name="cogs.award", value=f"Error: {e}")
+            print(f"Error loading cogs.Awards: {e}")
+            embed.add_field(name="cogs.Awards", value=f"Error: {e}")
     elif extension == "background":
         try:
-            await bot.load_extension('cogs.background')
-            embed.add_field(name="cogs.background", value="Loaded successfully!")
+            await bot.load_extension('cogs.BackgroundTasks')
+            embed.add_field(name="cogs.BackgroundTasks", value="Loaded successfully!")
         except Exception as e:
-            print(f"Error loading cogs.background: {e}")
-            embed.add_field(name="cogs.background", value=f"Error: {e}")
+            print(f"Error loading cogs.BackgroundTasks: {e}")
+            embed.add_field(name="cogs.BackgroundTasks", value=f"Error: {e}")
     elif extension == "profile":
         try:
-            await bot.load_extension('cogs.profile')
-            embed.add_field(name="cogs.profile", value="Loaded successfully!")
+            await bot.load_extension('cogs.Profiles')
+            embed.add_field(name="cogs.Profiles", value="Loaded successfully!")
         except Exception as e:
-            print(f"Error loading cogs.profile: {e}")
-            embed.add_field(name="cogs.profile", value=f"Error: {e}")
+            print(f"Error loading cogs.Profiles: {e}")
+            embed.add_field(name="cogs.Profiles", value=f"Error: {e}")
     elif extension == "purge":
         try:
-            await bot.load_extension('cogs.purge')
-            embed.add_field(name="cogs.purge", value="Loaded successfully!")
+            await bot.load_extension('cogs.Purge')
+            embed.add_field(name="cogs.Purge", value="Loaded successfully!")
         except Exception as e:
-            print(f"Error loading cogs.purge: {e}")
-            embed.add_field(name="cogs.purge", value=f"Error: {e}")
+            print(f"Error loading cogs.Purge: {e}")
+            embed.add_field(name="cogs.Purge", value=f"Error: {e}")
     elif extension == "rss":
         try:
-            await bot.load_extension('cogs.rss')
-            embed.add_field(name="cogs.rss", value="Loaded successfully!")
+            await bot.load_extension('cogs.RSSFeeds')
+            embed.add_field(name="cogs.RSSFeeds", value="Loaded successfully!")
         except Exception as e:
-            print(f"Error loading cogs.rss: {e}")
-            embed.add_field(name="cogs.rss", value=f"Error: {e}")
+            print(f"Error loading cogs.RSSFeeds: {e}")
+            embed.add_field(name="cogs.RSSFeeds", value=f"Error: {e}")
     elif extension == "user_setup":
         try:
-            await bot.load_extension('cogs.user_setup')
-            embed.add_field(name="cogs.user_setup", value="Loaded successfully!")
+            await bot.load_extension('cogs.UserSetup')
+            embed.add_field(name="cogs.UserSetup", value="Loaded successfully!")
         except Exception as e:
-            print(f"Error loading cogs.user_setup: {e}")
-            embed.add_field(name="cogs.user_setup", value=f"Error: {e}")
+            print(f"Error loading cogs.UserSetup: {e}")
+            embed.add_field(name="cogs.UserSetup", value=f"Error: {e}")
     else:
         embed.add_field(name="Error", value="No cogs could be loaded.")
     await ctx.send(embed=embed, delete_after=30.0)
@@ -178,96 +178,96 @@ async def reload_cog(ctx: commands.Context, extension: str):
     embed = discord.Embed(title="Reload Cogs")
     if extension == "all":
         try:
-            await bot.reload_extension('cogs.autodelete')
-            embed.add_field(name="cogs.autodelete", value="Reloaded successfully!")
+            await bot.reload_extension('cogs.AutoDelete')
+            embed.add_field(name="cogs.AutoDelete", value="Reloaded successfully!")
         except Exception as e:
-            print(f"Error reloading cogs.autodelete: {e}")
-            embed.add_field(name="cogs.autodelete", value=f"Error: {e}")
+            print(f"Error reloading cogs.AutoDelete: {e}")
+            embed.add_field(name="cogs.AutoDelete", value=f"Error: {e}")
         try:
-            await bot.reload_extension('cogs.award')
-            embed.add_field(name="cogs.award", value="Reloaded successfully!")
+            await bot.reload_extension('cogs.Awards')
+            embed.add_field(name="cogs.Awards", value="Reloaded successfully!")
         except Exception as e:
-            print(f"Error reloading cogs.award: {e}")
-            embed.add_field(name="cogs.award", value=f"Error: {e}")
+            print(f"Error reloading cogs.Awards: {e}")
+            embed.add_field(name="cogs.Awards", value=f"Error: {e}")
         try:
-            await bot.reload_extension('cogs.background')
-            embed.add_field(name="cogs.background", value="Reloaded successfully!")
+            await bot.reload_extension('cogs.BackgroundTasks')
+            embed.add_field(name="cogs.BackgroundTasks", value="Reloaded successfully!")
         except Exception as e:
-            print(f"Error reloading cogs.background: {e}")
-            embed.add_field(name="cogs.background", value=f"Error: {e}")
+            print(f"Error reloading cogs.BackgroundTasks: {e}")
+            embed.add_field(name="cogs.BackgroundTasks", value=f"Error: {e}")
         try:
-            await bot.reload_extension('cogs.profile')
-            embed.add_field(name="cogs.profile", value="Reloaded successfully!")
+            await bot.reload_extension('cogs.Profiles')
+            embed.add_field(name="cogs.Profiles", value="Reloaded successfully!")
         except Exception as e:
-            print(f"Error reloading cogs.profile: {e}")
-            embed.add_field(name="cogs.profile", value=f"Error: {e}")
+            print(f"Error reloading cogs.Profiles: {e}")
+            embed.add_field(name="cogs.Profiles", value=f"Error: {e}")
         try:
-            await bot.reload_extension('cogs.purge')
-            embed.add_field(name="cogs.purge", value="Reloaded successfully!")
+            await bot.reload_extension('cogs.Purge')
+            embed.add_field(name="cogs.Purge", value="Reloaded successfully!")
         except Exception as e:
-            print(f"Error reloading cogs.purge: {e}")
-            embed.add_field(name="cogs.purge", value=f"Error: {e}")
+            print(f"Error reloading cogs.Purge: {e}")
+            embed.add_field(name="cogs.Purge", value=f"Error: {e}")
         try:
-            await bot.reload_extension('cogs.rss')
-            embed.add_field(name="cogs.rss", value="Reloaded successfully!")
+            await bot.reload_extension('cogs.RSSFeeds')
+            embed.add_field(name="cogs.RSSFeeds", value="Reloaded successfully!")
         except Exception as e:
-            print(f"Error reloading cogs.rss: {e}")
-            embed.add_field(name="cogs.rss", value=f"Error: {e}")
+            print(f"Error reloading cogs.RSSFeeds: {e}")
+            embed.add_field(name="cogs.RSSFeeds", value=f"Error: {e}")
         try:
-            await bot.reload_extension('cogs.user_setup')
-            embed.add_field(name="cogs.user_setup", value="Reloaded successfully!")
+            await bot.reload_extension('cogs.UserSetup')
+            embed.add_field(name="cogs.UserSetup", value="Reloaded successfully!")
         except Exception as e:
-            print(f"Error reloading cogs.user_setup: {e}")
-            embed.add_field(name="cogs.user_setup", value=f"Error: {e}")
+            print(f"Error reloading cogs.UserSetup: {e}")
+            embed.add_field(name="cogs.UserSetup", value=f"Error: {e}")
     elif extension == "autodelete":
         try:
-            await bot.reload_extension('cogs.autodelete')
-            embed.add_field(name="cogs.autodelete", value="Reloaded successfully!")
+            await bot.reload_extension('cogs.AutoDelete')
+            embed.add_field(name="cogs.AutoDelete", value="Reloaded successfully!")
         except Exception as e:
-            print(f"Error reloading cogs.autodelete: {e}")
-            embed.add_field(name="cogs.autodelete", value=f"Error: {e}")
+            print(f"Error reloading cogs.AutoDelete: {e}")
+            embed.add_field(name="cogs.AutoDelete", value=f"Error: {e}")
     elif extension == "award":
         try:
-            await bot.reload_extension('cogs.award')
-            embed.add_field(name="cogs.award", value="Reloaded successfully!")
+            await bot.reload_extension('cogs.Awards')
+            embed.add_field(name="cogs.Awards", value="Reloaded successfully!")
         except Exception as e:
-            print(f"Error reloading cogs.award: {e}")
-            embed.add_field(name="cogs.award", value=f"Error: {e}")
+            print(f"Error reloading cogs.Awards: {e}")
+            embed.add_field(name="cogs.Awards", value=f"Error: {e}")
     elif extension == "background":
         try:
-            await bot.reload_extension('cogs.background')
-            embed.add_field(name="cogs.background", value="Reloaded successfully!")
+            await bot.reload_extension('cogs.BackgroundTasks')
+            embed.add_field(name="cogs.BackgroundTasks", value="Reloaded successfully!")
         except Exception as e:
-            print(f"Error reloading cogs.background: {e}")
-            embed.add_field(name="cogs.background", value=f"Error: {e}")
+            print(f"Error reloading cogs.BackgroundTasks: {e}")
+            embed.add_field(name="cogs.BackgroundTasks", value=f"Error: {e}")
     elif extension == "profile":
         try:
-            await bot.reload_extension('cogs.profile')
-            embed.add_field(name="cogs.profile", value="Reloaded successfully!")
+            await bot.reload_extension('cogs.Profiles')
+            embed.add_field(name="cogs.Profiles", value="Reloaded successfully!")
         except Exception as e:
-            print(f"Error reloading cogs.profile: {e}")
-            embed.add_field(name="cogs.profile", value=f"Error: {e}")
+            print(f"Error reloading cogs.Profiles: {e}")
+            embed.add_field(name="cogs.Profiles", value=f"Error: {e}")
     elif extension == "purge":
         try:
-            await bot.reload_extension('cogs.purge')
-            embed.add_field(name="cogs.purge", value="Reloaded successfully!")
+            await bot.reload_extension('cogs.Purge')
+            embed.add_field(name="cogs.Purge", value="Reloaded successfully!")
         except Exception as e:
-            print(f"Error reloading cogs.purge: {e}")
-            embed.add_field(name="cogs.purge", value=f"Error: {e}")
+            print(f"Error reloading cogs.Purge: {e}")
+            embed.add_field(name="cogs.Purge", value=f"Error: {e}")
     elif extension == "rss":
         try:
-            await bot.reload_extension('cogs.rss')
-            embed.add_field(name="cogs.rss", value="Reloaded successfully!")
+            await bot.reload_extension('cogs.RSSFeeds')
+            embed.add_field(name="cogs.RSSFeeds", value="Reloaded successfully!")
         except Exception as e:
-            print(f"Error reloading cogs.rss: {e}")
-            embed.add_field(name="cogs.rss", value=f"Error: {e}")
+            print(f"Error reloading cogs.RSSFeeds: {e}")
+            embed.add_field(name="cogs.RSSFeeds", value=f"Error: {e}")
     elif extension == "user_setup":
         try:
-            await bot.reload_extension('cogs.user_setup')
-            embed.add_field(name="cogs.user_setup", value="Reloaded successfully!")
+            await bot.reload_extension('cogs.UserSetup')
+            embed.add_field(name="cogs.UserSetup", value="Reloaded successfully!")
         except Exception as e:
-            print(f"Error reloading cogs.user_setup: {e}")
-            embed.add_field(name="cogs.user_setup", value=f"Error: {e}")
+            print(f"Error reloading cogs.UserSetup: {e}")
+            embed.add_field(name="cogs.UserSetup", value=f"Error: {e}")
     else:
         embed.add_field(name="Error", value="No cogs could be reloaded.")
     await ctx.send(embed=embed, delete_after=30.0)
