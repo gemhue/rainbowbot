@@ -120,7 +120,7 @@ class Awards(commands.Cog):
             await db.close()
         ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
-    @commands.Cog.listener(name="reactionadd")
+    @commands.Cog.listener(name="on_reaction_add")
     async def on_reaction_add(self, reaction: discord.Reaction, user: discord.Member):
         message = reaction.message
         channel = message.channel
@@ -171,7 +171,7 @@ class Awards(commands.Cog):
             await db.commit()
             await db.close()
 
-    @commands.Cog.listener(name="reactionremove")
+    @commands.Cog.listener(name="on_reaction_remove")
     async def on_reaction_remove(self, reaction: discord.Reaction, user: discord.Member):
         message = reaction.message
         channel = message.channel

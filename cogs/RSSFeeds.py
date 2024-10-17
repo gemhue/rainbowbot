@@ -20,35 +20,21 @@ class RSSFeeds(commands.Cog):
     @commands.hybrid_group(name="rss", fallback="webhook_setup")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def rss(self, ctx: commands.Context, webhook_url: str, webhook_name: str, webhook_avatar_url: str):
+    async def rss(self, ctx: commands.Context, webhook_url: str):
         """(Admin Only) Run this command to set a Webhook. All fields are required.
 
         Parameters
         -----------
         webhook_url : str
             Provide the URL for the webhook.
-        webhook_name : str
-            Provide the name of the webhook.
-        webhook_avatar_url : str
-            Provide the image URL for the webhook's avatar.
         """
         await ctx.defer(ephemeral=True)
         async with aiosqlite.connect('rainbowbot.db') as db:
             await db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
-            await db.execute("UPDATE webhooks SET name = ? WHERE url = ?", (webhook_name, webhook_url))
-            cur = await db.execute("SELECT name FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            name = row[0]
-            await db.execute("UPDATE webhooks SET avatar_url = ? WHERE url = ?", (webhook_avatar_url, webhook_url))
-            cur = await db.execute("SELECT avatar_url FROM webhooks WHERE url = ?", (webhook_url,))
-            row = await cur.fetchone()
-            avatar_url = row[0]
             await db.commit()
             await db.close()
         embed = discord.Embed(title="Webhook Set")
         embed.add_field(name="Webhook URL", value=f"{webhook_url}", inline=False)
-        embed.add_field(name="Webhook Name", value=f"{name}", inline=False)
-        embed.add_field(name="Webhook Avatar URL", value=f"{avatar_url}", inline=False)
         await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
 
     @rss.command(name="webhook_check")
@@ -255,8 +241,6 @@ class RSSFeeds(commands.Cog):
         -----------
         webhook_url : str
             Provide the URL for the webhook. You can set the webhook's name and avatar using the /setwebhook command.
-        rss_channel : discord.TextChannel
-            Select the channel where you would like the RSS feed to post.
         rss_feed_url : str
             Provide the URL for the RSS feed.
         """

@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import aiosqlite
-import datetime
+from datetime import datetime
 
 class BackgroundTasks(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -42,7 +42,6 @@ class BackgroundTasks(commands.Cog):
         moji8 = self.bot.get_emoji(1274435528883961989)
         if any(x in messagecont for x in list8):
             await message.add_reaction(moji8)
-        await self.bot.process_commands(message)
         
     @commands.Cog.listener(name="on_member_join")
     async def on_member_join(self, member: discord.Member):
