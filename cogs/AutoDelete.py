@@ -17,7 +17,7 @@ class AutoDelete(commands.Cog):
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     async def autodelete(self, ctx: commands.Context, amount: int, interval: Literal["Seconds", "Minutes", "Hours", "Days"]):
-        """(Admin Only) Deletes all messages posted in the channel before the set amount of time ago.
+        """(Admin Only) Deletes all unpinned messages posted in the channel before the set amount of time ago.
 
         Parameters
         -----------
@@ -40,7 +40,7 @@ class AutoDelete(commands.Cog):
             channel_id = ctx.channel.id
             self.autodel[channel_id] = time
             green = discord.Colour.green()
-            embed = discord.Embed(color=green, title="Success", description=f"The autodelete for the current channel has been set up. Any messages in the current channel older than **{amount} {interval}** will be automatically deleted.")
+            embed = discord.Embed(color=green, title="Success", description=f"The autodelete for the current channel has been set up. Any unpinned messages in the current channel older than **{amount} {interval}** will be automatically deleted.")
         except Exception as e:
             red = discord.Colour.red()
             embed = discord.Embed(color=red, title="Error", description=f"{e}")
@@ -72,7 +72,8 @@ class AutoDelete(commands.Cog):
             timeago = today-time
             messages = [message async for message in channel.history(limit=None, before=timeago)]
             for message in messages:
-                await message.delete()
+                if not message.pinned:
+                    await message.delete()
 
 async def setup(bot: commands.Bot):
 	await bot.add_cog(AutoDelete(bot), override=True)
