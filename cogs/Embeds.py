@@ -45,7 +45,7 @@ class Embeds(commands.Cog):
             error = discord.Embed(color=red, title="Error", description=f"{e}")
             await ctx.send(embed=error, delete_after=30.0, ephemeral=True)
     
-    @embed.hybrid_group(name="edit")
+    @embed.command(name="edit")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
     async def edit(self, ctx: commands.Context, message_url: str, message_content: Optional[str], embed_color: Optional[str], embed_title: Optional[str], embed_url: Optional[str], embed_description: Optional[str]):
