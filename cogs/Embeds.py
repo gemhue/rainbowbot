@@ -67,31 +67,23 @@ class Embeds(commands.Cog):
             Provide the embed's new description.
         """
         await ctx.defer(ephemeral=True)
-        conv = commands.MessageConverter()
-        message = await conv.convert(ctx, message_url)
-        oldembed = message.embeds[0]
-        if message_content is not None:
-            content = message_content
-        else:
-            content = message.content
-        if embed_color is not None:
-            color = discord.Colour.from_str(embed_color)
-        else:
-            color = oldembed.colour
-        if embed_title is not None:
-            title = embed_title
-        else:
-            title = oldembed.title
-        if embed_url is not None:
-            url = embed_url
-        else:
-            url = oldembed.url
-        if embed_description is not None:
-            description = embed_description
-        else:
-            description = oldembed.description
-        timestamp = oldembed.timestamp
         try:
+            conv = commands.MessageConverter()
+            message = await conv.convert(ctx, message_url)
+            oldembed = message.embeds[0]
+            if message_content is None:
+                content = message.content
+            if embed_color is not None:
+                color = discord.Colour.from_str(embed_color)
+            else:
+                color = oldembed.colour
+            if embed_title is None:
+                title = oldembed.title
+            if embed_url is None:
+                url = oldembed.url
+            if embed_description is None:
+                description = oldembed.description
+            timestamp = oldembed.timestamp
             embed = discord.Embed(color=color, title=title, url=url, description=description, timestamp=timestamp)
             fields = oldembed.fields
             for field in fields:
@@ -132,11 +124,11 @@ class Embeds(commands.Cog):
             Provide the URL of the image.
         """
         await ctx.defer(ephemeral=True)
-        conv = commands.MessageConverter()
-        message = await conv.convert(ctx, message_url)
-        content = message.content
-        embed = message.embeds[0]
         try:
+            conv = commands.MessageConverter()
+            message = await conv.convert(ctx, message_url)
+            content = message.content
+            embed = message.embeds[0]
             embed.set_image(url=image_url)
             message.edit(content=content, embed=embed)
             green = discord.Colour.green()
@@ -159,11 +151,11 @@ class Embeds(commands.Cog):
             Provide the URL of the message containing the embed.
         """
         await ctx.defer(ephemeral=True)
-        conv = commands.MessageConverter()
-        message = await conv.convert(ctx, message_url)
-        content = message.content
-        embed = message.embeds[0]
         try:
+            conv = commands.MessageConverter()
+            message = await conv.convert(ctx, message_url)
+            content = message.content
+            embed = message.embeds[0]
             embed.set_image(url=None)
             message.edit(content=content, embed=embed)
             green = discord.Colour.green()
@@ -188,11 +180,11 @@ class Embeds(commands.Cog):
             Provide the URL of the thumbnail.
         """
         await ctx.defer(ephemeral=True)
-        conv = commands.MessageConverter()
-        message = await conv.convert(ctx, message_url)
-        content = message.content
-        embed = message.embeds[0]
         try:
+            conv = commands.MessageConverter()
+            message = await conv.convert(ctx, message_url)
+            content = message.content
+            embed = message.embeds[0]
             embed.set_thumbnail(url=thumbnail_url)
             message.edit(content=content, embed=embed)
             green = discord.Colour.green()
@@ -215,11 +207,11 @@ class Embeds(commands.Cog):
             Provide the URL of the message containing the embed.
         """
         await ctx.defer(ephemeral=True)
-        conv = commands.MessageConverter()
-        message = await conv.convert(ctx, message_url)
-        content = message.content
-        embed = message.embeds[0]
         try:
+            conv = commands.MessageConverter()
+            message = await conv.convert(ctx, message_url)
+            content = message.content
+            embed = message.embeds[0]
             embed.set_thumbnail(url=None)
             message.edit(content=content, embed=embed)
             green = discord.Colour.green()
@@ -248,11 +240,11 @@ class Embeds(commands.Cog):
             Provide whether the field should be inline.
         """
         await ctx.defer(ephemeral=True)
-        conv = commands.MessageConverter()
-        message = await conv.convert(ctx, message_url)
-        content = message.content
-        embed = message.embeds[0]
         try:
+            conv = commands.MessageConverter()
+            message = await conv.convert(ctx, message_url)
+            content = message.content
+            embed = message.embeds[0]
             embed.add_field(name=name, value=value, inline=inline)
             message.edit(content=content, embed=embed)
             green = discord.Colour.green()
@@ -283,11 +275,11 @@ class Embeds(commands.Cog):
             Provide whether the edited field should be inline.
         """
         await ctx.defer(ephemeral=True)
-        conv = commands.MessageConverter()
-        message = await conv.convert(ctx, message_url)
-        content = message.content
-        embed = message.embeds[0]
         try:
+            conv = commands.MessageConverter()
+            message = await conv.convert(ctx, message_url)
+            content = message.content
+            embed = message.embeds[0]
             embed.set_field_at(index=index, name=name, value=value, inline=inline)
             message.edit(content=content, embed=embed)
             green = discord.Colour.green()
@@ -318,11 +310,11 @@ class Embeds(commands.Cog):
             Provide whether the inserted field should be inline.
         """
         await ctx.defer(ephemeral=True)
-        conv = commands.MessageConverter()
-        message = await conv.convert(ctx, message_url)
-        content = message.content
-        embed = message.embeds[0]
         try:
+            conv = commands.MessageConverter()
+            message = await conv.convert(ctx, message_url)
+            content = message.content
+            embed = message.embeds[0]
             embed.insert_field_at(index=index, name=name, value=value, inline=inline)
             message.edit(content=content, embed=embed)
             green = discord.Colour.green()
@@ -347,11 +339,11 @@ class Embeds(commands.Cog):
             Provide the index of the field to be removed.
         """
         await ctx.defer(ephemeral=True)
-        conv = commands.MessageConverter()
-        message = await conv.convert(ctx, message_url)
-        content = message.content
-        embed = message.embeds[0]
         try:
+            conv = commands.MessageConverter()
+            message = await conv.convert(ctx, message_url)
+            content = message.content
+            embed = message.embeds[0]
             embed.remove_field(index=index)
             message.edit(content=content, embed=embed)
             green = discord.Colour.green()
