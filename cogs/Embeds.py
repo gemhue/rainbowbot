@@ -27,7 +27,7 @@ class Embeds(commands.Cog):
         embed_description : str, optional
             Provide the embed's description.
         """
-        await ctx.defer(ephemeral=True)
+        await ctx.defer()
         try:
             if embed_color is not None:
                 color = discord.Colour.from_str(embed_color)
@@ -43,7 +43,7 @@ class Embeds(commands.Cog):
         except Exception as e:
             red = discord.Colour.red()
             error = discord.Embed(color=red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, delete_after=30.0, ephemeral=True)
+            await ctx.send(embed=error, delete_after=30.0)
     
     @embed.command(name="edit")
     @commands.has_guild_permissions(administrator=True)
