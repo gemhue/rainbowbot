@@ -130,7 +130,7 @@ class Embeds(commands.Cog):
             content = message.content
             embed = message.embeds[0]
             embed.set_image(url=image_url)
-            message.edit(content=content, embed=embed)
+            await message.edit(content=content, embed=embed)
             green = discord.Colour.green()
             success = discord.Embed(color=green, title="Success", description="The image has been successfully added to the embed.")
             await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
@@ -157,7 +157,7 @@ class Embeds(commands.Cog):
             content = message.content
             embed = message.embeds[0]
             embed.set_image(url=None)
-            message.edit(content=content, embed=embed)
+            await message.edit(content=content, embed=embed)
             green = discord.Colour.green()
             success = discord.Embed(color=green, title="Success", description="The image has been successfully removed from the embed.")
             await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
@@ -186,7 +186,7 @@ class Embeds(commands.Cog):
             content = message.content
             embed = message.embeds[0]
             embed.set_thumbnail(url=thumbnail_url)
-            message.edit(content=content, embed=embed)
+            await message.edit(content=content, embed=embed)
             green = discord.Colour.green()
             success = discord.Embed(color=green, title="Success", description="The thumbnail has been successfully added to the embed.")
             await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
@@ -213,7 +213,7 @@ class Embeds(commands.Cog):
             content = message.content
             embed = message.embeds[0]
             embed.set_thumbnail(url=None)
-            message.edit(content=content, embed=embed)
+            await message.edit(content=content, embed=embed)
             green = discord.Colour.green()
             success = discord.Embed(color=green, title="Success", description="The thumbnail has been successfully removed from the embed.")
             await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
@@ -246,7 +246,7 @@ class Embeds(commands.Cog):
             content = message.content
             embed = message.embeds[0]
             embed.add_field(name=name, value=value, inline=inline)
-            message.edit(content=content, embed=embed)
+            await message.edit(content=content, embed=embed)
             green = discord.Colour.green()
             success = discord.Embed(color=green, title="Success", description="The embed has been successfully edited.")
             await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
@@ -281,7 +281,7 @@ class Embeds(commands.Cog):
             content = message.content
             embed = message.embeds[0]
             embed.set_field_at(index=index, name=name, value=value, inline=inline)
-            message.edit(content=content, embed=embed)
+            await message.edit(content=content, embed=embed)
             green = discord.Colour.green()
             success = discord.Embed(color=green, title="Success", description="The embed field has been successfully edited.")
             await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
@@ -316,7 +316,7 @@ class Embeds(commands.Cog):
             content = message.content
             embed = message.embeds[0]
             embed.insert_field_at(index=index, name=name, value=value, inline=inline)
-            message.edit(content=content, embed=embed)
+            await message.edit(content=content, embed=embed)
             green = discord.Colour.green()
             success = discord.Embed(color=green, title="Success", description="The embed field has been successfully inserted.")
             await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
@@ -345,7 +345,7 @@ class Embeds(commands.Cog):
             content = message.content
             embed = message.embeds[0]
             embed.remove_field(index=index)
-            message.edit(content=content, embed=embed)
+            await message.edit(content=content, embed=embed)
             green = discord.Colour.green()
             success = discord.Embed(color=green, title="Success", description="The embed field has been successfully removed.")
             await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
