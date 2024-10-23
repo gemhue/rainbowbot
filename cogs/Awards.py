@@ -3,10 +3,14 @@ from discord import app_commands
 from discord.ext import commands
 import aiosqlite
 from typing import Optional
+from datetime import datetime, timezone
 
 class Awards(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.green = discord.Colour.green()
+        self.red = discord.Colour.red()
+        self.blurple = discord.Colour.blurple()
     
     @commands.hybrid_group(name="awards", fallback="set")
     @commands.has_guild_permissions(administrator=True)
@@ -44,17 +48,28 @@ class Awards(commands.Cog):
                 cur = await db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild_id,))
                 row = await cur.fetchone()
                 fetched_moji = str(row[0])
+                embed = discord.Embed(color=self.green, title="Success", description="The custom awards for the server have been set.")
+                embed.add_field(name="Name (Singular)", value=f"{fetched_sing_cap}", inline=False)
+                embed.add_field(name="Name (Plural)", value=f"{fetched_plur_cap}", inline=False)
+                embed.add_field(name="Emoji", value=f"{fetched_moji}", inline=False)
+                await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+                cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+                row = await cur.fetchone()
+                fetched_logging = row[0]
+                if fetched_logging is not None:
+                    logging = self.bot.get_channel(fetched_logging)
+                    now = datetime.now(tz=timezone.utc)
+                    log = discord.Embed(color=self.blurple, title="Awards Log", description=f"{ctx.author.mention} has just set the custom awards for the server.", timestamp=now)
+                    log.add_field(name="Name (Singular)", value=f"{fetched_sing_cap}", inline=False)
+                    log.add_field(name="Name (Plural)", value=f"{fetched_plur_cap}", inline=False)
+                    log.add_field(name="Emoji", value=f"{fetched_moji}", inline=False)
+                    log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+                    await logging.send(embed=log)
                 await db.commit()
                 await db.close()
-            green = discord.Colour.green()
-            embed = discord.Embed(color=green, title="Success", description="The custom awards for the server have been set.")
-            embed.add_field(name="Name (Singular)", value=f"{fetched_sing_cap}", inline=False)
-            embed.add_field(name="Name (Plural)", value=f"{fetched_plur_cap}", inline=False)
-            embed.add_field(name="Emoji", value=f"{fetched_moji}", inline=False)
         except Exception as e:
-            red = discord.Colour.red()
-            embed = discord.Embed(color=red, title="Error", description=f"{e}")
-        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
+            await ctx.send(embed=error, delete_after=30.0, ephemeral=True)
 
     @awards.command(name="clear")
     @commands.has_guild_permissions(administrator=True)
@@ -83,14 +98,22 @@ class Awards(commands.Cog):
                     guild_member_id = int(str(guild_id) + str(member_id))
                     await db.execute("INSERT OR IGNORE INTO awards (guild_member_id) VALUES (?)", (guild_member_id,))
                     await db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (0, guild_member_id))
-                green = discord.Colour.green()
-                embed = discord.Embed(color=green, title=f"Success", description=f"{guild.name} has had all its {plur_low} cleared! {moji}")
+                embed = discord.Embed(color=self.green, title=f"Success", description=f"{guild.name} has had all its {plur_low} cleared! {moji}")
+                await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+                cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+                row = await cur.fetchone()
+                fetched_logging = row[0]
+                if fetched_logging is not None:
+                    logging = self.bot.get_channel(fetched_logging)
+                    now = datetime.now(tz=timezone.utc)
+                    log = discord.Embed(color=self.blurple, title="Awards Log", description=f"{ctx.author.mention} has just cleared the awards for the server.", timestamp=now)
+                    log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+                    await logging.send(embed=log)
                 await db.commit()
                 await db.close()
         except Exception as e:
-            red = discord.Colour.red()
-            embed = discord.Embed(color=red, title="Error", description=f"{e}")
-        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
+            await ctx.send(embed=error, delete_after=30.0, ephemeral=True)
 
     @awards.command(name="reaction_toggle")
     @commands.has_guild_permissions(administrator=True)
@@ -108,21 +131,29 @@ class Awards(commands.Cog):
             async with aiosqlite.connect('rainbowbot.db') as db:
                 guild_id = ctx.guild.id
                 await db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (guild_id,))
-                green = discord.Colour.green()
                 if toggle == True:
-                    toggle = 1
-                    await db.execute("UPDATE guilds SET award_reaction_toggle = ? WHERE guild_id = ?", (toggle, guild_id))
-                    embed = discord.Embed(color=green, title="Success", description="The toggle for award reactions has been set to **True**. Reacting and un-reacting to posts with the award emoji **will** add and remove awards.")
+                    togglenum = 1
+                    await db.execute("UPDATE guilds SET award_reaction_toggle = ? WHERE guild_id = ?", (togglenum, guild_id))
+                    embed = discord.Embed(color=self.green, title="Success", description=f"The toggle for award reactions has been set to {toggle}. Reacting and un-reacting to posts with the award emoji **will** add and remove awards.")
                 elif toggle == False:
-                    toggle = 0
-                    await db.execute("UPDATE guilds SET award_reaction_toggle = ? WHERE guild_id = ?", (toggle, guild_id))
-                    embed = discord.Embed(color=green, title="Success", description="The toggle for award reactions has been set to **False**. Reacting and un-reacting to posts with the award emoji **will not** add or remove awards.")
+                    togglenum = 0
+                    await db.execute("UPDATE guilds SET award_reaction_toggle = ? WHERE guild_id = ?", (togglenum, guild_id))
+                    embed = discord.Embed(color=self.green, title="Success", description=f"The toggle for award reactions has been set to {toggle}. Reacting and un-reacting to posts with the award emoji **will not** add or remove awards.")
+                await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+                cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+                row = await cur.fetchone()
+                fetched_logging = row[0]
+                if fetched_logging is not None:
+                    logging = self.bot.get_channel(fetched_logging)
+                    now = datetime.now(tz=timezone.utc)
+                    log = discord.Embed(color=self.blurple, title="Awards Log", description=f"{ctx.author.mention} has just set the award reaction toggle for the server to **{toggle}**.", timestamp=now)
+                    log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+                    await logging.send(embed=log)
                 await db.commit()
                 await db.close()
         except Exception as e:
-            red = discord.Colour.red()
-            embed = discord.Embed(color=red, title="Error", description=f"{e}")
-        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
+            await ctx.send(embed=error, delete_after=30.0, ephemeral=True)
 
     @commands.Cog.listener(name="on_reaction_add")
     async def on_reaction_add(self, reaction: discord.Reaction, user: discord.Member):
@@ -341,27 +372,25 @@ class Awards(commands.Cog):
                     current = 0
                 if current == 0:
                     await db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (current, guild_member_id))
-                    embed = discord.Embed(title=f"❌ Error ❌", description=f"{member.mention} doesn't have any {plur_low}!")
+                    embed = discord.Embed(color=self.red, title=f"Error", description=f"{member.mention} doesn't have any {plur_low}!")
                 elif current < amount:
-                    embed = discord.Embed(title=f"❌ Error ❌", description=f"{member.mention} doesn't have enough {plur_low}!")
+                    embed = discord.Embed(color=self.red, title=f"Error", description=f"{member.mention} doesn't have enough {plur_low}!")
                 else:
                     new = current - amount
                     await db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (new, guild_member_id))
                     cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
                     row = await cur.fetchone()
                     new = row[0]
-                    green = discord.Colour.green()
                     if new == 0:
-                        embed = discord.Embed(color=green, title=f"{plur_cap} Removed", description=f"{member.mention} no longer has any {plur_low}!")
+                        embed = discord.Embed(color=self.green, title=f"{plur_cap} Removed", description=f"{member.mention} no longer has any {plur_low}!")
                     elif new == 1:
-                        embed = discord.Embed(color=green, title=f"{plur_cap} Removed", description=f"{member.mention} now has {new} {sing_low}!")
+                        embed = discord.Embed(color=self.green, title=f"{plur_cap} Removed", description=f"{member.mention} now has {new} {sing_low}!")
                     else:
-                        embed = discord.Embed(color=green, title=f"{plur_cap} Removed", description=f"{member.mention} now has {new} {plur_low}!")
+                        embed = discord.Embed(color=self.green, title=f"{plur_cap} Removed", description=f"{member.mention} now has {new} {plur_low}!")
                 await db.commit()
                 await db.close()
         except Exception as e:
-            red = discord.Colour.red()
-            embed = discord.Embed(color=red, title="Error", description=f"{e}")
+            embed = discord.Embed(color=self.red, title="Error", description=f"{e}")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
     @awards.command(name="check")
@@ -404,19 +433,17 @@ class Awards(commands.Cog):
                 amount = row[0]
                 if amount is None:
                     amount = 0
-                green = discord.Colour.green()
                 if amount == 0:
                     await db.execute("INSERT OR IGNORE INTO awards (guild_member_id, amount) VALUES (?,?)", (guild_member_id,0))
-                    embed = discord.Embed(color=green, title=f"{sing_cap} Check", description=f"{member.mention} doesn't have any {plur_low}!")
+                    embed = discord.Embed(color=self.green, title=f"{sing_cap} Check", description=f"{member.mention} doesn't have any {plur_low}!")
                 elif amount == 1:
-                    embed = discord.Embed(color=green, title=f"{sing_cap} Check", description=f"{member.mention} has {amount} {sing_low}!")
+                    embed = discord.Embed(color=self.green, title=f"{sing_cap} Check", description=f"{member.mention} has {amount} {sing_low}!")
                 else:
-                    embed = discord.Embed(color=green, title=f"{sing_cap} Check", description=f"{member.mention} has {amount} {plur_low}!")
+                    embed = discord.Embed(color=self.green, title=f"{sing_cap} Check", description=f"{member.mention} has {amount} {plur_low}!")
                 await db.commit()
                 await db.close()
         except Exception as e:
-            red = discord.Colour.red()
-            embed = discord.Embed(color=red, title="Error", description=f"{e}")
+            embed = discord.Embed(color=self.red, title="Error", description=f"{e}")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
     @awards.command(name="leaderboard")
@@ -451,18 +478,16 @@ class Awards(commands.Cog):
                         await db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (awards, guild_member_id))
                     elif amount > 0:
                         member_awards[member_id] = amount
-                green = discord.Colour.green()
                 desc = []
                 for member, awards in dict(sorted(member_awards.items(), key=lambda item: item[1])):
                     awards = awards * moji
                     desc.append(f"<@{member}>:\n{awards}")
                 description = "\n\n".join(x for x in desc)
-                embed = discord.Embed(color=green, title=f"{sing_cap} Leaderboard", description=description)
+                embed = discord.Embed(color=self.green, title=f"{sing_cap} Leaderboard", description=description)
                 await db.commit()
                 await db.close()
         except Exception as e:
-            red = discord.Colour.red()
-            embed = discord.Embed(color=red, title="Error", description=f"{e}")
+            embed = discord.Embed(color=self.red, title="Error", description=f"{e}")
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
 async def setup(bot: commands.Bot):
