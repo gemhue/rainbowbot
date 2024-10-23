@@ -25,7 +25,7 @@ class UserSetup(commands.Cog):
         goodbye_channel : discord.TextChannel, optional
             Set the channel for goodbye messages.
         """
-        ctx.defer(ephemeral=True)
+        await ctx.defer(ephemeral=True)
         async with aiosqlite.connect('rainbowbot.db') as db:
             guild = ctx.guild
             guild_id = guild.id
@@ -78,7 +78,7 @@ class UserSetup(commands.Cog):
         message : str
             Set the welcome message for members who join the server.
         """
-        ctx.defer(ephemeral=True)
+        await ctx.defer(ephemeral=True)
         async with aiosqlite.connect('rainbowbot.db') as db:
             guild = ctx.guild
             guild_id = guild.id
@@ -112,7 +112,7 @@ class UserSetup(commands.Cog):
         message : str
             Set the goodbye message for members who leave the server.
         """
-        ctx.defer(ephemeral=True)
+        await ctx.defer(ephemeral=True)
         async with aiosqlite.connect('rainbowbot.db') as db:
             guild = ctx.guild
             guild_id = guild.id
@@ -148,7 +148,7 @@ class UserSetup(commands.Cog):
         botrole : discord.Role, optional
             Choose the role that you would like to give to new bots on join.
         """
-        ctx.defer(ephemeral=True)
+        await ctx.defer(ephemeral=True)
         async with aiosqlite.connect('rainbowbot.db') as db:
             guild = ctx.guild
             guild_id = guild.id
