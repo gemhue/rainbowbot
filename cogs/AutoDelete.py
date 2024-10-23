@@ -1,4 +1,5 @@
 import discord
+import aiosqlite
 from discord import app_commands
 from discord.ext import commands, tasks
 from datetime import datetime, timedelta, timezone
@@ -9,6 +10,9 @@ class AutoDelete(commands.Cog):
         self.bot = bot
         self.autodel = {}
         self.autodeleter.start()
+        self.green = discord.Colour.green()
+        self.red = discord.Colour.red()
+        self.blurple = discord.Colour.blurple()
     
     def cog_unload(self):
         self.autodeleter.cancel()
@@ -39,12 +43,23 @@ class AutoDelete(commands.Cog):
                 time = timedelta(days=amt)
             channel_id = ctx.channel.id
             self.autodel[channel_id] = time
-            green = discord.Colour.green()
-            embed = discord.Embed(color=green, title="Success", description=f"The autodelete for the current channel has been set up. Any unpinned messages in the current channel older than **{amount} {interval}** will be automatically deleted.")
+            embed = discord.Embed(color=self.green, title="Success", description=f"The autodelete for the current channel has been set up. Any unpinned messages in the current channel older than **{amount} {interval}** will be automatically deleted.")
+            await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+            async with aiosqlite.connect('rainbowbot.db') as db:
+                cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+                row = await cur.fetchone()
+                fetched_logging = row[0]
+                if fetched_logging is not None:
+                    now = datetime.now(tz=timezone.utc)
+                    log = discord.Embed(color=self.blurple, title="AutoDelete Log", description=f"{ctx.author.mention} has just set up AutoDelete for {ctx.channel.mention}. Any unpinned messages in the channel older than **{amount} {interval}** will be automatically deleted.", timestamp=now)
+                    logging = self.bot.get_channel(fetched_logging)
+                    embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+                    await logging.send(embed=log)
+                await db.commit()
+                await db.close()
         except Exception as e:
-            red = discord.Colour.red()
-            embed = discord.Embed(color=red, title="Error", description=f"{e}")
-        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+            embed = discord.Embed(color=self.red, title="Error", description=f"{e}")
+            await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
     @autodelete.command(name="cancel")
     @commands.has_guild_permissions(administrator=True)
@@ -57,12 +72,26 @@ class AutoDelete(commands.Cog):
             channel_id = ctx.channel.id
             if channel_id in self.autodel:
                 del self.autodel[channel_id]
-                green = discord.Colour.green()
-                embed = discord.Embed(color=green, title="Success", description="The autodelete for the current channel has been deleted.")
+                embed = discord.Embed(color=self.green, title="Success", description="The autodelete for the current channel has been deleted.")
+                await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+                async with aiosqlite.connect('rainbowbot.db') as db:
+                    cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+                    row = await cur.fetchone()
+                    fetched_logging = row[0]
+                    if fetched_logging is not None:
+                        now = datetime.now(tz=timezone.utc)
+                        log = discord.Embed(color=self.blurple, title="AutoDelete Log", description=f"{ctx.author.mention} has just cancelled the AutoDelete for {ctx.channel.mention}.", timestamp=now)
+                        logging = self.bot.get_channel(fetched_logging)
+                        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+                        await logging.send(embed=log)
+                    await db.commit()
+                    await db.close()
+            else:
+                embed = discord.Embed(color=self.red, title="Error", description="There is no autodelete set up for the current channel.")
+                await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
         except Exception as e:
-            red = discord.Colour.red()
-            embed = discord.Embed(color=red, title="Error", description=f"{e}")
-        await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+            embed = discord.Embed(color=self.red, title="Error", description=f"{e}")
+            await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
     @tasks.loop(minutes=5.0)
     async def autodeleter(self):
