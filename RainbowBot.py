@@ -148,7 +148,7 @@ async def load(ctx: commands.Context, extension: str):
                 embed.add_field(name=cog, value=f"Error: {e}")
     elif lower in await allcogs(x="names_lower"):
         for cog in await allcogs(x="cogs"):
-            if cog == f"cogs.{lower}":
+            if cog.lower() == f"cogs.{lower}":
                 try:
                     await bot.load_extension(cog)
                     embed.add_field(name=cog, value="Loaded successfully!")
@@ -192,7 +192,7 @@ async def reload(ctx: commands.Context, extension: str):
                 embed.add_field(name=cog, value=f"Error: {e}")
     elif lower in await allcogs(x="names_lower"):
         for cog in await allcogs(x="cogs"):
-            if cog == f"cogs.{lower}":
+            if cog.lower() == f"cogs.{lower}":
                 try:
                     await bot.reload_extension(cog)
                     embed.add_field(name=cog, value="Reloaded successfully!")
