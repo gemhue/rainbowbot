@@ -22,9 +22,9 @@ async def sync(ctx: commands.Context, where: str):
     """(Bot Owner Only) Syncs the local command tree.
     """
     await ctx.defer(ephemeral=True)
+    guild = ctx.guild
     now = datetime.now(tz=timezone.utc)
     if where == "here" or where == "local":
-        guild = ctx.guild
         await bot.tree.sync(guild=guild)
         embed = discord.Embed(title="Success", description=f"The bot's local command tree has been synced!", timestamp=now)
     elif where == "global":
@@ -51,9 +51,9 @@ async def clear(ctx: commands.Context, where: str):
     """(Bot Owner Only) Clears the local command tree.
     """
     await ctx.defer(ephemeral=True)
+    guild = ctx.guild
     now = datetime.now(tz=timezone.utc)
     if where == "here" or where == "local":
-        guild = ctx.guild
         bot.tree.clear_commands(guild=guild)
         embed = discord.Embed(title="Success", description=f"The bot's local command tree has been cleared!", timestamp=now)
     elif where == "global":
