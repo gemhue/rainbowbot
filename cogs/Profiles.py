@@ -136,7 +136,7 @@ class Profiles(commands.Cog):
                 row = await cur.fetchone()
                 fetched_name = row[0]
                 if fetched_name is not None:
-                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile name is now set to: \`{fetched_name}\`")
+                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile name is now set to: `{fetched_name}`")
                 await db.commit()
                 await db.close()
         except Exception as e:
@@ -162,7 +162,7 @@ class Profiles(commands.Cog):
                 row = await cur.fetchone()
                 fetched_age = row[0]
                 if fetched_age is not None:
-                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile age is now set to: \`{fetched_age}\`")
+                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile age is now set to: `{fetched_age}`")
                 await db.commit()
                 await db.close()
         except Exception as e:
@@ -188,7 +188,7 @@ class Profiles(commands.Cog):
                 row = await cur.fetchone()
                 fetched_location = row[0]
                 if fetched_location is not None:
-                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile location is now set to: \`{fetched_location}\`")
+                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile location is now set to: `{fetched_location}`")
                 await db.commit()
                 await db.close()
         except Exception as e:
@@ -214,7 +214,7 @@ class Profiles(commands.Cog):
                 row = await cur.fetchone()
                 fetched_pronouns = row[0]
                 if fetched_pronouns is not None:
-                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile pronouns are now set to: \`{fetched_pronouns}\`")
+                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile pronouns are now set to: `{fetched_pronouns}`")
                 await db.commit()
                 await db.close()
         except Exception as e:
@@ -240,7 +240,7 @@ class Profiles(commands.Cog):
                 row = await cur.fetchone()
                 fetched_gender = row[0]
                 if fetched_gender is not None:
-                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile gender are now set to: \`{fetched_gender}\`")
+                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile gender are now set to: `{fetched_gender}`")
                 await db.commit()
                 await db.close()
         except Exception as e:
@@ -266,7 +266,7 @@ class Profiles(commands.Cog):
                 row = await cur.fetchone()
                 fetched_sex = row[0]
                 if fetched_sex is not None:
-                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile sexuality is now set to: \`{fetched_sex}\`")
+                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile sexuality is now set to: `{fetched_sex}`")
                 await db.commit()
                 await db.close()
         except Exception as e:
@@ -292,7 +292,7 @@ class Profiles(commands.Cog):
                 row = await cur.fetchone()
                 fetched_ship = row[0]
                 if fetched_ship is not None:
-                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile relationship status is now set to: \`{fetched_ship}\`")
+                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile relationship status is now set to: `{fetched_ship}`")
                 await db.commit()
                 await db.close()
         except Exception as e:
@@ -318,7 +318,7 @@ class Profiles(commands.Cog):
                 row = await cur.fetchone()
                 fetched_fam = row[0]
                 if fetched_fam is not None:
-                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile family planning status is now set to: \`{fetched_fam}\`")
+                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile family planning status is now set to: `{fetched_fam}`")
                 await db.commit()
                 await db.close()
         except Exception as e:
@@ -344,7 +344,7 @@ class Profiles(commands.Cog):
                 row = await cur.fetchone()
                 fetched_bio = row[0]
                 if fetched_bio is not None:
-                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile biography is now set to: \`{fetched_bio}\`")
+                    embed = discord.Embed(color=self.green, title="Success", description=f"Your profile biography is now set to: `{fetched_bio}`")
                 await db.commit()
                 await db.close()
         except Exception as e:
