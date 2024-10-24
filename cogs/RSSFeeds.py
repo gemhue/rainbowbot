@@ -10,14 +10,19 @@ from time import mktime
 from bs4 import BeautifulSoup
 
 class RSSFeeds(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: commands.Bot, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.bot = bot
-        self.red = discord.Colour.red()
         self.blurple = discord.Colour.blurple()
+        self.red = discord.Colour.red()
+
+    def cog_load(self):
         self.postrss.start()
-    
+        return super().cog_load()
+
     def cog_unload(self):
         self.postrss.cancel()
+        return super().cog_unload()
 
     @commands.hybrid_group(name="rss", fallback="webhook_setup")
     @commands.has_guild_permissions(administrator=True)

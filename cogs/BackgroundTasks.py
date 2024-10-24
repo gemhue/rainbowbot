@@ -4,9 +4,18 @@ import aiosqlite
 from datetime import datetime, timedelta, timezone
 
 class BackgroundTasks(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: commands.Bot, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.bot = bot
         self.blurple = discord.Colour.blurple()
+
+    def cog_load(self):
+        self.activity_check.start()
+        return super().cog_load()
+
+    def cog_unload(self):
+        self.activity_check.cancel()
+        return super().cog_unload()
 
     @commands.Cog.listener(name="on_message")
     async def on_message(self, message: discord.Message):
@@ -65,7 +74,7 @@ class BackgroundTasks(commands.Cog):
                         message = f"Welcome to {guild.name}, {member.mention}!"
                     color = member.accent_color
                     time = datetime.now()
-                    embed = discord.Embed(color=color, description=message, timestamp=time)
+                    embed = discord.Embed(color=color, description=f"{message}", timestamp=time)
                     avatar = member.display_avatar
                     embed.set_thumbnail(url=avatar)
                     channel = guild.get_channel(channel_id)
@@ -106,7 +115,7 @@ class BackgroundTasks(commands.Cog):
                         message = f"{member.mention} has just left {guild.name}!"
                     color = member.accent_color
                     time = datetime.now()
-                    embed = discord.Embed(color=color, description=message, timestamp=time)
+                    embed = discord.Embed(color=color, description=f"{message}", timestamp=time)
                     avatar = member.display_avatar
                     embed.set_thumbnail(url=avatar)
                     channel = guild.get_channel(channel_id)
