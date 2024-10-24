@@ -77,10 +77,10 @@ class Purge(commands.Cog):
                 row = await cur.fetchone()
                 fetched_logging = row[0]
                 if fetched_logging is not None:
+                    logging = self.bot.get_channel(fetched_logging)
                     now = datetime.now(tz=timezone.utc)
                     log = discord.Embed(color=self.blurple, title="Purge Log", description=f"{ctx.author.mention} has just purged all unpinned messages from the following channel: {channel.mention}.", timestamp=now)
-                    logging = self.bot.get_channel(fetched_logging)
-                    embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+                    log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
                     await logging.send(embed=log)
                 await db.commit()
                 await db.close()
@@ -132,10 +132,10 @@ class Purge(commands.Cog):
                     row = await cur.fetchone()
                     fetched_logging = row[0]
                     if fetched_logging is not None:
+                        logging = self.bot.get_channel(fetched_logging)
                         now = datetime.now(tz=timezone.utc)
                         log = discord.Embed(color=self.blurple, title="Purge Log", description=f"{ctx.author.mention} has just purged {member.mention}'s unpinned messages from the following channels: {selectedlist}.", timestamp=now)
-                        logging = self.bot.get_channel(fetched_logging)
-                        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+                        log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
                         await logging.send(embed=log)
                     await db.commit()
                     await db.close()
@@ -188,10 +188,10 @@ class Purge(commands.Cog):
                     row = await cur.fetchone()
                     fetched_logging = row[0]
                     if fetched_logging is not None:
+                        logging = self.bot.get_channel(fetched_logging)
                         now = datetime.now(tz=timezone.utc)
                         log = discord.Embed(color=self.blurple, title="Purge Log", description=f"{ctx.author.mention} has just purged all unpinned messages from the following channels: {selectedlist}.", timestamp=now)
-                        logging = self.bot.get_channel(fetched_logging)
-                        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+                        log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
                         await logging.send(embed=log)
                     await db.commit()
                     await db.close()
@@ -248,7 +248,7 @@ class Purge(commands.Cog):
                         now = datetime.now(tz=timezone.utc)
                         log = discord.Embed(color=self.blurple, title="Purge Log", description=f"{ctx.author.mention} has just purged all unpinned messages from the server, except from the following channels: {excludedlist}.", timestamp=now)
                         logging = self.bot.get_channel(fetched_logging)
-                        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+                        log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
                         await logging.send(embed=log)
                     await db.commit()
                     await db.close()
