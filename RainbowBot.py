@@ -5,7 +5,7 @@ from discord.ext import commands
 from datetime import datetime, timezone
 
 bot = commands.Bot(
-    command_prefix = 'rb!',
+    command_prefix = commands.when_mentioned_or("rb!"),
     description = "A multi-purpose Discord bot made by GitHub user gemhue.",
     intents = discord.Intents.all(),
     activity = discord.Activity(type=discord.ActivityType.listening, name="rb!help"),
@@ -231,7 +231,7 @@ async def ping(ctx: commands.Context):
     """Retrieve the bot's current latency.
     """
     await ctx.defer(ephemeral=True)
-    embed = discord.Embed(color=ctx.author.accent_color, title="Pong", description=f"The bot's current latency is {bot.latency} seconds!")
+    embed = discord.Embed(color=blurple, title="Pong", description=f"The bot's current latency is {bot.latency} seconds!")
     await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
     await ctx.message.delete()
 
@@ -246,6 +246,9 @@ async def setup():
                          goodbye_message TEXT DEFAULT NULL,
                          join_role_id INTEGER DEFAULT NULL,
                          bot_join_role_id INTEGER DEFAULT NULL,
+                         active_role_id INTEGER DEFAULT NULL,
+                         inactive_role_id INTEGER DEFAULT NULL,
+                         inactive_days INTEGER DEFAULT NULL,
                          award_singular TEXT DEFAULT NULL,
                          award_plural TEXT DEFAULT NULL,
                          award_emoji TEXT DEFAULT NULL,

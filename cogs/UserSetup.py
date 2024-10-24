@@ -203,7 +203,7 @@ class UserSetup(commands.Cog):
             channels = guild.text_channels
             members = [m for m in guild.members if not m.bot]
             today =  datetime.now(tz=timezone.utc)
-            setdays = timedelta(days=days)
+            setdays = timedelta(days=float(days))
             daysago = today-setdays
             newmembers = [m for m in members if m.joined_at < daysago]
             activemembers = []
