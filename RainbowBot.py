@@ -110,7 +110,7 @@ async def get_cogs(ctx: commands.Context):
     await ctx.defer(ephemeral=True)
     now = datetime.now(tz=timezone.utc)
     embed = discord.Embed(color=blurple, title="Cogs", timestamp=now)
-    async for cog in allcogs(x="names"):
+    for cog in await allcogs(x="names"):
         embed.add_field(name=cog, value="Retreived successfully!")
     await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
     await ctx.message.delete()
@@ -140,14 +140,14 @@ async def load_cogs(ctx: commands.Context, extension: str):
     embed = discord.Embed(color=blurple, title="Load Cogs", timestamp=now)
     lower = extension.lower()
     if lower == "all":
-        async for cog in allcogs(x="cogs"):
+        for cog in await allcogs(x="cogs"):
             try:
                 await bot.load_extension(cog)
                 embed.add_field(name=cog, value="Loaded successfully!")
             except Exception as e:
                 embed.add_field(name=cog, value=f"Error: {e}")
     elif lower in await allcogs(x="names_lower") and lower != "all":
-        async for cog in allcogs(x="cogs"):
+        for cog in await allcogs(x="cogs"):
             cogstr = str(cog)
             coglow = cogstr.lower()
             lowcog = f"cog.{lower}"
@@ -187,14 +187,14 @@ async def reload_cogs(ctx: commands.Context, extension: str):
     embed = discord.Embed(color=blurple, title="Reload Cogs", timestamp=now)
     lower = extension.lower()
     if lower == "all":
-        async for cog in allcogs(x="cogs"):
+        for cog in await allcogs(x="cogs"):
             try:
                 await bot.reload_extension(cog)
                 embed.add_field(name=cog, value="Reloaded successfully!")
             except Exception as e:
                 embed.add_field(name=cog, value=f"Error: {e}")
     elif lower in await allcogs(x="names_lower") and lower != "all":
-        async for cog in allcogs(x="cogs"):
+        for cog in await allcogs(x="cogs"):
             cogstr = str(cog)
             coglow = cogstr.lower()
             lowcog = f"cog.{lower}"
