@@ -27,7 +27,7 @@ async def sync(ctx: commands.Context, where: str):
     if where == "here" or where == "local":
         await bot.tree.sync(guild=guild)
         embed = discord.Embed(color=green, title="Success", description=f"The bot's local command tree has been synced!", timestamp=now)
-    elif where == "global":
+    elif where == "all" or where == "global":
         await bot.tree.sync(guild=None)
         embed = discord.Embed(color=green, title="Success", description=f"The bot's global command tree has been synced!", timestamp=now)
     else:
@@ -56,7 +56,7 @@ async def clear(ctx: commands.Context, where: str):
     if where == "here" or where == "local":
         bot.tree.clear_commands(guild=guild)
         embed = discord.Embed(color=green, title="Success", description=f"The bot's local command tree has been cleared!", timestamp=now)
-    elif where == "global":
+    elif where == "all" or where == "global":
         bot.tree.clear_commands(guild=None)
         embed = discord.Embed(color=green, title="Success", description=f"The bot's global command tree has been cleared!", timestamp=now)
     else:
@@ -97,38 +97,31 @@ async def get_cogs(ctx: commands.Context):
         await db.commit()
         await db.close()
 
-def allcogs(x):
-    if x == "cogs":
-        cogs = []
-        for file in os.listdir("./cogs"):
-            if file.endswith(".py"):
-                cogs.append(f"cogs.{file[:-3]}")
+async def allcogs(x):
+    files = []
+    cogs = []
+    cogsdict = {}
+    folder = "./cogs"
+    for file in os.listdir(folder):
+        if file.endswith(".py"):
+            files.append(file[:-3])
+    for file in files:
+        if x == "cogs":
+            cogs.append(f"cogs.{file}")
+        elif x == "modules":
+            cogs.append(f"{file}.{file}")
+        elif x == "names":
+            cogs.append(file)
+        elif x == "names_lower":
+            name = file.lower()
+            cogs.append(name)
+        elif x == "names_dict":
+            lower = file.lower()
+            cogsdict[lower] = file
+    if len(cogs) > 0:
         return cogs
-    elif x == "modules":
-        modules = []
-        for file in os.listdir("./cogs"):
-            if file.endswith(".py"):
-                modules.append(f"{file[:-3]}.{file[:-3]}")
-    elif x == "names":
-        names = []
-        for file in os.listdir("./cogs"):
-            if file.endswith(".py"):
-                names.append(file[:-3])
-        return names
-    elif x == "names_lower":
-        names_lower = []
-        for file in os.listdir("./cogs"):
-            if file.endswith(".py"):
-                name = file.lower()
-                names_lower.append(name[:-3])
-        return names_lower
-    elif x == "names_dict":
-        names_dict = {}
-        for file in os.listdir("./cogs"):
-            if file.endswith(".py"):
-                lower = file.lower()
-                names_dict[lower[:-3]] = file[:-3]
-        return names_dict
+    elif len(cogsdict) > 0:
+        return cogsdict
     else:
         return None
 
