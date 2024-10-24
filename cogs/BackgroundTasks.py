@@ -54,7 +54,7 @@ class BackgroundTasks(commands.Cog):
             if any(x in messagecont for x in list8):
                 await message.add_reaction(moji8)
         except Exception as e:
-            print(e)
+            print(f"On Message Error: {e}")
         
     @commands.Cog.listener(name="on_member_join")
     async def on_member_join(self, member: discord.Member):
@@ -95,7 +95,7 @@ class BackgroundTasks(commands.Cog):
                 await db.commit()
                 await db.close()
         except Exception as e:
-            print(e)
+            print(f"On Member Join Error: {e}")
 
     @commands.Cog.listener(name="on_member_remove")
     async def on_member_remove(self, member: discord.Member):
@@ -124,7 +124,7 @@ class BackgroundTasks(commands.Cog):
                 await db.commit()
                 await db.close()
         except Exception as e:
-            print(e)
+            print(f"On Member Remove Error: {e}")
 
     @tasks.loop(hours=24)
     async def activity_check(self):
@@ -136,57 +136,58 @@ class BackgroundTasks(commands.Cog):
                     await db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (guild_id,))
                     cur = await db.execute("SELECT inactive_days FROM guilds WHERE guild_id = ?", (guild_id,))
                     row = await cur.fetchone()
-                    days = float(row[0])
-                    cur = await db.execute("SELECT active_role_id FROM guilds WHERE guild_id = ?", (guild_id,))
-                    row = await cur.fetchone()
-                    active_id = row[0]
-                    if active_id is not None:
-                        active = guild.get_role(active_id)
-                        cur = await db.execute("SELECT inactive_role_id FROM guilds WHERE guild_id = ?", (guild_id,))
+                    days = row[0]
+                    if days is not None:
+                        cur = await db.execute("SELECT active_role_id FROM guilds WHERE guild_id = ?", (guild_id,))
                         row = await cur.fetchone()
-                        inactive_id = row[0]
-                        if inactive_id is not None:
-                            inactive = guild.get_role(inactive_id)
-                            now = datetime.now(tz=timezone.utc)
-                            setdays = timedelta(days=days)
-                            daysago = now-setdays
-                            members = [m for m in guild.members if not m.bot]
-                            newmembers = [m for m in members if m.joined_at < daysago]
-                            activemembers = []
-                            inactivemembers = []
-                            channels = guild.text_channels
-                            for channel in channels:
-                                async for message in channel.history(after=daysago):
-                                    if message.author in members and message.author not in activemembers:
-                                        activemembers.append(message.author)
-                            for member in members:
-                                if member not in newmembers and member not in activemembers:
-                                    inactivemembers.append(member)
-                                if member in newmembers and member not in activemembers:
-                                    activemembers.append(member)
-                            for member in activemembers:
-                                if active not in member.roles:
-                                    await member.add_roles(active)
-                                if inactive in member.roles:
-                                    await member.remove_roles(inactive)
-                            for member in inactivemembers:
-                                if inactive not in member.roles:
-                                    await member.add_roles(inactive)
-                                if active in member.roles:
-                                    await member.remove_roles(active)
-                            cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild_id,))
+                        active_id = row[0]
+                        if active_id is not None:
+                            active = guild.get_role(active_id)
+                            cur = await db.execute("SELECT inactive_role_id FROM guilds WHERE guild_id = ?", (guild_id,))
                             row = await cur.fetchone()
-                            fetched_logging = row[0]
-                            if fetched_logging is not None:
-                                logging = guild.get_channel(fetched_logging)
-                                embed = discord.Embed(color=self.blurple, title="Activity Roles Assigned", timestamp=now)
-                                embed.add_field(name="Active Members", value=f"{len(activemembers)} members now have the {active.mention} role!", inline=False)
-                                embed.add_field(name="Inactive Members", value=f"{len(inactivemembers)} members now have the {inactive.mention} role!", inline=False)
-                                await logging.send(embed=embed)
+                            inactive_id = row[0]
+                            if inactive_id is not None:
+                                inactive = guild.get_role(inactive_id)
+                                now = datetime.now(tz=timezone.utc)
+                                setdays = timedelta(days=float(days))
+                                daysago = now-setdays
+                                members = [m for m in guild.members if not m.bot]
+                                newmembers = [m for m in members if m.joined_at < daysago]
+                                activemembers = []
+                                inactivemembers = []
+                                channels = guild.text_channels
+                                for channel in channels:
+                                    async for message in channel.history(after=daysago):
+                                        if message.author in members and message.author not in activemembers:
+                                            activemembers.append(message.author)
+                                for member in members:
+                                    if member not in newmembers and member not in activemembers:
+                                        inactivemembers.append(member)
+                                    if member in newmembers and member not in activemembers:
+                                        activemembers.append(member)
+                                for member in activemembers:
+                                    if active not in member.roles:
+                                        await member.add_roles(active)
+                                    if inactive in member.roles:
+                                        await member.remove_roles(inactive)
+                                for member in inactivemembers:
+                                    if inactive not in member.roles:
+                                        await member.add_roles(inactive)
+                                    if active in member.roles:
+                                        await member.remove_roles(active)
+                                cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild_id,))
+                                row = await cur.fetchone()
+                                fetched_logging = row[0]
+                                if fetched_logging is not None:
+                                    logging = guild.get_channel(fetched_logging)
+                                    embed = discord.Embed(color=self.blurple, title="Activity Roles Assigned", timestamp=now)
+                                    embed.add_field(name="Active Members", value=f"{len(activemembers)} members now have the {active.mention} role!", inline=False)
+                                    embed.add_field(name="Inactive Members", value=f"{len(inactivemembers)} members now have the {inactive.mention} role!", inline=False)
+                                    await logging.send(embed=embed)
                 await db.commit()
                 await db.close()
         except Exception as e:
-            print(e)
+            print(f"Activity Check Error: {e}")
 
 async def setup(bot: commands.Bot):
 	await bot.add_cog(BackgroundTasks(bot), override=True)
