@@ -26,12 +26,12 @@ async def sync(ctx: commands.Context, where: str):
     now = datetime.now(tz=timezone.utc)
     if where == "here" or where == "local":
         await bot.tree.sync(guild=guild)
-        embed = discord.Embed(title="Success", description=f"The bot's local command tree has been synced!", timestamp=now)
+        embed = discord.Embed(color=green, title="Success", description=f"The bot's local command tree has been synced!", timestamp=now)
     elif where == "global":
         await bot.tree.sync(guild=None)
-        embed = discord.Embed(title="Success", description=f"The bot's global command tree has been synced!", timestamp=now)
+        embed = discord.Embed(color=green, title="Success", description=f"The bot's global command tree has been synced!", timestamp=now)
     else:
-        embed = discord.Embed(title="Error", description=f"The bot's command tree has not been synced! Please specify if you would like to sync \`here\` or \`global\`.", timestamp=now)
+        embed = discord.Embed(color=red, title="Error", description=f"The bot's command tree has not been synced! Please specify if you would like to sync \`here\` or \`global\`.", timestamp=now)
     await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
     await ctx.message.delete()
     async with aiosqlite.connect('rainbowbot.db') as db:
@@ -55,12 +55,12 @@ async def clear(ctx: commands.Context, where: str):
     now = datetime.now(tz=timezone.utc)
     if where == "here" or where == "local":
         bot.tree.clear_commands(guild=guild)
-        embed = discord.Embed(title="Success", description=f"The bot's local command tree has been cleared!", timestamp=now)
+        embed = discord.Embed(color=green, title="Success", description=f"The bot's local command tree has been cleared!", timestamp=now)
     elif where == "global":
         bot.tree.clear_commands(guild=None)
-        embed = discord.Embed(title="Success", description=f"The bot's global command tree has been cleared!", timestamp=now)
+        embed = discord.Embed(color=green, title="Success", description=f"The bot's global command tree has been cleared!", timestamp=now)
     else:
-        embed = discord.Embed(title="Error", description=f"The bot's command tree has not been cleared! Please specify if you would like to clear \`here\` or \`global\`.", timestamp=now)
+        embed = discord.Embed(color=red, title="Error", description=f"The bot's command tree has not been cleared! Please specify if you would like to clear \`here\` or \`global\`.", timestamp=now)
     await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
     await ctx.message.delete()
     async with aiosqlite.connect('rainbowbot.db') as db:
