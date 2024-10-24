@@ -125,9 +125,9 @@ async def get_cogs(ctx: commands.Context):
         await db.commit()
         await db.close()
 
-@bot.command(name="load_cogs", aliases=["load_cog","loadcogs","loadcog"], hidden=True)
+@bot.command(name="load", aliases=["load_cogs","load_cog","loadcogs","loadcog"], hidden=True)
 @commands.is_owner()
-async def load_cogs(ctx: commands.Context, extension: str):
+async def load(ctx: commands.Context, extension: str):
     """(Bot Owner Only) Loads one or all of the bot's cogs.
 
     Parameters
@@ -146,12 +146,9 @@ async def load_cogs(ctx: commands.Context, extension: str):
                 embed.add_field(name=cog, value="Loaded successfully!")
             except Exception as e:
                 embed.add_field(name=cog, value=f"Error: {e}")
-    elif lower in await allcogs(x="names_lower") and lower != "all":
+    elif lower in await allcogs(x="names_lower"):
         for cog in await allcogs(x="cogs"):
-            cogstr = str(cog)
-            coglow = cogstr.lower()
-            lowcog = f"cog.{lower}"
-            if coglow == lowcog:
+            if cog == f"cogs.{lower}":
                 try:
                     await bot.load_extension(cog)
                     embed.add_field(name=cog, value="Loaded successfully!")
@@ -172,9 +169,9 @@ async def load_cogs(ctx: commands.Context, extension: str):
         await db.commit()
         await db.close()
 
-@bot.command(name="reload_cogs", aliases=["reload_cog","reloadcogs","reloadcog"], hidden=True)
+@bot.command(name="reload", aliases=["reload_cogs","reload_cog","reloadcogs","reloadcog"], hidden=True)
 @commands.is_owner()
-async def reload_cogs(ctx: commands.Context, extension: str):
+async def reload(ctx: commands.Context, extension: str):
     """(Bot Owner Only) Reloads one or all of the bot's cogs.
 
     Parameters
@@ -193,12 +190,9 @@ async def reload_cogs(ctx: commands.Context, extension: str):
                 embed.add_field(name=cog, value="Reloaded successfully!")
             except Exception as e:
                 embed.add_field(name=cog, value=f"Error: {e}")
-    elif lower in await allcogs(x="names_lower") and lower != "all":
+    elif lower in await allcogs(x="names_lower"):
         for cog in await allcogs(x="cogs"):
-            cogstr = str(cog)
-            coglow = cogstr.lower()
-            lowcog = f"cog.{lower}"
-            if coglow == lowcog:
+            if cog == f"cogs.{lower}":
                 try:
                     await bot.reload_extension(cog)
                     embed.add_field(name=cog, value="Reloaded successfully!")
@@ -224,7 +218,10 @@ async def ping(ctx: commands.Context):
     """Retrieve the bot's current latency.
     """
     await ctx.defer(ephemeral=True)
-    embed = discord.Embed(color=blurple, title="Pong", description=f"The bot's current latency is {bot.latency} seconds!")
+    try:
+        embed = discord.Embed(color=blurple, title="Pong", description=f"The bot's current latency is {bot.latency} seconds!")
+    except Exception as e:
+        embed = discord.Embed(color=red, title="Error", description=f"{e}")
     await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
     await ctx.message.delete()
 
