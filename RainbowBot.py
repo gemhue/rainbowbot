@@ -74,29 +74,6 @@ async def clear(ctx: commands.Context, where: str):
         await db.commit()
         await db.close()
 
-@bot.command(name="get_cogs", aliases=["get_cog","getcogs","getcog"], hidden=True)
-@commands.is_owner()
-async def get_cogs(ctx: commands.Context):
-    """(Bot Owner Only) Returns all of the bot's cogs.
-    """
-    await ctx.defer(ephemeral=True)
-    now = datetime.now(tz=timezone.utc)
-    embed = discord.Embed(color=blurple, title="Cogs", timestamp=now)
-    for cog in allcogs(x="names"):
-        embed.add_field(name=cog, value="Retreived successfully!")
-    await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
-    await ctx.message.delete()
-    async with aiosqlite.connect('rainbowbot.db') as db:
-        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
-        row = await cur.fetchone()
-        fetched_logging = row[0]
-        if fetched_logging is not None:
-            logging = bot.get_channel(fetched_logging)
-            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-            await logging.send(embed=embed)
-        await db.commit()
-        await db.close()
-
 async def allcogs(x):
     files = []
     cogs = []
@@ -125,6 +102,29 @@ async def allcogs(x):
     else:
         return None
 
+@bot.command(name="get_cogs", aliases=["get_cog","getcogs","getcog"], hidden=True)
+@commands.is_owner()
+async def get_cogs(ctx: commands.Context):
+    """(Bot Owner Only) Returns all of the bot's cogs.
+    """
+    await ctx.defer(ephemeral=True)
+    now = datetime.now(tz=timezone.utc)
+    embed = discord.Embed(color=blurple, title="Cogs", timestamp=now)
+    async for cog in allcogs(x="names"):
+        embed.add_field(name=cog, value="Retreived successfully!")
+    await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+    await ctx.message.delete()
+    async with aiosqlite.connect('rainbowbot.db') as db:
+        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+        row = await cur.fetchone()
+        fetched_logging = row[0]
+        if fetched_logging is not None:
+            logging = bot.get_channel(fetched_logging)
+            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+            await logging.send(embed=embed)
+        await db.commit()
+        await db.close()
+
 @bot.command(name="load_cogs", aliases=["load_cog","loadcogs","loadcog"], hidden=True)
 @commands.is_owner()
 async def load_cogs(ctx: commands.Context, extension: str):
@@ -140,14 +140,14 @@ async def load_cogs(ctx: commands.Context, extension: str):
     embed = discord.Embed(color=blurple, title="Load Cogs", timestamp=now)
     lower = extension.lower()
     if lower == "all":
-        for cog in allcogs(x="cogs"):
+        async for cog in allcogs(x="cogs"):
             try:
                 await bot.load_extension(cog)
                 embed.add_field(name=cog, value="Loaded successfully!")
             except Exception as e:
                 embed.add_field(name=cog, value=f"Error: {e}")
-    elif lower in allcogs(x="names_lower") and lower != "all":
-        for cog in allcogs(x="cogs"):
+    elif lower in await allcogs(x="names_lower") and lower != "all":
+        async for cog in allcogs(x="cogs"):
             cogstr = str(cog)
             coglow = cogstr.lower()
             lowcog = f"cog.{lower}"
@@ -187,14 +187,14 @@ async def reload_cogs(ctx: commands.Context, extension: str):
     embed = discord.Embed(color=blurple, title="Reload Cogs", timestamp=now)
     lower = extension.lower()
     if lower == "all":
-        for cog in allcogs(x="cogs"):
+        async for cog in allcogs(x="cogs"):
             try:
                 await bot.reload_extension(cog)
                 embed.add_field(name=cog, value="Reloaded successfully!")
             except Exception as e:
                 embed.add_field(name=cog, value=f"Error: {e}")
-    elif lower in allcogs(x="names_lower") and lower != "all":
-        for cog in allcogs(x="cogs"):
+    elif lower in await allcogs(x="names_lower") and lower != "all":
+        async for cog in allcogs(x="cogs"):
             cogstr = str(cog)
             coglow = cogstr.lower()
             lowcog = f"cog.{lower}"
