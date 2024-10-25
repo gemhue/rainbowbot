@@ -19,6 +19,7 @@ class TicketButtons(discord.ui.View):
                 user = interaction.user
                 content = f"-# {user.mention}"
                 thread = await channel.create_thread(name=f"{user.display_name}", reason="Verification", invitable=False)
+                await thread.add_user(user)
                 guild = interaction.guild
                 guild_id = guild.id
                 await db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
@@ -27,9 +28,7 @@ class TicketButtons(discord.ui.View):
                 staff_role_id = row[0]
                 staff = guild.get_role(staff_role_id)
                 if staff is not None:
-                    await thread.add_user(staff)
                     content = f"-# {user.mention} {staff.mention}"
-                await thread.add_user(user)
                 embed = discord.Embed(color=self.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket to start the **verification** process. Please await further instruction from {staff.mention}. Thank you!")
                 await thread.send(content=content, embed=embed, view=ThreadButton())
                 embed = discord.Embed(color=self.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
@@ -58,6 +57,7 @@ class TicketButtons(discord.ui.View):
                 user = interaction.user
                 content = f"-# {user.mention}"
                 thread = await channel.create_thread(name=f"{user.display_name}", reason="Question", invitable=False)
+                await thread.add_user(user)
                 guild = interaction.guild
                 guild_id = guild.id
                 await db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
@@ -66,9 +66,7 @@ class TicketButtons(discord.ui.View):
                 staff_role_id = row[0]
                 staff = guild.get_role(staff_role_id)
                 if staff is not None:
-                    await thread.add_user(staff)
                     content = f"-# {user.mention} {staff.mention}"
-                await thread.add_user(user)
                 embed = discord.Embed(color=self.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket to ask a **question**. Please ask your question here and await a response from {staff.mention}. Thank you!")
                 await thread.send(content=content, embed=embed, view=ThreadButton())
                 embed = discord.Embed(color=self.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
@@ -97,6 +95,7 @@ class TicketButtons(discord.ui.View):
                 user = interaction.user
                 content = f"-# {user.mention}"
                 thread = await channel.create_thread(name=f"{user.display_name}", reason="Suggestion", invitable=False)
+                await thread.add_user(user)
                 guild = interaction.guild
                 guild_id = guild.id
                 await db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
@@ -105,9 +104,7 @@ class TicketButtons(discord.ui.View):
                 staff_role_id = row[0]
                 staff = guild.get_role(staff_role_id)
                 if staff is not None:
-                    await thread.add_user(staff)
                     content = f"-# {user.mention} {staff.mention}"
-                await thread.add_user(user)
                 embed = discord.Embed(color=self.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket to make a **suggestion**. Please provide your suggestion here and await a response from {staff.mention}. Thank you!")
                 await thread.send(content=content, embed=embed, view=ThreadButton())
                 embed = discord.Embed(color=self.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
@@ -136,6 +133,7 @@ class TicketButtons(discord.ui.View):
                 user = interaction.user
                 content = f"-# {user.mention}"
                 thread = await channel.create_thread(name=f"{user.display_name}", reason="Complaint", invitable=False)
+                await thread.add_user(user)
                 guild = interaction.guild
                 guild_id = guild.id
                 await db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
@@ -144,9 +142,7 @@ class TicketButtons(discord.ui.View):
                 staff_role_id = row[0]
                 staff = guild.get_role(staff_role_id)
                 if staff is not None:
-                    await thread.add_user(staff)
                     content = f"-# {user.mention} {staff.mention}"
-                await thread.add_user(user)
                 embed = discord.Embed(color=self.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket to make a **complaint**. Please provide your complaint here and await a response from {staff.mention}. Thank you!")
                 await thread.send(content=content, embed=embed, view=ThreadButton())
                 embed = discord.Embed(color=self.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
@@ -175,6 +171,7 @@ class TicketButtons(discord.ui.View):
                 user = interaction.user
                 content = f"-# {user.mention}"
                 thread = await channel.create_thread(name=f"{user.display_name}", reason="Report", invitable=False)
+                await thread.add_user(user)
                 guild = interaction.guild
                 guild_id = guild.id
                 await db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
@@ -183,9 +180,7 @@ class TicketButtons(discord.ui.View):
                 staff_role_id = row[0]
                 staff = guild.get_role(staff_role_id)
                 if staff is not None:
-                    await thread.add_user(staff)
                     content = f"-# {user.mention} {staff.mention}"
-                await thread.add_user(user)
                 embed = discord.Embed(color=self.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket to **report a member**. Please provide the details of the report here and await a response from {staff.mention}. Thank you!")
                 await thread.send(content=content, embed=embed, view=ThreadButton())
                 embed = discord.Embed(color=self.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
@@ -214,6 +209,7 @@ class TicketButtons(discord.ui.View):
                 user = interaction.user
                 content = f"-# {user.mention}"
                 thread = await channel.create_thread(name=f"{user.display_name}", reason="Other", invitable=False)
+                await thread.add_user(user)
                 guild = interaction.guild
                 guild_id = guild.id
                 await db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
@@ -222,9 +218,7 @@ class TicketButtons(discord.ui.View):
                 staff_role_id = row[0]
                 staff = guild.get_role(staff_role_id)
                 if staff is not None:
-                    await thread.add_user(staff)
                     content = f"-# {user.mention} {staff.mention}"
-                await thread.add_user(user)
                 embed = discord.Embed(color=self.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket. Please provide the reason that you created the ticket here and await a response from {staff.mention}. Thank you!")
                 await thread.send(content=content, embed=embed, view=ThreadButton())
                 embed = discord.Embed(color=self.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
