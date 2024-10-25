@@ -367,6 +367,6 @@ async def setup(bot: commands.Bot):
                         guild_id INTEGER PRIMARY KEY,
                         channel_id INTEGER DEFAULT NULL,
                         role_id INTEGER DEFAULT NULL)""")
-        db.commit()
-        db.close()
+        await db.commit()
+        await db.close()
     bot.add_view(TicketButtons())
