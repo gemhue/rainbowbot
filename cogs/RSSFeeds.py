@@ -668,5 +668,5 @@ async def setup(bot: commands.Bot):
                         rss_url_8 TEXT DEFAULT NULL,
                         rss_url_9 TEXT DEFAULT NULL,
                         rss_url_10 TEXT DEFAULT NULL)""")
-        db.commit()
-        db.close()
+        await db.commit()
+        await db.close()

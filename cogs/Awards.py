@@ -496,5 +496,5 @@ async def setup(bot: commands.Bot):
         await db.execute("""CREATE TABLE IF NOT EXISTS awards(
                         guild_member_id INTEGER PRIMARY KEY,
                         amount INTEGER DEFAULT NULL)""")
-        db.commit()
-        db.close()
+        await db.commit()
+        await db.close()

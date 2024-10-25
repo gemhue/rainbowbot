@@ -439,5 +439,5 @@ async def setup(bot: commands.Bot):
                         relationship_status TEXT DEFAULT NULL,
                         family_status TEXT DEFAULT NULL,
                         biography TEXT DEFAULT NULL)""")
-        db.commit()
-        db.close()
+        await db.commit()
+        await db.close()
