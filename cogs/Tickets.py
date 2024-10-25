@@ -260,7 +260,7 @@ class ConfirmButton(discord.ui.View):
         self.blurple = discord.Colour.blurple()
         self.red = discord.Colour.red()
     
-    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="🟢")
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             guild = interaction.guild
@@ -287,7 +287,7 @@ class ConfirmButton(discord.ui.View):
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, ephemeral=True)
     
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="🔴")
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             await interaction.message.delete()
