@@ -22,7 +22,7 @@ class TicketButtons(discord.ui.View):
                 guild = interaction.guild
                 guild_id = guild.id
                 await db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
-                cur = await db.execute("SELECT staff_role_id FROM tickets WHERE guild_id = ?", (guild_id,))
+                cur = await db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild_id,))
                 row = await cur.fetchone()
                 staff_role_id = row[0]
                 staff = guild.get_role(staff_role_id)
@@ -61,7 +61,7 @@ class TicketButtons(discord.ui.View):
                 guild = interaction.guild
                 guild_id = guild.id
                 await db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
-                cur = await db.execute("SELECT staff_role_id FROM tickets WHERE guild_id = ?", (guild_id,))
+                cur = await db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild_id,))
                 row = await cur.fetchone()
                 staff_role_id = row[0]
                 staff = guild.get_role(staff_role_id)
@@ -100,7 +100,7 @@ class TicketButtons(discord.ui.View):
                 guild = interaction.guild
                 guild_id = guild.id
                 await db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
-                cur = await db.execute("SELECT staff_role_id FROM tickets WHERE guild_id = ?", (guild_id,))
+                cur = await db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild_id,))
                 row = await cur.fetchone()
                 staff_role_id = row[0]
                 staff = guild.get_role(staff_role_id)
@@ -139,7 +139,7 @@ class TicketButtons(discord.ui.View):
                 guild = interaction.guild
                 guild_id = guild.id
                 await db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
-                cur = await db.execute("SELECT staff_role_id FROM tickets WHERE guild_id = ?", (guild_id,))
+                cur = await db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild_id,))
                 row = await cur.fetchone()
                 staff_role_id = row[0]
                 staff = guild.get_role(staff_role_id)
@@ -178,7 +178,7 @@ class TicketButtons(discord.ui.View):
                 guild = interaction.guild
                 guild_id = guild.id
                 await db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
-                cur = await db.execute("SELECT staff_role_id FROM tickets WHERE guild_id = ?", (guild_id,))
+                cur = await db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild_id,))
                 row = await cur.fetchone()
                 staff_role_id = row[0]
                 staff = guild.get_role(staff_role_id)
@@ -217,7 +217,7 @@ class TicketButtons(discord.ui.View):
                 guild = interaction.guild
                 guild_id = guild.id
                 await db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
-                cur = await db.execute("SELECT staff_role_id FROM tickets WHERE guild_id = ?", (guild_id,))
+                cur = await db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild_id,))
                 row = await cur.fetchone()
                 staff_role_id = row[0]
                 staff = guild.get_role(staff_role_id)
