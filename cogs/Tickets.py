@@ -12,8 +12,7 @@ class TicketButtons(discord.ui.View):
         self.red = discord.Colour.red()
 
     @discord.ui.button(label="Verification", custom_id="persistent:verification", style=discord.ButtonStyle.blurple, emoji="🔑")
-    async def verification(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=True)
+    async def verification(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             async with aiosqlite.connect('rainbowbot.db') as db:
                 channel = interaction.channel
@@ -34,7 +33,7 @@ class TicketButtons(discord.ui.View):
                 embed = discord.Embed(color=self.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket to start the **verification** process. Please await further instruction from {staff.mention}. Thank you!")
                 await thread.send(content=content, embed=embed, view=ThreadButton())
                 embed = discord.Embed(color=self.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
-                await interaction.followup.send(embed=embed, ephemeral=True)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
                 cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                 row = await cur.fetchone()
                 fetched_logging = row[0]
@@ -45,15 +44,14 @@ class TicketButtons(discord.ui.View):
                     log.add_field(name="Reason", value="Verification", inline=False)
                     log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                     await logging.send(embed=log)
-                db.commit()
-                db.close()
+                await db.commit()
+                await db.close()
         except Exception as e:
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error, ephemeral=True)
+            await interaction.response.send_message(embed=error, ephemeral=True)
     
     @discord.ui.button(label="Question", custom_id="persistent:question", style=discord.ButtonStyle.blurple, emoji="❓")
-    async def question(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=True)
+    async def question(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             async with aiosqlite.connect('rainbowbot.db') as db:
                 channel = interaction.channel
@@ -74,7 +72,7 @@ class TicketButtons(discord.ui.View):
                 embed = discord.Embed(color=self.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket to ask a **question**. Please ask your question here and await a response from {staff.mention}. Thank you!")
                 await thread.send(content=content, embed=embed, view=ThreadButton())
                 embed = discord.Embed(color=self.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
-                await interaction.followup.send(embed=embed, ephemeral=True)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
                 cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                 row = await cur.fetchone()
                 fetched_logging = row[0]
@@ -85,15 +83,14 @@ class TicketButtons(discord.ui.View):
                     log.add_field(name="Reason", value="Question", inline=False)
                     log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                     await logging.send(embed=log)
-                db.commit()
-                db.close()
+                await db.commit()
+                await db.close()
         except Exception as e:
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error, ephemeral=True)
+            await interaction.response.send_message(embed=error, ephemeral=True)
 
     @discord.ui.button(label="Suggestion", custom_id="persistent:suggestion", style=discord.ButtonStyle.blurple, emoji="💡")
-    async def suggestion(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=True)
+    async def suggestion(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             async with aiosqlite.connect('rainbowbot.db') as db:
                 channel = interaction.channel
@@ -114,7 +111,7 @@ class TicketButtons(discord.ui.View):
                 embed = discord.Embed(color=self.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket to make a **suggestion**. Please provide your suggestion here and await a response from {staff.mention}. Thank you!")
                 await thread.send(content=content, embed=embed, view=ThreadButton())
                 embed = discord.Embed(color=self.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
-                await interaction.followup.send(embed=embed, ephemeral=True)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
                 cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                 row = await cur.fetchone()
                 fetched_logging = row[0]
@@ -125,15 +122,14 @@ class TicketButtons(discord.ui.View):
                     log.add_field(name="Reason", value="Suggestion", inline=False)
                     log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                     await logging.send(embed=log)
-                db.commit()
-                db.close()
+                await db.commit()
+                await db.close()
         except Exception as e:
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error, ephemeral=True)
+            await interaction.response.send_message(embed=error, ephemeral=True)
 
     @discord.ui.button(label="Complaint", custom_id="persistent:complaint", style=discord.ButtonStyle.blurple, emoji="📢")
-    async def complaint(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=True)
+    async def complaint(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             async with aiosqlite.connect('rainbowbot.db') as db:
                 channel = interaction.channel
@@ -154,7 +150,7 @@ class TicketButtons(discord.ui.View):
                 embed = discord.Embed(color=self.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket to make a **complaint**. Please provide your complaint here and await a response from {staff.mention}. Thank you!")
                 await thread.send(content=content, embed=embed, view=ThreadButton())
                 embed = discord.Embed(color=self.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
-                await interaction.followup.send(embed=embed, ephemeral=True)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
                 cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                 row = await cur.fetchone()
                 fetched_logging = row[0]
@@ -165,15 +161,14 @@ class TicketButtons(discord.ui.View):
                     log.add_field(name="Reason", value="Complaint", inline=False)
                     log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                     await logging.send(embed=log)
-                db.commit()
-                db.close()
+                await db.commit()
+                await db.close()
         except Exception as e:
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error, ephemeral=True)
+            await interaction.response.send_message(embed=error, ephemeral=True)
 
     @discord.ui.button(label="Report Member", custom_id="persistent:report", style=discord.ButtonStyle.blurple, emoji="🚨")
-    async def report(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=True)
+    async def report(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             async with aiosqlite.connect('rainbowbot.db') as db:
                 channel = interaction.channel
@@ -194,7 +189,7 @@ class TicketButtons(discord.ui.View):
                 embed = discord.Embed(color=self.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket to **report a member**. Please provide the details of the report here and await a response from {staff.mention}. Thank you!")
                 await thread.send(content=content, embed=embed, view=ThreadButton())
                 embed = discord.Embed(color=self.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
-                await interaction.followup.send(embed=embed, ephemeral=True)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
                 cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                 row = await cur.fetchone()
                 fetched_logging = row[0]
@@ -205,15 +200,14 @@ class TicketButtons(discord.ui.View):
                     log.add_field(name="Reason", value="Report", inline=False)
                     log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                     await logging.send(embed=log)
-                db.commit()
-                db.close()
+                await db.commit()
+                await db.close()
         except Exception as e:
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error, ephemeral=True)
+            await interaction.response.send_message(embed=error, ephemeral=True)
 
     @discord.ui.button(label="Other", custom_id="persistent:other", style=discord.ButtonStyle.blurple, emoji="✉️")
-    async def other(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=True)
+    async def other(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             async with aiosqlite.connect('rainbowbot.db') as db:
                 channel = interaction.channel
@@ -234,7 +228,7 @@ class TicketButtons(discord.ui.View):
                 embed = discord.Embed(color=self.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket. Please provide the reason that you created the ticket here and await a response from {staff.mention}. Thank you!")
                 await thread.send(content=content, embed=embed, view=ThreadButton())
                 embed = discord.Embed(color=self.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
-                await interaction.followup.send(embed=embed, ephemeral=True)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
                 cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                 row = await cur.fetchone()
                 fetched_logging = row[0]
@@ -245,11 +239,11 @@ class TicketButtons(discord.ui.View):
                     log.add_field(name="Reason", value="Other", inline=False)
                     log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                     await logging.send(embed=log)
-                db.commit()
-                db.close()
+                await db.commit()
+                await db.close()
         except Exception as e:
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error, ephemeral=True)
+            await interaction.response.send_message(embed=error, ephemeral=True)
 
 class ThreadButton(discord.ui.View):
     def __init__(self, *, timeout = None):
@@ -258,14 +252,13 @@ class ThreadButton(discord.ui.View):
         self.red = discord.Colour.red()
     
     @discord.ui.button(label="Close Ticket", style=discord.ButtonStyle.blurple, emoji="🔒")
-    async def close(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.response.defer()
+    async def close(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             embed = discord.Embed(color=self.blurple, title="Close Ticket", description="Are you sure you want to close this ticket? Please make sure that your issue is resolved before confirming.")
-            await interaction.followup.send(embed=embed, view=ConfirmButton())
+            await interaction.response.send_message(embed=embed, view=ConfirmButton())
         except Exception as e:
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error)
+            await interaction.response.send_message(embed=error)
 
 class ConfirmButton(discord.ui.View):
     def __init__(self, *, timeout = None):
@@ -274,8 +267,7 @@ class ConfirmButton(discord.ui.View):
         self.red = discord.Colour.red()
     
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="🟢")
-    async def confirm(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=True)
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             guild = interaction.guild
             channel = interaction.channel
@@ -292,23 +284,22 @@ class ConfirmButton(discord.ui.View):
                         log = discord.Embed(color=self.blurple, title="Ticket Log", description=f"{interaction.user.mention} has just closed a ticket.", timestamp=now)
                         log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                         await logging.send(embed=log)
-                    db.commit()
-                    db.close()
+                    await db.commit()
+                    await db.close()
             else:
                 embed = discord.Embed(color=self.red, title="Error", description="There was a problem closing the thread. Please try again later.")
-                await interaction.followup.send(embed=embed, ephemeral=True)
+                await interaction.response.send_message(embed=embed, ephemeral=True)
         except Exception as e:
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error, ephemeral=True)
+            await interaction.response.send_message(embed=error, ephemeral=True)
     
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="🔴")
-    async def cancel(self, button: discord.ui.Button, interaction: discord.Interaction):
-        await interaction.response.defer(ephemeral=True)
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             await interaction.message.delete()
         except Exception as e:
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error, ephemeral=True)
+            await interaction.response.send_message(embed=error, ephemeral=True)
 
 class Tickets(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -354,8 +345,8 @@ class Tickets(commands.Cog):
                     log = discord.Embed(color=self.blurple, title="Ticket Log", description=f"{ctx.author.mention} has just set up a ticketing system for the server.", timestamp=now)
                     log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
                     await logging.send(embed=log)
-                db.commit()
-                db.close()
+                await db.commit()
+                await db.close()
         except Exception as e:
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
