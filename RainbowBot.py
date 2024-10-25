@@ -243,32 +243,6 @@ async def setup():
                          award_plural TEXT DEFAULT NULL,
                          award_emoji TEXT DEFAULT NULL,
                          award_react_toggle INTEGER DEFAULT 0)""")
-        await db.execute("""CREATE TABLE IF NOT EXISTS awards(
-                         guild_member_id INTEGER PRIMARY KEY,
-                         amount INTEGER DEFAULT NULL)""")
-        await db.execute("""CREATE TABLE IF NOT EXISTS members(
-                         member_id INTEGER PRIMARY KEY,
-                         name TEXT DEFAULT NULL,
-                         age TEXT DEFAULT NULL,
-                         location TEXT DEFAULT NULL,
-                         pronouns TEXT DEFAULT NULL,
-                         gender TEXT DEFAULT NULL,
-                         sexuality TEXT DEFAULT NULL,
-                         relationship_status TEXT DEFAULT NULL,
-                         family_status TEXT DEFAULT NULL,
-                         biography TEXT DEFAULT NULL)""")
-        await db.execute("""CREATE TABLE IF NOT EXISTS webhooks(
-                         url TEXT PRIMARY KEY,
-                         rss_url_1 TEXT DEFAULT NULL,
-                         rss_url_2 TEXT DEFAULT NULL,
-                         rss_url_3 TEXT DEFAULT NULL,
-                         rss_url_4 TEXT DEFAULT NULL,
-                         rss_url_5 TEXT DEFAULT NULL,
-                         rss_url_6 TEXT DEFAULT NULL,
-                         rss_url_7 TEXT DEFAULT NULL,
-                         rss_url_8 TEXT DEFAULT NULL,
-                         rss_url_9 TEXT DEFAULT NULL,
-                         rss_url_10 TEXT DEFAULT NULL)""")
         await db.commit()
         await db.close()
 

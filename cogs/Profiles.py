@@ -426,4 +426,18 @@ class Profiles(commands.Cog):
         await ctx.send(embed=embed, ephemeral=True)
 
 async def setup(bot: commands.Bot):
-	await bot.add_cog(Profiles(bot), override=True)
+    await bot.add_cog(Profiles(bot), override=True)
+    async with aiosqlite.connect('rainbowbot.db') as db:
+        await db.execute("""CREATE TABLE IF NOT EXISTS members(
+                        member_id INTEGER PRIMARY KEY,
+                        name TEXT DEFAULT NULL,
+                        age TEXT DEFAULT NULL,
+                        location TEXT DEFAULT NULL,
+                        pronouns TEXT DEFAULT NULL,
+                        gender TEXT DEFAULT NULL,
+                        sexuality TEXT DEFAULT NULL,
+                        relationship_status TEXT DEFAULT NULL,
+                        family_status TEXT DEFAULT NULL,
+                        biography TEXT DEFAULT NULL)""")
+        db.commit()
+        db.close()

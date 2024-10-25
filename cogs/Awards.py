@@ -491,4 +491,10 @@ class Awards(commands.Cog):
         await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
 
 async def setup(bot: commands.Bot):
-	await bot.add_cog(Awards(bot), override=True)
+    await bot.add_cog(Awards(bot), override=True)
+    async with aiosqlite.connect('rainbowbot.db') as db:
+        await db.execute("""CREATE TABLE IF NOT EXISTS awards(
+                        guild_member_id INTEGER PRIMARY KEY,
+                        amount INTEGER DEFAULT NULL)""")
+        db.commit()
+        db.close()
