@@ -1,3 +1,3 @@
 🌈 **Rainbow Bot**
 
-https://rainbowbot.carrd.co/#
+Documentation in Progress
