@@ -267,7 +267,8 @@ class ConfirmButton(discord.ui.View):
             channel = interaction.channel
             thread = guild.get_thread(channel.id)
             if thread is not None:
-                await thread.delete(reason=f"Ticket closed by {interaction.user.display_name}.")
+                await thread.edit(locked=True)
+                #reason=f"Ticket closed by {interaction.user.display_name}.")
                 async with aiosqlite.connect('rainbowbot.db') as db:
                     cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                     row = await cur.fetchone()
@@ -281,7 +282,7 @@ class ConfirmButton(discord.ui.View):
                     await db.commit()
                     await db.close()
             else:
-                embed = discord.Embed(color=self.red, title="Error", description="There was a problem closing the thread. Please try again later.")
+                embed = discord.Embed(color=self.red, title="Error", description="There was a problem closing the ticket. Please try again later.")
                 await interaction.response.send_message(embed=embed, ephemeral=True)
         except Exception as e:
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
