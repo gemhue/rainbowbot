@@ -10,42 +10,63 @@ class AutoDelete(commands.Cog):
         self.bot = bot
         self.autodel = {}
         self.autodeleter.start()
+        self.blurple = discord.Colour.blurple()
         self.green = discord.Colour.green()
         self.red = discord.Colour.red()
-        self.blurple = discord.Colour.blurple()
     
     def cog_unload(self):
         self.autodeleter.cancel()
     
-    @commands.hybrid_group(name="autodelete", fallback="start")
+    @commands.hybrid_group(name="autodelete", fallback="set")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def autodelete(self, ctx: commands.Context, amount: int, interval: Literal["Seconds", "Minutes", "Hours", "Days"]):
-        """(Admin Only) Deletes all unpinned messages posted in the channel before the set amount of time ago.
+    async def autodelete(self, ctx: commands.Context, amount: int, interval: Literal["Minutes", "Hours", "Days"]):
+        """(Admin Only) Sets the messages in the current channel to be autodeleted.
 
         Parameters
         -----------
         amount : int
-            Set the amount of time.
+            Set the amount of time. The lowest possible frequency is 30 minutes.
         interval : str
-            Set the time interval.
+            Set the time interval. The lowest possible frequency is 30 minutes.
         """
         await ctx.defer(ephemeral=True)
         try:
-            amt = float(amount)
-            if interval == "Seconds":
-                time = timedelta(seconds=amt)
-            elif interval == "Minutes":
-                time = timedelta(minutes=amt)
-            elif interval == "Hours":
-                time = timedelta(hours=amt)
-            elif interval == "Days":
-                time = timedelta(days=amt)
-            channel_id = ctx.channel.id
-            self.autodel[channel_id] = time
-            embed = discord.Embed(color=self.green, title="Success", description=f"The autodelete for the current channel has been set up. Any unpinned messages in the current channel older than **{amount} {interval}** will be automatically deleted.")
-            await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
             async with aiosqlite.connect('rainbowbot.db') as db:
+                await db.execute(
+                    "INSERT OR INGORE INTO autodelete (channel_id) VALUES ?",
+                    (ctx.channel.id,)
+                )
+
+                # Update and retrieve the amount
+                await db.execute(
+                    "UPDATE autodelete SET amount = ? WHERE channel_id = ?",
+                    (amount, ctx.channel.id)
+                )
+                cur = await db.execute(
+                    "SELECT amount FROM autodelete WHERE channel_id = ?",
+                    (ctx.channel.id,)
+                )
+                row = await cur.fetchone()
+                amount = row[0]
+
+                # Update and retrieve the interval
+                await db.execute(
+                    "UPDATE autodelete SET interval = ? WHERE channel_id = ?",
+                    (interval, ctx.channel.id)
+                )
+                cur = await db.execute(
+                    "SELECT interval FROM autodelete WHERE channel_id = ?",
+                    (ctx.channel.id,)
+                )
+                row = await cur.fetchone()
+                interval = row[0]
+
+                # Send a message that the AutoDelete has been set
+                embed = discord.Embed(color=self.green, title="Success", description=f"The autodelete for {ctx.channel.mention} has been set up. Any unpinned messages older than **{amount} {interval}** will be automatically deleted on a rolling basis. Please note that if you set a time of less than 30 minutes, messages will be deleted no more frequently than every 30 minutes.")
+                await ctx.send(embed=embed, ephemeral=True)
+
+                # Send a log to the logging channel
                 cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
                 row = await cur.fetchone()
                 fetched_logging = row[0]
@@ -55,11 +76,14 @@ class AutoDelete(commands.Cog):
                     logging = self.bot.get_channel(fetched_logging)
                     embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
                     await logging.send(embed=log)
+
                 await db.commit()
                 await db.close()
+        
+        # Send an error message if there is an issue
         except Exception as e:
-            embed = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
+            await ctx.send(embed=error, ephemeral=True)
 
     @autodelete.command(name="cancel")
     @commands.has_guild_permissions(administrator=True)
@@ -69,40 +93,90 @@ class AutoDelete(commands.Cog):
         """
         await ctx.defer(ephemeral=True)
         try:
-            channel_id = ctx.channel.id
-            if channel_id in self.autodel:
-                del self.autodel[channel_id]
-                embed = discord.Embed(color=self.green, title="Success", description="The autodelete for the current channel has been deleted.")
-                await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
-                async with aiosqlite.connect('rainbowbot.db') as db:
+            async with aiosqlite.connect('rainbowbot.db') as db:
+                await db.execute(
+                    "DELETE FROM autodelete WHERE channel_id = ?",
+                    (ctx.channel.id,)
+                )
+
+                # Confirm that the channel_id has been removed from autodelete
+                cur = await db.execute(
+                    "SELECT EXISTS(SELECT 1 FROM autodelete WHERE channel_id = ?)",
+                    (ctx.channel.id,)
+                )
+                row = await cur.fetchone()
+                exists = row[0]
+
+                if exists == 0:
+
+                    # Send a message that the AutoDelete has been cancelled
+                    embed = discord.Embed(color=self.green, title="Success", description=f"The autodelete for {ctx.channel.mention} has been cancelled.")
+                    await ctx.send(embed=embed, ephemeral=True)
+
+                    # Send a log to the logging channel
                     cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
                     row = await cur.fetchone()
                     fetched_logging = row[0]
                     if fetched_logging is not None:
                         now = datetime.now(tz=timezone.utc)
-                        log = discord.Embed(color=self.blurple, title="AutoDelete Log", description=f"{ctx.author.mention} has just cancelled the AutoDelete for {ctx.channel.mention}.", timestamp=now)
+                        log = discord.Embed(color=self.blurple, title="AutoDelete Log", description=f"{ctx.author.mention} has just cancelled AutoDelete for {ctx.channel.mention}.", timestamp=now)
                         logging = self.bot.get_channel(fetched_logging)
                         embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
                         await logging.send(embed=log)
-                    await db.commit()
-                    await db.close()
-            else:
-                embed = discord.Embed(color=self.red, title="Error", description="There is no autodelete set up for the current channel.")
-                await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+                
+                else:
+
+                    # Send a message that there was an issue cancelling the AutoDelete
+                    error = discord.Embed(color=self.red, title="Error", description="There was an issue cancelling the AutoDelete. Please try again later.")
+                    await ctx.send(embed=error, ephemeral=True)
+
+                await db.commit()
+                await db.close()
+        
+        # Send an error message if there is an issue
         except Exception as e:
-            embed = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
+            await ctx.send(embed=error, ephemeral=True)
 
-    @tasks.loop(minutes=5.0)
+    @tasks.loop(minutes=30.0)
     async def autodeleter(self):
-        for chanel_id, time in self.autodel:
-            channel = await self.bot.fetch_channel(chanel_id)
-            today = datetime.now(timezone.utc)
-            timeago = today-time
-            messages = [message async for message in channel.history(limit=None, before=timeago)]
-            for message in messages:
-                if not message.pinned:
-                    await message.delete()
+        async with aiosqlite.connect('rainbowbot.db') as db:
+            ids = []
+            cur = await db.execute("SELECT channel_id FROM autodelete")
+            rows = await cur.fetchall()
+            for row in rows:
+                ids.append(row[0])
+            for id in ids:
+                channel = await self.bot.fetch_channel(id)
+                if channel is not None:
+                    now = datetime.now(tz=timezone.utc)
+                    cur = await db.execute("SELECT amount FROM autodelete WHERE channel_id = ?", (id,))
+                    row = await cur.fetchone()
+                    amount = row[0]
+                    cur = await db.execute("SELECT interval FROM autodelete WHERE channel_id = ?", (id,))
+                    row = await cur.fetchone()
+                    interval = row[0]
+                    if interval == "Seconds":
+                        time = timedelta(seconds=amount)
+                    elif interval == "Minutes":
+                        time = timedelta(minutes=amount)
+                    elif interval == "Hours":
+                        time = timedelta(hours=amount)
+                    elif interval == "Days":
+                        time = timedelta(days=amount)
+                    timeago = now-time
+                    messages = [m async for m in channel.history(limit=None, before=timeago)]
+                    for message in messages:
+                        if not message.pinned:
+                            await message.delete()
+            await db.commit()
+            await db.close()
 
-async def setup(bot: commands.Bot):
-	await bot.add_cog(AutoDelete(bot), override=True)
+async def setup():
+    async with aiosqlite.connect('rainbowbot.db') as db:
+        await db.execute("""CREATE TABLE IF NOT EXISTS autodelete(
+                        channel_id INTEGER PRIMARY KEY,
+                        amount INTEGER DEFAULT NULL,
+                        interval TEXT DEFAULT NULL)""")
+        await db.commit()
+        await db.close()
