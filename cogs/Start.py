@@ -10,9 +10,6 @@ class YesOrNo(discord.ui.View):
     def __init__(self, *, timeout = 180):
         super().__init__(timeout=timeout)
         self.value = None
-        self.blurple = discord.Colour.blurple()
-        self.green = discord.Colour.green()
-        self.red = discord.Colour.red()
 
     @discord.ui.button(label="Yes", style=discord.ButtonStyle.green, emoji="👍")
     async def yes(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -63,34 +60,20 @@ class CogButtons(discord.ui.View):
     def __init__(self, bot: commands.Bot):
         super().__init__(timeout=180)
         self.bot = bot
-        self.blurple = discord.Colour.blurple()
-        self.green = discord.Colour.green()
         self.red = discord.Colour.red()
         self.guild_cogs = {}
 
     @discord.ui.button(label="AutoDelete", style=discord.ButtonStyle.blurple, emoji="♻️")
     async def autodelete(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         guild = interaction.guild
-        user = interaction.user
-        timestamp = datetime.now(tz=timezone.utc)
         try:
             await self.bot.add_cog(AutoDelete(self.bot), override=True, guild=guild)
-            async with aiosqlite.connect('rainbowbot.db') as db:
-                await db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (guild.id,))
-                cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                row = await cur.fetchone()
-                fetched_logging = row[0]
-                if fetched_logging is not None:
-                    logging_channel = await guild.fetch_channel(fetched_logging)
-                    log = discord.Embed(color=self.blurple, title="Start Log", description=f"{user.mention} has just added **AutoDelete** commands to the guild!", timestamp=timestamp)
-                    log.set_author(name=user.display_name, icon_url=user.display_avatar)
-                    await logging_channel.send(embed=log)
-                await db.commit()
-                await db.close()
             if guild.id not in self.guild_cogs:
                 self.guild_cogs[guild.id] = []
             coglist = self.guild_cogs[guild.id]
-            coglist.append("AutoDelete")
+            if "AutoDelete" not in coglist:
+                coglist.append("AutoDelete")
             button.label = "Added"
             button.style = discord.ButtonStyle.gray
             button.emoji = "✅"
@@ -98,32 +81,20 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up AutoDelete (Guild ID: {guild.id}). Error: {e}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}", timestamp=timestamp)
-            await interaction.response.send_message(embed=error, ephemeral=True)
+            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
+            await interaction.response.send_message(embed=error, delete_after=30.0)
 
     @discord.ui.button(label="Awards", style=discord.ButtonStyle.blurple, emoji="🏅")
     async def awards(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         guild = interaction.guild
-        user = interaction.user
-        timestamp = datetime.now(tz=timezone.utc)
         try:
             await self.bot.add_cog(Awards(self.bot), override=True, guild=guild)
-            async with aiosqlite.connect('rainbowbot.db') as db:
-                await db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (guild.id,))
-                cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                row = await cur.fetchone()
-                fetched_logging = row[0]
-                if fetched_logging is not None:
-                    logging_channel = await guild.fetch_channel(fetched_logging)
-                    log = discord.Embed(color=self.blurple, title="Start Log", description=f"{user.mention} has just added **Awards** commands to the guild!", timestamp=timestamp)
-                    log.set_author(name=user.display_name, icon_url=user.display_avatar)
-                    await logging_channel.send(embed=log)
-                await db.commit()
-                await db.close()
             if guild.id not in self.guild_cogs:
                 self.guild_cogs[guild.id] = []
             coglist = self.guild_cogs[guild.id]
-            coglist.append("Awards")
+            if "Awards" not in coglist:
+                coglist.append("Awards")
             button.label = "Added"
             button.style = discord.ButtonStyle.gray
             button.emoji = "✅"
@@ -131,32 +102,20 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up Awards (Guild ID: {guild.id}). Error: {e}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}", timestamp=timestamp)
-            await interaction.response.send_message(embed=error, ephemeral=True)
+            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
+            await interaction.response.send_message(embed=error, delete_after=30.0)
     
     @discord.ui.button(label="Embeds", style=discord.ButtonStyle.blurple, emoji="📝")
     async def embeds(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         guild = interaction.guild
-        user = interaction.user
-        timestamp = datetime.now(tz=timezone.utc)
         try:
             await self.bot.add_cog(Embeds(self.bot), override=True, guild=guild)
-            async with aiosqlite.connect('rainbowbot.db') as db:
-                await db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (guild.id,))
-                cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                row = await cur.fetchone()
-                fetched_logging = row[0]
-                if fetched_logging is not None:
-                    logging_channel = await guild.fetch_channel(fetched_logging)
-                    log = discord.Embed(color=self.blurple, title="Start Log", description=f"{user.mention} has just added **Embeds** commands to the guild!", timestamp=timestamp)
-                    log.set_author(name=user.display_name, icon_url=user.display_avatar)
-                    await logging_channel.send(embed=log)
-                await db.commit()
-                await db.close()
             if guild.id not in self.guild_cogs:
                 self.guild_cogs[guild.id] = []
             coglist = self.guild_cogs[guild.id]
-            coglist.append("Embeds")
+            if "Embeds" not in coglist:
+                coglist.append("Embeds")
             button.label = "Added"
             button.style = discord.ButtonStyle.gray
             button.emoji = "✅"
@@ -164,32 +123,20 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up Embeds (Guild ID: {guild.id}). Error: {e}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}", timestamp=timestamp)
-            await interaction.response.send_message(embed=error, ephemeral=True)
+            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
+            await interaction.response.send_message(embed=error, delete_after=30.0)
 
     @discord.ui.button(label="Profiles", style=discord.ButtonStyle.blurple, emoji="🪪")
     async def profiles(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         guild = interaction.guild
-        user = interaction.user
-        timestamp = datetime.now(tz=timezone.utc)
         try:
             await self.bot.add_cog(Profiles(self.bot), override=True, guild=guild)
-            async with aiosqlite.connect('rainbowbot.db') as db:
-                await db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (guild.id,))
-                cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                row = await cur.fetchone()
-                fetched_logging = row[0]
-                if fetched_logging is not None:
-                    logging_channel = await guild.fetch_channel(fetched_logging)
-                    log = discord.Embed(color=self.blurple, title="Start Log", description=f"{user.mention} has just added **Profiles** commands to the guild!", timestamp=timestamp)
-                    log.set_author(name=user.display_name, icon_url=user.display_avatar)
-                    await logging_channel.send(embed=log)
-                await db.commit()
-                await db.close()
             if guild.id not in self.guild_cogs:
                 self.guild_cogs[guild.id] = []
             coglist = self.guild_cogs[guild.id]
-            coglist.append("Profiles")
+            if "Profiles" not in coglist:
+                coglist.append("Profiles")
             button.label = "Added"
             button.style = discord.ButtonStyle.gray
             button.emoji = "✅"
@@ -197,32 +144,20 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up Profiles (Guild ID: {guild.id}). Error: {e}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}", timestamp=timestamp)
-            await interaction.response.send_message(embed=error, ephemeral=True)
+            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
+            await interaction.response.send_message(embed=error, delete_after=30.0)
 
     @discord.ui.button(label="Purge", style=discord.ButtonStyle.blurple, emoji="🗑️")
     async def purge(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         guild = interaction.guild
-        user = interaction.user
-        timestamp = datetime.now(tz=timezone.utc)
         try:
             await self.bot.add_cog(Purge(self.bot), override=True, guild=guild)
-            async with aiosqlite.connect('rainbowbot.db') as db:
-                await db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (guild.id,))
-                cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                row = await cur.fetchone()
-                fetched_logging = row[0]
-                if fetched_logging is not None:
-                    logging_channel = await guild.fetch_channel(fetched_logging)
-                    log = discord.Embed(color=self.blurple, title="Start Log", description=f"{user.mention} has just added **Purge** commands to the guild!", timestamp=timestamp)
-                    log.set_author(name=user.display_name, icon_url=user.display_avatar)
-                    await logging_channel.send(embed=log)
-                await db.commit()
-                await db.close()
             if guild.id not in self.guild_cogs:
                 self.guild_cogs[guild.id] = []
             coglist = self.guild_cogs[guild.id]
-            coglist.append("Purge")
+            if "Purge" not in coglist:
+                coglist.append("Purge")
             button.label = "Added"
             button.style = discord.ButtonStyle.gray
             button.emoji = "✅"
@@ -230,32 +165,20 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up Purge (Guild ID: {guild.id}). Error: {e}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}", timestamp=timestamp)
-            await interaction.response.send_message(embed=error, ephemeral=True)
+            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
+            await interaction.response.send_message(embed=error, delete_after=30.0)
 
     @discord.ui.button(label="RSS Feeds", style=discord.ButtonStyle.blurple, emoji="📰")
     async def rss_feeds(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         guild = interaction.guild
-        user = interaction.user
-        timestamp = datetime.now(tz=timezone.utc)
         try:
             await self.bot.add_cog(RSSFeeds(self.bot), override=True, guild=guild)
-            async with aiosqlite.connect('rainbowbot.db') as db:
-                await db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (guild.id,))
-                cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                row = await cur.fetchone()
-                fetched_logging = row[0]
-                if fetched_logging is not None:
-                    logging_channel = await guild.fetch_channel(fetched_logging)
-                    log = discord.Embed(color=self.blurple, title="Start Log", description=f"{user.mention} has just added **RSS Feeds** commands to the guild!", timestamp=timestamp)
-                    log.set_author(name=user.display_name, icon_url=user.display_avatar)
-                    await logging_channel.send(embed=log)
-                await db.commit()
-                await db.close()
             if guild.id not in self.guild_cogs:
                 self.guild_cogs[guild.id] = []
             coglist = self.guild_cogs[guild.id]
-            coglist.append("RSS Feeds")
+            if "RSS Feeds" not in coglist:
+                coglist.append("RSS Feeds")
             button.label = "Added"
             button.style = discord.ButtonStyle.gray
             button.emoji = "✅"
@@ -263,32 +186,20 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up RSS Feeds (Guild ID: {guild.id}). Error: {e}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}", timestamp=timestamp)
-            await interaction.response.send_message(embed=error, ephemeral=True)
+            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
+            await interaction.response.send_message(embed=error, delete_after=30.0)
 
     @discord.ui.button(label="Tickets", style=discord.ButtonStyle.blurple, emoji="🎫")
     async def rss_feeds(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         guild = interaction.guild
-        user = interaction.user
-        timestamp = datetime.now(tz=timezone.utc)
         try:
             await self.bot.add_cog(Tickets(self.bot), override=True, guild=guild)
-            async with aiosqlite.connect('rainbowbot.db') as db:
-                await db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (guild.id,))
-                cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                row = await cur.fetchone()
-                fetched_logging = row[0]
-                if fetched_logging is not None:
-                    logging_channel = await guild.fetch_channel(fetched_logging)
-                    log = discord.Embed(color=self.blurple, title="Start Log", description=f"{user.mention} has just added **Tickets** commands to the guild!", timestamp=timestamp)
-                    log.set_author(name=user.display_name, icon_url=user.display_avatar)
-                    await logging_channel.send(embed=log)
-                await db.commit()
-                await db.close()
             if guild.id not in self.guild_cogs:
                 self.guild_cogs[guild.id] = []
             coglist = self.guild_cogs[guild.id]
-            coglist.append("Tickets")
+            if "Ticket" not in coglist:
+                coglist.append("Tickets")
             button.label = "Added"
             button.style = discord.ButtonStyle.gray
             button.emoji = "✅"
@@ -296,16 +207,17 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up Tickets (Guild ID: {guild.id}). Error: {e}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}", timestamp=timestamp)
-            await interaction.response.send_message(embed=error, ephemeral=True)
+            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
+            await interaction.response.send_message(embed=error, delete_after=30.0)
 
     @discord.ui.button(label="Done", style=discord.ButtonStyle.green)
     async def done(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         try:
             self.stop()
         except Exception as e:
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.response.send_message(embed=error, ephemeral=True)
+            await interaction.response.send_message(embed=error, delete_after=30.0)
 
 class Start(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -533,7 +445,8 @@ class Start(commands.Cog):
 
                 await db.commit()
                 await db.close()
-
+        
+        # Send an error message if there's an issue
         except Exception as e:
             error = discord.Embed(
                 color=self.red,
