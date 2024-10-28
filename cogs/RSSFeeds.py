@@ -654,19 +654,22 @@ class RSSFeeds(commands.Cog):
             print(e)
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(RSSFeeds(bot), override=True)
     async with aiosqlite.connect('rainbowbot.db') as db:
-        await db.execute("""CREATE TABLE IF NOT EXISTS webhooks(
-                        url TEXT PRIMARY KEY,
-                        rss_url_1 TEXT DEFAULT NULL,
-                        rss_url_2 TEXT DEFAULT NULL,
-                        rss_url_3 TEXT DEFAULT NULL,
-                        rss_url_4 TEXT DEFAULT NULL,
-                        rss_url_5 TEXT DEFAULT NULL,
-                        rss_url_6 TEXT DEFAULT NULL,
-                        rss_url_7 TEXT DEFAULT NULL,
-                        rss_url_8 TEXT DEFAULT NULL,
-                        rss_url_9 TEXT DEFAULT NULL,
-                        rss_url_10 TEXT DEFAULT NULL)""")
+        await db.execute(
+            """CREATE TABLE IF NOT EXISTS "webhooks" (
+                url         TEXT,
+                rss_url_1   TEXT DEFAULT NULL,
+                rss_url_2   TEXT DEFAULT NULL,
+                rss_url_3   TEXT DEFAULT NULL,
+                rss_url_4   TEXT DEFAULT NULL,
+                rss_url_5   TEXT DEFAULT NULL,
+                rss_url_6   TEXT DEFAULT NULL,
+                rss_url_7   TEXT DEFAULT NULL,
+                rss_url_8   TEXT DEFAULT NULL,
+                rss_url_9   TEXT DEFAULT NULL,
+                rss_url_10  TEXT DEFAULT NULL,
+                PRIMARY KEY("url")
+            )"""            
+        )
         await db.commit()
         await db.close()

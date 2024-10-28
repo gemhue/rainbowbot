@@ -169,6 +169,50 @@ async def load(ctx: commands.Context, extension: str):
         await db.commit()
         await db.close()
 
+@bot.command(name="unload", aliases=["unload_cogs","unload_cog","unloadcogs","unloadcog"], hidden=True)
+@commands.is_owner()
+async def unload(ctx: commands.Context, extension: str):
+    """(Bot Owner Only) Unloads one or all of the bot's cogs.
+
+    Parameters
+    -----------
+    extension : str
+        Provide the extension that you would like to unload (or all).
+    """
+    await ctx.defer(ephemeral=True)
+    now = datetime.now(tz=timezone.utc)
+    embed = discord.Embed(color=blurple, title="Unload Cogs", timestamp=now)
+    lower = extension.lower()
+    if lower == "all":
+        for cog in await allcogs(x="cogs"):
+            try:
+                await bot.unload_extension(cog)
+                embed.add_field(name=cog, value="Unloaded successfully!")
+            except Exception as e:
+                embed.add_field(name=cog, value=f"Error: {e}")
+    elif lower in await allcogs(x="names_lower"):
+        for cog in await allcogs(x="cogs"):
+            if cog.lower() == f"cogs.{lower}":
+                try:
+                    await bot.unload_extension(cog)
+                    embed.add_field(name=cog, value="Unloaded successfully!")
+                except Exception as e:
+                    embed.add_field(name=cog, value=f"Error: {e}")
+    else:
+        embed.add_field(name="Error", value="No cogs could be unloaded.")
+    await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+    await ctx.message.delete()
+    async with aiosqlite.connect('rainbowbot.db') as db:
+        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+        row = await cur.fetchone()
+        fetched_logging = row[0]
+        if fetched_logging is not None:
+            logging = bot.get_channel(fetched_logging)
+            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+            await logging.send(embed=embed)
+        await db.commit()
+        await db.close()
+
 @bot.command(name="reload", aliases=["reload_cogs","reload_cog","reloadcogs","reloadcog"], hidden=True)
 @commands.is_owner()
 async def reload(ctx: commands.Context, extension: str):
@@ -227,22 +271,24 @@ async def ping(ctx: commands.Context):
 
 async def setup():
     async with aiosqlite.connect('rainbowbot.db') as db:
-        await db.execute("""CREATE TABLE IF NOT EXISTS guilds(
-                         guild_id INTEGER PRIMARY KEY,
-                         logging_channel_id INTEGER DEFAULT NULL,
-                         welcome_channel_id INTEGER DEFAULT NULL,
-                         welcome_message TEXT DEFAULT NULL,
-                         goodbye_channel_id INTEGER DEFAULT NULL,
-                         goodbye_message TEXT DEFAULT NULL,
-                         join_role_id INTEGER DEFAULT NULL,
-                         bot_join_role_id INTEGER DEFAULT NULL,
-                         active_role_id INTEGER DEFAULT NULL,
-                         inactive_role_id INTEGER DEFAULT NULL,
-                         inactive_days INTEGER DEFAULT NULL,
-                         award_singular TEXT DEFAULT NULL,
-                         award_plural TEXT DEFAULT NULL,
-                         award_emoji TEXT DEFAULT NULL,
-                         award_react_toggle INTEGER DEFAULT 0)""")
+        await db.execute(
+            """CREATE TABLE IF NOT EXISTS "guilds" (
+                "guild_id"	            INTEGER,
+                "logging_channel_id"	INTEGER DEFAULT NULL,
+                "welcome_channel_id"	INTEGER DEFAULT NULL,
+                "goodbye_channel_id"	INTEGER DEFAULT NULL,
+                "join_role_id"	        INTEGER DEFAULT NULL,
+                "bot_role_id"	        INTEGER DEFAULT NULL,
+                "active_role_id"	    INTEGER DEFAULT NULL,
+                "inactive_role_id"	    INTEGER DEFAULT NULL,
+                "inactive_months"	    INTEGER DEFAULT NULL,
+                "award_singular"	    TEXT    DEFAULT NULL,
+                "award_plural"	        TEXT    DEFAULT NULL,
+                "award_emoji"	        TEXT    DEFAULT NULL,
+                "award_react_toggle"	INTEGER DEFAULT 0,
+                PRIMARY KEY("guild_id")
+            )"""
+        )
         await db.commit()
         await db.close()
 

@@ -353,6 +353,3 @@ class Embeds(commands.Cog):
             red = discord.Colour.red()
             error = discord.Embed(color=red, title="Error", description=f"{e}")
             await ctx.send(embed=error, delete_after=30.0, ephemeral=True)
-
-async def setup(bot: commands.Bot):
-	await bot.add_cog(Embeds(bot), override=True)

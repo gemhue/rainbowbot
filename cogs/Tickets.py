@@ -347,12 +347,15 @@ class Tickets(commands.Cog):
             await ctx.send(embed=error, ephemeral=True)
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(Tickets(bot), override=True)
     async with aiosqlite.connect('rainbowbot.db') as db:
-        await db.execute("""CREATE TABLE IF NOT EXISTS tickets(
-                        guild_id INTEGER PRIMARY KEY,
-                        channel_id INTEGER DEFAULT NULL,
-                        role_id INTEGER DEFAULT NULL)""")
+        await db.execute(
+            """CREATE TABLE IF NOT EXISTS "tickets" (
+                guild_id    INTEGER,
+                channel_id  INTEGER DEFAULT NULL,
+                role_id     INTEGER DEFAULT NULL,
+                PRIMARY KEY("guild_id")
+            )"""
+        )
         await db.commit()
         await db.close()
     bot.add_view(TicketButtons())

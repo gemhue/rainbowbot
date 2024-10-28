@@ -1,6 +1,5 @@
 import discord
 import aiosqlite
-from typing import Any
 from discord.ext import commands
 from discord import app_commands, ChannelType
 from datetime import datetime, timezone
@@ -86,6 +85,52 @@ class RoleSelectView(discord.ui.View):
         self.value = False
         self.stop()
 
+class InactiveMonths(discord.ui.Select):
+    def __init__(self):
+        options = [
+            discord.SelectOption(label="One Month"),
+            discord.SelectOption(label="Two Months"),
+            discord.SelectOption(label="Three Months"),
+            discord.SelectOption(label="Four Months"),
+            discord.SelectOption(label="Five Months"),
+            discord.SelectOption(label="Six Months"),
+            discord.SelectOption(label="Seven Months"),
+            discord.SelectOption(label="Eight Months"),
+            discord.SelectOption(label="Nine Months"),
+            discord.SelectOption(label="Ten Months"),
+            discord.SelectOption(label="Eleven Months"),
+            discord.SelectOption(label="Twelve Months"),
+        ]
+        super().__init__(
+            placeholder="Select a number...",
+            min_values=1,
+            max_values=1,
+            options=options,
+            row=1
+        )
+
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer()
+        self.view.months = self.values[0]
+
+class InactiveMonthsView(discord.ui.View):
+    def __init__(self, *, timeout=180.0):
+        super().__init__(timeout=timeout)
+        self.value = None
+        self.add_item(InactiveMonths())
+
+    @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        self.value = True
+        self.stop()
+
+    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        self.value = False
+        self.stop()
+
 class CogButtons(discord.ui.View):
     def __init__(self, bot: commands.Bot):
         super().__init__(timeout=180)
@@ -111,6 +156,7 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up AutoDelete (Guild ID: {guild.id}). Error: {e}")
+            print(f"Error: {e}\nTraceback: {e.__traceback__}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, delete_after=30.0)
 
@@ -132,6 +178,7 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up Awards (Guild ID: {guild.id}). Error: {e}")
+            print(f"Error: {e}\nTraceback: {e.__traceback__}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, delete_after=30.0)
     
@@ -153,6 +200,7 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up Embeds (Guild ID: {guild.id}). Error: {e}")
+            print(f"Error: {e}\nTraceback: {e.__traceback__}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, delete_after=30.0)
 
@@ -174,6 +222,7 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up Profiles (Guild ID: {guild.id}). Error: {e}")
+            print(f"Error: {e}\nTraceback: {e.__traceback__}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, delete_after=30.0)
 
@@ -195,6 +244,7 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up Purge (Guild ID: {guild.id}). Error: {e}")
+            print(f"Error: {e}\nTraceback: {e.__traceback__}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, delete_after=30.0)
 
@@ -216,6 +266,7 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up RSS Feeds (Guild ID: {guild.id}). Error: {e}")
+            print(f"Error: {e}\nTraceback: {e.__traceback__}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, delete_after=30.0)
 
@@ -237,6 +288,7 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up Tickets (Guild ID: {guild.id}). Error: {e}")
+            print(f"Error: {e}\nTraceback: {e.__traceback__}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, delete_after=30.0)
 
@@ -246,6 +298,7 @@ class CogButtons(discord.ui.View):
         try:
             self.stop()
         except Exception as e:
+            print(f"Error: {e}\nTraceback: {e.__traceback__}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, delete_after=30.0)
 
@@ -270,6 +323,7 @@ class Start(commands.Cog):
         yes_or_no = YesOrNo()
         channel_select = ChannelSelectView()
         role_select = RoleSelectView()
+        inactive_view = InactiveMonthsView()
         cog_buttons = CogButtons(bot=self.bot)
         try:
             async with aiosqlite.connect('rainbowbot.db') as db:
@@ -451,14 +505,19 @@ class Start(commands.Cog):
                         await db.execute("UPDATE guilds SET join_role_id = ? WHERE guild_id = ?", (join_role.id, guild.id))
 
                         # Bot sends a log to the logging channel
-                        log = discord.Embed(
-                            color=self.blurple,
-                            title="Bot Startup Log",
-                            description=f"{author.mention} has just set the server's join role to {join_role.mention}!",
-                            timestamp=timestamp
-                        )
-                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                        await logging_channel.send(embed=log)
+                        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                        row = await cur.fetchone()
+                        fetched_logging = row[0]
+                        if fetched_logging is not None:
+                            logging_channel = await guild.fetch_channel(fetched_logging)
+                            log = discord.Embed(
+                                color=self.blurple,
+                                title="Bot Startup Log",
+                                description=f"{author.mention} has just set the server's join role to {join_role.mention}!",
+                                timestamp=timestamp
+                            )
+                            log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                            await logging_channel.send(embed=log)
                     
                     # User does not select a join role
                     elif channel_select.value == False:
@@ -488,14 +547,19 @@ class Start(commands.Cog):
                         await db.execute("UPDATE guilds SET bot_role_id = ? WHERE guild_id = ?", (bot_role.id, guild.id))
 
                         # Bot sends a log to the logging channel
-                        log = discord.Embed(
-                            color=self.blurple,
-                            title="Bot Startup Log",
-                            description=f"{author.mention} has just set the server's bot role to {bot_role.mention}!",
-                            timestamp=timestamp
-                        )
-                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                        await logging_channel.send(embed=log)
+                        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                        row = await cur.fetchone()
+                        fetched_logging = row[0]
+                        if fetched_logging is not None:
+                            logging_channel = await guild.fetch_channel(fetched_logging)
+                            log = discord.Embed(
+                                color=self.blurple,
+                                title="Bot Startup Log",
+                                description=f"{author.mention} has just set the server's bot role to {bot_role.mention}!",
+                                timestamp=timestamp
+                            )
+                            log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                            await logging_channel.send(embed=log)
                     
                     # User does not select a bot role
                     elif channel_select.value == False:
@@ -546,14 +610,19 @@ class Start(commands.Cog):
                         await db.execute("UPDATE guilds SET active_role_id = ? WHERE guild_id = ?", (active_role.id, guild.id))
 
                         # Bot sends a log to the logging channel
-                        log = discord.Embed(
-                            color=self.blurple,
-                            title="Bot Startup Log",
-                            description=f"{author.mention} has just set the server's active member role to {active_role.mention}!",
-                            timestamp=timestamp
-                        )
-                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                        await logging_channel.send(embed=log)
+                        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                        row = await cur.fetchone()
+                        fetched_logging = row[0]
+                        if fetched_logging is not None:
+                            logging_channel = await guild.fetch_channel(fetched_logging)
+                            log = discord.Embed(
+                                color=self.blurple,
+                                title="Bot Startup Log",
+                                description=f"{author.mention} has just set the server's active member role to {active_role.mention}!",
+                                timestamp=timestamp
+                            )
+                            log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                            await logging_channel.send(embed=log)
                     
                     # User does not select an active role
                     elif channel_select.value == False:
@@ -583,20 +652,67 @@ class Start(commands.Cog):
                         await db.execute("UPDATE guilds SET inactive_role_id = ? WHERE guild_id = ?", (inactive_role.id, guild.id))
 
                         # Bot sends a log to the logging channel
-                        log = discord.Embed(
-                            color=self.blurple,
-                            title="Bot Startup Log",
-                            description=f"{author.mention} has just set the server's bot role to {bot_role.mention}!",
-                            timestamp=timestamp
-                        )
-                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                        await logging_channel.send(embed=log)
+                        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                        row = await cur.fetchone()
+                        fetched_logging = row[0]
+                        if fetched_logging is not None:
+                            logging_channel = await guild.fetch_channel(fetched_logging)
+                            log = discord.Embed(
+                                color=self.blurple,
+                                title="Bot Startup Log",
+                                description=f"{author.mention} has just set the server's inactive role to {inactive_role.mention}!",
+                                timestamp=timestamp
+                            )
+                            log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                            await logging_channel.send(embed=log)
                     
-                    # User does not select a bot role
-                    elif channel_select.value == False:
+                    # User does not select an inactive role
+                    elif role_select.value == False:
                         pass
 
-                    # The view times out before the user selects a bot role
+                    # The view times out before the user selects an inactive role
+                    else:
+                        timed_out = discord.Embed(
+                            color=self.yellow,
+                            title="Timed Out",
+                            description="This interaction has timed out. Please try again."
+                        )
+                        await response.edit(embed=timed_out, delete_after=30.0, view=None)
+
+                    # Ask user to provide inactive months
+                    ask_inactive_months = discord.Embed(
+                        color=self.blurple,
+                        title="Inactive Months",
+                        description="How many months should a member be inactive before recieving the inactive role?\nChoose `Cancel` to skip to the next option."
+                    )
+                    response = await response.edit(embed=ask_inactive_months, view=inactive_view)
+                    await inactive_view.wait()
+
+                    # User selects an inactive months
+                    if inactive_view.value == True:
+                        inactive_months = inactive_view.months
+                        await db.execute("UPDATE guilds SET inactive_months = ? WHERE guild_id = ?", (inactive_months.months, guild.id))
+
+                        # Bot sends a log to the logging channel
+                        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                        row = await cur.fetchone()
+                        fetched_logging = row[0]
+                        if fetched_logging is not None:
+                            logging_channel = await guild.fetch_channel(fetched_logging)
+                            log = discord.Embed(
+                                color=self.blurple,
+                                title="Bot Startup Log",
+                                description=f"{author.mention} has just set the server's number of inactive months to {inactive_months.months}!",
+                                timestamp=timestamp
+                            )
+                            log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                            await logging_channel.send(embed=log)
+                    
+                    # User does not select a number of inactive months
+                    elif inactive_view.value == False:
+                        pass
+
+                    # The view times out before the user selects an inactive role
                     else:
                         timed_out = discord.Embed(
                             color=self.yellow,
@@ -662,13 +778,14 @@ class Start(commands.Cog):
         
         # Send an error message if there's an issue
         except Exception as e:
+            print(f"Start Command Error (Guild ID: {guild.id}): {e}")
+            print(f"Error: {e}\nTraceback: {e.__traceback__}")
             error = discord.Embed(
                 color=self.red,
                 title="Error",
-                description=f"There was an error running the `/start` command. Error: {e}"
+                description=f"There was an error running the `/start` or `rb!start` command. Error: {e}"
             )
             await ctx.send(embed=error, delete_after=30.0)
-            print(f"Start Command Error (Guild ID: {guild.id}): {e}")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Start(bot), override=True)

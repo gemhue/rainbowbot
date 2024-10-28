@@ -261,6 +261,3 @@ class Purge(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await ctx.channel.send(embed=error, delete_after=30.0)
-
-async def setup(bot: commands.Bot):
-	await bot.add_cog(Purge(bot), override=True)
