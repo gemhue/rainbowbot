@@ -333,7 +333,7 @@ class Start(commands.Cog):
                     title="Bot Startup",
                     description="Would you like to start by choosing channels for bot logging messages, member welcome messages, or member goodbye messages?"
                 )
-                response = await ctx.send(embed=start, view=yes_or_no)
+                response = await ctx.send(content=None, embed=start, view=yes_or_no)
                 await yes_or_no.wait()
 
                 # User wants to select logging, welcome, and/or goodbye channels
@@ -345,7 +345,7 @@ class Start(commands.Cog):
                         title="Logging Channel",
                         description="Would you like to select a channel to send logging messages?\nChoose `Cancel` to skip to the next option."
                     )
-                    response = await response.edit(embed=ask_logging, view=channel_select)
+                    response = await response.edit(content=None, embed=ask_logging, view=channel_select)
                     await channel_select.wait()
 
                     # User selects a logging channel
@@ -367,12 +367,96 @@ class Start(commands.Cog):
                                 timestamp=timestamp
                             )
                             log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                            await logging_channel.send(embed=log)
+                            await logging_channel.send(content=None, embed=log)
                     
                     # User does not select a logging channel
                     elif channel_select.value == False:
-                        response = await response.edit(content=f"The logging channel was not set.", embed=None, view=None)
-                        pass
+
+                        # Ask user to select a welcome channel
+                        ask_welcome = discord.Embed(
+                            color=self.blurple,
+                            title="Welcome Channel",
+                            description="Would you like to select a channel to send welcome messages?\nChoose `Cancel` to skip to the next option."
+                        )
+                        response = await response.edit(content=None, embed=ask_welcome, view=channel_select)
+                        await channel_select.wait()
+
+                        # User selects a welcome channel
+                        if channel_select.value == True:
+                            welcome_channel = channel_select.channel
+                            response = await response.edit(content=f"The welcome channel has been set to {welcome_channel.mention}.", embed=None, view=None)
+                            await db.execute("UPDATE guilds SET welcome_channel_id = ? WHERE guild_id = ?", (welcome_channel.id, guild.id))
+
+                            # Bot sends a log to the logging channel
+                            cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                            row = await cur.fetchone()
+                            fetched_logging = row[0]
+                            if fetched_logging is not None:
+                                logging_channel = await guild.fetch_channel(fetched_logging)
+                                log = discord.Embed(
+                                    color=self.blurple,
+                                    title="Bot Startup Log",
+                                    description=f"{author.mention} has just set the server's welcome channel to {welcome_channel.mention}!",
+                                    timestamp=timestamp
+                                )
+                                log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                                await logging_channel.send(content=None, embed=log)
+                        
+                        # User does not select a welcome channel
+                        elif channel_select.value == False:
+                            
+                            # Ask user to select a goodbye channel
+                            ask_goodbye = discord.Embed(
+                                color=self.blurple,
+                                title="Goodbye Channel",
+                                description="Would you like to select a channel to send goodbye messages?\nChoose `Cancel` to skip to the next option."
+                            )
+                            response = await response.edit(content=None, embed=ask_goodbye, view=channel_select)
+                            await channel_select.wait()
+
+                            # User selects a goodbye channel
+                            if channel_select.value == True:
+                                goodbye_channel = channel_select.channel
+                                response = await response.edit(content=f"The goodbye channel has been set to {goodbye_channel.mention}.", embed=None, view=None)
+                                await db.execute("UPDATE guilds SET goodbye_channel_id = ? WHERE guild_id = ?", (goodbye_channel.id, guild.id))
+
+                                # Bot sends a log to the logging channel
+                                cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                                row = await cur.fetchone()
+                                fetched_logging = row[0]
+                                if fetched_logging is not None:
+                                    logging_channel = await guild.fetch_channel(fetched_logging)
+                                    log = discord.Embed(
+                                        color=self.blurple,
+                                        title="Bot Startup Log",
+                                        description=f"{author.mention} has just set the server's goodbye channel to {goodbye_channel.mention}!",
+                                        timestamp=timestamp
+                                    )
+                                    log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                                    await logging_channel.send(content=None, embed=log)
+                            
+                            # User does not select a goodbye channel
+                            elif channel_select.value == False:
+                                response = await response.edit(content=f"The goodbye channel was not set.", embed=None, view=None)
+                                pass
+
+                            # The view times out before the user selects a goodbye channel
+                            else:
+                                timed_out = discord.Embed(
+                                    color=self.yellow,
+                                    title="Timed Out",
+                                    description="This interaction has timed out. Please try again."
+                                )
+                                response = await response.edit(content=None, embed=timed_out, delete_after=30.0, view=None)
+
+                        # The view times out before the user selects a welcome channel
+                        else:
+                            timed_out = discord.Embed(
+                                color=self.yellow,
+                                title="Timed Out",
+                                description="This interaction has timed out. Please try again."
+                            )
+                            response = await response.edit(content=None, embed=timed_out, delete_after=30.0, view=None)
 
                     # The view times out before the user selects a logging channel
                     else:
@@ -381,95 +465,7 @@ class Start(commands.Cog):
                             title="Timed Out",
                             description="This interaction has timed out. Please try again."
                         )
-                        response = await response.edit(embed=timed_out, delete_after=30.0, view=None)
-
-                    # Ask user to select a welcome channel
-                    ask_welcome = discord.Embed(
-                        color=self.blurple,
-                        title="Welcome Channel",
-                        description="Would you like to select a channel to send welcome messages?\nChoose `Cancel` to skip to the next option."
-                    )
-                    response = await response.edit(embed=ask_welcome, view=channel_select)
-                    await channel_select.wait()
-
-                    # User selects a welcome channel
-                    if channel_select.value == True:
-                        welcome_channel = channel_select.channel
-                        response = await response.edit(content=f"The welcome channel has been set to {welcome_channel.mention}.", embed=None, view=None)
-                        await db.execute("UPDATE guilds SET welcome_channel_id = ? WHERE guild_id = ?", (welcome_channel.id, guild.id))
-
-                        # Bot sends a log to the logging channel
-                        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                        row = await cur.fetchone()
-                        fetched_logging = row[0]
-                        if fetched_logging is not None:
-                            logging_channel = await guild.fetch_channel(fetched_logging)
-                            log = discord.Embed(
-                                color=self.blurple,
-                                title="Bot Startup Log",
-                                description=f"{author.mention} has just set the server's welcome channel to {welcome_channel.mention}!",
-                                timestamp=timestamp
-                            )
-                            log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                            await logging_channel.send(embed=log)
-                    
-                    # User does not select a welcome channel
-                    elif channel_select.value == False:
-                        response = await response.edit(content=f"The welcome channel was not set.", embed=None, view=None)
-                        pass
-
-                    # The view times out before the user selects a welcome channel
-                    else:
-                        timed_out = discord.Embed(
-                            color=self.yellow,
-                            title="Timed Out",
-                            description="This interaction has timed out. Please try again."
-                        )
-                        response = await response.edit(embed=timed_out, delete_after=30.0, view=None)
-
-                    # Ask user to select a goodbye channel
-                    ask_goodbye = discord.Embed(
-                        color=self.blurple,
-                        title="Goodbye Channel",
-                        description="Would you like to select a channel to send goodbye messages?\nChoose `Cancel` to skip to the next option."
-                    )
-                    response = await response.edit(embed=ask_goodbye, view=channel_select)
-                    await channel_select.wait()
-
-                    # User selects a goodbye channel
-                    if channel_select.value == True:
-                        goodbye_channel = channel_select.channel
-                        response = await response.edit(content=f"The goodbye channel has been set to {goodbye_channel.mention}.", embed=None, view=None)
-                        await db.execute("UPDATE guilds SET goodbye_channel_id = ? WHERE guild_id = ?", (goodbye_channel.id, guild.id))
-
-                        # Bot sends a log to the logging channel
-                        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                        row = await cur.fetchone()
-                        fetched_logging = row[0]
-                        if fetched_logging is not None:
-                            logging_channel = await guild.fetch_channel(fetched_logging)
-                            log = discord.Embed(
-                                color=self.blurple,
-                                title="Bot Startup Log",
-                                description=f"{author.mention} has just set the server's goodbye channel to {goodbye_channel.mention}!",
-                                timestamp=timestamp
-                            )
-                            log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                            await logging_channel.send(embed=log)
-                    
-                    # User does not select a goodbye channel
-                    elif channel_select.value == False:
-                        response = await response.edit(content=f"The goodbye channel was not set.", embed=None, view=None)
-                        pass
-
-                    # The view times out before the user selects a goodbye channel
-                    else:
-                        timed_out = discord.Embed(
-                            color=self.yellow,
-                            title="Timed Out",
-                            description="This interaction has timed out. Please try again."
-                        )
-                        response = await response.edit(embed=timed_out, delete_after=30.0, view=None)
+                        response = await response.edit(content=None, embed=timed_out, delete_after=30.0, view=None)
 
                 # The user doesn't want to select a logging, welcome, and goodbye channels
                 elif yes_or_no.value == False:
@@ -483,7 +479,7 @@ class Start(commands.Cog):
                         title="Timed Out",
                         description="This interaction has timed out. Please try again."
                     )
-                    response = await response.edit(embed=timed_out, delete_after=30.0, view=None)
+                    response = await response.edit(content=None, embed=timed_out, delete_after=30.0, view=None)
                 
                 # Ask the user to select join roles
                 start = discord.Embed(
@@ -491,7 +487,7 @@ class Start(commands.Cog):
                     title="Bot Startup",
                     description="Would you like to choose join roles?"
                 )
-                response = await response.edit(embed=start, view=yes_or_no)
+                response = await response.edit(content=None, embed=start, view=yes_or_no)
                 await yes_or_no.wait()
 
                 # User wants to select join roles
@@ -503,7 +499,7 @@ class Start(commands.Cog):
                         title="Join Role",
                         description="Would you like to select a role to give members on join?\nChoose `Cancel` to skip to the next option."
                     )
-                    response = await response.edit(embed=ask_join_role, view=role_select)
+                    response = await response.edit(content=None, embed=ask_join_role, view=role_select)
                     await role_select.wait()
 
                     # User selects a join role
@@ -525,7 +521,7 @@ class Start(commands.Cog):
                                 timestamp=timestamp
                             )
                             log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                            await logging_channel.send(embed=log)
+                            await logging_channel.send(content=None, embed=log)
                     
                     # User does not select a join role
                     elif channel_select.value == False:
@@ -539,7 +535,7 @@ class Start(commands.Cog):
                             title="Timed Out",
                             description="This interaction has timed out. Please try again."
                         )
-                        response = await response.edit(embed=timed_out, delete_after=30.0, view=None)
+                        response = await response.edit(content=None, embed=timed_out, delete_after=30.0, view=None)
 
                     # Ask user to select a bot role
                     ask_bot_role = discord.Embed(
@@ -547,7 +543,7 @@ class Start(commands.Cog):
                         title="Bot Role",
                         description="Would you like to select a role to give bots on join?\nChoose `Cancel` to skip to the next option."
                     )
-                    response = await response.edit(embed=ask_bot_role, view=role_select)
+                    response = await response.edit(content=None, embed=ask_bot_role, view=role_select)
                     await role_select.wait()
 
                     # User selects a bot role
@@ -569,7 +565,7 @@ class Start(commands.Cog):
                                 timestamp=timestamp
                             )
                             log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                            await logging_channel.send(embed=log)
+                            await logging_channel.send(content=None, embed=log)
                     
                     # User does not select a bot role
                     elif channel_select.value == False:
@@ -583,7 +579,7 @@ class Start(commands.Cog):
                             title="Timed Out",
                             description="This interaction has timed out. Please try again."
                         )
-                        response = await response.edit(embed=timed_out, delete_after=30.0, view=None)
+                        response = await response.edit(content=None, embed=timed_out, delete_after=30.0, view=None)
 
                 # The view times out before the user selects yes or no
                 else:
@@ -592,7 +588,7 @@ class Start(commands.Cog):
                         title="Timed Out",
                         description="This interaction has timed out. Please try again."
                     )
-                    response = await response.edit(embed=timed_out, delete_after=30.0, view=None)
+                    response = await response.edit(content=None, embed=timed_out, delete_after=30.0, view=None)
                 
                 # Ask the user to select activity roles
                 start = discord.Embed(
@@ -600,7 +596,7 @@ class Start(commands.Cog):
                     title="Bot Startup",
                     description="Would you like to choose activity roles?"
                 )
-                response = await response.edit(embed=start, view=yes_or_no)
+                response = await response.edit(content=None, embed=start, view=yes_or_no)
                 await yes_or_no.wait()
 
                 # User wants to select activity roles
@@ -612,7 +608,7 @@ class Start(commands.Cog):
                         title="Active Role",
                         description="Would you like to select a role to give active members?\nChoose `Cancel` to skip to the next option."
                     )
-                    response = await response.edit(embed=ask_active_role, view=role_select)
+                    response = await response.edit(content=None, embed=ask_active_role, view=role_select)
                     await role_select.wait()
 
                     # User selects an active role
@@ -634,7 +630,7 @@ class Start(commands.Cog):
                                 timestamp=timestamp
                             )
                             log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                            await logging_channel.send(embed=log)
+                            await logging_channel.send(content=None, embed=log)
                     
                     # User does not select an active role
                     elif channel_select.value == False:
@@ -648,7 +644,7 @@ class Start(commands.Cog):
                             title="Timed Out",
                             description="This interaction has timed out. Please try again."
                         )
-                        response = await response.edit(embed=timed_out, delete_after=30.0, view=None)
+                        response = await response.edit(content=None, embed=timed_out, delete_after=30.0, view=None)
 
                     # Ask user to select an inactive role
                     ask_inactive_role = discord.Embed(
@@ -656,7 +652,7 @@ class Start(commands.Cog):
                         title="Inactive Role",
                         description="Would you like to select a role to give to inactive members?\nChoose `Cancel` to skip to the next option."
                     )
-                    response = await response.edit(embed=ask_inactive_role, view=role_select)
+                    response = await response.edit(content=None, embed=ask_inactive_role, view=role_select)
                     await role_select.wait()
 
                     # User selects an inactive role
@@ -678,7 +674,7 @@ class Start(commands.Cog):
                                 timestamp=timestamp
                             )
                             log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                            await logging_channel.send(embed=log)
+                            await logging_channel.send(content=None, embed=log)
                     
                     # User does not select an inactive role
                     elif role_select.value == False:
@@ -692,7 +688,7 @@ class Start(commands.Cog):
                             title="Timed Out",
                             description="This interaction has timed out. Please try again."
                         )
-                        response = await response.edit(embed=timed_out, delete_after=30.0, view=None)
+                        response = await response.edit(content=None, embed=timed_out, delete_after=30.0, view=None)
 
                     # Ask user to provide inactive months
                     ask_inactive_months = discord.Embed(
@@ -700,7 +696,7 @@ class Start(commands.Cog):
                         title="Inactive Months",
                         description="How many months should a member be inactive before recieving the inactive role?\nChoose `Cancel` to skip to the next option."
                     )
-                    response = await response.edit(embed=ask_inactive_months, view=inactive_view)
+                    response = await response.edit(content=None, embed=ask_inactive_months, view=inactive_view)
                     await inactive_view.wait()
 
                     # User selects an inactive months
@@ -722,7 +718,7 @@ class Start(commands.Cog):
                                 timestamp=timestamp
                             )
                             log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                            await logging_channel.send(embed=log)
+                            await logging_channel.send(content=None, embed=log)
                     
                     # User does not select a number of inactive months
                     elif inactive_view.value == False:
@@ -736,7 +732,7 @@ class Start(commands.Cog):
                             title="Timed Out",
                             description="This interaction has timed out. Please try again."
                         )
-                        response = await response.edit(embed=timed_out, delete_after=30.0, view=None)
+                        response = await response.edit(content=None, embed=timed_out, delete_after=30.0, view=None)
 
                 # The view times out before the user selects yes or no
                 else:
@@ -745,7 +741,7 @@ class Start(commands.Cog):
                         title="Timed Out",
                         description="This interaction has timed out. Please try again."
                     )
-                    response = await response.edit(embed=timed_out, delete_after=30.0, view=None)
+                    response = await response.edit(content=None, embed=timed_out, delete_after=30.0, view=None)
                 
                 # Ask the user to select which cogs to add to their server
                 ask_cogs = discord.Embed(
@@ -760,7 +756,7 @@ class Start(commands.Cog):
                 ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
                 ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
                 ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
-                response = await response.edit(embed=ask_cogs, view=cog_buttons)
+                response = await response.edit(content=None, embed=ask_cogs, view=cog_buttons)
                 await cog_buttons.wait()
 
                 # The user has now completed bot startup for their server
@@ -772,7 +768,7 @@ class Start(commands.Cog):
                     description=f"Bot startup is now complete!"
                 )
                 done.add_field(name="Commands Added", value=f"{join}")
-                response = await response.edit(embed=done, delete_after=30.0, view=None)
+                response = await response.edit(content=None, embed=done, delete_after=30.0, view=None)
 
                 # Bot sends a log to the logging channel
                 cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -788,7 +784,7 @@ class Start(commands.Cog):
                     )
                     log.set_author(name=author.display_name, icon_url=author.display_avatar)
                     log.add_field(name="Commands Added", value=f"{join}")
-                    await logging_channel.send(embed=log)
+                    await logging_channel.send(content=None, embed=log)
 
                 await db.commit()
                 await db.close()
