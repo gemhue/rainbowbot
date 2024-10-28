@@ -88,18 +88,18 @@ class RoleSelectView(discord.ui.View):
 class InactiveMonths(discord.ui.Select):
     def __init__(self):
         options = [
-            discord.SelectOption(label="One Month"),
-            discord.SelectOption(label="Two Months"),
-            discord.SelectOption(label="Three Months"),
-            discord.SelectOption(label="Four Months"),
-            discord.SelectOption(label="Five Months"),
-            discord.SelectOption(label="Six Months"),
-            discord.SelectOption(label="Seven Months"),
-            discord.SelectOption(label="Eight Months"),
-            discord.SelectOption(label="Nine Months"),
-            discord.SelectOption(label="Ten Months"),
-            discord.SelectOption(label="Eleven Months"),
-            discord.SelectOption(label="Twelve Months"),
+            discord.SelectOption(label="One Month", value="1"),
+            discord.SelectOption(label="Two Months", value="2"),
+            discord.SelectOption(label="Three Months", value="3"),
+            discord.SelectOption(label="Four Months", value="4"),
+            discord.SelectOption(label="Five Months", value="5"),
+            discord.SelectOption(label="Six Months", value="6"),
+            discord.SelectOption(label="Seven Months", value="7"),
+            discord.SelectOption(label="Eight Months", value="8"),
+            discord.SelectOption(label="Nine Months", value="9"),
+            discord.SelectOption(label="Ten Months", value="10"),
+            discord.SelectOption(label="Eleven Months", value="11"),
+            discord.SelectOption(label="Twelve Months", value="12"),
         ]
         super().__init__(
             placeholder="Select a number...",
@@ -135,6 +135,7 @@ class CogButtons(discord.ui.View):
     def __init__(self, bot: commands.Bot):
         super().__init__(timeout=180)
         self.bot = bot
+        self.value = False
         self.red = discord.Colour.red()
         self.guild_cogs = {}
 
@@ -156,7 +157,7 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up AutoDelete (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.__traceback__}")
+            print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, delete_after=30.0)
 
@@ -178,7 +179,7 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up Awards (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.__traceback__}")
+            print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, delete_after=30.0)
     
@@ -200,7 +201,7 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up Embeds (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.__traceback__}")
+            print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, delete_after=30.0)
 
@@ -222,7 +223,7 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up Profiles (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.__traceback__}")
+            print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, delete_after=30.0)
 
@@ -244,7 +245,7 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up Purge (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.__traceback__}")
+            print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, delete_after=30.0)
 
@@ -266,7 +267,7 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up RSS Feeds (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.__traceback__}")
+            print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, delete_after=30.0)
 
@@ -288,7 +289,7 @@ class CogButtons(discord.ui.View):
             await interaction.response.edit_message(view=self)
         except Exception as e:
             print(f"There was a problem setting up Tickets (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.__traceback__}")
+            print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, delete_after=30.0)
 
@@ -296,9 +297,10 @@ class CogButtons(discord.ui.View):
     async def done(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         try:
+            self.value = True
             self.stop()
         except Exception as e:
-            print(f"Error: {e}\nTraceback: {e.__traceback__}")
+            print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, delete_after=30.0)
 
@@ -628,32 +630,34 @@ class Start(commands.Cog):
                 response = await response.edit(content=None, embed=ask_cogs, view=cog_buttons)
                 await cog_buttons.wait()
 
-                # The user has now completed bot startup for their server
-                cogs = cog_buttons.guild_cogs[guild.id]
-                join = ", ".join(cogs)
-                done = discord.Embed(
-                    color=self.blurple,
-                    title="Bot Startup",
-                    description=f"Bot startup is now complete!"
-                )
-                done.add_field(name="Commands Added", value=f"{join}")
-                response = await response.edit(content=None, embed=done, delete_after=30.0, view=None)
+                if cog_buttons.value == True:
 
-                # Bot sends a log to the logging channel
-                cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                row = await cur.fetchone()
-                fetched_logging = row[0]
-                if fetched_logging is not None:
-                    logging_channel = await guild.fetch_channel(fetched_logging)
-                    log = discord.Embed(
+                    # The user has now completed bot startup for their server
+                    cogs = cog_buttons.guild_cogs[guild.id]
+                    join = ", ".join(cogs)
+                    done = discord.Embed(
                         color=self.blurple,
-                        title="Bot Startup Log",
-                        description=f"{author.mention} has just added commands to {guild.name}!",
-                        timestamp=timestamp
+                        title="Bot Startup",
+                        description=f"Bot startup is now complete!"
                     )
-                    log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                    log.add_field(name="Commands Added", value=f"{join}")
-                    await logging_channel.send(content=None, embed=log)
+                    done.add_field(name="Commands Added", value=f"{join}")
+                    response = await response.edit(content=None, embed=done, delete_after=30.0, view=None)
+
+                    # Bot sends a log to the logging channel
+                    cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                    row = await cur.fetchone()
+                    fetched_logging = row[0]
+                    if fetched_logging is not None:
+                        logging_channel = await guild.fetch_channel(fetched_logging)
+                        log = discord.Embed(
+                            color=self.blurple,
+                            title="Bot Startup Log",
+                            description=f"{author.mention} has just added commands to {guild.name}!",
+                            timestamp=timestamp
+                        )
+                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                        log.add_field(name="Commands Added", value=f"{join}")
+                        await logging_channel.send(content=None, embed=log)
 
                 await db.commit()
                 await db.close()
@@ -661,13 +665,13 @@ class Start(commands.Cog):
         # Send an error message if there's an issue
         except Exception as e:
             print(f"Start Command Error (Guild ID: {guild.id}): {e}")
-            print(f"Error: {e}\nTraceback: {e.__traceback__}")
+            print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(
                 color=self.red,
                 title="Error",
                 description=f"There was an error running the `/start` or `rb!start` command. Error: {e}"
             )
-            await ctx.send(embed=error, delete_after=30.0)
+            response = await response.edit(content=None, embed=error, delete_after=30.0, view=None)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Start(bot), override=True)
