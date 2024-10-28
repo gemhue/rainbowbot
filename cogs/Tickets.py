@@ -268,7 +268,6 @@ class ConfirmButton(discord.ui.View):
             thread = guild.get_thread(channel.id)
             if thread is not None:
                 await thread.edit(locked=True)
-                #reason=f"Ticket closed by {interaction.user.display_name}.")
                 async with aiosqlite.connect('rainbowbot.db') as db:
                     cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                     row = await cur.fetchone()
