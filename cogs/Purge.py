@@ -262,7 +262,7 @@ class Purge(commands.Cog):
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await ctx.channel.send(embed=error, delete_after=30.0)
 
-async def setup():
+async def setup(bot: commands.Bot):
     async with aiosqlite.connect('rainbowbot.db') as db:
         await db.execute(
             """CREATE TABLE IF NOT EXISTS "guilds" (

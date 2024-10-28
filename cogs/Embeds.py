@@ -355,7 +355,7 @@ class Embeds(commands.Cog):
             error = discord.Embed(color=red, title="Error", description=f"{e}")
             await ctx.send(embed=error, delete_after=30.0, ephemeral=True)
 
-async def setup():
+async def setup(bot: commands.Bot):
     async with aiosqlite.connect('rainbowbot.db') as db:
         await db.execute(
             """CREATE TABLE IF NOT EXISTS "guilds" (
