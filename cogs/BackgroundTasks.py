@@ -67,11 +67,7 @@ class BackgroundTasks(commands.Cog):
                 row = await cur.fetchone()
                 channel_id = row[0]
                 if channel_id is not None:
-                    cur = await db.execute("SELECT welcome_message FROM guilds WHERE guild_id = ?", (guild_id,))
-                    row = await cur.fetchone()
-                    message = row[0]
-                    if message is None:
-                        message = f"Welcome to {guild.name}, {member.mention}!"
+                    message = f"Welcome to {guild.name}, {member.mention}!"
                     color = member.accent_color
                     time = datetime.now()
                     embed = discord.Embed(color=color, description=f"{message}", timestamp=time)
@@ -86,7 +82,7 @@ class BackgroundTasks(commands.Cog):
                 if role_id is not None and not member.bot:
                     role = guild.get_role(role_id)
                     await member.add_roles(role)
-                cur = await db.execute("SELECT bot_join_role_id FROM guilds WHERE guild_id = ?", (guild_id,))
+                cur = await db.execute("SELECT bot_role_id FROM guilds WHERE guild_id = ?", (guild_id,))
                 row = await cur.fetchone()
                 botrole_id = row[0]
                 if botrole_id is not None and member.bot:
@@ -108,11 +104,7 @@ class BackgroundTasks(commands.Cog):
                 row = await cur.fetchone()
                 channel_id = row[0]
                 if channel_id is not None:
-                    cur = await db.execute("SELECT goodbye_message FROM guilds WHERE guild_id = ?", (guild_id,))
-                    row = await cur.fetchone()
-                    message = row[0]
-                    if message is None:
-                        message = f"{member.mention} has just left {guild.name}!"
+                    message = f"{member.mention} has just left {guild.name}!"
                     color = member.accent_color
                     time = datetime.now()
                     embed = discord.Embed(color=color, description=f"{message}", timestamp=time)
@@ -134,7 +126,7 @@ class BackgroundTasks(commands.Cog):
                 for guild in guilds:
                     guild_id = guild.id
                     await db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (guild_id,))
-                    cur = await db.execute("SELECT inactive_days FROM guilds WHERE guild_id = ?", (guild_id,))
+                    cur = await db.execute("SELECT inactive_months FROM guilds WHERE guild_id = ?", (guild_id,))
                     row = await cur.fetchone()
                     days = row[0]
                     if days is not None:
