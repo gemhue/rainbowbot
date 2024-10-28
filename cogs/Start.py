@@ -142,6 +142,7 @@ class CogButtons(discord.ui.View):
     @discord.ui.button(label="AutoDelete", style=discord.ButtonStyle.blurple, emoji="♻️")
     async def autodelete(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
+        message = interaction.message
         guild = interaction.guild
         try:
             await self.bot.add_cog(AutoDelete.AutoDelete(self.bot), override=True, guild=guild)
@@ -154,16 +155,17 @@ class CogButtons(discord.ui.View):
             button.style = discord.ButtonStyle.gray
             button.emoji = "✅"
             button.disabled = True
-            await interaction.response.edit_message(view=self)
+            await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
             print(f"There was a problem setting up AutoDelete (Guild ID: {guild.id}). Error: {e}")
             print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.response.send_message(embed=error, delete_after=30.0)
+            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
 
     @discord.ui.button(label="Awards", style=discord.ButtonStyle.blurple, emoji="🏅")
     async def awards(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
+        message = interaction.message
         guild = interaction.guild
         try:
             await self.bot.add_cog(Awards.Awards(self.bot), override=True, guild=guild)
@@ -176,16 +178,17 @@ class CogButtons(discord.ui.View):
             button.style = discord.ButtonStyle.gray
             button.emoji = "✅"
             button.disabled = True
-            await interaction.response.edit_message(view=self)
+            await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
             print(f"There was a problem setting up Awards (Guild ID: {guild.id}). Error: {e}")
             print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.response.send_message(embed=error, delete_after=30.0)
+            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
     
     @discord.ui.button(label="Embeds", style=discord.ButtonStyle.blurple, emoji="📝")
     async def embeds(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
+        message = interaction.message
         guild = interaction.guild
         try:
             await self.bot.add_cog(Embeds.Embeds(self.bot), override=True, guild=guild)
@@ -198,16 +201,17 @@ class CogButtons(discord.ui.View):
             button.style = discord.ButtonStyle.gray
             button.emoji = "✅"
             button.disabled = True
-            await interaction.response.edit_message(view=self)
+            await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
             print(f"There was a problem setting up Embeds (Guild ID: {guild.id}). Error: {e}")
             print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.response.send_message(embed=error, delete_after=30.0)
+            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
 
     @discord.ui.button(label="Profiles", style=discord.ButtonStyle.blurple, emoji="🪪")
     async def profiles(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
+        message = interaction.message
         guild = interaction.guild
         try:
             await self.bot.add_cog(Profiles.Profiles(self.bot), override=True, guild=guild)
@@ -220,16 +224,17 @@ class CogButtons(discord.ui.View):
             button.style = discord.ButtonStyle.gray
             button.emoji = "✅"
             button.disabled = True
-            await interaction.response.edit_message(view=self)
+            await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
             print(f"There was a problem setting up Profiles (Guild ID: {guild.id}). Error: {e}")
             print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.response.send_message(embed=error, delete_after=30.0)
+            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
 
     @discord.ui.button(label="Purge", style=discord.ButtonStyle.blurple, emoji="🗑️")
     async def purge(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
+        message = interaction.message
         guild = interaction.guild
         try:
             await self.bot.add_cog(Purge.Purge(self.bot), override=True, guild=guild)
@@ -242,16 +247,17 @@ class CogButtons(discord.ui.View):
             button.style = discord.ButtonStyle.gray
             button.emoji = "✅"
             button.disabled = True
-            await interaction.response.edit_message(view=self)
+            await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
             print(f"There was a problem setting up Purge (Guild ID: {guild.id}). Error: {e}")
             print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.response.send_message(embed=error, delete_after=30.0)
+            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
 
     @discord.ui.button(label="RSS Feeds", style=discord.ButtonStyle.blurple, emoji="📰")
     async def rss_feeds(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
+        message = interaction.message
         guild = interaction.guild
         try:
             await self.bot.add_cog(RSSFeeds.RSSFeeds(self.bot), override=True, guild=guild)
@@ -264,16 +270,17 @@ class CogButtons(discord.ui.View):
             button.style = discord.ButtonStyle.gray
             button.emoji = "✅"
             button.disabled = True
-            await interaction.response.edit_message(view=self)
+            await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
             print(f"There was a problem setting up RSS Feeds (Guild ID: {guild.id}). Error: {e}")
             print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.response.send_message(embed=error, delete_after=30.0)
+            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
 
     @discord.ui.button(label="Tickets", style=discord.ButtonStyle.blurple, emoji="🎫")
     async def rss_feeds(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
+        message = interaction.message
         guild = interaction.guild
         try:
             await self.bot.add_cog(Tickets.Tickets(self.bot), override=True, guild=guild)
@@ -286,23 +293,24 @@ class CogButtons(discord.ui.View):
             button.style = discord.ButtonStyle.gray
             button.emoji = "✅"
             button.disabled = True
-            await interaction.response.edit_message(view=self)
+            await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
             print(f"There was a problem setting up Tickets (Guild ID: {guild.id}). Error: {e}")
             print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.response.send_message(embed=error, delete_after=30.0)
+            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
 
     @discord.ui.button(label="Done", style=discord.ButtonStyle.green)
     async def done(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
+        message = interaction.message
         try:
             self.value = True
             self.stop()
         except Exception as e:
             print(f"Error: {e}\nTraceback: {e.with_traceback}")
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.response.send_message(embed=error, delete_after=30.0)
+            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
 
 class Start(commands.Cog):
     def __init__(self, bot: commands.Bot):
