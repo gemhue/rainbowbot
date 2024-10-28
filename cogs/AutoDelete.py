@@ -172,7 +172,7 @@ class AutoDelete(commands.Cog):
             await db.commit()
             await db.close()
 
-async def setup():
+async def setup(bot: commands.Bot):
     async with aiosqlite.connect('rainbowbot.db') as db:
         await db.execute(
             """CREATE TABLE IF NOT EXISTS "autodelete" (

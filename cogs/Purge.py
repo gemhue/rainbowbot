@@ -261,3 +261,26 @@ class Purge(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.red, title="Error", description=f"{e}")
             await ctx.channel.send(embed=error, delete_after=30.0)
+
+async def setup():
+    async with aiosqlite.connect('rainbowbot.db') as db:
+        await db.execute(
+            """CREATE TABLE IF NOT EXISTS "guilds" (
+                "guild_id"	            INTEGER,
+                "logging_channel_id"	INTEGER DEFAULT NULL,
+                "welcome_channel_id"	INTEGER DEFAULT NULL,
+                "goodbye_channel_id"	INTEGER DEFAULT NULL,
+                "join_role_id"	        INTEGER DEFAULT NULL,
+                "bot_role_id"	        INTEGER DEFAULT NULL,
+                "active_role_id"	    INTEGER DEFAULT NULL,
+                "inactive_role_id"	    INTEGER DEFAULT NULL,
+                "inactive_months"	    INTEGER DEFAULT NULL,
+                "award_singular"	    TEXT    DEFAULT NULL,
+                "award_plural"	        TEXT    DEFAULT NULL,
+                "award_emoji"	        TEXT    DEFAULT NULL,
+                "award_react_toggle"	INTEGER DEFAULT 0,
+                PRIMARY KEY("guild_id")
+            )"""
+        )
+        await db.commit()
+        await db.close()
