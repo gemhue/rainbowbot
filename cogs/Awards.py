@@ -8,9 +8,9 @@ from datetime import datetime, timezone
 class Awards(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.blurple = discord.Colour.blurple()
         self.green = discord.Colour.green()
         self.red = discord.Colour.red()
-        self.blurple = discord.Colour.blurple()
     
     @commands.hybrid_group(name="awards", fallback="set")
     @commands.has_guild_permissions(administrator=True)
