@@ -144,7 +144,7 @@ class CogButtons(discord.ui.View):
         await interaction.response.defer()
         guild = interaction.guild
         try:
-            await self.bot.add_cog(AutoDelete(self.bot), override=True, guild=guild)
+            await self.bot.add_cog(AutoDelete.AutoDelete(self.bot), override=True, guild=guild)
             if guild.id not in self.guild_cogs:
                 self.guild_cogs[guild.id] = []
             coglist = self.guild_cogs[guild.id]
@@ -166,7 +166,7 @@ class CogButtons(discord.ui.View):
         await interaction.response.defer()
         guild = interaction.guild
         try:
-            await self.bot.add_cog(Awards(self.bot), override=True, guild=guild)
+            await self.bot.add_cog(Awards.Awards(self.bot), override=True, guild=guild)
             if guild.id not in self.guild_cogs:
                 self.guild_cogs[guild.id] = []
             coglist = self.guild_cogs[guild.id]
@@ -188,7 +188,7 @@ class CogButtons(discord.ui.View):
         await interaction.response.defer()
         guild = interaction.guild
         try:
-            await self.bot.add_cog(Embeds(self.bot), override=True, guild=guild)
+            await self.bot.add_cog(Embeds.Embeds(self.bot), override=True, guild=guild)
             if guild.id not in self.guild_cogs:
                 self.guild_cogs[guild.id] = []
             coglist = self.guild_cogs[guild.id]
@@ -210,7 +210,7 @@ class CogButtons(discord.ui.View):
         await interaction.response.defer()
         guild = interaction.guild
         try:
-            await self.bot.add_cog(Profiles(self.bot), override=True, guild=guild)
+            await self.bot.add_cog(Profiles.Profiles(self.bot), override=True, guild=guild)
             if guild.id not in self.guild_cogs:
                 self.guild_cogs[guild.id] = []
             coglist = self.guild_cogs[guild.id]
@@ -232,7 +232,7 @@ class CogButtons(discord.ui.View):
         await interaction.response.defer()
         guild = interaction.guild
         try:
-            await self.bot.add_cog(Purge(self.bot), override=True, guild=guild)
+            await self.bot.add_cog(Purge.Purge(self.bot), override=True, guild=guild)
             if guild.id not in self.guild_cogs:
                 self.guild_cogs[guild.id] = []
             coglist = self.guild_cogs[guild.id]
@@ -254,7 +254,7 @@ class CogButtons(discord.ui.View):
         await interaction.response.defer()
         guild = interaction.guild
         try:
-            await self.bot.add_cog(RSSFeeds(self.bot), override=True, guild=guild)
+            await self.bot.add_cog(RSSFeeds.RSSFeeds(self.bot), override=True, guild=guild)
             if guild.id not in self.guild_cogs:
                 self.guild_cogs[guild.id] = []
             coglist = self.guild_cogs[guild.id]
@@ -276,7 +276,7 @@ class CogButtons(discord.ui.View):
         await interaction.response.defer()
         guild = interaction.guild
         try:
-            await self.bot.add_cog(Tickets(self.bot), override=True, guild=guild)
+            await self.bot.add_cog(Tickets.Tickets(self.bot), override=True, guild=guild)
             if guild.id not in self.guild_cogs:
                 self.guild_cogs[guild.id] = []
             coglist = self.guild_cogs[guild.id]
