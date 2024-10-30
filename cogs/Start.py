@@ -345,7 +345,7 @@ class RemoveButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == message.author:
-                await self.bot.remove_cog(AutoDelete.AutoDelete(self.bot), override=True, guild=guild)
+                await self.bot.remove_cog(AutoDelete.AutoDelete(self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -369,7 +369,7 @@ class RemoveButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == message.author:
-                await self.bot.remove_cog(Awards.Awards(self.bot), override=True, guild=guild)
+                await self.bot.remove_cog(Awards.Awards(self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -393,7 +393,7 @@ class RemoveButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == message.author:
-                await self.bot.remove_cog(Embeds.Embeds(self.bot), override=True, guild=guild)
+                await self.bot.remove_cog(Embeds.Embeds(self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -417,7 +417,7 @@ class RemoveButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == message.author:
-                await self.bot.remove_cog(Profiles.Profiles(self.bot), override=True, guild=guild)
+                await self.bot.remove_cog(Profiles.Profiles(self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -441,7 +441,7 @@ class RemoveButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == message.author:
-                await self.bot.remove_cog(Purge.Purge(self.bot), override=True, guild=guild)
+                await self.bot.remove_cog(Purge.Purge(self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -465,7 +465,7 @@ class RemoveButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == message.author:
-                await self.bot.remove_cog(RSSFeeds.RSSFeeds(self.bot), override=True, guild=guild)
+                await self.bot.remove_cog(RSSFeeds.RSSFeeds(self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -489,7 +489,7 @@ class RemoveButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == message.author:
-                await self.bot.remove_cog(Tickets.Tickets(self.bot), override=True, guild=guild)
+                await self.bot.remove_cog(Tickets.Tickets(self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
