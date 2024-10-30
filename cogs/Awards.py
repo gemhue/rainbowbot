@@ -171,39 +171,41 @@ class Awards(commands.Cog):
             if moji is None:
                 moji = "🏅"
             if str(reaction.emoji) == moji:
-                cur = await db.execute("SELECT award_react_toggle FROM guilds WHERE guild_id = ?", (guild_id,))
-                row = await cur.fetchone()
-                toggle = row[0]
-                if toggle == 1:
-                    cur = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,))
+                users = [user async for user in reaction.users()]
+                if len(users) == 1:
+                    cur = await db.execute("SELECT award_react_toggle FROM guilds WHERE guild_id = ?", (guild_id,))
                     row = await cur.fetchone()
-                    sing_low = row[0]
-                    if sing_low is None:
-                        sing_low = "award"
-                    sing_cap = sing_low.title()
-                    cur = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,))
-                    row = await cur.fetchone()
-                    plur_low = row[0]
-                    if plur_low is None:
-                        plur_low = "awards"
-                    guild_member_id = int(str(guild_id) + str(member_id))
-                    await db.execute("INSERT OR IGNORE INTO awards (guild_member_id) VALUES (?)", (guild_member_id,))
-                    cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
-                    row = await cur.fetchone()
-                    current = row[0]
-                    if current is None:
-                        current = 0
-                    new = current + 1
-                    await db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (new, guild_member_id))
-                    cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
-                    row = await cur.fetchone()
-                    new = row[0]
-                    green = discord.Colour.green()
-                    if new == 1:
-                        embed = discord.Embed(color=green, title=f"{sing_cap} Added", description=f"{member.mention} now has {new} {sing_low}! ({sing_cap} added by {user.mention}.)")
-                    else:
-                        embed = discord.Embed(color=green, title=f"{sing_cap} Added", description=f"{member.mention} now has {new} {plur_low}! ({sing_cap} added by {user.mention}.)")
-                    await channel.send(embed=embed, delete_after=30.0, reference=message)
+                    toggle = row[0]
+                    if toggle == 1:
+                        cur = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,))
+                        row = await cur.fetchone()
+                        sing_low = row[0]
+                        if sing_low is None:
+                            sing_low = "award"
+                        sing_cap = sing_low.title()
+                        cur = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,))
+                        row = await cur.fetchone()
+                        plur_low = row[0]
+                        if plur_low is None:
+                            plur_low = "awards"
+                        guild_member_id = int(str(guild_id) + str(member_id))
+                        await db.execute("INSERT OR IGNORE INTO awards (guild_member_id) VALUES (?)", (guild_member_id,))
+                        cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
+                        row = await cur.fetchone()
+                        current = row[0]
+                        if current is None:
+                            current = 0
+                        new = current + 1
+                        await db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (new, guild_member_id))
+                        cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
+                        row = await cur.fetchone()
+                        new = row[0]
+                        green = discord.Colour.green()
+                        if new == 1:
+                            embed = discord.Embed(color=green, title=f"{sing_cap} Added", description=f"{member.mention} now has {new} {sing_low}! ({sing_cap} added by {user.mention}.)")
+                        else:
+                            embed = discord.Embed(color=green, title=f"{sing_cap} Added", description=f"{member.mention} now has {new} {plur_low}! ({sing_cap} added by {user.mention}.)")
+                        await channel.send(embed=embed, delete_after=30.0, reference=message)
             await db.commit()
             await db.close()
 
@@ -223,42 +225,44 @@ class Awards(commands.Cog):
             if moji is None:
                 moji = "🏅"
             if str(reaction.emoji) == moji:
-                cur = await db.execute("SELECT award_react_toggle FROM guilds WHERE guild_id = ?", (guild_id,))
-                row = await cur.fetchone()
-                toggle = row[0]
-                if toggle == 1:
-                    cur = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,))
+                users = [user async for user in reaction.users()]
+                if len(users) == 1:
+                    cur = await db.execute("SELECT award_react_toggle FROM guilds WHERE guild_id = ?", (guild_id,))
                     row = await cur.fetchone()
-                    sing_low = row[0]
-                    if sing_low is None:
-                        sing_low = "award"
-                    sing_cap = sing_low.title()
-                    cur = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,))
-                    row = await cur.fetchone()
-                    plur_low = row[0]
-                    if plur_low is None:
-                        plur_low = "awards"
-                    guild_member_id = int(str(guild_id) + str(member_id))
-                    await db.execute("INSERT OR IGNORE INTO awards (guild_member_id) VALUES (?)", (guild_member_id,))
-                    cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
-                    row = await cur.fetchone()
-                    current = row[0]
-                    if current is None:
-                        current = 0
-                    if current > 0:
-                        new = current - 1
-                        await db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (new, guild_member_id))
+                    toggle = row[0]
+                    if toggle == 1:
+                        cur = await db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild_id,))
+                        row = await cur.fetchone()
+                        sing_low = row[0]
+                        if sing_low is None:
+                            sing_low = "award"
+                        sing_cap = sing_low.title()
+                        cur = await db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild_id,))
+                        row = await cur.fetchone()
+                        plur_low = row[0]
+                        if plur_low is None:
+                            plur_low = "awards"
+                        guild_member_id = int(str(guild_id) + str(member_id))
+                        await db.execute("INSERT OR IGNORE INTO awards (guild_member_id) VALUES (?)", (guild_member_id,))
                         cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
                         row = await cur.fetchone()
-                        new = row[0]
-                        red = discord.Colour.red()
-                        if new == 0:
-                            embed = discord.Embed(color=red, title=f"{sing_cap} Removed", description=f"{member.mention} no longer has any awards! ({sing_cap} removed by {user.mention}.)")
-                        elif new == 1:
-                            embed = discord.Embed(color=red, title=f"{sing_cap} Removed", description=f"{member.mention} now has {new} {sing_low}! ({sing_cap} removed by {user.mention}.)")
-                        else:
-                            embed = discord.Embed(color=red, title=f"{sing_cap} Removed", description=f"{member.mention} now has {new} {plur_low}! ({sing_cap} removed by {user.mention}.)")
-                        await channel.send(embed=embed, delete_after=30.0, reference=message)
+                        current = row[0]
+                        if current is None:
+                            current = 0
+                        if current > 0:
+                            new = current - 1
+                            await db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (new, guild_member_id))
+                            cur = await db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
+                            row = await cur.fetchone()
+                            new = row[0]
+                            red = discord.Colour.red()
+                            if new == 0:
+                                embed = discord.Embed(color=red, title=f"{sing_cap} Removed", description=f"{member.mention} no longer has any awards! ({sing_cap} removed by {user.mention}.)")
+                            elif new == 1:
+                                embed = discord.Embed(color=red, title=f"{sing_cap} Removed", description=f"{member.mention} now has {new} {sing_low}! ({sing_cap} removed by {user.mention}.)")
+                            else:
+                                embed = discord.Embed(color=red, title=f"{sing_cap} Removed", description=f"{member.mention} now has {new} {plur_low}! ({sing_cap} removed by {user.mention}.)")
+                            await channel.send(embed=embed, delete_after=30.0, reference=message)
             await db.commit()
             await db.close()
 

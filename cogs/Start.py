@@ -602,8 +602,8 @@ class Start(commands.Cog):
 
                     # User selects an inactive months
                     if months_select.value == True:
-                        inactive_months = months_select.months
-                        response = await response.edit(content=f"The inactive month amount was set to {inactive_months}.", embed=None, view=None)
+                        inactive_months = int(months_select.months)
+                        response = await response.edit(content=f"The inactive month amount was set to {str(inactive_months)}.", embed=None, view=None)
                         await db.execute("UPDATE guilds SET inactive_months = ? WHERE guild_id = ?", (inactive_months, guild.id))
 
                         # Bot sends a log to the logging channel
@@ -615,7 +615,7 @@ class Start(commands.Cog):
                             log = discord.Embed(
                                 color=self.blurple,
                                 title="Bot Startup Log",
-                                description=f"{author.mention} has just set the server's inactive month amount to {inactive_months}!",
+                                description=f"{author.mention} has just set the server's inactive month amount to {str(inactive_months)}!",
                                 timestamp=timestamp
                             )
                             log.set_author(name=author.display_name, icon_url=author.display_avatar)
