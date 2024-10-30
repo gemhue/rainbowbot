@@ -641,6 +641,7 @@ class Start(commands.Cog):
                 if cog_buttons.value == True:
 
                     # The user has now completed bot startup for their server
+                    await self.bot.tree.sync(guild=guild)
                     cogs = cog_buttons.guild_cogs[guild.id]
                     join = ", ".join(cogs)
                     done = discord.Embed(
@@ -649,7 +650,7 @@ class Start(commands.Cog):
                         description=f"Bot startup is now complete!"
                     )
                     done.add_field(name="Commands Added", value=f"{join}")
-                    response = await response.edit(content=None, embed=done, delete_after=30.0, view=None)
+                    response = await response.edit(content=None, embed=done, view=None)
 
                     # Bot sends a log to the logging channel
                     cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
