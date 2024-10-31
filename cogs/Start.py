@@ -1,10 +1,12 @@
 import discord
 import asyncio
-import aiosqlite
 from discord.ext import commands
 from discord import app_commands, ChannelType
 from datetime import datetime, timezone
+from RainbowBot import RainbowBot
 from cogs import AutoDelete, Awards, Embeds, Profiles, Purge, RSSFeeds, Tickets
+
+bot = RainbowBot()
 
 class YesOrNo(discord.ui.View):
     def __init__(self, *, timeout = 180):
@@ -142,11 +144,10 @@ class InactiveMonthsView(discord.ui.View):
         self.stop()
 
 class CogButtons(discord.ui.View):
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot=RainbowBot()):
         super().__init__(timeout=180)
         self.bot = bot
         self.value = False
-        self.red = discord.Colour.red()
         self.guild_cogs = {}
 
     @discord.ui.button(label="AutoDelete", style=discord.ButtonStyle.blurple, emoji="♻️")
@@ -168,10 +169,9 @@ class CogButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem setting up AutoDelete (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
+            print(f"There was a problem setting up AutoDelete (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
     @discord.ui.button(label="Awards", style=discord.ButtonStyle.blurple, emoji="🏅")
     async def awards(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -192,10 +192,9 @@ class CogButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem setting up Awards (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
+            print(f"There was a problem setting up Awards (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
     
     @discord.ui.button(label="Embeds", style=discord.ButtonStyle.blurple, emoji="📝")
     async def embeds(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -216,10 +215,9 @@ class CogButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem setting up Embeds (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
+            print(f"There was a problem setting up Embeds (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
     @discord.ui.button(label="Profiles", style=discord.ButtonStyle.blurple, emoji="🪪")
     async def profiles(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -240,10 +238,9 @@ class CogButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem setting up Profiles (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
+            print(f"There was a problem setting up Profiles (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
     @discord.ui.button(label="Purge", style=discord.ButtonStyle.blurple, emoji="🗑️")
     async def purge(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -264,10 +261,9 @@ class CogButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem setting up Purge (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
+            print(f"There was a problem setting up Purge (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
     @discord.ui.button(label="RSS Feeds", style=discord.ButtonStyle.blurple, emoji="📰")
     async def rss_feeds(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -288,10 +284,9 @@ class CogButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem setting up RSS Feeds (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
+            print(f"There was a problem setting up RSS Feeds (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
     @discord.ui.button(label="Tickets", style=discord.ButtonStyle.blurple, emoji="🎫")
     async def rss_feeds(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -312,10 +307,9 @@ class CogButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem setting up Tickets (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
+            print(f"There was a problem setting up Tickets (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
     @discord.ui.button(label="Done", style=discord.ButtonStyle.green)
     async def done(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -326,16 +320,15 @@ class CogButtons(discord.ui.View):
                 self.value = True
                 self.stop()
         except Exception as e:
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
+            print(f"Error: {e.with_traceback}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
 class RemoveButtons(discord.ui.View):
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot=RainbowBot()):
         super().__init__(timeout=180)
         self.bot = bot
         self.value = False
-        self.red = discord.Colour.red()
         self.guild_cogs = {}
 
     @discord.ui.button(label="AutoDelete", style=discord.ButtonStyle.blurple, emoji="♻️")
@@ -357,10 +350,9 @@ class RemoveButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem removing AutoDelete (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
+            print(f"There was a problem removing AutoDelete (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
     @discord.ui.button(label="Awards", style=discord.ButtonStyle.blurple, emoji="🏅")
     async def awards(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -381,10 +373,9 @@ class RemoveButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem removing Awards (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
+            print(f"There was a problem removing Awards (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
     
     @discord.ui.button(label="Embeds", style=discord.ButtonStyle.blurple, emoji="📝")
     async def embeds(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -405,10 +396,9 @@ class RemoveButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem removing Embeds (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
+            print(f"There was a problem removing Embeds (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
     @discord.ui.button(label="Profiles", style=discord.ButtonStyle.blurple, emoji="🪪")
     async def profiles(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -429,10 +419,9 @@ class RemoveButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem removing Profiles (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
+            print(f"There was a problem removing Profiles (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
     @discord.ui.button(label="Purge", style=discord.ButtonStyle.blurple, emoji="🗑️")
     async def purge(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -453,10 +442,9 @@ class RemoveButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem removing Purge (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
+            print(f"There was a problem removing Purge (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
     @discord.ui.button(label="RSS Feeds", style=discord.ButtonStyle.blurple, emoji="📰")
     async def rss_feeds(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -477,10 +465,9 @@ class RemoveButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem removing RSS Feeds (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
+            print(f"There was a problem removing RSS Feeds (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
     @discord.ui.button(label="Tickets", style=discord.ButtonStyle.blurple, emoji="🎫")
     async def rss_feeds(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -501,10 +488,9 @@ class RemoveButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem removing Tickets (Guild ID: {guild.id}). Error: {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
+            print(f"There was a problem removing Tickets (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
     @discord.ui.button(label="Done", style=discord.ButtonStyle.green)
     async def done(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -515,17 +501,13 @@ class RemoveButtons(discord.ui.View):
                 self.value = True
                 self.stop()
         except Exception as e:
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
-            error = discord.Embed(color=self.red, title="Error", description=f"{e}")
-            await interaction.followup.edit_message(message_id=message.id, embed=error, delete_after=30.0, view=None)
+            print(f"Error: {e.with_traceback}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
 class Start(commands.Cog):
-    def __init__(self, bot: commands.Bot):
-        self.bot = bot
-        self.blurple = discord.Colour.blurple()
-        self.yellow = discord.Colour.yellow()
-        self.green = discord.Colour.green()
-        self.red = discord.Colour.red()
+    def __init__(self, bot=RainbowBot()):
+        self.db = bot.database
 
     @commands.hybrid_command(name="start")
     @commands.has_guild_permissions(administrator=True)
@@ -538,364 +520,370 @@ class Start(commands.Cog):
         author = ctx.author
         timestamp = datetime.now(tz=timezone.utc)
         try:
-            async with aiosqlite.connect('rainbowbot.db') as db:
-                await db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (guild.id,))
+            
+            # Add guild to database if needed
+            await self.db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (guild.id,))
+            await self.db.commit()
 
-                # Ask user to select default channels
-                start = discord.Embed(
-                    color=self.blurple,
-                    title="Bot Startup",
-                    description="Would you like to start by choosing channels for bot logging messages, member welcome messages, or member goodbye messages?"
+            # Ask user to select default channels
+            start = discord.Embed(
+                color=bot.blurple,
+                title="Bot Startup",
+                description="Would you like to start by choosing channels for bot logging messages, member welcome messages, or member goodbye messages?"
+            )
+            channels_yn = YesOrNo()
+            response = await ctx.send(content=None, embed=start, view=channels_yn)
+            await channels_yn.wait()
+
+            # User wants to select logging, welcome, and/or goodbye channels
+            if channels_yn.value == True:
+
+                # Ask user to select a logging channel
+                ask_logging = discord.Embed(
+                    color=bot.blurple,
+                    title="Logging Channel",
+                    description="Would you like to select a channel to send logging messages?\nChoose `Cancel` to skip to the next option."
                 )
-                channels_yn = YesOrNo()
-                response = await ctx.send(content=None, embed=start, view=channels_yn)
-                await channels_yn.wait()
+                logging_select = ChannelSelectView()
+                response = await response.edit(content=None, embed=ask_logging, view=logging_select)
+                await logging_select.wait()
 
-                # User wants to select logging, welcome, and/or goodbye channels
-                if channels_yn.value == True:
-
-                    # Ask user to select a logging channel
-                    ask_logging = discord.Embed(
-                        color=self.blurple,
-                        title="Logging Channel",
-                        description="Would you like to select a channel to send logging messages?\nChoose `Cancel` to skip to the next option."
-                    )
-                    logging_select = ChannelSelectView()
-                    response = await response.edit(content=None, embed=ask_logging, view=logging_select)
-                    await logging_select.wait()
-
-                    # User selects a logging channel
-                    if logging_select.value == True:
-                        logging_channel = logging_select.channel
-                        response = await response.edit(content=f"The logging channel has been set to {logging_channel.mention}.", embed=None, view=None)
-                        await db.execute("UPDATE guilds SET logging_channel_id = ? WHERE guild_id = ?", (logging_channel.id, guild.id))
-                        await asyncio.sleep(3.0)
-
-                        # Bot sends a log to the logging channel
-                        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                        row = await cur.fetchone()
-                        fetched_logging = row[0]
-                        if fetched_logging is not None:
-                            logging_channel = await guild.fetch_channel(fetched_logging)
-                            log = discord.Embed(
-                                color=self.blurple,
-                                title="Bot Startup Log",
-                                description=f"{author.mention} has just set the server's logging channel to {logging_channel.mention}!",
-                                timestamp=timestamp
-                            )
-                            log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                            await logging_channel.send(content=None, embed=log)
-
-                    # Ask user to select a welcome channel
-                    ask_welcome = discord.Embed(
-                        color=self.blurple,
-                        title="Welcome Channel",
-                        description="Would you like to select a channel to send welcome messages?\nChoose `Cancel` to skip to the next option."
-                    )
-                    welcome_select = ChannelSelectView()
-                    response = await response.edit(content=None, embed=ask_welcome, view=welcome_select)
-                    await welcome_select.wait()
-
-                    # User selects a welcome channel
-                    if welcome_select.value == True:
-                        welcome_channel = welcome_select.channel
-                        response = await response.edit(content=f"The welcome channel has been set to {welcome_channel.mention}.", embed=None, view=None)
-                        await db.execute("UPDATE guilds SET welcome_channel_id = ? WHERE guild_id = ?", (welcome_channel.id, guild.id))
-                        await asyncio.sleep(3.0)
-
-                        # Bot sends a log to the logging channel
-                        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                        row = await cur.fetchone()
-                        fetched_logging = row[0]
-                        if fetched_logging is not None:
-                            logging_channel = await guild.fetch_channel(fetched_logging)
-                            log = discord.Embed(
-                                color=self.blurple,
-                                title="Bot Startup Log",
-                                description=f"{author.mention} has just set the server's welcome channel to {welcome_channel.mention}!",
-                                timestamp=timestamp
-                            )
-                            log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                            await logging_channel.send(content=None, embed=log)
-                        
-                    # Ask user to select a goodbye channel
-                    ask_goodbye = discord.Embed(
-                        color=self.blurple,
-                        title="Goodbye Channel",
-                        description="Would you like to select a channel to send goodbye messages?\nChoose `Cancel` to skip to the next option."
-                    )
-                    goodbye_select = ChannelSelectView()
-                    response = await response.edit(content=None, embed=ask_goodbye, view=goodbye_select)
-                    await goodbye_select.wait()
-
-                    # User selects a goodbye channel
-                    if goodbye_select.value == True:
-                        goodbye_channel = goodbye_select.channel
-                        response = await response.edit(content=f"The goodbye channel has been set to {goodbye_channel.mention}.", embed=None, view=None)
-                        await db.execute("UPDATE guilds SET goodbye_channel_id = ? WHERE guild_id = ?", (goodbye_channel.id, guild.id))
-                        await asyncio.sleep(3.0)
-
-                        # Bot sends a log to the logging channel
-                        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                        row = await cur.fetchone()
-                        fetched_logging = row[0]
-                        if fetched_logging is not None:
-                            logging_channel = await guild.fetch_channel(fetched_logging)
-                            log = discord.Embed(
-                                color=self.blurple,
-                                title="Bot Startup Log",
-                                description=f"{author.mention} has just set the server's goodbye channel to {goodbye_channel.mention}!",
-                                timestamp=timestamp
-                            )
-                            log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                            await logging_channel.send(content=None, embed=log)
-                
-                # Ask the user to select join roles
-                start = discord.Embed(
-                    color=self.blurple,
-                    title="Bot Startup",
-                    description="Would you like to choose join roles?"
-                )
-                join_yn = YesOrNo()
-                response = await response.edit(content=None, embed=start, view=join_yn)
-                await join_yn.wait()
-
-                # User wants to select join roles
-                if join_yn.value == True:
-
-                    # Ask user to select a join role
-                    ask_join_role = discord.Embed(
-                        color=self.blurple,
-                        title="Join Role",
-                        description="Would you like to select a role to give members on join?\nChoose `Cancel` to skip to the next option."
-                    )
-                    join_select = RoleSelectView()
-                    response = await response.edit(content=None, embed=ask_join_role, view=join_select)
-                    await join_select.wait()
-
-                    # User selects a join role
-                    if join_select.value == True:
-                        join_role = join_select.role
-                        response = await response.edit(content=f"The join role was set to {join_role.mention}.", embed=None, view=None)
-                        await db.execute("UPDATE guilds SET join_role_id = ? WHERE guild_id = ?", (join_role.id, guild.id))
-                        await asyncio.sleep(3.0)
-
-                        # Bot sends a log to the logging channel
-                        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                        row = await cur.fetchone()
-                        fetched_logging = row[0]
-                        if fetched_logging is not None:
-                            logging_channel = await guild.fetch_channel(fetched_logging)
-                            log = discord.Embed(
-                                color=self.blurple,
-                                title="Bot Startup Log",
-                                description=f"{author.mention} has just set the server's join role to {join_role.mention}!",
-                                timestamp=timestamp
-                            )
-                            log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                            await logging_channel.send(content=None, embed=log)
-
-                    # Ask user to select a bot role
-                    ask_bot_role = discord.Embed(
-                        color=self.blurple,
-                        title="Bot Role",
-                        description="Would you like to select a role to give bots on join?\nChoose `Cancel` to skip to the next option."
-                    )
-                    bot_select = RoleSelectView()
-                    response = await response.edit(content=None, embed=ask_bot_role, view=bot_select)
-                    await bot_select.wait()
-
-                    # User selects a bot role
-                    if bot_select.value == True:
-                        bot_role = bot_select.role
-                        response = await response.edit(content=f"The bot role was set to {bot_role.mention}.", embed=None, view=None)
-                        await db.execute("UPDATE guilds SET bot_role_id = ? WHERE guild_id = ?", (bot_role.id, guild.id))
-                        await asyncio.sleep(3.0)
-
-                        # Bot sends a log to the logging channel
-                        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                        row = await cur.fetchone()
-                        fetched_logging = row[0]
-                        if fetched_logging is not None:
-                            logging_channel = await guild.fetch_channel(fetched_logging)
-                            log = discord.Embed(
-                                color=self.blurple,
-                                title="Bot Startup Log",
-                                description=f"{author.mention} has just set the server's bot role to {bot_role.mention}!",
-                                timestamp=timestamp
-                            )
-                            log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                            await logging_channel.send(content=None, embed=log)
-                
-                # Ask the user to select activity roles
-                start = discord.Embed(
-                    color=self.blurple,
-                    title="Bot Startup",
-                    description="Would you like to choose activity roles?"
-                )
-                activity_yn = YesOrNo()
-                response = await response.edit(content=None, embed=start, view=activity_yn)
-                await activity_yn.wait()
-
-                # User wants to select activity roles
-                if activity_yn.value == True:
-
-                    # Ask user to select an active role
-                    ask_active_role = discord.Embed(
-                        color=self.blurple,
-                        title="Active Role",
-                        description="Would you like to select a role to give active members?\nChoose `Cancel` to skip to the next option."
-                    )
-                    active_select = RoleSelectView()
-                    response = await response.edit(content=None, embed=ask_active_role, view=active_select)
-                    await active_select.wait()
-
-                    # User selects an active role
-                    if active_select.value == True:
-                        active_role = active_select.role
-                        response = await response.edit(content=f"The active role was set to {active_role.mention}.", embed=None, view=None)
-                        await db.execute("UPDATE guilds SET active_role_id = ? WHERE guild_id = ?", (active_role.id, guild.id))
-                        await asyncio.sleep(3.0)
-
-                        # Bot sends a log to the logging channel
-                        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                        row = await cur.fetchone()
-                        fetched_logging = row[0]
-                        if fetched_logging is not None:
-                            logging_channel = await guild.fetch_channel(fetched_logging)
-                            log = discord.Embed(
-                                color=self.blurple,
-                                title="Bot Startup Log",
-                                description=f"{author.mention} has just set the server's active member role to {active_role.mention}!",
-                                timestamp=timestamp
-                            )
-                            log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                            await logging_channel.send(content=None, embed=log)
-
-                    # Ask user to select an inactive role
-                    ask_inactive_role = discord.Embed(
-                        color=self.blurple,
-                        title="Inactive Role",
-                        description="Would you like to select a role to give to inactive members?\nChoose `Cancel` to skip to the next option."
-                    )
-                    inactive_select = RoleSelectView()
-                    response = await response.edit(content=None, embed=ask_inactive_role, view=inactive_select)
-                    await inactive_select.wait()
-
-                    # User selects an inactive role
-                    if inactive_select.value == True:
-                        inactive_role = inactive_select.role
-                        response = await response.edit(content=f"The inactive role was set to {inactive_role.mention}.", embed=None, view=None)
-                        await db.execute("UPDATE guilds SET inactive_role_id = ? WHERE guild_id = ?", (inactive_role.id, guild.id))
-                        await asyncio.sleep(3.0)
-
-                        # Bot sends a log to the logging channel
-                        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                        row = await cur.fetchone()
-                        fetched_logging = row[0]
-                        if fetched_logging is not None:
-                            logging_channel = await guild.fetch_channel(fetched_logging)
-                            log = discord.Embed(
-                                color=self.blurple,
-                                title="Bot Startup Log",
-                                description=f"{author.mention} has just set the server's inactive role to {inactive_role.mention}!",
-                                timestamp=timestamp
-                            )
-                            log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                            await logging_channel.send(content=None, embed=log)
-
-                    # Ask user to provide inactive months
-                    ask_inactive_months = discord.Embed(
-                        color=self.blurple,
-                        title="Inactive Months",
-                        description="How many months should a member be inactive before recieving the inactive role?\nChoose `Cancel` to skip to the next option."
-                    )
-                    months_select = InactiveMonthsView()
-                    response = await response.edit(content=None, embed=ask_inactive_months, view=months_select)
-                    await months_select.wait()
-
-                    # User selects an inactive months
-                    if months_select.value == True:
-                        inactive_months = int(months_select.months)
-                        response = await response.edit(content=f"The inactive month amount was set to {str(inactive_months)}.", embed=None, view=None)
-                        await db.execute("UPDATE guilds SET inactive_months = ? WHERE guild_id = ?", (inactive_months, guild.id))
-                        await asyncio.sleep(3.0)
-
-                        # Bot sends a log to the logging channel
-                        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                        row = await cur.fetchone()
-                        fetched_logging = row[0]
-                        if fetched_logging is not None:
-                            logging_channel = await guild.fetch_channel(fetched_logging)
-                            log = discord.Embed(
-                                color=self.blurple,
-                                title="Bot Startup Log",
-                                description=f"{author.mention} has just set the server's inactive month amount to {str(inactive_months)}!",
-                                timestamp=timestamp
-                            )
-                            log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                            await logging_channel.send(content=None, embed=log)
-                
-                # Ask the user to select which cogs to add to their server
-                ask_cogs = discord.Embed(
-                    color=self.blurple,
-                    title="Bot Startup",
-                    description="Choose which commands you would like to add to your server."
-                )
-                ask_cogs.add_field(name="AutoDelete", value="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.", inline=False)
-                ask_cogs.add_field(name="Awards", value="These commands allow you to set up an awards system in your server. The award name and emoji can be customized.", inline=False)
-                ask_cogs.add_field(name="Embeds", value="These commands allow you to send and edit messages containing embeds.", inline=False)
-                ask_cogs.add_field(name="Profiles", value="These commands allow you and your server members to set up member profiles that can be viewed and edited.", inline=False)
-                ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
-                ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
-                ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
-                cog_buttons = CogButtons(bot=self.bot)
-                response = await response.edit(content=None, embed=ask_cogs, view=cog_buttons)
-                await cog_buttons.wait()
-
-                if cog_buttons.value == True:
-
-                    # The user has now completed bot startup for their server
-                    await self.bot.tree.sync(guild=guild)
-                    cogs = cog_buttons.guild_cogs[guild.id]
-                    join = ", ".join(cogs)
-                    done = discord.Embed(
-                        color=self.blurple,
-                        title="Bot Startup",
-                        description=f"Bot startup is now complete!"
-                    )
-                    done.add_field(name="Commands Added", value=f"{join}")
-                    response = await response.edit(content=None, embed=done, view=None)
+                # User selects a logging channel
+                if logging_select.value == True:
+                    logging_channel = logging_select.channel
+                    response = await response.edit(content=f"The logging channel has been set to {logging_channel.mention}.", embed=None, view=None)
+                    await self.db.execute("UPDATE guilds SET logging_channel_id = ? WHERE guild_id = ?", (logging_channel.id, guild.id))
+                    await self.db.commit()
+                    await asyncio.sleep(3.0)
 
                     # Bot sends a log to the logging channel
-                    cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                    cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                     row = await cur.fetchone()
                     fetched_logging = row[0]
                     if fetched_logging is not None:
                         logging_channel = await guild.fetch_channel(fetched_logging)
                         log = discord.Embed(
-                            color=self.blurple,
+                            color=bot.blurple,
                             title="Bot Startup Log",
-                            description=f"{author.mention} has just added commands to {guild.name}!",
+                            description=f"{author.mention} has just set the server's logging channel to {logging_channel.mention}!",
                             timestamp=timestamp
                         )
                         log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                        log.add_field(name="Commands Added", value=f"{join}")
                         await logging_channel.send(content=None, embed=log)
 
-                await db.commit()
-                await db.close()
-        
+                # Ask user to select a welcome channel
+                ask_welcome = discord.Embed(
+                    color=bot.blurple,
+                    title="Welcome Channel",
+                    description="Would you like to select a channel to send welcome messages?\nChoose `Cancel` to skip to the next option."
+                )
+                welcome_select = ChannelSelectView()
+                response = await response.edit(content=None, embed=ask_welcome, view=welcome_select)
+                await welcome_select.wait()
+
+                # User selects a welcome channel
+                if welcome_select.value == True:
+                    welcome_channel = welcome_select.channel
+                    response = await response.edit(content=f"The welcome channel has been set to {welcome_channel.mention}.", embed=None, view=None)
+                    await self.db.execute("UPDATE guilds SET welcome_channel_id = ? WHERE guild_id = ?", (welcome_channel.id, guild.id))
+                    await self.db.commit()
+                    await asyncio.sleep(3.0)
+
+                    # Bot sends a log to the logging channel
+                    cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                    row = await cur.fetchone()
+                    fetched_logging = row[0]
+                    if fetched_logging is not None:
+                        logging_channel = await guild.fetch_channel(fetched_logging)
+                        log = discord.Embed(
+                            color=bot.blurple,
+                            title="Bot Startup Log",
+                            description=f"{author.mention} has just set the server's welcome channel to {welcome_channel.mention}!",
+                            timestamp=timestamp
+                        )
+                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                        await logging_channel.send(content=None, embed=log)
+                    
+                # Ask user to select a goodbye channel
+                ask_goodbye = discord.Embed(
+                    color=bot.blurple,
+                    title="Goodbye Channel",
+                    description="Would you like to select a channel to send goodbye messages?\nChoose `Cancel` to skip to the next option."
+                )
+                goodbye_select = ChannelSelectView()
+                response = await response.edit(content=None, embed=ask_goodbye, view=goodbye_select)
+                await goodbye_select.wait()
+
+                # User selects a goodbye channel
+                if goodbye_select.value == True:
+                    goodbye_channel = goodbye_select.channel
+                    response = await response.edit(content=f"The goodbye channel has been set to {goodbye_channel.mention}.", embed=None, view=None)
+                    await self.db.execute("UPDATE guilds SET goodbye_channel_id = ? WHERE guild_id = ?", (goodbye_channel.id, guild.id))
+                    await self.db.commit()
+                    await asyncio.sleep(3.0)
+
+                    # Bot sends a log to the logging channel
+                    cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                    row = await cur.fetchone()
+                    fetched_logging = row[0]
+                    if fetched_logging is not None:
+                        logging_channel = await guild.fetch_channel(fetched_logging)
+                        log = discord.Embed(
+                            color=bot.blurple,
+                            title="Bot Startup Log",
+                            description=f"{author.mention} has just set the server's goodbye channel to {goodbye_channel.mention}!",
+                            timestamp=timestamp
+                        )
+                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                        await logging_channel.send(content=None, embed=log)
+            
+            # Ask the user to select join roles
+            start = discord.Embed(
+                color=bot.blurple,
+                title="Bot Startup",
+                description="Would you like to choose join roles?"
+            )
+            join_yn = YesOrNo()
+            response = await response.edit(content=None, embed=start, view=join_yn)
+            await join_yn.wait()
+
+            # User wants to select join roles
+            if join_yn.value == True:
+
+                # Ask user to select a join role
+                ask_join_role = discord.Embed(
+                    color=bot.blurple,
+                    title="Join Role",
+                    description="Would you like to select a role to give members on join?\nChoose `Cancel` to skip to the next option."
+                )
+                join_select = RoleSelectView()
+                response = await response.edit(content=None, embed=ask_join_role, view=join_select)
+                await join_select.wait()
+
+                # User selects a join role
+                if join_select.value == True:
+                    join_role = join_select.role
+                    response = await response.edit(content=f"The join role was set to {join_role.mention}.", embed=None, view=None)
+                    await self.db.execute("UPDATE guilds SET join_role_id = ? WHERE guild_id = ?", (join_role.id, guild.id))
+                    await self.db.commit()
+                    await asyncio.sleep(3.0)
+
+                    # Bot sends a log to the logging channel
+                    cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                    row = await cur.fetchone()
+                    fetched_logging = row[0]
+                    if fetched_logging is not None:
+                        logging_channel = await guild.fetch_channel(fetched_logging)
+                        log = discord.Embed(
+                            color=bot.blurple,
+                            title="Bot Startup Log",
+                            description=f"{author.mention} has just set the server's join role to {join_role.mention}!",
+                            timestamp=timestamp
+                        )
+                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                        await logging_channel.send(content=None, embed=log)
+
+                # Ask user to select a bot role
+                ask_bot_role = discord.Embed(
+                    color=bot.blurple,
+                    title="Bot Role",
+                    description="Would you like to select a role to give bots on join?\nChoose `Cancel` to skip to the next option."
+                )
+                bot_select = RoleSelectView()
+                response = await response.edit(content=None, embed=ask_bot_role, view=bot_select)
+                await bot_select.wait()
+
+                # User selects a bot role
+                if bot_select.value == True:
+                    bot_role = bot_select.role
+                    response = await response.edit(content=f"The bot role was set to {bot_role.mention}.", embed=None, view=None)
+                    await self.db.execute("UPDATE guilds SET bot_role_id = ? WHERE guild_id = ?", (bot_role.id, guild.id))
+                    await self.db.commit()
+                    await asyncio.sleep(3.0)
+
+                    # Bot sends a log to the logging channel
+                    cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                    row = await cur.fetchone()
+                    fetched_logging = row[0]
+                    if fetched_logging is not None:
+                        logging_channel = await guild.fetch_channel(fetched_logging)
+                        log = discord.Embed(
+                            color=bot.blurple,
+                            title="Bot Startup Log",
+                            description=f"{author.mention} has just set the server's bot role to {bot_role.mention}!",
+                            timestamp=timestamp
+                        )
+                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                        await logging_channel.send(content=None, embed=log)
+            
+            # Ask the user to select activity roles
+            start = discord.Embed(
+                color=bot.blurple,
+                title="Bot Startup",
+                description="Would you like to choose activity roles?"
+            )
+            activity_yn = YesOrNo()
+            response = await response.edit(content=None, embed=start, view=activity_yn)
+            await activity_yn.wait()
+
+            # User wants to select activity roles
+            if activity_yn.value == True:
+
+                # Ask user to select an active role
+                ask_active_role = discord.Embed(
+                    color=bot.blurple,
+                    title="Active Role",
+                    description="Would you like to select a role to give active members?\nChoose `Cancel` to skip to the next option."
+                )
+                active_select = RoleSelectView()
+                response = await response.edit(content=None, embed=ask_active_role, view=active_select)
+                await active_select.wait()
+
+                # User selects an active role
+                if active_select.value == True:
+                    active_role = active_select.role
+                    response = await response.edit(content=f"The active role was set to {active_role.mention}.", embed=None, view=None)
+                    await self.db.execute("UPDATE guilds SET active_role_id = ? WHERE guild_id = ?", (active_role.id, guild.id))
+                    await self.db.commit()
+                    await asyncio.sleep(3.0)
+
+                    # Bot sends a log to the logging channel
+                    cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                    row = await cur.fetchone()
+                    fetched_logging = row[0]
+                    if fetched_logging is not None:
+                        logging_channel = await guild.fetch_channel(fetched_logging)
+                        log = discord.Embed(
+                            color=bot.blurple,
+                            title="Bot Startup Log",
+                            description=f"{author.mention} has just set the server's active member role to {active_role.mention}!",
+                            timestamp=timestamp
+                        )
+                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                        await logging_channel.send(content=None, embed=log)
+
+                # Ask user to select an inactive role
+                ask_inactive_role = discord.Embed(
+                    color=bot.blurple,
+                    title="Inactive Role",
+                    description="Would you like to select a role to give to inactive members?\nChoose `Cancel` to skip to the next option."
+                )
+                inactive_select = RoleSelectView()
+                response = await response.edit(content=None, embed=ask_inactive_role, view=inactive_select)
+                await inactive_select.wait()
+
+                # User selects an inactive role
+                if inactive_select.value == True:
+                    inactive_role = inactive_select.role
+                    response = await response.edit(content=f"The inactive role was set to {inactive_role.mention}.", embed=None, view=None)
+                    await self.db.execute("UPDATE guilds SET inactive_role_id = ? WHERE guild_id = ?", (inactive_role.id, guild.id))
+                    await self.db.commit()
+                    await asyncio.sleep(3.0)
+
+                    # Bot sends a log to the logging channel
+                    cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                    row = await cur.fetchone()
+                    fetched_logging = row[0]
+                    if fetched_logging is not None:
+                        logging_channel = await guild.fetch_channel(fetched_logging)
+                        log = discord.Embed(
+                            color=bot.blurple,
+                            title="Bot Startup Log",
+                            description=f"{author.mention} has just set the server's inactive role to {inactive_role.mention}!",
+                            timestamp=timestamp
+                        )
+                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                        await logging_channel.send(content=None, embed=log)
+
+                # Ask user to provide inactive months
+                ask_inactive_months = discord.Embed(
+                    color=bot.blurple,
+                    title="Inactive Months",
+                    description="How many months should a member be inactive before recieving the inactive role?\nChoose `Cancel` to skip to the next option."
+                )
+                months_select = InactiveMonthsView()
+                response = await response.edit(content=None, embed=ask_inactive_months, view=months_select)
+                await months_select.wait()
+
+                # User selects an inactive months
+                if months_select.value == True:
+                    inactive_months = int(months_select.months)
+                    response = await response.edit(content=f"The inactive month amount was set to {str(inactive_months)}.", embed=None, view=None)
+                    await self.db.execute("UPDATE guilds SET inactive_months = ? WHERE guild_id = ?", (inactive_months, guild.id))
+                    await self.db.commit()
+                    await asyncio.sleep(3.0)
+
+                    # Bot sends a log to the logging channel
+                    cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                    row = await cur.fetchone()
+                    fetched_logging = row[0]
+                    if fetched_logging is not None:
+                        logging_channel = await guild.fetch_channel(fetched_logging)
+                        log = discord.Embed(
+                            color=bot.blurple,
+                            title="Bot Startup Log",
+                            description=f"{author.mention} has just set the server's inactive month amount to {str(inactive_months)}!",
+                            timestamp=timestamp
+                        )
+                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                        await logging_channel.send(content=None, embed=log)
+            
+            # Ask the user to select which cogs to add to their server
+            ask_cogs = discord.Embed(
+                color=bot.blurple,
+                title="Bot Startup",
+                description="Choose which commands you would like to add to your server."
+            )
+            ask_cogs.add_field(name="AutoDelete", value="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.", inline=False)
+            ask_cogs.add_field(name="Awards", value="These commands allow you to set up an awards system in your server. The award name and emoji can be customized.", inline=False)
+            ask_cogs.add_field(name="Embeds", value="These commands allow you to send and edit messages containing embeds.", inline=False)
+            ask_cogs.add_field(name="Profiles", value="These commands allow you and your server members to set up member profiles that can be viewed and edited.", inline=False)
+            ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
+            ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
+            ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
+            cog_buttons = CogButtons()
+            response = await response.edit(content=None, embed=ask_cogs, view=cog_buttons)
+            await cog_buttons.wait()
+
+            if cog_buttons.value == True:
+
+                # The user has now completed bot startup for their server
+                await bot.tree.sync(guild=guild)
+                cogs = cog_buttons.guild_cogs[guild.id]
+                join = ", ".join(cogs)
+                done = discord.Embed(
+                    color=bot.blurple,
+                    title="Bot Startup",
+                    description=f"Bot startup is now complete!"
+                )
+                done.add_field(name="Commands Added", value=f"{join}")
+                response = await response.edit(content=None, embed=done, view=None)
+
+                # Bot sends a log to the logging channel
+                cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                row = await cur.fetchone()
+                fetched_logging = row[0]
+                if fetched_logging is not None:
+                    logging_channel = await guild.fetch_channel(fetched_logging)
+                    log = discord.Embed(
+                        color=bot.blurple,
+                        title="Bot Startup Log",
+                        description=f"{author.mention} has just added commands to {guild.name}!",
+                        timestamp=timestamp
+                    )
+                    log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                    log.add_field(name="Commands Added", value=f"{join}")
+                    await logging_channel.send(content=None, embed=log)
+
         # Send an error message if there's an issue
         except Exception as e:
-            print(f"Start Command Error (Guild ID: {guild.id}): {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
+            print(f"Start Command Error (Guild ID: {guild.id}): {e.with_traceback}")
             error = discord.Embed(
-                color=self.red,
+                color=bot.red,
                 title="Error",
                 description=f"There was an error running the `/start` or `rb!start` command. Error: {e}"
             )
-            response = await response.edit(content=None, embed=error, delete_after=30.0, view=None)
+            response = await response.edit(content=None, embed=error, view=None)
 
     @commands.hybrid_command(name="add_commands")
     @commands.has_guild_permissions(administrator=True)
@@ -909,67 +897,66 @@ class Start(commands.Cog):
         timestamp = datetime.now(tz=timezone.utc)
         response = None
         try:
-            async with aiosqlite.connect('rainbowbot.db') as db:
-                await db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (guild.id,))
-                
-                ask_cogs = discord.Embed(
-                    color=self.blurple,
-                    title="Add Commands",
-                    description="Choose which commands you would like to add to your server."
+            
+            # Add the guild to the database if needed
+            await self.db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (guild.id,))
+            await self.db.commit()
+            
+            ask_cogs = discord.Embed(
+                color=bot.blurple,
+                title="Add Commands",
+                description="Choose which commands you would like to add to your server."
+            )
+            ask_cogs.add_field(name="AutoDelete", value="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.", inline=False)
+            ask_cogs.add_field(name="Awards", value="These commands allow you to set up an awards system in your server. The award name and emoji can be customized.", inline=False)
+            ask_cogs.add_field(name="Embeds", value="These commands allow you to send and edit messages containing embeds.", inline=False)
+            ask_cogs.add_field(name="Profiles", value="These commands allow you and your server members to set up member profiles that can be viewed and edited.", inline=False)
+            ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
+            ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
+            ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
+            cog_buttons = CogButtons()
+            response = await ctx.send(embed=ask_cogs, view=cog_buttons)
+            await cog_buttons.wait()
+
+            if cog_buttons.value == True:
+
+                await bot.tree.sync(guild=guild)
+                cogs = cog_buttons.guild_cogs[guild.id]
+                join = ", ".join(cogs)
+                done = discord.Embed(
+                    color=bot.green,
+                    title="Success",
+                    description=f"{author.mention} has successfully added commands to the server!"
                 )
-                ask_cogs.add_field(name="AutoDelete", value="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.", inline=False)
-                ask_cogs.add_field(name="Awards", value="These commands allow you to set up an awards system in your server. The award name and emoji can be customized.", inline=False)
-                ask_cogs.add_field(name="Embeds", value="These commands allow you to send and edit messages containing embeds.", inline=False)
-                ask_cogs.add_field(name="Profiles", value="These commands allow you and your server members to set up member profiles that can be viewed and edited.", inline=False)
-                ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
-                ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
-                ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
-                cog_buttons = CogButtons(bot=self.bot)
-                response = await ctx.send(embed=ask_cogs, view=cog_buttons)
-                await cog_buttons.wait()
+                done.add_field(name="Commands Added", value=f"{join}")
+                response = await response.edit(embed=done, view=None)
 
-                if cog_buttons.value == True:
-
-                    await self.bot.tree.sync(guild=guild)
-                    cogs = cog_buttons.guild_cogs[guild.id]
-                    join = ", ".join(cogs)
-                    done = discord.Embed(
-                        color=self.green,
-                        title="Success",
-                        description=f"{author.mention} has successfully added commands to the server!"
+                cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                row = await cur.fetchone()
+                fetched_logging = row[0]
+                if fetched_logging is not None:
+                    logging_channel = await guild.fetch_channel(fetched_logging)
+                    log = discord.Embed(
+                        color=bot.red,
+                        title="Add Commands",
+                        description=f"{author.mention} has just added commands to {guild.name}!",
+                        timestamp=timestamp
                     )
-                    done.add_field(name="Commands Added", value=f"{join}")
-                    response = await response.edit(embed=done, view=None)
-
-                    cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                    row = await cur.fetchone()
-                    fetched_logging = row[0]
-                    if fetched_logging is not None:
-                        logging_channel = await guild.fetch_channel(fetched_logging)
-                        log = discord.Embed(
-                            color=self.red,
-                            title="Add Commands",
-                            description=f"{author.mention} has just added commands to {guild.name}!",
-                            timestamp=timestamp
-                        )
-                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                        log.add_field(name="Commands Added", value=f"{join}")
-                        await logging_channel.send(embed=log)
+                    log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                    log.add_field(name="Commands Added", value=f"{join}")
+                    await logging_channel.send(embed=log)
                 
-                await db.commit()
-                await db.close()
         except Exception as e:
-            print(f"Start Command Error (Guild ID: {guild.id}): {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
+            print(f"Start Command Error (Guild ID: {guild.id}): {e.with_traceback}")
             error = discord.Embed(
-                color=self.red,
+                color=bot.red,
                 title="Error",
                 description=f"There was an error running the `/add_commands` or `rb!add_commands` command. Error: {e}"
             )
             if response is not None:
-                await response.edit(embed=error, delete_after=30.0, view=None)
+                await response.edit(embed=error, view=None)
             else:
-                await ctx.send(embed=error, delete_after=30.0, view=None)
+                await ctx.send(embed=error, view=None)
 
     @commands.hybrid_command(name="remove_commands")
     @commands.has_guild_permissions(administrator=True)
@@ -983,67 +970,69 @@ class Start(commands.Cog):
         timestamp = datetime.now(tz=timezone.utc)
         response = None
         try:
-            async with aiosqlite.connect('rainbowbot.db') as db:
-                await db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (guild.id,))
-                
-                ask_cogs = discord.Embed(
-                    color=self.blurple,
-                    title="Remove Commands",
-                    description="Choose which commands you would like to remove from your server."
+
+            # Add the bot to the database if needed
+            await self.db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (guild.id,))
+            await self.db.commit()
+            
+            ask_cogs = discord.Embed(
+                color=bot.blurple,
+                title="Remove Commands",
+                description="Choose which commands you would like to remove from your server."
+            )
+            ask_cogs.add_field(name="AutoDelete", value="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.", inline=False)
+            ask_cogs.add_field(name="Awards", value="These commands allow you to set up an awards system in your server. The award name and emoji can be customized.", inline=False)
+            ask_cogs.add_field(name="Embeds", value="These commands allow you to send and edit messages containing embeds.", inline=False)
+            ask_cogs.add_field(name="Profiles", value="These commands allow you and your server members to set up member profiles that can be viewed and edited.", inline=False)
+            ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
+            ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
+            ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
+            cog_buttons = RemoveButtons()
+            response = await ctx.send(embed=ask_cogs, view=cog_buttons)
+            await cog_buttons.wait()
+
+            if cog_buttons.value == True:
+
+                await bot.tree.sync(guild=guild)
+                cogs = cog_buttons.guild_cogs[guild.id]
+                join = ", ".join(cogs)
+                done = discord.Embed(
+                    color=bot.green,
+                    title="Success",
+                    description=f"{author.mention} has successfully removed commands from the server!"
                 )
-                ask_cogs.add_field(name="AutoDelete", value="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.", inline=False)
-                ask_cogs.add_field(name="Awards", value="These commands allow you to set up an awards system in your server. The award name and emoji can be customized.", inline=False)
-                ask_cogs.add_field(name="Embeds", value="These commands allow you to send and edit messages containing embeds.", inline=False)
-                ask_cogs.add_field(name="Profiles", value="These commands allow you and your server members to set up member profiles that can be viewed and edited.", inline=False)
-                ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
-                ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
-                ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
-                cog_buttons = RemoveButtons(bot=self.bot)
-                response = await ctx.send(embed=ask_cogs, view=cog_buttons)
-                await cog_buttons.wait()
+                done.add_field(name="Commands Removed", value=f"{join}")
+                response = await response.edit(embed=done, view=None)
 
-                if cog_buttons.value == True:
-
-                    await self.bot.tree.sync(guild=guild)
-                    cogs = cog_buttons.guild_cogs[guild.id]
-                    join = ", ".join(cogs)
-                    done = discord.Embed(
-                        color=self.green,
-                        title="Success",
-                        description=f"{author.mention} has successfully removed commands from the server!"
+                cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                row = await cur.fetchone()
+                fetched_logging = row[0]
+                if fetched_logging is not None:
+                    logging_channel = await guild.fetch_channel(fetched_logging)
+                    log = discord.Embed(
+                        color=bot.red,
+                        title="Remove Commands",
+                        description=f"{author.mention} has just removed commands from {guild.name}!",
+                        timestamp=timestamp
                     )
-                    done.add_field(name="Commands Removed", value=f"{join}")
-                    response = await response.edit(embed=done, view=None)
-
-                    cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-                    row = await cur.fetchone()
-                    fetched_logging = row[0]
-                    if fetched_logging is not None:
-                        logging_channel = await guild.fetch_channel(fetched_logging)
-                        log = discord.Embed(
-                            color=self.red,
-                            title="Remove Commands",
-                            description=f"{author.mention} has just removed commands from {guild.name}!",
-                            timestamp=timestamp
-                        )
-                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                        log.add_field(name="Commands Removed", value=f"{join}")
-                        await logging_channel.send(embed=log)
+                    log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                    log.add_field(name="Commands Removed", value=f"{join}")
+                    await logging_channel.send(embed=log)
                 
-                await db.commit()
-                await db.close()
         except Exception as e:
-            print(f"Start Command Error (Guild ID: {guild.id}): {e}")
-            print(f"Error: {e}\nTraceback: {e.with_traceback}")
+            print(f"Start Command Error (Guild ID: {guild.id}): {e.with_traceback}")
             error = discord.Embed(
-                color=self.red,
+                color=bot.red,
                 title="Error",
                 description=f"There was an error running the `/remove_commands` or `rb!remove_commands` command. Error: {e}"
             )
             if response is not None:
-                await response.edit(embed=error, delete_after=30.0, view=None)
+                await response.edit(embed=error, view=None)
             else:
-                await ctx.send(embed=error, delete_after=30.0, view=None)
+                await ctx.send(embed=error, view=None)
 
-async def setup(bot: commands.Bot):
-    await bot.add_cog(Start(bot), override=True)
+async def setup(bot=bot):
+    await bot.add_cog(Start(), override=True)
+
+async def teardown(bot=bot):
+    await bot.remove_cog("Start")

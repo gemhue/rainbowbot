@@ -1,13 +1,14 @@
 import discord
-import aiosqlite
 from discord import app_commands
 from discord.ext import commands
+from RainbowBot import RainbowBot
 from typing import Optional
 from datetime import datetime, timezone
 
 class Embeds(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot=RainbowBot()):
         self.bot = bot
+        self.db = bot.database
     
     @commands.hybrid_group(name="embed", fallback="send")
     @commands.has_guild_permissions(administrator=True)
@@ -30,10 +31,11 @@ class Embeds(commands.Cog):
         """
         await ctx.defer()
         try:
+
             if embed_color is not None:
                 color = discord.Colour.from_str(embed_color)
             else:
-                color = discord.Colour.blurple()
+                color = self.bot.blurple
             time = datetime.now(tz=timezone.utc)
             embed = discord.Embed(color=color, title=embed_title, url=embed_url, description=embed_description, timestamp=time)
             author = ctx.author
@@ -41,9 +43,9 @@ class Embeds(commands.Cog):
             icon = author.display_avatar
             embed.set_author(name=name, icon_url=icon)
             await ctx.send(content=message_content, embed=embed)
+
         except Exception as e:
-            red = discord.Colour.red()
-            error = discord.Embed(color=red, title="Error", description=f"{e}")
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, delete_after=30.0)
     
     @embed.command(name="edit")
@@ -69,6 +71,7 @@ class Embeds(commands.Cog):
         """
         await ctx.defer(ephemeral=True)
         try:
+
             conv = commands.MessageConverter()
             message = await conv.convert(ctx, message_url)
             oldembed = message.embeds[0]
@@ -103,13 +106,13 @@ class Embeds(commands.Cog):
             editor_icon = editor.display_avatar
             embed.set_footer(text=f"Edited at {time} by {editor_name}", icon_url=editor_icon)
             await message.edit(content=content, embed=embed)
-            green = discord.Colour.green()
-            success = discord.Embed(color=green, title="Success", description="The embed has been successfully edited.")
-            await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
+            
+            success = discord.Embed(color=self.bot.green, title="Success", description="The embed has been successfully edited.")
+            await ctx.send(embed=success, ephemeral=True)
+
         except Exception as e:
-            red = discord.Colour.red()
-            error = discord.Embed(color=red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, delete_after=30.0, ephemeral=True)
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await ctx.send(embed=error, ephemeral=True)
 
     @embed.command(name="set_image")
     @commands.has_guild_permissions(administrator=True)
@@ -126,24 +129,26 @@ class Embeds(commands.Cog):
         """
         await ctx.defer(ephemeral=True)
         try:
+
             conv = commands.MessageConverter()
             message = await conv.convert(ctx, message_url)
             content = message.content
             embed = message.embeds[0]
             embed.set_image(url=image_url)
             await message.edit(content=content, embed=embed)
-            green = discord.Colour.green()
-            success = discord.Embed(color=green, title="Success", description="The image has been successfully added to the embed.")
-            await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
+
+            success = discord.Embed(color=self.bot.green, title="Success", description="The image has been successfully added to the embed.")
+            await ctx.send(embed=success, ephemeral=True)
+
         except Exception as e:
-            red = discord.Colour.red()
-            error = discord.Embed(color=red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, delete_after=30.0, ephemeral=True)
+
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await ctx.send(embed=error, ephemeral=True)
 
     @embed.command(name="remove_image")
     @commands.has_guild_permissions(administrator=True)
     @app_commands.checks.has_permissions(administrator=True)
-    async def remove_image(self, ctx: commands.Context, message_url: str, image_url: str):
+    async def remove_image(self, ctx: commands.Context, message_url: str):
         """(Admin Only) Run this command to remove an embed's image.
 
         Parameters
@@ -153,19 +158,20 @@ class Embeds(commands.Cog):
         """
         await ctx.defer(ephemeral=True)
         try:
+
             conv = commands.MessageConverter()
             message = await conv.convert(ctx, message_url)
             content = message.content
             embed = message.embeds[0]
             embed.set_image(url=None)
             await message.edit(content=content, embed=embed)
-            green = discord.Colour.green()
-            success = discord.Embed(color=green, title="Success", description="The image has been successfully removed from the embed.")
-            await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
+
+            success = discord.Embed(color=self.bot.green, title="Success", description="The image has been successfully removed from the embed.")
+            await ctx.send(embed=success, ephemeral=True)
+
         except Exception as e:
-            red = discord.Colour.red()
-            error = discord.Embed(color=red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, delete_after=30.0, ephemeral=True)
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await ctx.send(embed=error, ephemeral=True)
 
     @embed.command(name="set_thumbnail")
     @commands.has_guild_permissions(administrator=True)
@@ -182,19 +188,20 @@ class Embeds(commands.Cog):
         """
         await ctx.defer(ephemeral=True)
         try:
+
             conv = commands.MessageConverter()
             message = await conv.convert(ctx, message_url)
             content = message.content
             embed = message.embeds[0]
             embed.set_thumbnail(url=thumbnail_url)
             await message.edit(content=content, embed=embed)
-            green = discord.Colour.green()
-            success = discord.Embed(color=green, title="Success", description="The thumbnail has been successfully added to the embed.")
-            await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
+
+            success = discord.Embed(color=self.bot.green, title="Success", description="The thumbnail has been successfully added to the embed.")
+            await ctx.send(embed=success, ephemeral=True)
+
         except Exception as e:
-            red = discord.Colour.red()
-            error = discord.Embed(color=red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, delete_after=30.0, ephemeral=True)
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await ctx.send(embed=error, ephemeral=True)
 
     @embed.command(name="remove_thumbnail")
     @commands.has_guild_permissions(administrator=True)
@@ -209,19 +216,20 @@ class Embeds(commands.Cog):
         """
         await ctx.defer(ephemeral=True)
         try:
+
             conv = commands.MessageConverter()
             message = await conv.convert(ctx, message_url)
             content = message.content
             embed = message.embeds[0]
             embed.set_thumbnail(url=None)
             await message.edit(content=content, embed=embed)
-            green = discord.Colour.green()
-            success = discord.Embed(color=green, title="Success", description="The thumbnail has been successfully removed from the embed.")
-            await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
+
+            success = discord.Embed(color=self.bot.green, title="Success", description="The thumbnail has been successfully removed from the embed.")
+            await ctx.send(embed=success, ephemeral=True)
+
         except Exception as e:
-            red = discord.Colour.red()
-            error = discord.Embed(color=red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, delete_after=30.0, ephemeral=True)
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await ctx.send(embed=error, ephemeral=True)
 
     @embed.command(name="add_field")
     @commands.has_guild_permissions(administrator=True)
@@ -242,19 +250,20 @@ class Embeds(commands.Cog):
         """
         await ctx.defer(ephemeral=True)
         try:
+
             conv = commands.MessageConverter()
             message = await conv.convert(ctx, message_url)
             content = message.content
             embed = message.embeds[0]
             embed.add_field(name=name, value=value, inline=inline)
             await message.edit(content=content, embed=embed)
-            green = discord.Colour.green()
-            success = discord.Embed(color=green, title="Success", description="The embed has been successfully edited.")
-            await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
+
+            success = discord.Embed(color=self.bot.green, title="Success", description="The embed has been successfully edited.")
+            await ctx.send(embed=success, ephemeral=True)
+
         except Exception as e:
-            red = discord.Colour.red()
-            error = discord.Embed(color=red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, delete_after=30.0, ephemeral=True)
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await ctx.send(embed=error, ephemeral=True)
 
     @embed.command(name="edit_field")
     @commands.has_guild_permissions(administrator=True)
@@ -277,19 +286,20 @@ class Embeds(commands.Cog):
         """
         await ctx.defer(ephemeral=True)
         try:
+
             conv = commands.MessageConverter()
             message = await conv.convert(ctx, message_url)
             content = message.content
             embed = message.embeds[0]
             embed.set_field_at(index=index, name=name, value=value, inline=inline)
             await message.edit(content=content, embed=embed)
-            green = discord.Colour.green()
-            success = discord.Embed(color=green, title="Success", description="The embed field has been successfully edited.")
-            await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
+
+            success = discord.Embed(color=self.bot.green, title="Success", description="The embed field has been successfully edited.")
+            await ctx.send(embed=success, ephemeral=True)
+
         except Exception as e:
-            red = discord.Colour.red()
-            error = discord.Embed(color=red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, delete_after=30.0, ephemeral=True)
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await ctx.send(embed=error, ephemeral=True)
 
     @embed.command(name="insert_field")
     @commands.has_guild_permissions(administrator=True)
@@ -318,13 +328,13 @@ class Embeds(commands.Cog):
             embed = message.embeds[0]
             embed.insert_field_at(index=index, name=name, value=value, inline=inline)
             await message.edit(content=content, embed=embed)
-            green = discord.Colour.green()
-            success = discord.Embed(color=green, title="Success", description="The embed field has been successfully inserted.")
-            await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
+
+            success = discord.Embed(color=self.bot.green, title="Success", description="The embed field has been successfully inserted.")
+            await ctx.send(embed=success, ephemeral=True)
+            
         except Exception as e:
-            red = discord.Colour.red()
-            error = discord.Embed(color=red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, delete_after=30.0, ephemeral=True)
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await ctx.send(embed=error, ephemeral=True)
 
     @embed.command(name="remove_field")
     @commands.has_guild_permissions(administrator=True)
@@ -341,39 +351,23 @@ class Embeds(commands.Cog):
         """
         await ctx.defer(ephemeral=True)
         try:
+
             conv = commands.MessageConverter()
             message = await conv.convert(ctx, message_url)
             content = message.content
             embed = message.embeds[0]
             embed.remove_field(index=index)
             await message.edit(content=content, embed=embed)
-            green = discord.Colour.green()
-            success = discord.Embed(color=green, title="Success", description="The embed field has been successfully removed.")
-            await ctx.send(embed=success, delete_after=30.0, ephemeral=True)
-        except Exception as e:
-            red = discord.Colour.red()
-            error = discord.Embed(color=red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, delete_after=30.0, ephemeral=True)
 
-async def setup(bot: commands.Bot):
-    async with aiosqlite.connect('rainbowbot.db') as db:
-        await db.execute(
-            """CREATE TABLE IF NOT EXISTS "guilds" (
-                "guild_id"	            INTEGER,
-                "logging_channel_id"	INTEGER DEFAULT NULL,
-                "welcome_channel_id"	INTEGER DEFAULT NULL,
-                "goodbye_channel_id"	INTEGER DEFAULT NULL,
-                "join_role_id"	        INTEGER DEFAULT NULL,
-                "bot_role_id"	        INTEGER DEFAULT NULL,
-                "active_role_id"	    INTEGER DEFAULT NULL,
-                "inactive_role_id"	    INTEGER DEFAULT NULL,
-                "inactive_months"	    INTEGER DEFAULT NULL,
-                "award_singular"	    TEXT    DEFAULT NULL,
-                "award_plural"	        TEXT    DEFAULT NULL,
-                "award_emoji"	        TEXT    DEFAULT NULL,
-                "award_react_toggle"	INTEGER DEFAULT 0,
-                PRIMARY KEY("guild_id")
-            )"""
-        )
-        await db.commit()
-        await db.close()
+            success = discord.Embed(color=self.bot.green, title="Success", description="The embed field has been successfully removed.")
+            await ctx.send(embed=success, ephemeral=True)
+
+        except Exception as e:
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await ctx.send(embed=error, ephemeral=True)
+
+async def setup():
+    print("Setting up Cog: Embeds.Embeds")
+
+async def teardown():
+    print("Tearing down Cog: Embeds.Embeds")

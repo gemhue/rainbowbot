@@ -4,17 +4,25 @@ import os
 from discord.ext import commands
 from datetime import datetime, timezone
 
-bot = commands.Bot(
-    command_prefix = commands.when_mentioned_or("rb!"),
-    description = "A multi-purpose Discord bot made by GitHub user gemhue.",
-    intents = discord.Intents.all(),
-    activity = discord.Activity(type=discord.ActivityType.listening, name="rb!help"),
-    status = discord.Status.online
-)
+class RainbowBot(commands.Bot):
+    def __init__(self):
+        super().__init__(
+            command_prefix = commands.when_mentioned_or("rb!"),
+            description = "A multi-purpose Discord bot made by GitHub user gemhue.",
+            intents = discord.Intents.all(),
+            activity = discord.Activity(type=discord.ActivityType.listening, name="rb!help"),
+            status = discord.Status.online
+        )
+        self.blurple = discord.Colour.blurple()
+        self.green = discord.Colour.green()
+        self.yellow = discord.Colour.yellow()
+        self.red = discord.Colour.red()
+    
+    async def setup(self):
+        self.database = await aiosqlite.connect("rainbowbot.db")
+        print("Connected to Database: rainbowbot.db")
 
-blurple = discord.Colour.blurple()
-green = discord.Colour.green()
-red = discord.Colour.red()
+bot = RainbowBot()
 
 @bot.command(name="sync", aliases=["synctree"], hidden=True)
 @commands.is_owner()
@@ -26,24 +34,23 @@ async def sync(ctx: commands.Context, where: str):
     now = datetime.now(tz=timezone.utc)
     if where == "here" or where == "local":
         await bot.tree.sync(guild=guild)
-        embed = discord.Embed(color=green, title="Success", description=f"The bot's local command tree has been synced!", timestamp=now)
+        embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's local command tree has been synced!", timestamp=now)
     elif where == "all" or where == "global":
         await bot.tree.sync(guild=None)
-        embed = discord.Embed(color=green, title="Success", description=f"The bot's global command tree has been synced!", timestamp=now)
+        embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's global command tree has been synced!", timestamp=now)
     else:
-        embed = discord.Embed(color=red, title="Error", description=f"The bot's command tree has not been synced! Please specify if you would like to sync \`here\` or \`global\`.", timestamp=now)
-    await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+        embed = discord.Embed(color=bot.red, title="Error", description=f"The bot's command tree has not been synced! Please specify if you would like to sync `here` or `all`.", timestamp=now)
+    await ctx.send(embed=embed, ephemeral=True)
     await ctx.message.delete()
-    async with aiosqlite.connect('rainbowbot.db') as db:
-        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-        row = await cur.fetchone()
-        fetched_logging = row[0]
-        if fetched_logging is not None:
-            logging = bot.get_channel(fetched_logging)
-            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-            await logging.send(embed=embed)
-        await db.commit()
-        await db.close()
+
+    # Send a log to the logging channel
+    cur = await bot.database.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+    row = await cur.fetchone()
+    fetched_logging = row[0]
+    if fetched_logging is not None:
+        logging = bot.get_channel(fetched_logging)
+        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+        await logging.send(embed=embed)
 
 @bot.command(name="clear", aliases=["cleartree"], hidden=True)
 @commands.is_owner()
@@ -55,24 +62,23 @@ async def clear(ctx: commands.Context, where: str):
     now = datetime.now(tz=timezone.utc)
     if where == "here" or where == "local":
         bot.tree.clear_commands(guild=guild)
-        embed = discord.Embed(color=green, title="Success", description=f"The bot's local command tree has been cleared!", timestamp=now)
+        embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's local command tree has been cleared!", timestamp=now)
     elif where == "all" or where == "global":
         bot.tree.clear_commands(guild=None)
-        embed = discord.Embed(color=green, title="Success", description=f"The bot's global command tree has been cleared!", timestamp=now)
+        embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's global command tree has been cleared!", timestamp=now)
     else:
-        embed = discord.Embed(color=red, title="Error", description=f"The bot's command tree has not been cleared! Please specify if you would like to clear \`here\` or \`global\`.", timestamp=now)
-    await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+        embed = discord.Embed(color=bot.red, title="Error", description=f"The bot's command tree has not been cleared! Please specify if you would like to clear \`here\` or \`global\`.", timestamp=now)
+    await ctx.send(embed=embed, ephemeral=True)
     await ctx.message.delete()
-    async with aiosqlite.connect('rainbowbot.db') as db:
-        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
-        row = await cur.fetchone()
-        fetched_logging = row[0]
-        if fetched_logging is not None:
-            logging = bot.get_channel(fetched_logging)
-            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-            await logging.send(embed=embed)
-        await db.commit()
-        await db.close()
+    
+    # Send a log to the logging channel
+    cur = await bot.database.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+    row = await cur.fetchone()
+    fetched_logging = row[0]
+    if fetched_logging is not None:
+        logging = bot.get_channel(fetched_logging)
+        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+        await logging.send(embed=embed)
 
 async def allcogs(x):
     files = []
@@ -109,21 +115,20 @@ async def get_cogs(ctx: commands.Context):
     """
     await ctx.defer(ephemeral=True)
     now = datetime.now(tz=timezone.utc)
-    embed = discord.Embed(color=blurple, title="Cogs", timestamp=now)
+    embed = discord.Embed(color=bot.blurple, title="Cogs", timestamp=now)
     for cog in await allcogs(x="names"):
         embed.add_field(name=cog, value="Retreived successfully!")
-    await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+    await ctx.send(embed=embed, ephemeral=True)
     await ctx.message.delete()
-    async with aiosqlite.connect('rainbowbot.db') as db:
-        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
-        row = await cur.fetchone()
-        fetched_logging = row[0]
-        if fetched_logging is not None:
-            logging = bot.get_channel(fetched_logging)
-            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-            await logging.send(embed=embed)
-        await db.commit()
-        await db.close()
+
+    # Send a log to the logging channel
+    cur = await bot.database.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+    row = await cur.fetchone()
+    fetched_logging = row[0]
+    if fetched_logging is not None:
+        logging = bot.get_channel(fetched_logging)
+        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+        await logging.send(embed=embed)
 
 @bot.command(name="load", aliases=["load_cogs","load_cog","loadcogs","loadcog"], hidden=True)
 @commands.is_owner()
@@ -137,7 +142,7 @@ async def load(ctx: commands.Context, extension: str):
     """
     await ctx.defer(ephemeral=True)
     now = datetime.now(tz=timezone.utc)
-    embed = discord.Embed(color=blurple, title="Load Cogs", timestamp=now)
+    embed = discord.Embed(color=bot.blurple, title="Load Cogs", timestamp=now)
     lower = extension.lower()
     if lower == "all":
         for cog in await allcogs(x="cogs"):
@@ -156,18 +161,17 @@ async def load(ctx: commands.Context, extension: str):
                     embed.add_field(name=cog, value=f"Error: {e}")
     else:
         embed.add_field(name="Error", value="No cogs could be loaded.")
-    await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+    await ctx.send(embed=embed, ephemeral=True)
     await ctx.message.delete()
-    async with aiosqlite.connect('rainbowbot.db') as db:
-        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
-        row = await cur.fetchone()
-        fetched_logging = row[0]
-        if fetched_logging is not None:
-            logging = bot.get_channel(fetched_logging)
-            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-            await logging.send(embed=embed)
-        await db.commit()
-        await db.close()
+    
+    # Send a log to the logging channel
+    cur = await bot.database.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+    row = await cur.fetchone()
+    fetched_logging = row[0]
+    if fetched_logging is not None:
+        logging = bot.get_channel(fetched_logging)
+        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+        await logging.send(embed=embed)
 
 @bot.command(name="unload", aliases=["unload_cogs","unload_cog","unloadcogs","unloadcog"], hidden=True)
 @commands.is_owner()
@@ -181,7 +185,7 @@ async def unload(ctx: commands.Context, extension: str):
     """
     await ctx.defer(ephemeral=True)
     now = datetime.now(tz=timezone.utc)
-    embed = discord.Embed(color=blurple, title="Unload Cogs", timestamp=now)
+    embed = discord.Embed(color=bot.blurple, title="Unload Cogs", timestamp=now)
     lower = extension.lower()
     if lower == "all":
         for cog in await allcogs(x="cogs"):
@@ -200,18 +204,17 @@ async def unload(ctx: commands.Context, extension: str):
                     embed.add_field(name=cog, value=f"Error: {e}")
     else:
         embed.add_field(name="Error", value="No cogs could be unloaded.")
-    await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+    await ctx.send(embed=embed, ephemeral=True)
     await ctx.message.delete()
-    async with aiosqlite.connect('rainbowbot.db') as db:
-        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
-        row = await cur.fetchone()
-        fetched_logging = row[0]
-        if fetched_logging is not None:
-            logging = bot.get_channel(fetched_logging)
-            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-            await logging.send(embed=embed)
-        await db.commit()
-        await db.close()
+    
+    # Send a log to the logging channel
+    cur = await bot.database.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+    row = await cur.fetchone()
+    fetched_logging = row[0]
+    if fetched_logging is not None:
+        logging = bot.get_channel(fetched_logging)
+        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+        await logging.send(embed=embed)
 
 @bot.command(name="reload", aliases=["reload_cogs","reload_cog","reloadcogs","reloadcog"], hidden=True)
 @commands.is_owner()
@@ -225,7 +228,7 @@ async def reload(ctx: commands.Context, extension: str):
     """
     await ctx.defer(ephemeral=True)
     now = datetime.now(tz=timezone.utc)
-    embed = discord.Embed(color=blurple, title="Reload Cogs", timestamp=now)
+    embed = discord.Embed(color=bot.blurple, title="Reload Cogs", timestamp=now)
     lower = extension.lower()
     if lower == "all":
         for cog in await allcogs(x="cogs"):
@@ -246,16 +249,15 @@ async def reload(ctx: commands.Context, extension: str):
         embed.add_field(name="Error", value="No cogs could be reloaded.")
     await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
     await ctx.message.delete()
-    async with aiosqlite.connect('rainbowbot.db') as db:
-        cur = await db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
-        row = await cur.fetchone()
-        fetched_logging = row[0]
-        if fetched_logging is not None:
-            logging = bot.get_channel(fetched_logging)
-            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-            await logging.send(embed=embed)
-        await db.commit()
-        await db.close()
+    
+    # Send a log to the logging channel
+    cur = await bot.database.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+    row = await cur.fetchone()
+    fetched_logging = row[0]
+    if fetched_logging is not None:
+        logging = bot.get_channel(fetched_logging)
+        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+        await logging.send(embed=embed)  
 
 @bot.command(name="ping", aliases=["latency"])
 async def ping(ctx: commands.Context):
@@ -263,38 +265,24 @@ async def ping(ctx: commands.Context):
     """
     await ctx.defer(ephemeral=True)
     try:
-        embed = discord.Embed(color=blurple, title="Pong", description=f"The bot's current latency is {bot.latency} seconds!")
+        embed = discord.Embed(color=bot.blurple, title="Pong", description=f"The bot's current latency is {bot.latency} seconds!")
     except Exception as e:
-        embed = discord.Embed(color=red, title="Error", description=f"{e}")
+        embed = discord.Embed(color=bot.red, title="Error", description=f"{e}")
     await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
     await ctx.message.delete()
 
-async def setup():
-    async with aiosqlite.connect('rainbowbot.db') as db:
-        await db.execute(
-            """CREATE TABLE IF NOT EXISTS "guilds" (
-                "guild_id"	            INTEGER,
-                "logging_channel_id"	INTEGER DEFAULT NULL,
-                "welcome_channel_id"	INTEGER DEFAULT NULL,
-                "goodbye_channel_id"	INTEGER DEFAULT NULL,
-                "join_role_id"	        INTEGER DEFAULT NULL,
-                "bot_role_id"	        INTEGER DEFAULT NULL,
-                "active_role_id"	    INTEGER DEFAULT NULL,
-                "inactive_role_id"	    INTEGER DEFAULT NULL,
-                "inactive_months"	    INTEGER DEFAULT NULL,
-                "award_singular"	    TEXT    DEFAULT NULL,
-                "award_plural"	        TEXT    DEFAULT NULL,
-                "award_emoji"	        TEXT    DEFAULT NULL,
-                "award_react_toggle"	INTEGER DEFAULT 0,
-                PRIMARY KEY("guild_id")
-            )"""
-        )
-        await db.commit()
-        await db.close()
+    # Send a log to the logging channel
+    cur = await bot.database.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+    row = await cur.fetchone()
+    fetched_logging = row[0]
+    if fetched_logging is not None:
+        logging = bot.get_channel(fetched_logging)
+        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+        await logging.send(embed=embed)  
 
 @bot.event
 async def on_ready():
-    await setup()
+    await bot.setup()
     print(f'Logged in as {bot.user}! (ID: {bot.user.id})')
 
 token = 'token'
