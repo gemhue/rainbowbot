@@ -560,8 +560,8 @@ class Awards(commands.Cog):
 
         await ctx.send(embed=embed, ephemeral=True)
 
-async def setup():
+async def setup(bot: commands.Bot):
     print("Setting up Cog: Awards.Awards")
 
-async def teardown():
+async def teardown(bot: commands.Bot):
     print("Tearing down Cog: Awards.Awards")

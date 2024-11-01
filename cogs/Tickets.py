@@ -391,5 +391,5 @@ async def setup(bot: commands.Bot):
     bot.add_view(TicketButtons(bot=bot))
     print("Setting up Cog: RSSFeeds.RSSFeeds")
 
-async def teardown():
+async def teardown(bot: commands.Bot):
     print("Tearing down Cog: RSSFeeds.RSSFeeds")

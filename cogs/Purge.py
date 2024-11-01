@@ -272,8 +272,8 @@ class Purge(commands.Cog):
             await ctx.channel.send(embed=error, delete_after=30.0)
             print(traceback.format_exc())
 
-async def setup():
+async def setup(bot: commands.Bot):
     print("Setting up Cog: Purge.Purge")
 
-async def teardown():
+async def teardown(bot: commands.Bot):
     print("Tearing down Cog: Purge.Purge")

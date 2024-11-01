@@ -151,8 +151,8 @@ class AutoDelete(commands.Cog):
         except Exception:
             traceback.print_exc()
 
-async def setup():
+async def setup(bot: commands.Bot):
     print("Setting up Cog: AutoDelete.AutoDelete")
 
-async def teardown():
+async def teardown(bot: commands.Bot):
     print("Tearing down Cog: AutoDelete.AutoDelete")

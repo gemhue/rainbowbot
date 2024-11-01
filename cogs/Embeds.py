@@ -375,8 +375,8 @@ class Embeds(commands.Cog):
             await ctx.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
-async def setup():
+async def setup(bot: commands.Bot):
     print("Setting up Cog: Embeds.Embeds")
 
-async def teardown():
+async def teardown(bot: commands.Bot):
     print("Tearing down Cog: Embeds.Embeds")

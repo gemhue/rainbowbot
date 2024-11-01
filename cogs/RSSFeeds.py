@@ -721,8 +721,8 @@ class RSSFeeds(commands.Cog):
         except Exception:
             print(traceback.format_exc())
 
-async def setup():
+async def setup(bot: commands.Bot):
     print("Setting up Cog: RSSFeeds.RSSFeeds")
 
-async def teardown():
+async def teardown(bot: commands.Bot):
     print("Tearing down Cog: RSSFeeds.RSSFeeds")
