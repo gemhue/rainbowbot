@@ -1,4 +1,5 @@
 import discord
+import traceback
 from discord import app_commands
 from discord.ext import commands
 from RainbowBot import RainbowBot
@@ -54,6 +55,7 @@ class TicketButtons(discord.ui.View):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, ephemeral=True)
+            print(traceback.format_exc())
     
     @discord.ui.button(label="Question", custom_id="persistent:question", style=discord.ButtonStyle.blurple, emoji="❓")
     async def question(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -97,6 +99,7 @@ class TicketButtons(discord.ui.View):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @discord.ui.button(label="Suggestion", custom_id="persistent:suggestion", style=discord.ButtonStyle.blurple, emoji="💡")
     async def suggestion(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -140,6 +143,7 @@ class TicketButtons(discord.ui.View):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @discord.ui.button(label="Complaint", custom_id="persistent:complaint", style=discord.ButtonStyle.blurple, emoji="📢")
     async def complaint(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -183,6 +187,7 @@ class TicketButtons(discord.ui.View):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @discord.ui.button(label="Report Member", custom_id="persistent:report", style=discord.ButtonStyle.blurple, emoji="🚨")
     async def report(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -226,6 +231,7 @@ class TicketButtons(discord.ui.View):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @discord.ui.button(label="Other", custom_id="persistent:other", style=discord.ButtonStyle.blurple, emoji="✉️")
     async def other(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -269,6 +275,7 @@ class TicketButtons(discord.ui.View):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
 class ThreadButton(discord.ui.View):
     def __init__(self, *, timeout = None):
@@ -284,6 +291,7 @@ class ThreadButton(discord.ui.View):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error)
+            print(traceback.format_exc())
 
 class ConfirmButton(discord.ui.View):
     def __init__(self, *, timeout = None):
@@ -317,6 +325,7 @@ class ConfirmButton(discord.ui.View):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, ephemeral=True)
+            print(traceback.format_exc())
     
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -326,6 +335,7 @@ class ConfirmButton(discord.ui.View):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.response.send_message(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
 class Tickets(commands.Cog):
     def __init__(self, bot=RainbowBot()):
@@ -378,6 +388,7 @@ class Tickets(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
 async def setup():
     bot.add_view(TicketButtons())

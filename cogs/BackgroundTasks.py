@@ -1,4 +1,5 @@
 import discord
+import traceback
 from discord.ext import commands, tasks
 from RainbowBot import RainbowBot
 from datetime import datetime, timedelta, timezone
@@ -52,8 +53,8 @@ class BackgroundTasks(commands.Cog):
             moji8 = self.bot.get_emoji(1274435528883961989)
             if any(x in messagecont for x in list8):
                 await message.add_reaction(moji8)
-        except Exception as e:
-            print(f"On Message Error: {e.with_traceback}")
+        except Exception:
+            print(traceback.format_exc())
         
     @commands.Cog.listener(name="on_member_join")
     async def on_member_join(self, member: discord.Member):
@@ -92,8 +93,8 @@ class BackgroundTasks(commands.Cog):
                 botrole = guild.get_role(botrole_id)
                 await member.add_roles(botrole)
 
-        except Exception as e:
-            print(f"On Member Join Error: {e.with_traceback}")
+        except Exception:
+            print(traceback.format_exc())
 
     @commands.Cog.listener(name="on_member_remove")
     async def on_member_remove(self, member: discord.Member):
@@ -118,8 +119,8 @@ class BackgroundTasks(commands.Cog):
                 content = f"-# {member.mention}"
                 await channel.send(content=content, embed=embed)
 
-        except Exception as e:
-            print(f"On Member Remove Error: {e.with_traceback}")
+        except Exception:
+            print(traceback.format_exc())
 
     @tasks.loop(hours=24)
     async def activity_check(self):
@@ -187,8 +188,8 @@ class BackgroundTasks(commands.Cog):
                                 embed.add_field(name="Inactive Members", value=f"{len(inactivemembers)} members now have the {inactive.mention} role!", inline=False)
                                 await logging.send(embed=embed)
 
-        except Exception as e:
-            print(f"Activity Check Error: {e.with_traceback}")
+        except Exception:
+            print(traceback.format_exc())
 
 async def setup(bot=bot):
 	await bot.add_cog(BackgroundTasks(), override=True)

@@ -1,4 +1,5 @@
 import discord
+import traceback
 from discord import app_commands
 from discord.ext import commands
 from RainbowBot import RainbowBot
@@ -77,6 +78,7 @@ class Awards(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @awards.command(name="clear")
     @commands.has_guild_permissions(administrator=True)
@@ -128,6 +130,7 @@ class Awards(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @awards.command(name="reaction_toggle")
     @commands.has_guild_permissions(administrator=True)
@@ -174,6 +177,7 @@ class Awards(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @commands.Cog.listener(name="on_reaction_add")
     async def on_reaction_add(self, reaction: discord.Reaction, user: discord.Member):
@@ -353,6 +357,7 @@ class Awards(commands.Cog):
         
         except Exception as e:
             embed = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            print(traceback.format_exc())
         
         await ctx.send(embed=embed, ephemeral=True)
         
@@ -431,6 +436,7 @@ class Awards(commands.Cog):
         
         except Exception as e:
             embed = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            print(traceback.format_exc())
         
         await ctx.send(embed=embed, ephemeral=True)
 
@@ -493,6 +499,7 @@ class Awards(commands.Cog):
         
         except Exception as e:
             embed = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            print(traceback.format_exc())
         
         await ctx.send(embed=embed, ephemeral=True)
 
@@ -544,6 +551,7 @@ class Awards(commands.Cog):
 
         except Exception as e:
             embed = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            print(traceback.format_exc())
 
         await ctx.send(embed=embed, ephemeral=True)
 

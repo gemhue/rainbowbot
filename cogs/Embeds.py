@@ -1,4 +1,5 @@
 import discord
+import traceback
 from discord import app_commands
 from discord.ext import commands
 from RainbowBot import RainbowBot
@@ -47,6 +48,7 @@ class Embeds(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, delete_after=30.0)
+            print(traceback.format_exc())
     
     @embed.command(name="edit")
     @commands.has_guild_permissions(administrator=True)
@@ -113,6 +115,7 @@ class Embeds(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @embed.command(name="set_image")
     @commands.has_guild_permissions(administrator=True)
@@ -141,9 +144,9 @@ class Embeds(commands.Cog):
             await ctx.send(embed=success, ephemeral=True)
 
         except Exception as e:
-
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @embed.command(name="remove_image")
     @commands.has_guild_permissions(administrator=True)
@@ -172,6 +175,7 @@ class Embeds(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @embed.command(name="set_thumbnail")
     @commands.has_guild_permissions(administrator=True)
@@ -202,6 +206,7 @@ class Embeds(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @embed.command(name="remove_thumbnail")
     @commands.has_guild_permissions(administrator=True)
@@ -230,6 +235,7 @@ class Embeds(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @embed.command(name="add_field")
     @commands.has_guild_permissions(administrator=True)
@@ -264,6 +270,7 @@ class Embeds(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @embed.command(name="edit_field")
     @commands.has_guild_permissions(administrator=True)
@@ -300,6 +307,7 @@ class Embeds(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @embed.command(name="insert_field")
     @commands.has_guild_permissions(administrator=True)
@@ -335,6 +343,7 @@ class Embeds(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @embed.command(name="remove_field")
     @commands.has_guild_permissions(administrator=True)
@@ -365,6 +374,7 @@ class Embeds(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
 async def setup():
     print("Setting up Cog: Embeds.Embeds")

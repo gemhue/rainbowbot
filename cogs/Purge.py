@@ -1,4 +1,5 @@
 import discord
+import traceback
 from discord import app_commands, ChannelType
 from discord.ui import ChannelSelect
 from discord.ext import commands
@@ -84,6 +85,7 @@ class Purge(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await channel.send(embed=error, delete_after=30.0)
+            print(traceback.format_exc())
 
     @purge.command(name="member")
     @commands.has_guild_permissions(administrator=True)
@@ -148,6 +150,7 @@ class Purge(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.channel.send(embed=error, delete_after=30.0)
+            print(traceback.format_exc())
 
     @purge.command(name="channels")
     @commands.has_guild_permissions(administrator=True)
@@ -207,6 +210,7 @@ class Purge(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.channel.send(embed=error, delete_after=30.0)
+            print(traceback.format_exc())
 
     @purge.command(name="server")
     @commands.has_guild_permissions(administrator=True)
@@ -267,6 +271,7 @@ class Purge(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.channel.send(embed=error, delete_after=30.0)
+            print(traceback.format_exc())
 
 async def setup():
     print("Setting up Cog: Purge.Purge")

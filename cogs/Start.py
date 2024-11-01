@@ -1,4 +1,5 @@
 import discord
+import traceback
 import asyncio
 from discord.ext import commands
 from discord import app_commands, ChannelType
@@ -169,7 +170,8 @@ class CogButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem setting up AutoDelete (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            print(f"There was a problem setting up AutoDelete (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
@@ -192,7 +194,8 @@ class CogButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem setting up Awards (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            print(f"There was a problem setting up Awards (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
     
@@ -215,7 +218,8 @@ class CogButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem setting up Embeds (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            print(f"There was a problem setting up Embeds (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
@@ -238,7 +242,8 @@ class CogButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem setting up Profiles (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            print(f"There was a problem setting up Profiles (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
@@ -261,7 +266,8 @@ class CogButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem setting up Purge (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            print(f"There was a problem setting up Purge (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
@@ -284,7 +290,8 @@ class CogButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem setting up RSS Feeds (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            print(f"There was a problem setting up RSS Feeds (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
@@ -307,7 +314,8 @@ class CogButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem setting up Tickets (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            print(f"There was a problem setting up Tickets (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
@@ -320,7 +328,7 @@ class CogButtons(discord.ui.View):
                 self.value = True
                 self.stop()
         except Exception as e:
-            print(f"Error: {e.with_traceback}")
+            print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
@@ -350,7 +358,8 @@ class RemoveButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem removing AutoDelete (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            print(f"There was a problem removing AutoDelete (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
@@ -373,7 +382,8 @@ class RemoveButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem removing Awards (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            print(f"There was a problem removing Awards (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
     
@@ -396,7 +406,8 @@ class RemoveButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem removing Embeds (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            print(f"There was a problem removing Embeds (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
@@ -419,7 +430,8 @@ class RemoveButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem removing Profiles (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            print(f"There was a problem removing Profiles (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
@@ -442,7 +454,8 @@ class RemoveButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem removing Purge (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            print(f"There was a problem removing Purge (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
@@ -465,7 +478,8 @@ class RemoveButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem removing RSS Feeds (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            print(f"There was a problem removing RSS Feeds (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
@@ -488,7 +502,8 @@ class RemoveButtons(discord.ui.View):
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
-            print(f"There was a problem removing Tickets (Guild ID: {guild.id}). Error: {e.with_traceback}")
+            print(f"There was a problem removing Tickets (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
@@ -501,7 +516,7 @@ class RemoveButtons(discord.ui.View):
                 self.value = True
                 self.stop()
         except Exception as e:
-            print(f"Error: {e.with_traceback}")
+            print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
@@ -877,7 +892,8 @@ class Start(commands.Cog):
 
         # Send an error message if there's an issue
         except Exception as e:
-            print(f"Start Command Error (Guild ID: {guild.id}): {e.with_traceback}")
+            print(f"Start Command Error (Guild ID: {guild.id}): {e}")
+            print(traceback.format_exc())
             error = discord.Embed(
                 color=bot.red,
                 title="Error",
@@ -947,7 +963,8 @@ class Start(commands.Cog):
                     await logging_channel.send(embed=log)
                 
         except Exception as e:
-            print(f"Start Command Error (Guild ID: {guild.id}): {e.with_traceback}")
+            print(f"Start Command Error (Guild ID: {guild.id}): {e}")
+            print(traceback.format_exc())
             error = discord.Embed(
                 color=bot.red,
                 title="Error",
@@ -1020,7 +1037,8 @@ class Start(commands.Cog):
                     await logging_channel.send(embed=log)
                 
         except Exception as e:
-            print(f"Start Command Error (Guild ID: {guild.id}): {e.with_traceback}")
+            print(f"Start Command Error (Guild ID: {guild.id}): {e}")
+            print(traceback.format_exc())
             error = discord.Embed(
                 color=bot.red,
                 title="Error",

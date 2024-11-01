@@ -154,6 +154,7 @@ async def load(ctx: commands.Context, extension: str):
                 embed.add_field(name=cog, value="Loaded successfully!")
             except Exception as e:
                 embed.add_field(name=cog, value=f"Error: {e}")
+                print(traceback.format_exc())
     elif lower in await allcogs(x="names_lower"):
         for cog in await allcogs(x="cogs"):
             if cog.lower() == f"cogs.{lower}":
@@ -162,6 +163,7 @@ async def load(ctx: commands.Context, extension: str):
                     embed.add_field(name=cog, value="Loaded successfully!")
                 except Exception as e:
                     embed.add_field(name=cog, value=f"Error: {e}")
+                    print(traceback.format_exc())
     else:
         embed.add_field(name="Error", value="No cogs could be loaded.")
     await ctx.send(embed=embed, ephemeral=True)
@@ -197,6 +199,7 @@ async def unload(ctx: commands.Context, extension: str):
                 embed.add_field(name=cog, value="Unloaded successfully!")
             except Exception as e:
                 embed.add_field(name=cog, value=f"Error: {e}")
+                print(traceback.format_exc())
     elif lower in await allcogs(x="names_lower"):
         for cog in await allcogs(x="cogs"):
             if cog.lower() == f"cogs.{lower}":
@@ -205,6 +208,7 @@ async def unload(ctx: commands.Context, extension: str):
                     embed.add_field(name=cog, value="Unloaded successfully!")
                 except Exception as e:
                     embed.add_field(name=cog, value=f"Error: {e}")
+                    print(traceback.format_exc())
     else:
         embed.add_field(name="Error", value="No cogs could be unloaded.")
     await ctx.send(embed=embed, ephemeral=True)
@@ -240,6 +244,7 @@ async def reload(ctx: commands.Context, extension: str):
                 embed.add_field(name=cog, value="Reloaded successfully!")
             except Exception as e:
                 embed.add_field(name=cog, value=f"Error: {e}")
+                print(traceback.format_exc())
     elif lower in await allcogs(x="names_lower"):
         for cog in await allcogs(x="cogs"):
             if cog.lower() == f"cogs.{lower}":
@@ -248,6 +253,7 @@ async def reload(ctx: commands.Context, extension: str):
                     embed.add_field(name=cog, value="Reloaded successfully!")
                 except Exception as e:
                     embed.add_field(name=cog, value=f"Error: {e}")
+                    print(traceback.format_exc())
     else:
         embed.add_field(name="Error", value="No cogs could be reloaded.")
     await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
@@ -271,6 +277,7 @@ async def ping(ctx: commands.Context):
         embed = discord.Embed(color=bot.blurple, title="Pong", description=f"The bot's current latency is {bot.latency} seconds!")
     except Exception as e:
         embed = discord.Embed(color=bot.red, title="Error", description=f"{e}")
+        print(traceback.format_exc())
     await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
     await ctx.message.delete()
 

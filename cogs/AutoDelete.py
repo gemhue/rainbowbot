@@ -1,4 +1,5 @@
 import discord
+import traceback
 from discord import app_commands
 from discord.ext import commands, tasks
 from RainbowBot import RainbowBot
@@ -68,6 +69,7 @@ class AutoDelete(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @autodelete.command(name="cancel")
     @commands.has_guild_permissions(administrator=True)
@@ -113,6 +115,7 @@ class AutoDelete(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @tasks.loop(minutes=30.0)
     async def autodeleter(self):

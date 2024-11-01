@@ -1,4 +1,5 @@
 import discord
+import traceback
 import feedparser
 import aiohttp
 from discord import app_commands, Webhook
@@ -40,7 +41,7 @@ class RSSFeeds(commands.Cog):
             embed = discord.Embed(color=self.bot.blurple, title="Webhook Set", timestamp=now)
             embed.add_field(name="Webhook URL", value=f"{webhook_url}", inline=False)
 
-            await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
+            await ctx.send(embed=embed, ephemeral=True)
 
             cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
             row = await cur.fetchone()
@@ -52,7 +53,8 @@ class RSSFeeds(commands.Cog):
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, delete_after=60.0, ephemeral=True)
+            await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @rss.command(name="webhook_check")
     @commands.has_guild_permissions(administrator=True)
@@ -153,11 +155,12 @@ class RSSFeeds(commands.Cog):
             else:
                 embed.add_field(name="Position Nine", value="Empty", inline=False)
 
-            await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
+            await ctx.send(embed=embed, ephemeral=True)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, delete_after=60.0, ephemeral=True)
+            await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @rss.command(name="webhook_clear")
     @commands.has_guild_permissions(administrator=True)
@@ -258,7 +261,7 @@ class RSSFeeds(commands.Cog):
             else:
                 embed.add_field(name="Position Nine Error", value=f"{fetched_rss_url}", inline=False)
 
-            await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
+            await ctx.send(embed=embed, ephemeral=True)
 
             cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
             row = await cur.fetchone()
@@ -270,7 +273,8 @@ class RSSFeeds(commands.Cog):
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, delete_after=60.0, ephemeral=True)
+            await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @rss.command(name="feed_setup")
     @commands.has_guild_permissions(administrator=True)
@@ -396,7 +400,7 @@ class RSSFeeds(commands.Cog):
                                                 else:
                                                     embed.add_field(name="Error", value="This webhook is already associated with 10 RSS feeds. Please use `/rss feed_clear` or `/rss webhook_clear` to remove one or all RSS feeds from this webhook.")
             
-            await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
+            await ctx.send(embed=embed, ephemeral=True)
 
             cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
             row = await cur.fetchone()
@@ -408,7 +412,8 @@ class RSSFeeds(commands.Cog):
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, delete_after=60.0, ephemeral=True)
+            await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @rss.command(name="feed_clear")
     @commands.has_guild_permissions(administrator=True)
@@ -545,7 +550,7 @@ class RSSFeeds(commands.Cog):
             else:
                 embed = discord.Embed(color=self.bot.red, title="Error", description="You must enter a number from 0 to 9 as the RSS feed position. Check which position on the Webhook the RSS feed is stored at by using `/checkwebhook`.")
             
-            await ctx.send(embed=embed, delete_after=60.0, ephemeral=True)
+            await ctx.send(embed=embed, ephemeral=True)
 
             cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
             row = await cur.fetchone()
@@ -557,7 +562,8 @@ class RSSFeeds(commands.Cog):
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, delete_after=60.0, ephemeral=True)
+            await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
  
     async def getwebhooks(self):
         try:
@@ -570,8 +576,8 @@ class RSSFeeds(commands.Cog):
                         urls.append(url)
             return urls
         
-        except Exception as e:
-            print(e)
+        except Exception:
+            print(traceback.format_exc())
     
     async def getfeeds(self, webhook_url):
         try:
@@ -651,8 +657,8 @@ class RSSFeeds(commands.Cog):
                 allfeeds["feed10"] = feed10
             return allfeeds
         
-        except Exception as e:
-            print(e)
+        except Exception:
+            print(traceback.format_exc())
 
     async def parsefeed(self, webhook_url, feed_url):
         try:
@@ -693,8 +699,8 @@ class RSSFeeds(commands.Cog):
                         embeds.append(embed)
             return embeds
         
-        except Exception as e:
-            print(e)
+        except Exception:
+            print(traceback.format_exc())
 
     @tasks.loop(minutes=5.0)
     async def postrss(self):
@@ -713,8 +719,8 @@ class RSSFeeds(commands.Cog):
                                     webhook = Webhook.from_url(url=url, session=session, client=self.bot)
                                     await webhook.send(embed=embed)
 
-        except Exception as e:
-            print(e)
+        except Exception:
+            print(traceback.format_exc())
 
 async def setup():
     print("Setting up Cog: RSSFeeds.RSSFeeds")

@@ -1,4 +1,5 @@
 import discord
+import traceback
 from discord.ext import commands
 from RainbowBot import RainbowBot
 from datetime import datetime, timezone
@@ -165,6 +166,7 @@ class Profiles(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
     @profile.command(name="get")
     async def get(self, ctx: commands.Context, member: Optional[discord.Member]):
@@ -268,6 +270,7 @@ class Profiles(commands.Cog):
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await ctx.send(embed=error, ephemeral=True)
+            print(traceback.format_exc())
 
 async def setup():
     print("Setting up Cog: Profiles.Profiles")
