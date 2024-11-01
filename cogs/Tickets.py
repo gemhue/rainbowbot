@@ -294,6 +294,7 @@ class ConfirmButton(discord.ui.View):
     def __init__(self, *, timeout = None, bot: commands.Bot):
         super().__init__(timeout=timeout)
         self.bot = bot
+        self.db = bot.database
     
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
