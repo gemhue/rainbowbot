@@ -180,7 +180,7 @@ class BackgroundTasks(commands.Cog):
                             fetched_logging = row[0]
                             if fetched_logging is not None:
                                 logging = guild.get_channel(fetched_logging)
-                                embed = discord.Embed(color=self.blurple, title="Activity Roles Assigned", timestamp=now)
+                                embed = discord.Embed(color=self.bot.blurple, title="Activity Roles Assigned", timestamp=now)
                                 embed.add_field(name="Active Members", value=f"{len(activemembers)} members now have the {active.mention} role!", inline=False)
                                 embed.add_field(name="Inactive Members", value=f"{len(inactivemembers)} members now have the {inactive.mention} role!", inline=False)
                                 await logging.send(embed=embed)
