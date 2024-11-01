@@ -306,6 +306,9 @@ class ConfirmButton(discord.ui.View):
             thread = guild.get_thread(channel.id)
             if thread is not None:
                 await thread.edit(locked=True)
+            now = datetime.now(tz=timezone.utc)
+            closed = discord.Embed(color=self.bot.green, title="Ticket Closed", description=f"This ticket has been closed by {interaction.user.mention}.", timestamp=now)
+            await interaction.message.edit(embed=closed, view=None)
 
             cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
             row = await cur.fetchone()
@@ -314,6 +317,7 @@ class ConfirmButton(discord.ui.View):
                 logging = guild.get_channel(fetched_logging)
                 now = datetime.now(tz=timezone.utc)
                 log = discord.Embed(color=self.bot.blurple, title="Ticket Log", description=f"{interaction.user.mention} has just closed a ticket.", timestamp=now)
+                log.add_field(name="Ticket", value=f"{thread.mention}")
                 log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                 await logging.send(embed=log)
 
