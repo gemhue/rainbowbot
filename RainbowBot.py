@@ -291,8 +291,8 @@ async def ping(ctx: commands.Context):
         await logging.send(embed=embed)
 
 @bot.event
-async def on_ready():
-    await RainbowBot.setup_hook()
+async def on_ready(bot=bot):
+    await bot.setup_hook()
     print(f'Logged in as {bot.user}! (ID: {bot.user.id})')
 
 token = 'token'
