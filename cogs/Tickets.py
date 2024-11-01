@@ -392,7 +392,7 @@ class Tickets(commands.Cog):
 
 async def setup(bot: commands.Bot):
     bot.add_view(TicketButtons(bot=bot))
-    print("Setting up Cog: RSSFeeds.RSSFeeds")
+    print("Setting up Cog: Tickets.Tickets")
 
 async def teardown(bot: commands.Bot):
-    print("Tearing down Cog: RSSFeeds.RSSFeeds")
+    print("Tearing down Cog: Tickets.Tickets")
