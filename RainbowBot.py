@@ -1,5 +1,6 @@
 import discord
 import aiosqlite
+import logging
 import traceback
 import os
 from discord.ext import commands
@@ -24,6 +25,7 @@ class RainbowBot(commands.Bot):
         print("Connected to Database: rainbowbot.db")
 
 bot = RainbowBot()
+handler = logging.FileHandler(filename="rainbowbot.log", encoding="utf-8", mode="w")
 
 @bot.command(name="sync", aliases=["synctree"], hidden=True)
 @commands.is_owner()
@@ -152,8 +154,6 @@ async def load(ctx: commands.Context, extension: str):
                 embed.add_field(name=cog, value="Loaded successfully!")
             except Exception as e:
                 embed.add_field(name=cog, value=f"Error: {e}")
-                trace = traceback.format_exception(exc=type(e), value=e, tb=e.__traceback__)
-                print(f"{trace}")
     elif lower in await allcogs(x="names_lower"):
         for cog in await allcogs(x="cogs"):
             if cog.lower() == f"cogs.{lower}":
@@ -162,8 +162,6 @@ async def load(ctx: commands.Context, extension: str):
                     embed.add_field(name=cog, value="Loaded successfully!")
                 except Exception as e:
                     embed.add_field(name=cog, value=f"Error: {e}")
-                    trace = traceback.format_exception(exc=type(e), value=e, tb=e.__traceback__)
-                    print(f"{trace}")
     else:
         embed.add_field(name="Error", value="No cogs could be loaded.")
     await ctx.send(embed=embed, ephemeral=True)
@@ -199,8 +197,6 @@ async def unload(ctx: commands.Context, extension: str):
                 embed.add_field(name=cog, value="Unloaded successfully!")
             except Exception as e:
                 embed.add_field(name=cog, value=f"Error: {e}")
-                trace = traceback.format_exception(exc=type(e), value=e, tb=e.__traceback__)
-                print(f"{trace}")
     elif lower in await allcogs(x="names_lower"):
         for cog in await allcogs(x="cogs"):
             if cog.lower() == f"cogs.{lower}":
@@ -209,8 +205,6 @@ async def unload(ctx: commands.Context, extension: str):
                     embed.add_field(name=cog, value="Unloaded successfully!")
                 except Exception as e:
                     embed.add_field(name=cog, value=f"Error: {e}")
-                    trace = traceback.format_exception(exc=type(e), value=e, tb=e.__traceback__)
-                    print(f"{trace}")
     else:
         embed.add_field(name="Error", value="No cogs could be unloaded.")
     await ctx.send(embed=embed, ephemeral=True)
@@ -246,8 +240,6 @@ async def reload(ctx: commands.Context, extension: str):
                 embed.add_field(name=cog, value="Reloaded successfully!")
             except Exception as e:
                 embed.add_field(name=cog, value=f"Error: {e}")
-                trace = traceback.format_exception(exc=type(e), value=e, tb=e.__traceback__)
-                print(f"{trace}")
     elif lower in await allcogs(x="names_lower"):
         for cog in await allcogs(x="cogs"):
             if cog.lower() == f"cogs.{lower}":
@@ -256,8 +248,6 @@ async def reload(ctx: commands.Context, extension: str):
                     embed.add_field(name=cog, value="Reloaded successfully!")
                 except Exception as e:
                     embed.add_field(name=cog, value=f"Error: {e}")
-                    trace = traceback.format_exception(exc=type(e), value=e, tb=e.__traceback__)
-                    print(f"{trace}")
     else:
         embed.add_field(name="Error", value="No cogs could be reloaded.")
     await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
@@ -299,4 +289,4 @@ async def on_ready():
     print(f'Logged in as {bot.user}! (ID: {bot.user.id})')
 
 token = 'token'
-bot.run(token)
+bot.run(token, log_handler=handler, log_level=logging.DEBUG)
