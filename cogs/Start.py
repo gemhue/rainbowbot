@@ -4,10 +4,7 @@ import asyncio
 from discord.ext import commands
 from discord import app_commands, ChannelType
 from datetime import datetime, timezone
-from RainbowBot import RainbowBot
 from cogs import AutoDelete, Awards, Embeds, Profiles, Purge, RSSFeeds, Tickets
-
-bot = RainbowBot()
 
 class YesOrNo(discord.ui.View):
     def __init__(self, *, timeout = 180):
@@ -145,8 +142,8 @@ class InactiveMonthsView(discord.ui.View):
         self.stop()
 
 class CogButtons(discord.ui.View):
-    def __init__(self, bot=RainbowBot()):
-        super().__init__(timeout=180)
+    def __init__(self, *, timeout = 180, bot: commands.Bot):
+        super().__init__(timeout=timeout)
         self.bot = bot
         self.value = False
         self.guild_cogs = {}
@@ -333,8 +330,8 @@ class CogButtons(discord.ui.View):
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
 class RemoveButtons(discord.ui.View):
-    def __init__(self, bot=RainbowBot()):
-        super().__init__(timeout=180)
+    def __init__(self, *, timeout = 180, bot: commands.Bot):
+        super().__init__(timeout=timeout)
         self.bot = bot
         self.value = False
         self.guild_cogs = {}
@@ -521,7 +518,8 @@ class RemoveButtons(discord.ui.View):
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
 class Start(commands.Cog):
-    def __init__(self, bot=RainbowBot()):
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
         self.db = bot.database
 
     @commands.hybrid_command(name="start")
@@ -542,7 +540,7 @@ class Start(commands.Cog):
 
             # Ask user to select default channels
             start = discord.Embed(
-                color=bot.blurple,
+                color=self.bot.blurple,
                 title="Bot Startup",
                 description="Would you like to start by choosing channels for bot logging messages, member welcome messages, or member goodbye messages?"
             )
@@ -555,7 +553,7 @@ class Start(commands.Cog):
 
                 # Ask user to select a logging channel
                 ask_logging = discord.Embed(
-                    color=bot.blurple,
+                    color=self.bot.blurple,
                     title="Logging Channel",
                     description="Would you like to select a channel to send logging messages?\nChoose `Cancel` to skip to the next option."
                 )
@@ -578,7 +576,7 @@ class Start(commands.Cog):
                     if fetched_logging is not None:
                         logging_channel = await guild.fetch_channel(fetched_logging)
                         log = discord.Embed(
-                            color=bot.blurple,
+                            color=self.bot.blurple,
                             title="Bot Startup Log",
                             description=f"{author.mention} has just set the server's logging channel to {logging_channel.mention}!",
                             timestamp=timestamp
@@ -588,7 +586,7 @@ class Start(commands.Cog):
 
                 # Ask user to select a welcome channel
                 ask_welcome = discord.Embed(
-                    color=bot.blurple,
+                    color=self.bot.blurple,
                     title="Welcome Channel",
                     description="Would you like to select a channel to send welcome messages?\nChoose `Cancel` to skip to the next option."
                 )
@@ -611,7 +609,7 @@ class Start(commands.Cog):
                     if fetched_logging is not None:
                         logging_channel = await guild.fetch_channel(fetched_logging)
                         log = discord.Embed(
-                            color=bot.blurple,
+                            color=self.bot.blurple,
                             title="Bot Startup Log",
                             description=f"{author.mention} has just set the server's welcome channel to {welcome_channel.mention}!",
                             timestamp=timestamp
@@ -621,7 +619,7 @@ class Start(commands.Cog):
                     
                 # Ask user to select a goodbye channel
                 ask_goodbye = discord.Embed(
-                    color=bot.blurple,
+                    color=self.bot.blurple,
                     title="Goodbye Channel",
                     description="Would you like to select a channel to send goodbye messages?\nChoose `Cancel` to skip to the next option."
                 )
@@ -644,7 +642,7 @@ class Start(commands.Cog):
                     if fetched_logging is not None:
                         logging_channel = await guild.fetch_channel(fetched_logging)
                         log = discord.Embed(
-                            color=bot.blurple,
+                            color=self.bot.blurple,
                             title="Bot Startup Log",
                             description=f"{author.mention} has just set the server's goodbye channel to {goodbye_channel.mention}!",
                             timestamp=timestamp
@@ -654,7 +652,7 @@ class Start(commands.Cog):
             
             # Ask the user to select join roles
             start = discord.Embed(
-                color=bot.blurple,
+                color=self.bot.blurple,
                 title="Bot Startup",
                 description="Would you like to choose join roles?"
             )
@@ -667,7 +665,7 @@ class Start(commands.Cog):
 
                 # Ask user to select a join role
                 ask_join_role = discord.Embed(
-                    color=bot.blurple,
+                    color=self.bot.blurple,
                     title="Join Role",
                     description="Would you like to select a role to give members on join?\nChoose `Cancel` to skip to the next option."
                 )
@@ -690,7 +688,7 @@ class Start(commands.Cog):
                     if fetched_logging is not None:
                         logging_channel = await guild.fetch_channel(fetched_logging)
                         log = discord.Embed(
-                            color=bot.blurple,
+                            color=self.bot.blurple,
                             title="Bot Startup Log",
                             description=f"{author.mention} has just set the server's join role to {join_role.mention}!",
                             timestamp=timestamp
@@ -700,7 +698,7 @@ class Start(commands.Cog):
 
                 # Ask user to select a bot role
                 ask_bot_role = discord.Embed(
-                    color=bot.blurple,
+                    color=self.bot.blurple,
                     title="Bot Role",
                     description="Would you like to select a role to give bots on join?\nChoose `Cancel` to skip to the next option."
                 )
@@ -723,7 +721,7 @@ class Start(commands.Cog):
                     if fetched_logging is not None:
                         logging_channel = await guild.fetch_channel(fetched_logging)
                         log = discord.Embed(
-                            color=bot.blurple,
+                            color=self.bot.blurple,
                             title="Bot Startup Log",
                             description=f"{author.mention} has just set the server's bot role to {bot_role.mention}!",
                             timestamp=timestamp
@@ -733,7 +731,7 @@ class Start(commands.Cog):
             
             # Ask the user to select activity roles
             start = discord.Embed(
-                color=bot.blurple,
+                color=self.bot.blurple,
                 title="Bot Startup",
                 description="Would you like to choose activity roles?"
             )
@@ -746,7 +744,7 @@ class Start(commands.Cog):
 
                 # Ask user to select an active role
                 ask_active_role = discord.Embed(
-                    color=bot.blurple,
+                    color=self.bot.blurple,
                     title="Active Role",
                     description="Would you like to select a role to give active members?\nChoose `Cancel` to skip to the next option."
                 )
@@ -769,7 +767,7 @@ class Start(commands.Cog):
                     if fetched_logging is not None:
                         logging_channel = await guild.fetch_channel(fetched_logging)
                         log = discord.Embed(
-                            color=bot.blurple,
+                            color=self.bot.blurple,
                             title="Bot Startup Log",
                             description=f"{author.mention} has just set the server's active member role to {active_role.mention}!",
                             timestamp=timestamp
@@ -779,7 +777,7 @@ class Start(commands.Cog):
 
                 # Ask user to select an inactive role
                 ask_inactive_role = discord.Embed(
-                    color=bot.blurple,
+                    color=self.bot.blurple,
                     title="Inactive Role",
                     description="Would you like to select a role to give to inactive members?\nChoose `Cancel` to skip to the next option."
                 )
@@ -802,7 +800,7 @@ class Start(commands.Cog):
                     if fetched_logging is not None:
                         logging_channel = await guild.fetch_channel(fetched_logging)
                         log = discord.Embed(
-                            color=bot.blurple,
+                            color=self.bot.blurple,
                             title="Bot Startup Log",
                             description=f"{author.mention} has just set the server's inactive role to {inactive_role.mention}!",
                             timestamp=timestamp
@@ -812,7 +810,7 @@ class Start(commands.Cog):
 
                 # Ask user to provide inactive months
                 ask_inactive_months = discord.Embed(
-                    color=bot.blurple,
+                    color=self.bot.blurple,
                     title="Inactive Months",
                     description="How many months should a member be inactive before recieving the inactive role?\nChoose `Cancel` to skip to the next option."
                 )
@@ -835,7 +833,7 @@ class Start(commands.Cog):
                     if fetched_logging is not None:
                         logging_channel = await guild.fetch_channel(fetched_logging)
                         log = discord.Embed(
-                            color=bot.blurple,
+                            color=self.bot.blurple,
                             title="Bot Startup Log",
                             description=f"{author.mention} has just set the server's inactive month amount to {str(inactive_months)}!",
                             timestamp=timestamp
@@ -845,7 +843,7 @@ class Start(commands.Cog):
             
             # Ask the user to select which cogs to add to their server
             ask_cogs = discord.Embed(
-                color=bot.blurple,
+                color=self.bot.blurple,
                 title="Bot Startup",
                 description="Choose which commands you would like to add to your server."
             )
@@ -863,11 +861,11 @@ class Start(commands.Cog):
             if cog_buttons.value == True:
 
                 # The user has now completed bot startup for their server
-                await bot.tree.sync(guild=guild)
+                await self.bot.tree.sync(guild=guild)
                 cogs = cog_buttons.guild_cogs[guild.id]
                 join = ", ".join(cogs)
                 done = discord.Embed(
-                    color=bot.blurple,
+                    color=self.bot.blurple,
                     title="Bot Startup",
                     description=f"Bot startup is now complete!"
                 )
@@ -881,7 +879,7 @@ class Start(commands.Cog):
                 if fetched_logging is not None:
                     logging_channel = await guild.fetch_channel(fetched_logging)
                     log = discord.Embed(
-                        color=bot.blurple,
+                        color=self.bot.blurple,
                         title="Bot Startup Log",
                         description=f"{author.mention} has just added commands to {guild.name}!",
                         timestamp=timestamp
@@ -895,7 +893,7 @@ class Start(commands.Cog):
             print(f"Start Command Error (Guild ID: {guild.id}): {e}")
             print(traceback.format_exc())
             error = discord.Embed(
-                color=bot.red,
+                color=self.bot.red,
                 title="Error",
                 description=f"There was an error running the `/start` or `rb!start` command. Error: {e}"
             )
@@ -919,7 +917,7 @@ class Start(commands.Cog):
             await self.db.commit()
             
             ask_cogs = discord.Embed(
-                color=bot.blurple,
+                color=self.bot.blurple,
                 title="Add Commands",
                 description="Choose which commands you would like to add to your server."
             )
@@ -936,11 +934,11 @@ class Start(commands.Cog):
 
             if cog_buttons.value == True:
 
-                await bot.tree.sync(guild=guild)
+                await self.bot.tree.sync(guild=guild)
                 cogs = cog_buttons.guild_cogs[guild.id]
                 join = ", ".join(cogs)
                 done = discord.Embed(
-                    color=bot.green,
+                    color=self.bot.green,
                     title="Success",
                     description=f"{author.mention} has successfully added commands to the server!"
                 )
@@ -953,7 +951,7 @@ class Start(commands.Cog):
                 if fetched_logging is not None:
                     logging_channel = await guild.fetch_channel(fetched_logging)
                     log = discord.Embed(
-                        color=bot.red,
+                        color=self.bot.red,
                         title="Add Commands",
                         description=f"{author.mention} has just added commands to {guild.name}!",
                         timestamp=timestamp
@@ -966,7 +964,7 @@ class Start(commands.Cog):
             print(f"Start Command Error (Guild ID: {guild.id}): {e}")
             print(traceback.format_exc())
             error = discord.Embed(
-                color=bot.red,
+                color=self.bot.red,
                 title="Error",
                 description=f"There was an error running the `/add_commands` or `rb!add_commands` command. Error: {e}"
             )
@@ -993,7 +991,7 @@ class Start(commands.Cog):
             await self.db.commit()
             
             ask_cogs = discord.Embed(
-                color=bot.blurple,
+                color=self.bot.blurple,
                 title="Remove Commands",
                 description="Choose which commands you would like to remove from your server."
             )
@@ -1010,11 +1008,11 @@ class Start(commands.Cog):
 
             if cog_buttons.value == True:
 
-                await bot.tree.sync(guild=guild)
+                await self.bot.tree.sync(guild=guild)
                 cogs = cog_buttons.guild_cogs[guild.id]
                 join = ", ".join(cogs)
                 done = discord.Embed(
-                    color=bot.green,
+                    color=self.bot.green,
                     title="Success",
                     description=f"{author.mention} has successfully removed commands from the server!"
                 )
@@ -1027,7 +1025,7 @@ class Start(commands.Cog):
                 if fetched_logging is not None:
                     logging_channel = await guild.fetch_channel(fetched_logging)
                     log = discord.Embed(
-                        color=bot.red,
+                        color=self.bot.red,
                         title="Remove Commands",
                         description=f"{author.mention} has just removed commands from {guild.name}!",
                         timestamp=timestamp
@@ -1040,7 +1038,7 @@ class Start(commands.Cog):
             print(f"Start Command Error (Guild ID: {guild.id}): {e}")
             print(traceback.format_exc())
             error = discord.Embed(
-                color=bot.red,
+                color=self.bot.red,
                 title="Error",
                 description=f"There was an error running the `/remove_commands` or `rb!remove_commands` command. Error: {e}"
             )
@@ -1049,8 +1047,8 @@ class Start(commands.Cog):
             else:
                 await ctx.send(embed=error, view=None)
 
-async def setup(bot=bot):
-    await bot.add_cog(Start(), override=True)
+async def setup(bot: commands.Bot):
+    await bot.add_cog(Start(bot=bot), override=True)
 
-async def teardown(bot=bot):
+async def teardown(bot: commands.Bot):
     await bot.remove_cog("Start")

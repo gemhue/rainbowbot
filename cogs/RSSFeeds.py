@@ -4,14 +4,13 @@ import feedparser
 import aiohttp
 from discord import app_commands, Webhook
 from discord.ext import commands, tasks
-from RainbowBot import RainbowBot
 from typing import Literal
 from datetime import datetime, timezone
 from time import mktime
 from bs4 import BeautifulSoup
 
 class RSSFeeds(commands.Cog):
-    def __init__(self, bot=RainbowBot()):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.db = bot.database
 

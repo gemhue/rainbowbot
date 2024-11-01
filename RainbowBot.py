@@ -20,9 +20,13 @@ class RainbowBot(commands.Bot):
         self.yellow = discord.Colour.yellow()
         self.red = discord.Colour.red()
     
-    async def setup(self):
+    async def setup_hook(self):
         self.database = await aiosqlite.connect("rainbowbot.db")
         print("Connected to Database: rainbowbot.db")
+    
+    async def on_ready(self):
+        await self.setup_hook()
+        print(f'Logged in as {self.user}! (ID: {self.user.id})')
 
 bot = RainbowBot()
 handler = logging.FileHandler(filename="rainbowbot.log", encoding="utf-8", mode="w")
@@ -288,12 +292,7 @@ async def ping(ctx: commands.Context):
     if fetched_logging is not None:
         logging = bot.get_channel(fetched_logging)
         embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-        await logging.send(embed=embed)  
-
-@bot.event
-async def on_ready():
-    await bot.setup()
-    print(f'Logged in as {bot.user}! (ID: {bot.user.id})')
+        await logging.send(embed=embed)
 
 token = 'token'
 bot.run(token, log_handler=handler, log_level=logging.DEBUG)

@@ -1,12 +1,11 @@
 import discord
 import traceback
 from discord.ext import commands
-from RainbowBot import RainbowBot
 from datetime import datetime, timezone
 from typing import Optional
 
 class Profiles(commands.Cog):
-    def __init__(self, bot=RainbowBot()):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.db = bot.database
     

@@ -1,13 +1,10 @@
 import discord
 import traceback
 from discord.ext import commands, tasks
-from RainbowBot import RainbowBot
 from datetime import datetime, timedelta, timezone
 
-bot = RainbowBot()
-
 class BackgroundTasks(commands.Cog):
-    def __init__(self, bot=RainbowBot()):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.db = bot.database
 
@@ -191,8 +188,8 @@ class BackgroundTasks(commands.Cog):
         except Exception:
             print(traceback.format_exc())
 
-async def setup(bot=bot):
-	await bot.add_cog(BackgroundTasks(), override=True)
+async def setup(bot: commands.Bot):
+	await bot.add_cog(BackgroundTasks(bot=bot), override=True)
 
-async def teardown(bot=bot):
+async def teardown(bot: commands.Bot):
     await bot.remove_cog("BackgroundTasks")

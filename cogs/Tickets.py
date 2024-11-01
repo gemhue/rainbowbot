@@ -2,14 +2,11 @@ import discord
 import traceback
 from discord import app_commands
 from discord.ext import commands
-from RainbowBot import RainbowBot
 from datetime import datetime, timezone
 
-bot = RainbowBot()
-
 class TicketButtons(discord.ui.View):
-    def __init__(self, *, timeout = None):
-        super().__init__(timeout=timeout, bot=RainbowBot())
+    def __init__(self, *, timeout = None, bot: commands.Bot):
+        super().__init__(timeout=timeout, bot=bot)
         self.bot = bot
         self.db = bot.database
 
@@ -278,8 +275,8 @@ class TicketButtons(discord.ui.View):
             print(traceback.format_exc())
 
 class ThreadButton(discord.ui.View):
-    def __init__(self, *, timeout = None):
-        super().__init__(timeout=timeout, bot=RainbowBot())
+    def __init__(self, *, timeout = None, bot: commands.Bot):
+        super().__init__(timeout=timeout, bot=bot)
         self.bot = bot
     
     @discord.ui.button(label="Close Ticket", style=discord.ButtonStyle.blurple, emoji="🔒")
@@ -294,8 +291,8 @@ class ThreadButton(discord.ui.View):
             print(traceback.format_exc())
 
 class ConfirmButton(discord.ui.View):
-    def __init__(self, *, timeout = None):
-        super().__init__(timeout=timeout, bot=RainbowBot())
+    def __init__(self, *, timeout = None, bot: commands.Bot):
+        super().__init__(timeout=timeout, bot=bot)
         self.bot = bot
     
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
@@ -338,7 +335,7 @@ class ConfirmButton(discord.ui.View):
             print(traceback.format_exc())
 
 class Tickets(commands.Cog):
-    def __init__(self, bot=RainbowBot()):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.db = bot.database
     
@@ -390,8 +387,8 @@ class Tickets(commands.Cog):
             await ctx.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
-async def setup():
-    bot.add_view(TicketButtons())
+async def setup(bot: commands.Bot):
+    bot.add_view(TicketButtons(bot=bot))
     print("Setting up Cog: RSSFeeds.RSSFeeds")
 
 async def teardown():

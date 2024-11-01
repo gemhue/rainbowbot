@@ -3,7 +3,6 @@ import traceback
 from discord import app_commands, ChannelType
 from discord.ui import ChannelSelect
 from discord.ext import commands
-from RainbowBot import RainbowBot
 from typing import Any
 from datetime import datetime, timezone
 
@@ -41,7 +40,7 @@ class DropdownView(discord.ui.View):
         self.stop()
 
 class Purge(commands.Cog):
-    def __init__(self, bot=RainbowBot()):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.db = bot.database
 
