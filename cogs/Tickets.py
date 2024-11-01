@@ -5,8 +5,8 @@ from discord.ext import commands
 from datetime import datetime, timezone
 
 class TicketButtons(discord.ui.View):
-    def __init__(self, *, bot: commands.Bot):
-        super().__init__(timeout=None)
+    def __init__(self, *, timeout = None, bot: commands.Bot):
+        super().__init__(timeout=timeout)
         self.bot = bot
         self.db = bot.database
 
@@ -33,7 +33,7 @@ class TicketButtons(discord.ui.View):
                 content = f"-# {user.mention} {staff.mention}"
 
             embed = discord.Embed(color=self.bot.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket to start the **verification** process. Please await further instruction from {staff.mention}. Thank you!")
-            await thread.send(content=content, embed=embed, view=ThreadButton())
+            await thread.send(content=content, embed=embed, view=ThreadButton(bot=self.bot))
 
             embed = discord.Embed(color=self.bot.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -77,7 +77,7 @@ class TicketButtons(discord.ui.View):
                 content = f"-# {user.mention} {staff.mention}"
 
             embed = discord.Embed(color=self.bot.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket to ask a **question**. Please ask your question here and await a response from {staff.mention}. Thank you!")
-            await thread.send(content=content, embed=embed, view=ThreadButton())
+            await thread.send(content=content, embed=embed, view=ThreadButton(bot=self.bot))
 
             embed = discord.Embed(color=self.bot.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -121,7 +121,7 @@ class TicketButtons(discord.ui.View):
                 content = f"-# {user.mention} {staff.mention}"
 
             embed = discord.Embed(color=self.bot.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket to make a **suggestion**. Please provide your suggestion here and await a response from {staff.mention}. Thank you!")
-            await thread.send(content=content, embed=embed, view=ThreadButton())
+            await thread.send(content=content, embed=embed, view=ThreadButton(bot=self.bot))
 
             embed = discord.Embed(color=self.bot.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -165,7 +165,7 @@ class TicketButtons(discord.ui.View):
                 content = f"-# {user.mention} {staff.mention}"
 
             embed = discord.Embed(color=self.bot.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket to make a **complaint**. Please provide your complaint here and await a response from {staff.mention}. Thank you!")
-            await thread.send(content=content, embed=embed, view=ThreadButton())
+            await thread.send(content=content, embed=embed, view=ThreadButton(bot=self.bot))
 
             embed = discord.Embed(color=self.bot.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -209,7 +209,7 @@ class TicketButtons(discord.ui.View):
                 content = f"-# {user.mention} {staff.mention}"
 
             embed = discord.Embed(color=self.bot.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket to **report a member**. Please provide the details of the report here and await a response from {staff.mention}. Thank you!")
-            await thread.send(content=content, embed=embed, view=ThreadButton())
+            await thread.send(content=content, embed=embed, view=ThreadButton(bot=self.bot))
 
             embed = discord.Embed(color=self.bot.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -253,7 +253,7 @@ class TicketButtons(discord.ui.View):
                 content = f"-# {user.mention} {staff.mention}"
 
             embed = discord.Embed(color=self.bot.blurple, title="Ticket Created", description=f"Hello, {user.mention}! You have just successfully created a ticket. Please provide the reason that you created the ticket here and await a response from {staff.mention}. Thank you!")
-            await thread.send(content=content, embed=embed, view=ThreadButton())
+            await thread.send(content=content, embed=embed, view=ThreadButton(bot=self.bot))
 
             embed = discord.Embed(color=self.bot.green, title="Ticket Created", description=f"You can find your ticket here: {thread.mention}.")
             await interaction.response.send_message(embed=embed, ephemeral=True)
@@ -276,14 +276,14 @@ class TicketButtons(discord.ui.View):
 
 class ThreadButton(discord.ui.View):
     def __init__(self, *, timeout = None, bot: commands.Bot):
-        super().__init__(timeout=timeout, bot=bot)
+        super().__init__(timeout=timeout)
         self.bot = bot
     
     @discord.ui.button(label="Close Ticket", style=discord.ButtonStyle.blurple, emoji="🔒")
     async def close(self, interaction: discord.Interaction, button: discord.ui.Button):
         try:
             embed = discord.Embed(color=self.bot.blurple, title="Close Ticket", description="Are you sure you want to close this ticket? Please make sure that your issue is resolved before confirming.")
-            await interaction.response.send_message(embed=embed, view=ConfirmButton())
+            await interaction.response.send_message(embed=embed, view=ConfirmButton(bot=self.bot))
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
@@ -292,7 +292,7 @@ class ThreadButton(discord.ui.View):
 
 class ConfirmButton(discord.ui.View):
     def __init__(self, *, timeout = None, bot: commands.Bot):
-        super().__init__(timeout=timeout, bot=bot)
+        super().__init__(timeout=timeout)
         self.bot = bot
     
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
@@ -365,7 +365,7 @@ class Tickets(commands.Cog):
             await self.db.execute("UPDATE tickets SET role_id = ? WHERE guild_id = ?", (role_id, guild_id))
             await self.db.commit()
             embed = discord.Embed(color=self.bot.blurple, title="🎫 Create a Ticket", description="Creating a ticket will open a private thread where you will be able to communicate with the server's staff or moderation team. To create a ticket, choose a reason from the options below.")
-            await channel.send(embed=embed, view=TicketButtons())
+            await channel.send(embed=embed, view=TicketButtons(bot=self.bot))
 
             success = discord.Embed(color=self.bot.green, title="Success", description=f"The ticketing system has been set up!")
             success.add_field(name="Channel", value=f"{channel.mention}", inline=False)
