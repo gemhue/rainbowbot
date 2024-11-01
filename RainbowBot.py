@@ -292,7 +292,6 @@ async def ping(ctx: commands.Context):
 
 @bot.event
 async def on_ready(bot=bot):
-    await bot.setup_hook()
     print(f'Logged in as {bot.user}! (ID: {bot.user.id})')
 
 token = 'token'
