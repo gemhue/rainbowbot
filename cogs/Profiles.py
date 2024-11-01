@@ -142,7 +142,7 @@ class Profiles(commands.Cog):
             roles = []
             for role in member.roles:
                 if role.name != "@everyone":
-                    roles.append(role)
+                    roles.append(role.mention)
             if len(roles) > 0:
                 roles = ", ".join(roles)
                 profile.add_field(name="📝 Roles", value=f"{roles}", inline=False)
@@ -257,7 +257,7 @@ class Profiles(commands.Cog):
             roles = []
             for role in member.roles:
                 if role.name != "@everyone":
-                    roles.append(role)
+                    roles.append(role.mention)
             if len(roles) > 0:
                 roles = ", ".join(roles)
                 profile.add_field(name="📝 Roles", value=f"{roles}", inline=False)
