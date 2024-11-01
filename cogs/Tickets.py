@@ -265,6 +265,7 @@ class TicketButtons(discord.ui.View):
                 logging = guild.get_channel(fetched_logging)
                 now = datetime.now(tz=timezone.utc)
                 log = discord.Embed(color=self.bot.blurple, title="Ticket Log", description=f"{interaction.user.mention} has just created a ticket.", timestamp=now)
+                log.add_field(name="Ticket", value=f"{thread.mention}", inline=False)
                 log.add_field(name="Reason", value="Other", inline=False)
                 log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                 await logging.send(embed=log)
@@ -317,7 +318,7 @@ class ConfirmButton(discord.ui.View):
                 logging = guild.get_channel(fetched_logging)
                 now = datetime.now(tz=timezone.utc)
                 log = discord.Embed(color=self.bot.blurple, title="Ticket Log", description=f"{interaction.user.mention} has just closed a ticket.", timestamp=now)
-                log.add_field(name="Ticket", value=f"{thread.mention}")
+                log.add_field(name="Ticket", value=f"{thread.mention}", inline=False)
                 log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                 await logging.send(embed=log)
 
