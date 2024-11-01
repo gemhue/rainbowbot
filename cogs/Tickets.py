@@ -298,6 +298,7 @@ class ConfirmButton(discord.ui.View):
     
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         try:
 
             guild = interaction.guild
@@ -318,21 +319,22 @@ class ConfirmButton(discord.ui.View):
 
             else:
                 embed = discord.Embed(color=self.bot.red, title="Error", description="There was a problem closing the ticket. Please try again later.")
-                await interaction.response.send_message(embed=embed, ephemeral=True)
+                await interaction.followup.send(ephemeral=True, embed=embed)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.response.send_message(embed=error, ephemeral=True)
+            await interaction.followup.send(ephemeral=True, embed=error)
             print(traceback.format_exc())
     
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         try:
             await interaction.message.delete()
             
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.response.send_message(embed=error, ephemeral=True)
+            await interaction.followup.send(ephemeral=True, embed=error)
             print(traceback.format_exc())
 
 class Tickets(commands.Cog):
