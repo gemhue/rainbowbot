@@ -7,26 +7,27 @@ from datetime import datetime, timezone
 from cogs import AutoDelete, Awards, Embeds, Profiles, Purge, RSSFeeds, Tickets
 
 class YesOrNo(discord.ui.View):
-    def __init__(self, *, timeout = 180):
+    def __init__(self, *, timeout = 180, user: discord.Member):
         super().__init__(timeout=timeout)
+        self.user = user
         self.value = None
 
     @discord.ui.button(label="Yes", style=discord.ButtonStyle.green, emoji="👍")
     async def yes(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        if interaction.user == interaction.message.author:
+        if interaction.user == self.user:
             self.value = True
             self.stop()
 
     @discord.ui.button(label="No", style=discord.ButtonStyle.red, emoji="👎")
     async def no(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        if interaction.user == interaction.message.author:
+        if interaction.user == self.user:
             self.value = False
             self.stop()
 
 class ChannelSelect(discord.ui.ChannelSelect):
-    def __init__(self):
+    def __init__(self, *, user: discord.Member):
         super().__init__(
             channel_types=[ChannelType.text],
             placeholder="Select a channel...",
@@ -34,68 +35,72 @@ class ChannelSelect(discord.ui.ChannelSelect):
             max_values=1,
             row=1
         )
+        self.user = user
 
-    async def callback(self, interaction):
+    async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        if interaction.user == interaction.message.author:
+        if interaction.user == self.user:
             self.view.channel = self.values[0]
 
 class ChannelSelectView(discord.ui.View):
-    def __init__(self, *, timeout=180.0):
+    def __init__(self, *, timeout=180.0, user: discord.Member):
         super().__init__(timeout=timeout)
+        self.user = user
         self.value = None
-        self.add_item(ChannelSelect())
+        self.add_item(ChannelSelect(user=self.user))
 
     @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        if interaction.user == interaction.message.author:
+        if interaction.user == self.user:
             self.value = True
             self.stop()
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        if interaction.user == interaction.message.author:
+        if interaction.user == self.user:
             self.value = False
             self.stop()
 
 class RoleSelect(discord.ui.RoleSelect):
-    def __init__(self):
+    def __init__(self, *, user: discord.Member):
         super().__init__(
             placeholder="Select a role...",
             min_values=1,
             max_values=1,
             row=1
         )
+        self.user = user
     
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        if interaction.user == interaction.message.author:
+        if interaction.user == self.user:
             self.view.role = self.values[0]
 
 class RoleSelectView(discord.ui.View):
-    def __init__(self, *, timeout=180.0):
+    def __init__(self, *, timeout=180.0, user: discord.Member):
         super().__init__(timeout=timeout)
+        self.user = user
         self.value = None
-        self.add_item(RoleSelect())
+        self.add_item(RoleSelect(user=self.user))
 
     @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        if interaction.user == interaction.message.author:
+        if interaction.user == self.user:
             self.value = True
             self.stop()
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        if interaction.user == interaction.message.author:
+        if interaction.user == self.user:
             self.value = False
             self.stop()
 
 class InactiveMonths(discord.ui.Select):
-    def __init__(self):
+    def __init__(self, *, user: discord.Member):
         options = [
             discord.SelectOption(label="One Month", value="1"),
             discord.SelectOption(label="Two Months", value="2"),
@@ -117,34 +122,39 @@ class InactiveMonths(discord.ui.Select):
             options=options,
             row=1
         )
+        self.user = user
 
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        if interaction.user == interaction.message.author:
+        if interaction.user == self.user:
             self.view.months = self.values[0]
 
 class InactiveMonthsView(discord.ui.View):
-    def __init__(self, *, timeout=180.0):
+    def __init__(self, *, timeout=180.0, user: discord.Member):
         super().__init__(timeout=timeout)
+        self.user = user
         self.value = None
-        self.add_item(InactiveMonths())
+        self.add_item(InactiveMonths(user=self.user))
 
     @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        self.value = True
-        self.stop()
+        if interaction.user == self.user:
+            self.value = True
+            self.stop()
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        self.value = False
-        self.stop()
+        if interaction.user == self.user:
+            self.value = False
+            self.stop()
 
 class CogButtons(discord.ui.View):
-    def __init__(self, *, timeout = 180, bot: commands.Bot):
+    def __init__(self, *, timeout = 180, bot: commands.Bot, user: discord.Member):
         super().__init__(timeout=timeout)
         self.bot = bot
+        self.user = user
         self.value = False
         self.guild_cogs = {}
 
@@ -154,8 +164,8 @@ class CogButtons(discord.ui.View):
         message = interaction.message
         guild = interaction.guild
         try:
-            if interaction.user == message.author:
-                await self.bot.add_cog(AutoDelete.AutoDelete(), override=True, guild=guild)
+            if interaction.user == self.user:
+                await self.bot.add_cog(AutoDelete.AutoDelete(bot=self.bot), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -178,8 +188,8 @@ class CogButtons(discord.ui.View):
         message = interaction.message
         guild = interaction.guild
         try:
-            if interaction.user == message.author:
-                await self.bot.add_cog(Awards.Awards(), override=True, guild=guild)
+            if interaction.user == self.user:
+                await self.bot.add_cog(Awards.Awards(bot=self.bot), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -202,8 +212,8 @@ class CogButtons(discord.ui.View):
         message = interaction.message
         guild = interaction.guild
         try:
-            if interaction.user == message.author:
-                await self.bot.add_cog(Embeds.Embeds(), override=True, guild=guild)
+            if interaction.user == self.user:
+                await self.bot.add_cog(Embeds.Embeds(bot=self.bot), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -226,8 +236,8 @@ class CogButtons(discord.ui.View):
         message = interaction.message
         guild = interaction.guild
         try:
-            if interaction.user == message.author:
-                await self.bot.add_cog(Profiles.Profiles(), override=True, guild=guild)
+            if interaction.user == self.user:
+                await self.bot.add_cog(Profiles.Profiles(bot=self.bot), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -250,8 +260,8 @@ class CogButtons(discord.ui.View):
         message = interaction.message
         guild = interaction.guild
         try:
-            if interaction.user == message.author:
-                await self.bot.add_cog(Purge.Purge(), override=True, guild=guild)
+            if interaction.user == self.user:
+                await self.bot.add_cog(Purge.Purge(bot=self.bot), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -274,8 +284,8 @@ class CogButtons(discord.ui.View):
         message = interaction.message
         guild = interaction.guild
         try:
-            if interaction.user == message.author:
-                await self.bot.add_cog(RSSFeeds.RSSFeeds(), override=True, guild=guild)
+            if interaction.user == self.user:
+                await self.bot.add_cog(RSSFeeds.RSSFeeds(bot=self.bot), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -298,8 +308,8 @@ class CogButtons(discord.ui.View):
         message = interaction.message
         guild = interaction.guild
         try:
-            if interaction.user == message.author:
-                await self.bot.add_cog(Tickets.Tickets(), override=True, guild=guild)
+            if interaction.user == self.user:
+                await self.bot.add_cog(Tickets.Tickets(bot=self.bot), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -321,7 +331,7 @@ class CogButtons(discord.ui.View):
         await interaction.response.defer()
         message = interaction.message
         try:
-            if interaction.user == message.author:
+            if interaction.user == self.user:
                 self.value = True
                 self.stop()
         except Exception as e:
@@ -330,9 +340,10 @@ class CogButtons(discord.ui.View):
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
 class RemoveButtons(discord.ui.View):
-    def __init__(self, *, timeout = 180, bot: commands.Bot):
+    def __init__(self, *, timeout = 180, bot: commands.Bot, user: discord.Member):
         super().__init__(timeout=timeout)
         self.bot = bot
+        self.user = user
         self.value = False
         self.guild_cogs = {}
 
@@ -342,8 +353,8 @@ class RemoveButtons(discord.ui.View):
         message = interaction.message
         guild = interaction.guild
         try:
-            if interaction.user == message.author:
-                await self.bot.remove_cog(AutoDelete.AutoDelete(self.bot), guild=guild)
+            if interaction.user == self.user:
+                await self.bot.remove_cog(AutoDelete.AutoDelete(bot=self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -366,8 +377,8 @@ class RemoveButtons(discord.ui.View):
         message = interaction.message
         guild = interaction.guild
         try:
-            if interaction.user == message.author:
-                await self.bot.remove_cog(Awards.Awards(self.bot), guild=guild)
+            if interaction.user == self.user:
+                await self.bot.remove_cog(Awards.Awards(bot=self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -390,8 +401,8 @@ class RemoveButtons(discord.ui.View):
         message = interaction.message
         guild = interaction.guild
         try:
-            if interaction.user == message.author:
-                await self.bot.remove_cog(Embeds.Embeds(self.bot), guild=guild)
+            if interaction.user == self.user:
+                await self.bot.remove_cog(Embeds.Embeds(bot=self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -414,8 +425,8 @@ class RemoveButtons(discord.ui.View):
         message = interaction.message
         guild = interaction.guild
         try:
-            if interaction.user == message.author:
-                await self.bot.remove_cog(Profiles.Profiles(self.bot), guild=guild)
+            if interaction.user == self.user:
+                await self.bot.remove_cog(Profiles.Profiles(bot=self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -438,8 +449,8 @@ class RemoveButtons(discord.ui.View):
         message = interaction.message
         guild = interaction.guild
         try:
-            if interaction.user == message.author:
-                await self.bot.remove_cog(Purge.Purge(self.bot), guild=guild)
+            if interaction.user == self.user:
+                await self.bot.remove_cog(Purge.Purge(bot=self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -462,8 +473,8 @@ class RemoveButtons(discord.ui.View):
         message = interaction.message
         guild = interaction.guild
         try:
-            if interaction.user == message.author:
-                await self.bot.remove_cog(RSSFeeds.RSSFeeds(self.bot), guild=guild)
+            if interaction.user == self.user:
+                await self.bot.remove_cog(RSSFeeds.RSSFeeds(bot=self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -486,8 +497,8 @@ class RemoveButtons(discord.ui.View):
         message = interaction.message
         guild = interaction.guild
         try:
-            if interaction.user == message.author:
-                await self.bot.remove_cog(Tickets.Tickets(self.bot), guild=guild)
+            if interaction.user == self.user:
+                await self.bot.remove_cog(Tickets.Tickets(bot=self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -509,7 +520,7 @@ class RemoveButtons(discord.ui.View):
         await interaction.response.defer()
         message = interaction.message
         try:
-            if interaction.user == message.author:
+            if interaction.user == self.user:
                 self.value = True
                 self.stop()
         except Exception as e:
@@ -544,7 +555,7 @@ class Start(commands.Cog):
                 title="Bot Startup",
                 description="Would you like to start by choosing channels for bot logging messages, member welcome messages, or member goodbye messages?"
             )
-            channels_yn = YesOrNo()
+            channels_yn = YesOrNo(user=author)
             response = await ctx.send(content=None, embed=start, view=channels_yn)
             await channels_yn.wait()
 
@@ -557,7 +568,7 @@ class Start(commands.Cog):
                     title="Logging Channel",
                     description="Would you like to select a channel to send logging messages?\nChoose `Cancel` to skip to the next option."
                 )
-                logging_select = ChannelSelectView()
+                logging_select = ChannelSelectView(user=author)
                 response = await response.edit(content=None, embed=ask_logging, view=logging_select)
                 await logging_select.wait()
 
@@ -590,7 +601,7 @@ class Start(commands.Cog):
                     title="Welcome Channel",
                     description="Would you like to select a channel to send welcome messages?\nChoose `Cancel` to skip to the next option."
                 )
-                welcome_select = ChannelSelectView()
+                welcome_select = ChannelSelectView(user=author)
                 response = await response.edit(content=None, embed=ask_welcome, view=welcome_select)
                 await welcome_select.wait()
 
@@ -623,7 +634,7 @@ class Start(commands.Cog):
                     title="Goodbye Channel",
                     description="Would you like to select a channel to send goodbye messages?\nChoose `Cancel` to skip to the next option."
                 )
-                goodbye_select = ChannelSelectView()
+                goodbye_select = ChannelSelectView(user=author)
                 response = await response.edit(content=None, embed=ask_goodbye, view=goodbye_select)
                 await goodbye_select.wait()
 
@@ -656,7 +667,7 @@ class Start(commands.Cog):
                 title="Bot Startup",
                 description="Would you like to choose join roles?"
             )
-            join_yn = YesOrNo()
+            join_yn = YesOrNo(user=author)
             response = await response.edit(content=None, embed=start, view=join_yn)
             await join_yn.wait()
 
@@ -669,7 +680,7 @@ class Start(commands.Cog):
                     title="Join Role",
                     description="Would you like to select a role to give members on join?\nChoose `Cancel` to skip to the next option."
                 )
-                join_select = RoleSelectView()
+                join_select = RoleSelectView(user=author)
                 response = await response.edit(content=None, embed=ask_join_role, view=join_select)
                 await join_select.wait()
 
@@ -702,7 +713,7 @@ class Start(commands.Cog):
                     title="Bot Role",
                     description="Would you like to select a role to give bots on join?\nChoose `Cancel` to skip to the next option."
                 )
-                bot_select = RoleSelectView()
+                bot_select = RoleSelectView(user=author)
                 response = await response.edit(content=None, embed=ask_bot_role, view=bot_select)
                 await bot_select.wait()
 
@@ -735,7 +746,7 @@ class Start(commands.Cog):
                 title="Bot Startup",
                 description="Would you like to choose activity roles?"
             )
-            activity_yn = YesOrNo()
+            activity_yn = YesOrNo(user=author)
             response = await response.edit(content=None, embed=start, view=activity_yn)
             await activity_yn.wait()
 
@@ -748,7 +759,7 @@ class Start(commands.Cog):
                     title="Active Role",
                     description="Would you like to select a role to give active members?\nChoose `Cancel` to skip to the next option."
                 )
-                active_select = RoleSelectView()
+                active_select = RoleSelectView(user=author)
                 response = await response.edit(content=None, embed=ask_active_role, view=active_select)
                 await active_select.wait()
 
@@ -781,7 +792,7 @@ class Start(commands.Cog):
                     title="Inactive Role",
                     description="Would you like to select a role to give to inactive members?\nChoose `Cancel` to skip to the next option."
                 )
-                inactive_select = RoleSelectView()
+                inactive_select = RoleSelectView(user=author)
                 response = await response.edit(content=None, embed=ask_inactive_role, view=inactive_select)
                 await inactive_select.wait()
 
@@ -814,7 +825,7 @@ class Start(commands.Cog):
                     title="Inactive Months",
                     description="How many months should a member be inactive before recieving the inactive role?\nChoose `Cancel` to skip to the next option."
                 )
-                months_select = InactiveMonthsView()
+                months_select = InactiveMonthsView(user=author)
                 response = await response.edit(content=None, embed=ask_inactive_months, view=months_select)
                 await months_select.wait()
 
@@ -854,7 +865,7 @@ class Start(commands.Cog):
             ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
             ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
             ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
-            cog_buttons = CogButtons()
+            cog_buttons = CogButtons(bot=self.bot, user=author)
             response = await response.edit(content=None, embed=ask_cogs, view=cog_buttons)
             await cog_buttons.wait()
 
@@ -928,7 +939,7 @@ class Start(commands.Cog):
             ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
             ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
             ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
-            cog_buttons = CogButtons()
+            cog_buttons = CogButtons(bot=self.bot, user=author)
             response = await ctx.send(embed=ask_cogs, view=cog_buttons)
             await cog_buttons.wait()
 
@@ -1002,7 +1013,7 @@ class Start(commands.Cog):
             ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
             ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
             ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
-            cog_buttons = RemoveButtons()
+            cog_buttons = RemoveButtons(bot=self.bot, user=author)
             response = await ctx.send(embed=ask_cogs, view=cog_buttons)
             await cog_buttons.wait()
 
