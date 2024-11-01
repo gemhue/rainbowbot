@@ -158,7 +158,7 @@ class CogButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == message.author:
-                await self.bot.add_cog(AutoDelete.AutoDelete(self.bot), override=True, guild=guild)
+                await self.bot.add_cog(AutoDelete.AutoDelete(), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -182,7 +182,7 @@ class CogButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == message.author:
-                await self.bot.add_cog(Awards.Awards(self.bot), override=True, guild=guild)
+                await self.bot.add_cog(Awards.Awards(), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -206,7 +206,7 @@ class CogButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == message.author:
-                await self.bot.add_cog(Embeds.Embeds(self.bot), override=True, guild=guild)
+                await self.bot.add_cog(Embeds.Embeds(), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -230,7 +230,7 @@ class CogButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == message.author:
-                await self.bot.add_cog(Profiles.Profiles(self.bot), override=True, guild=guild)
+                await self.bot.add_cog(Profiles.Profiles(), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -254,7 +254,7 @@ class CogButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == message.author:
-                await self.bot.add_cog(Purge.Purge(self.bot), override=True, guild=guild)
+                await self.bot.add_cog(Purge.Purge(), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -278,7 +278,7 @@ class CogButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == message.author:
-                await self.bot.add_cog(RSSFeeds.RSSFeeds(self.bot), override=True, guild=guild)
+                await self.bot.add_cog(RSSFeeds.RSSFeeds(), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -302,7 +302,7 @@ class CogButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == message.author:
-                await self.bot.add_cog(Tickets.Tickets(self.bot), override=True, guild=guild)
+                await self.bot.add_cog(Tickets.Tickets(), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]

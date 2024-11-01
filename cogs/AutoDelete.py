@@ -117,8 +117,10 @@ class AutoDelete(commands.Cog):
             await ctx.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
+    # Check for messages to AutoDelete every 30 minutes
     @tasks.loop(minutes=30.0)
     async def autodeleter(self):
+        try:
             ids = []
             cur = await self.db.execute("SELECT channel_id FROM autodelete")
             rows = await cur.fetchall()
@@ -147,6 +149,8 @@ class AutoDelete(commands.Cog):
                     for message in messages:
                         if not message.pinned:
                             await message.delete()
+        except Exception:
+            traceback.print_exc()
 
 async def setup():
     print("Setting up Cog: AutoDelete.AutoDelete")
