@@ -3,6 +3,7 @@ import aiosqlite
 import logging
 import traceback
 import os
+from discord import app_commands
 from discord.ext import commands
 from datetime import datetime, timezone
 
@@ -15,6 +16,7 @@ class RainbowBot(commands.Bot):
             activity = discord.Activity(type=discord.ActivityType.listening, name="rb!help"),
             status = discord.Status.online
         )
+        self.tree = app_commands.CommandTree(self)
         self.blurple = discord.Colour.blurple()
         self.green = discord.Colour.green()
         self.yellow = discord.Colour.yellow()
@@ -25,9 +27,10 @@ class RainbowBot(commands.Bot):
         print("Connected to Database: rainbowbot.db")
 
 bot = RainbowBot()
+tree = bot.tree
 handler = logging.FileHandler(filename="rainbowbot.log", encoding="utf-8", mode="w")
 
-@bot.command(name="sync", aliases=["synctree"], hidden=True)
+@bot.command(name="sync", aliases=["sync_tree"], hidden=True)
 @commands.is_owner()
 async def sync(ctx: commands.Context, where: str):
     """(Bot Owner Only) Syncs the local command tree.
@@ -55,7 +58,7 @@ async def sync(ctx: commands.Context, where: str):
         embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
         await logging.send(embed=embed)
 
-@bot.command(name="clear", aliases=["cleartree"], hidden=True)
+@bot.command(name="clear", aliases=["clear_tree"], hidden=True)
 @commands.is_owner()
 async def clear(ctx: commands.Context, where: str):
     """(Bot Owner Only) Clears the local command tree.
@@ -269,6 +272,7 @@ async def reload(ctx: commands.Context, extension: str):
         await logging.send(embed=embed)  
 
 @bot.command(name="ping", aliases=["latency"])
+@tree.command
 async def ping(ctx: commands.Context):
     """Retrieve the bot's current latency.
     """

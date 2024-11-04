@@ -16,10 +16,9 @@ class AutoDelete(commands.Cog):
     def cog_unload(self):
         self.autodeleter.cancel()
     
-    @commands.hybrid_group(name="autodelete", fallback="set")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="start")
     @app_commands.checks.has_permissions(administrator=True)
-    async def autodelete(self, ctx: commands.Context, amount: int, interval: Literal["Minutes", "Hours", "Days"]):
+    async def start(self, ctx: commands.Context, amount: int, interval: Literal["Minutes", "Hours", "Days"]):
         """(Admin Only) Sets the messages in the current channel to be autodeleted.
 
         Parameters
@@ -70,11 +69,10 @@ class AutoDelete(commands.Cog):
             await ctx.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
-    @autodelete.command(name="cancel")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="cancel")
     @app_commands.checks.has_permissions(administrator=True)
     async def cancel(self, ctx: commands.Context):
-        """(Admin Only) Cancels the autodelete in the current channel.
+        """(Admin Only) Cancels the autodelete set for the current channel.
         """
         await ctx.defer(ephemeral=True)
         try:
@@ -152,7 +150,7 @@ class AutoDelete(commands.Cog):
             traceback.print_exc()
 
 async def setup(bot: commands.Bot):
-    print("Setting up Cog: AutoDelete.AutoDelete")
+    print("Setting up Cog: autodelete.AutoDelete")
 
 async def teardown(bot: commands.Bot):
-    print("Tearing down Cog: AutoDelete.AutoDelete")
+    print("Tearing down Cog: autodelete.AutoDelete")
