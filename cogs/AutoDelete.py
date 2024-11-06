@@ -5,7 +5,7 @@ from discord.ext import commands, tasks
 from datetime import datetime, timedelta, timezone
 from typing import Literal
 
-class AutoDelete(commands.Cog):
+class AutoDelete(commands.GroupCog, group_name="autodelete"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.db = bot.database

@@ -5,15 +5,14 @@ from discord.ext import commands
 from typing import Optional
 from datetime import datetime, timezone
 
-class Embeds(commands.Cog):
+class Embeds(commands.GroupCog, group_name = "embeds"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.db = bot.database
     
-    @commands.hybrid_group(name="embed", fallback="send")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="send")
     @app_commands.checks.has_permissions(administrator=True)
-    async def embed(self, ctx: commands.Context, message_content: Optional[str], embed_color: Optional[str], embed_title: Optional[str], embed_url: Optional[str], embed_description: Optional[str]):
+    async def send(self, ctx: commands.Context, message_content: Optional[str], embed_color: Optional[str], embed_title: Optional[str], embed_url: Optional[str], embed_description: Optional[str]):
         """(Admin Only) Run this command to send an embed to the current channel.
 
         Parameters
@@ -49,8 +48,7 @@ class Embeds(commands.Cog):
             await ctx.send(embed=error, delete_after=30.0)
             print(traceback.format_exc())
     
-    @embed.command(name="edit")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="edit")
     @app_commands.checks.has_permissions(administrator=True)
     async def edit(self, ctx: commands.Context, message_url: str, message_content: Optional[str], embed_color: Optional[str], embed_title: Optional[str], embed_url: Optional[str], embed_description: Optional[str]):
         """(Admin Only) Run this command to edit the embed of a given message URL.
@@ -116,8 +114,7 @@ class Embeds(commands.Cog):
             await ctx.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
-    @embed.command(name="set_image")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="set_image")
     @app_commands.checks.has_permissions(administrator=True)
     async def set_image(self, ctx: commands.Context, message_url: str, image_url: str):
         """(Admin Only) Run this command to set an embed's image.
@@ -147,8 +144,7 @@ class Embeds(commands.Cog):
             await ctx.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
-    @embed.command(name="remove_image")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="remove_image")
     @app_commands.checks.has_permissions(administrator=True)
     async def remove_image(self, ctx: commands.Context, message_url: str):
         """(Admin Only) Run this command to remove an embed's image.
@@ -176,8 +172,7 @@ class Embeds(commands.Cog):
             await ctx.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
-    @embed.command(name="set_thumbnail")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="set_thumbnail")
     @app_commands.checks.has_permissions(administrator=True)
     async def set_thumbnail(self, ctx: commands.Context, message_url: str, thumbnail_url: str):
         """(Admin Only) Run this command to set an embed's thumbnail.
@@ -207,8 +202,7 @@ class Embeds(commands.Cog):
             await ctx.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
-    @embed.command(name="remove_thumbnail")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="remove_thumbnail")
     @app_commands.checks.has_permissions(administrator=True)
     async def remove_thumbnail(self, ctx: commands.Context, message_url: str):
         """(Admin Only) Run this command to remove an embed's thumbnail.
@@ -236,8 +230,7 @@ class Embeds(commands.Cog):
             await ctx.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
-    @embed.command(name="add_field")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="add_field")
     @app_commands.checks.has_permissions(administrator=True)
     async def add_field(self, ctx: commands.Context, message_url: str, name: str, value: str, inline: bool):
         """(Admin Only) Run this command to add a field to an embed.
@@ -271,8 +264,7 @@ class Embeds(commands.Cog):
             await ctx.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
-    @embed.command(name="edit_field")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="edit_field")
     @app_commands.checks.has_permissions(administrator=True)
     async def edit_field(self, ctx: commands.Context, message_url: str, index: int, name: str, value: str, inline: bool):
         """(Admin Only) Run this command to edit a field of an embed by its index.
@@ -308,8 +300,7 @@ class Embeds(commands.Cog):
             await ctx.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
-    @embed.command(name="insert_field")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="insert_field")
     @app_commands.checks.has_permissions(administrator=True)
     async def insert_field(self, ctx: commands.Context, message_url: str, index: int, name: str, value: str, inline: bool):
         """(Admin Only) Run this command to insert an embed field at an index.
@@ -344,8 +335,7 @@ class Embeds(commands.Cog):
             await ctx.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
-    @embed.command(name="remove_field")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="remove_field")
     @app_commands.checks.has_permissions(administrator=True)
     async def remove_field(self, ctx: commands.Context, message_url: str, index: int):
         """(Admin Only) Run this command to remove a field from an embed by its index.

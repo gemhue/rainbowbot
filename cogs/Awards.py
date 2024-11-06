@@ -380,7 +380,7 @@ class AwardReaction(discord.ui.Select):
         if interaction.user == self.user:
             self.toggle = self.values[0]
 
-class Awards(commands.Cog):
+class Awards(commands.GroupCog, group_name = "awards"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.db = bot.database
@@ -490,7 +490,7 @@ class Awards(commands.Cog):
             await response.delete(delay=5.0)
             print(traceback.format_exc())
 
-    @commands.Cog.listener(name="on_reaction_add")
+    @commands.GroupCog.listener(name="on_reaction_add")
     async def on_reaction_add(self, reaction: discord.Reaction, user: discord.Member):
         try:
             message = reaction.message
@@ -556,7 +556,7 @@ class Awards(commands.Cog):
         except Exception:
             traceback.print_exc()
 
-    @commands.Cog.listener(name="on_reaction_remove")
+    @commands.GroupCog.listener(name="on_reaction_remove")
     async def on_reaction_remove(self, reaction: discord.Reaction, user: discord.Member):
         try:
             message = reaction.message
