@@ -98,7 +98,8 @@ async def allcogs(x):
         if x == "cogs":
             cogs.append(f"cogs.{file}")
         elif x == "modules":
-            cogs.append(f"{file}.{file}")
+            title = file.title()
+            cogs.append(f"{file}.{title}")
         elif x == "names":
             cogs.append(file)
         elif x == "names_lower":
