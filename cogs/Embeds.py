@@ -12,7 +12,7 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
     
     @app_commands.command(name="send")
     @app_commands.checks.has_permissions(administrator=True)
-    async def send(self, ctx: commands.Context, message_content: Optional[str], embed_color: Optional[str], embed_title: Optional[str], embed_url: Optional[str], embed_description: Optional[str]):
+    async def send(self, interaction: discord.Interaction, message_content: Optional[str], embed_color: Optional[str], embed_title: Optional[str], embed_url: Optional[str], embed_description: Optional[str]):
         """(Admin Only) Run this command to send an embed to the current channel.
 
         Parameters
@@ -28,7 +28,7 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
         embed_description : str, optional
             Provide the embed's description.
         """
-        await ctx.defer()
+        await interaction.response.defer()
         try:
 
             if embed_color is not None:
@@ -37,20 +37,20 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
                 color = self.bot.blurple
             time = datetime.now(tz=timezone.utc)
             embed = discord.Embed(color=color, title=embed_title, url=embed_url, description=embed_description, timestamp=time)
-            author = ctx.author
-            name = author.display_name
-            icon = author.display_avatar
+            user = interaction.user
+            name = user.display_name
+            icon = user.display_avatar
             embed.set_author(name=name, icon_url=icon)
-            await ctx.send(content=message_content, embed=embed)
+            await interaction.followup.send(content=message_content, embed=embed)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, delete_after=30.0)
+            await interaction.followup.send(embed=error)
             print(traceback.format_exc())
     
     @app_commands.command(name="edit")
     @app_commands.checks.has_permissions(administrator=True)
-    async def edit(self, ctx: commands.Context, message_url: str, message_content: Optional[str], embed_color: Optional[str], embed_title: Optional[str], embed_url: Optional[str], embed_description: Optional[str]):
+    async def edit(self, interaction: discord.Interaction, message_url: str, message_content: Optional[str], embed_color: Optional[str], embed_title: Optional[str], embed_url: Optional[str], embed_description: Optional[str]):
         """(Admin Only) Run this command to edit the embed of a given message URL.
 
         Parameters
@@ -68,10 +68,11 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
         embed_description : str, optional
             Provide the embed's new description.
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
         try:
 
             conv = commands.MessageConverter()
+            ctx = await self.bot.get_context(interaction)
             message = await conv.convert(ctx, message_url)
             oldembed = message.embeds[0]
             if message_content is None:
@@ -100,23 +101,23 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
             embed.set_author(name=name, icon_url=icon)
             timenow = datetime.now(tz=timezone.utc)
             time = discord.utils.format_dt(timenow, style="D")
-            editor = ctx.author
+            editor = interaction.user
             editor_name = editor.display_name
             editor_icon = editor.display_avatar
             embed.set_footer(text=f"Edited at {time} by {editor_name}", icon_url=editor_icon)
             await message.edit(content=content, embed=embed)
             
             success = discord.Embed(color=self.bot.green, title="Success", description="The embed has been successfully edited.")
-            await ctx.send(embed=success, ephemeral=True)
+            await interaction.followup.send(embed=success, ephemeral=True)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
     @app_commands.command(name="set_image")
     @app_commands.checks.has_permissions(administrator=True)
-    async def set_image(self, ctx: commands.Context, message_url: str, image_url: str):
+    async def set_image(self, interaction: discord.Interaction, message_url: str, image_url: str):
         """(Admin Only) Run this command to set an embed's image.
 
         Parameters
@@ -126,10 +127,11 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
         image_url : str
             Provide the URL of the image.
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
         try:
 
             conv = commands.MessageConverter()
+            ctx = await self.bot.get_context(interaction)
             message = await conv.convert(ctx, message_url)
             content = message.content
             embed = message.embeds[0]
@@ -137,16 +139,16 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
             await message.edit(content=content, embed=embed)
 
             success = discord.Embed(color=self.bot.green, title="Success", description="The image has been successfully added to the embed.")
-            await ctx.send(embed=success, ephemeral=True)
+            await interaction.followup.send(embed=success, ephemeral=True)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
     @app_commands.command(name="remove_image")
     @app_commands.checks.has_permissions(administrator=True)
-    async def remove_image(self, ctx: commands.Context, message_url: str):
+    async def remove_image(self, interaction: discord.Interaction, message_url: str):
         """(Admin Only) Run this command to remove an embed's image.
 
         Parameters
@@ -154,10 +156,11 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
         message_url : str
             Provide the URL of the message containing the embed.
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
         try:
 
             conv = commands.MessageConverter()
+            ctx = await self.bot.get_context(interaction)
             message = await conv.convert(ctx, message_url)
             content = message.content
             embed = message.embeds[0]
@@ -165,16 +168,16 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
             await message.edit(content=content, embed=embed)
 
             success = discord.Embed(color=self.bot.green, title="Success", description="The image has been successfully removed from the embed.")
-            await ctx.send(embed=success, ephemeral=True)
+            await interaction.followup.send(embed=success, ephemeral=True)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
     @app_commands.command(name="set_thumbnail")
     @app_commands.checks.has_permissions(administrator=True)
-    async def set_thumbnail(self, ctx: commands.Context, message_url: str, thumbnail_url: str):
+    async def set_thumbnail(self, interaction: discord.Interaction, message_url: str, thumbnail_url: str):
         """(Admin Only) Run this command to set an embed's thumbnail.
 
         Parameters
@@ -184,10 +187,11 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
         thumbnail_url : str
             Provide the URL of the thumbnail.
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
         try:
 
             conv = commands.MessageConverter()
+            ctx = await self.bot.get_context(interaction)
             message = await conv.convert(ctx, message_url)
             content = message.content
             embed = message.embeds[0]
@@ -195,16 +199,16 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
             await message.edit(content=content, embed=embed)
 
             success = discord.Embed(color=self.bot.green, title="Success", description="The thumbnail has been successfully added to the embed.")
-            await ctx.send(embed=success, ephemeral=True)
+            await interaction.followup.send(embed=success, ephemeral=True)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
     @app_commands.command(name="remove_thumbnail")
     @app_commands.checks.has_permissions(administrator=True)
-    async def remove_thumbnail(self, ctx: commands.Context, message_url: str):
+    async def remove_thumbnail(self, interaction: discord.Interaction, message_url: str):
         """(Admin Only) Run this command to remove an embed's thumbnail.
 
         Parameters
@@ -212,10 +216,11 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
         message_url : str
             Provide the URL of the message containing the embed.
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
         try:
 
             conv = commands.MessageConverter()
+            ctx = await self.bot.get_context(interaction)
             message = await conv.convert(ctx, message_url)
             content = message.content
             embed = message.embeds[0]
@@ -223,16 +228,16 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
             await message.edit(content=content, embed=embed)
 
             success = discord.Embed(color=self.bot.green, title="Success", description="The thumbnail has been successfully removed from the embed.")
-            await ctx.send(embed=success, ephemeral=True)
+            await interaction.followup.send(embed=success, ephemeral=True)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
     @app_commands.command(name="add_field")
     @app_commands.checks.has_permissions(administrator=True)
-    async def add_field(self, ctx: commands.Context, message_url: str, name: str, value: str, inline: bool):
+    async def add_field(self, interaction: discord.Interaction, message_url: str, name: str, value: str, inline: bool):
         """(Admin Only) Run this command to add a field to an embed.
 
         Parameters
@@ -246,10 +251,11 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
         inline : bool
             Provide whether the field should be inline.
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
         try:
 
             conv = commands.MessageConverter()
+            ctx = await self.bot.get_context(interaction)
             message = await conv.convert(ctx, message_url)
             content = message.content
             embed = message.embeds[0]
@@ -257,16 +263,16 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
             await message.edit(content=content, embed=embed)
 
             success = discord.Embed(color=self.bot.green, title="Success", description="The embed has been successfully edited.")
-            await ctx.send(embed=success, ephemeral=True)
+            await interaction.followup.send(embed=success, ephemeral=True)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
     @app_commands.command(name="edit_field")
     @app_commands.checks.has_permissions(administrator=True)
-    async def edit_field(self, ctx: commands.Context, message_url: str, index: int, name: str, value: str, inline: bool):
+    async def edit_field(self, interaction: discord.Interaction, message_url: str, index: int, name: str, value: str, inline: bool):
         """(Admin Only) Run this command to edit a field of an embed by its index.
 
         Parameters
@@ -282,10 +288,11 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
         inline : bool
             Provide whether the edited field should be inline.
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
         try:
 
             conv = commands.MessageConverter()
+            ctx = await self.bot.get_context(interaction)
             message = await conv.convert(ctx, message_url)
             content = message.content
             embed = message.embeds[0]
@@ -293,16 +300,16 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
             await message.edit(content=content, embed=embed)
 
             success = discord.Embed(color=self.bot.green, title="Success", description="The embed field has been successfully edited.")
-            await ctx.send(embed=success, ephemeral=True)
+            await interaction.followup.send(embed=success, ephemeral=True)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
     @app_commands.command(name="insert_field")
     @app_commands.checks.has_permissions(administrator=True)
-    async def insert_field(self, ctx: commands.Context, message_url: str, index: int, name: str, value: str, inline: bool):
+    async def insert_field(self, interaction: discord.Interaction, message_url: str, index: int, name: str, value: str, inline: bool):
         """(Admin Only) Run this command to insert an embed field at an index.
 
         Parameters
@@ -318,9 +325,11 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
         inline : bool
             Provide whether the inserted field should be inline.
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
         try:
+
             conv = commands.MessageConverter()
+            ctx = await self.bot.get_context(interaction)
             message = await conv.convert(ctx, message_url)
             content = message.content
             embed = message.embeds[0]
@@ -328,16 +337,16 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
             await message.edit(content=content, embed=embed)
 
             success = discord.Embed(color=self.bot.green, title="Success", description="The embed field has been successfully inserted.")
-            await ctx.send(embed=success, ephemeral=True)
+            await interaction.followup.send(embed=success, ephemeral=True)
             
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
     @app_commands.command(name="remove_field")
     @app_commands.checks.has_permissions(administrator=True)
-    async def remove_field(self, ctx: commands.Context, message_url: str, index: int):
+    async def remove_field(self, interaction: discord.Interaction, message_url: str, index: int):
         """(Admin Only) Run this command to remove a field from an embed by its index.
 
         Parameters
@@ -347,10 +356,11 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
         index : str
             Provide the index of the field to be removed.
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
         try:
 
             conv = commands.MessageConverter()
+            ctx = await self.bot.get_context(interaction)
             message = await conv.convert(ctx, message_url)
             content = message.content
             embed = message.embeds[0]
@@ -358,11 +368,11 @@ class Embeds(commands.GroupCog, group_name = "embeds"):
             await message.edit(content=content, embed=embed)
 
             success = discord.Embed(color=self.bot.green, title="Success", description="The embed field has been successfully removed.")
-            await ctx.send(embed=success, ephemeral=True)
+            await interaction.followup.send(embed=success, ephemeral=True)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
 async def setup(bot: commands.Bot):
