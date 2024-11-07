@@ -4,7 +4,7 @@ import asyncio
 from discord.ext import commands
 from discord import app_commands, ChannelType
 from datetime import datetime, timezone
-from cogs import AutoDelete, Awards, Embeds, Profiles, Purge, RSSFeeds, Tickets
+from cogs import autodelete, awards, embeds, profiles, purge, rssfeeds, tickets
 
 class YesOrNo(discord.ui.View):
     def __init__(self, *, timeout = 180, user: discord.Member):
@@ -165,7 +165,7 @@ class CogButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == self.user:
-                await self.bot.add_cog(AutoDelete.AutoDelete(bot=self.bot), override=True, guild=guild)
+                await self.bot.add_cog(autodelete.AutoDelete(bot=self.bot), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -189,7 +189,7 @@ class CogButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == self.user:
-                await self.bot.add_cog(Awards.Awards(bot=self.bot), override=True, guild=guild)
+                await self.bot.add_cog(awards.Awards(bot=self.bot), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -213,7 +213,7 @@ class CogButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == self.user:
-                await self.bot.add_cog(Embeds.Embeds(bot=self.bot), override=True, guild=guild)
+                await self.bot.add_cog(embeds.Embeds(bot=self.bot), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -237,7 +237,7 @@ class CogButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == self.user:
-                await self.bot.add_cog(Profiles.Profiles(bot=self.bot), override=True, guild=guild)
+                await self.bot.add_cog(profiles.Profiles(bot=self.bot), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -261,7 +261,7 @@ class CogButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == self.user:
-                await self.bot.add_cog(Purge.Purge(bot=self.bot), override=True, guild=guild)
+                await self.bot.add_cog(purge.Purge(bot=self.bot), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -285,7 +285,7 @@ class CogButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == self.user:
-                await self.bot.add_cog(RSSFeeds.RSSFeeds(bot=self.bot), override=True, guild=guild)
+                await self.bot.add_cog(rssfeeds.RSSFeeds(bot=self.bot), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -309,7 +309,7 @@ class CogButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == self.user:
-                await self.bot.add_cog(Tickets.Tickets(bot=self.bot), override=True, guild=guild)
+                await self.bot.add_cog(tickets.Tickets(bot=self.bot), override=True, guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -354,7 +354,7 @@ class RemoveButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == self.user:
-                await self.bot.remove_cog(AutoDelete.AutoDelete(bot=self.bot), guild=guild)
+                await self.bot.remove_cog(autodelete.AutoDelete(bot=self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -378,7 +378,7 @@ class RemoveButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == self.user:
-                await self.bot.remove_cog(Awards.Awards(bot=self.bot), guild=guild)
+                await self.bot.remove_cog(awards.Awards(bot=self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -402,7 +402,7 @@ class RemoveButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == self.user:
-                await self.bot.remove_cog(Embeds.Embeds(bot=self.bot), guild=guild)
+                await self.bot.remove_cog(embeds.Embeds(bot=self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -426,7 +426,7 @@ class RemoveButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == self.user:
-                await self.bot.remove_cog(Profiles.Profiles(bot=self.bot), guild=guild)
+                await self.bot.remove_cog(profiles.Profiles(bot=self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -450,7 +450,7 @@ class RemoveButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == self.user:
-                await self.bot.remove_cog(Purge.Purge(bot=self.bot), guild=guild)
+                await self.bot.remove_cog(purge.Purge(bot=self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -474,7 +474,7 @@ class RemoveButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == self.user:
-                await self.bot.remove_cog(RSSFeeds.RSSFeeds(bot=self.bot), guild=guild)
+                await self.bot.remove_cog(rssfeeds.RSSFeeds(bot=self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -498,7 +498,7 @@ class RemoveButtons(discord.ui.View):
         guild = interaction.guild
         try:
             if interaction.user == self.user:
-                await self.bot.remove_cog(Tickets.Tickets(bot=self.bot), guild=guild)
+                await self.bot.remove_cog(tickets.Tickets(bot=self.bot), guild=guild)
                 if guild.id not in self.guild_cogs:
                     self.guild_cogs[guild.id] = []
                 coglist = self.guild_cogs[guild.id]
@@ -533,15 +533,14 @@ class Start(commands.Cog):
         self.bot = bot
         self.db = bot.database
 
-    @commands.hybrid_command(name="start")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="start")
     @app_commands.checks.has_permissions(administrator=True)
-    async def start(self, ctx: commands.Context):
+    async def start(self, interaction: discord.Interaction):
         """(Admin Only) Start the bot by choosing desired functions.
         """
-        await ctx.defer()
-        guild = ctx.guild
-        author = ctx.author
+        await interaction.response.defer()
+        guild = interaction.guild
+        author = interaction.user
         timestamp = datetime.now(tz=timezone.utc)
         try:
             
@@ -556,7 +555,7 @@ class Start(commands.Cog):
                 description="Would you like to start by choosing channels for bot logging messages, member welcome messages, or member goodbye messages?"
             )
             channels_yn = YesOrNo(user=author)
-            response = await ctx.send(content=None, embed=start, view=channels_yn)
+            message = await interaction.followup.send(embed=start, view=channels_yn, wait=True)
             await channels_yn.wait()
 
             # User wants to select logging, welcome, and/or goodbye channels
@@ -569,13 +568,14 @@ class Start(commands.Cog):
                     description="Would you like to select a channel to send logging messages?\nChoose `Cancel` to skip to the next option."
                 )
                 logging_select = ChannelSelectView(user=author)
-                response = await response.edit(content=None, embed=ask_logging, view=logging_select)
+                await message.edit(embed=ask_logging, view=logging_select)
                 await logging_select.wait()
 
                 # User selects a logging channel
                 if logging_select.value == True:
                     logging_channel = logging_select.channel
-                    response = await response.edit(content=f"The logging channel has been set to {logging_channel.mention}.", embed=None, view=None)
+                    logging = discord.Embed(color=self.bot.blurple, title="Logging Channel", description=f"The logging channel has been set to {logging_channel.mention}.")
+                    await message.edit(embed=logging, view=None)
                     await self.db.execute("UPDATE guilds SET logging_channel_id = ? WHERE guild_id = ?", (logging_channel.id, guild.id))
                     await self.db.commit()
                     await asyncio.sleep(3.0)
@@ -593,7 +593,7 @@ class Start(commands.Cog):
                             timestamp=timestamp
                         )
                         log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                        await logging_channel.send(content=None, embed=log)
+                        await logging_channel.send(embed=log)
 
                 # Ask user to select a welcome channel
                 ask_welcome = discord.Embed(
@@ -602,13 +602,14 @@ class Start(commands.Cog):
                     description="Would you like to select a channel to send welcome messages?\nChoose `Cancel` to skip to the next option."
                 )
                 welcome_select = ChannelSelectView(user=author)
-                response = await response.edit(content=None, embed=ask_welcome, view=welcome_select)
+                await message.edit(embed=ask_welcome, view=welcome_select)
                 await welcome_select.wait()
 
                 # User selects a welcome channel
                 if welcome_select.value == True:
                     welcome_channel = welcome_select.channel
-                    response = await response.edit(content=f"The welcome channel has been set to {welcome_channel.mention}.", embed=None, view=None)
+                    welcome = discord.Embed(color=self.bot.blurple, title="Welcome Channel", description=f"The welcome channel has been set to {welcome_channel.mention}.")
+                    await message.edit(embed=welcome, view=None)
                     await self.db.execute("UPDATE guilds SET welcome_channel_id = ? WHERE guild_id = ?", (welcome_channel.id, guild.id))
                     await self.db.commit()
                     await asyncio.sleep(3.0)
@@ -626,7 +627,7 @@ class Start(commands.Cog):
                             timestamp=timestamp
                         )
                         log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                        await logging_channel.send(content=None, embed=log)
+                        await logging_channel.send(embed=log)
                     
                 # Ask user to select a goodbye channel
                 ask_goodbye = discord.Embed(
@@ -635,13 +636,14 @@ class Start(commands.Cog):
                     description="Would you like to select a channel to send goodbye messages?\nChoose `Cancel` to skip to the next option."
                 )
                 goodbye_select = ChannelSelectView(user=author)
-                response = await response.edit(content=None, embed=ask_goodbye, view=goodbye_select)
+                await message.edit(embed=ask_goodbye, view=goodbye_select)
                 await goodbye_select.wait()
 
                 # User selects a goodbye channel
                 if goodbye_select.value == True:
                     goodbye_channel = goodbye_select.channel
-                    response = await response.edit(content=f"The goodbye channel has been set to {goodbye_channel.mention}.", embed=None, view=None)
+                    goodbye = discord.Embed(color=self.bot.blurple, title="Goodbye Channel", description=f"The goodbye channel has been set to {goodbye_channel.mention}.")
+                    await message.edit(embed=goodbye, view=None)
                     await self.db.execute("UPDATE guilds SET goodbye_channel_id = ? WHERE guild_id = ?", (goodbye_channel.id, guild.id))
                     await self.db.commit()
                     await asyncio.sleep(3.0)
@@ -659,7 +661,7 @@ class Start(commands.Cog):
                             timestamp=timestamp
                         )
                         log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                        await logging_channel.send(content=None, embed=log)
+                        await logging_channel.send(embed=log)
             
             # Ask the user to select join roles
             start = discord.Embed(
@@ -668,7 +670,7 @@ class Start(commands.Cog):
                 description="Would you like to choose join roles?"
             )
             join_yn = YesOrNo(user=author)
-            response = await response.edit(content=None, embed=start, view=join_yn)
+            await message.edit(embed=start, view=join_yn)
             await join_yn.wait()
 
             # User wants to select join roles
@@ -681,13 +683,14 @@ class Start(commands.Cog):
                     description="Would you like to select a role to give members on join?\nChoose `Cancel` to skip to the next option."
                 )
                 join_select = RoleSelectView(user=author)
-                response = await response.edit(content=None, embed=ask_join_role, view=join_select)
+                await message.edit(embed=ask_join_role, view=join_select)
                 await join_select.wait()
 
                 # User selects a join role
                 if join_select.value == True:
                     join_role = join_select.role
-                    response = await response.edit(content=f"The join role was set to {join_role.mention}.", embed=None, view=None)
+                    join = discord.Embed(color=self.bot.blurple, title="Join Role", description=f"The join role was set to {join_role.mention}.")
+                    await message.edit(embed=join, view=None)
                     await self.db.execute("UPDATE guilds SET join_role_id = ? WHERE guild_id = ?", (join_role.id, guild.id))
                     await self.db.commit()
                     await asyncio.sleep(3.0)
@@ -705,7 +708,7 @@ class Start(commands.Cog):
                             timestamp=timestamp
                         )
                         log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                        await logging_channel.send(content=None, embed=log)
+                        await logging_channel.send(embed=log)
 
                 # Ask user to select a bot role
                 ask_bot_role = discord.Embed(
@@ -714,13 +717,14 @@ class Start(commands.Cog):
                     description="Would you like to select a role to give bots on join?\nChoose `Cancel` to skip to the next option."
                 )
                 bot_select = RoleSelectView(user=author)
-                response = await response.edit(content=None, embed=ask_bot_role, view=bot_select)
+                await message.edit(embed=ask_bot_role, view=bot_select)
                 await bot_select.wait()
 
                 # User selects a bot role
                 if bot_select.value == True:
                     bot_role = bot_select.role
-                    response = await response.edit(content=f"The bot role was set to {bot_role.mention}.", embed=None, view=None)
+                    bot = discord.Embed(color=self.bot.blurple, title="Bot Role", description=f"The bot role was set to {bot_role.mention}.")
+                    await message.edit(embed=bot, view=None)
                     await self.db.execute("UPDATE guilds SET bot_role_id = ? WHERE guild_id = ?", (bot_role.id, guild.id))
                     await self.db.commit()
                     await asyncio.sleep(3.0)
@@ -738,7 +742,7 @@ class Start(commands.Cog):
                             timestamp=timestamp
                         )
                         log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                        await logging_channel.send(content=None, embed=log)
+                        await logging_channel.send(embed=log)
             
             # Ask the user to select activity roles
             start = discord.Embed(
@@ -747,7 +751,7 @@ class Start(commands.Cog):
                 description="Would you like to choose activity roles?"
             )
             activity_yn = YesOrNo(user=author)
-            response = await response.edit(content=None, embed=start, view=activity_yn)
+            await message.edit(embed=start, view=activity_yn)
             await activity_yn.wait()
 
             # User wants to select activity roles
@@ -760,13 +764,14 @@ class Start(commands.Cog):
                     description="Would you like to select a role to give active members?\nChoose `Cancel` to skip to the next option."
                 )
                 active_select = RoleSelectView(user=author)
-                response = await response.edit(content=None, embed=ask_active_role, view=active_select)
+                await message.edit(embed=ask_active_role, view=active_select)
                 await active_select.wait()
 
                 # User selects an active role
                 if active_select.value == True:
                     active_role = active_select.role
-                    response = await response.edit(content=f"The active role was set to {active_role.mention}.", embed=None, view=None)
+                    active = discord.Embed(color=self.bot.blurple, title="Active Role", description=f"The active role was set to {active_role.mention}.")
+                    await message.edit(embed=active, view=None)
                     await self.db.execute("UPDATE guilds SET active_role_id = ? WHERE guild_id = ?", (active_role.id, guild.id))
                     await self.db.commit()
                     await asyncio.sleep(3.0)
@@ -784,7 +789,7 @@ class Start(commands.Cog):
                             timestamp=timestamp
                         )
                         log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                        await logging_channel.send(content=None, embed=log)
+                        await logging_channel.send(embed=log)
 
                 # Ask user to select an inactive role
                 ask_inactive_role = discord.Embed(
@@ -793,13 +798,14 @@ class Start(commands.Cog):
                     description="Would you like to select a role to give to inactive members?\nChoose `Cancel` to skip to the next option."
                 )
                 inactive_select = RoleSelectView(user=author)
-                response = await response.edit(content=None, embed=ask_inactive_role, view=inactive_select)
+                await message.edit(embed=ask_inactive_role, view=inactive_select)
                 await inactive_select.wait()
 
                 # User selects an inactive role
                 if inactive_select.value == True:
                     inactive_role = inactive_select.role
-                    response = await response.edit(content=f"The inactive role was set to {inactive_role.mention}.", embed=None, view=None)
+                    inactive = discord.Embed(color=self.bot.blurple, title="Inactive Role", description=f"The inactive role was set to {inactive_role.mention}.")
+                    await message.edit(embed=inactive, view=None)
                     await self.db.execute("UPDATE guilds SET inactive_role_id = ? WHERE guild_id = ?", (inactive_role.id, guild.id))
                     await self.db.commit()
                     await asyncio.sleep(3.0)
@@ -817,7 +823,7 @@ class Start(commands.Cog):
                             timestamp=timestamp
                         )
                         log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                        await logging_channel.send(content=None, embed=log)
+                        await logging_channel.send(embed=log)
 
                 # Ask user to provide inactive months
                 ask_inactive_months = discord.Embed(
@@ -826,13 +832,14 @@ class Start(commands.Cog):
                     description="How many months should a member be inactive before recieving the inactive role?\nChoose `Cancel` to skip to the next option."
                 )
                 months_select = InactiveMonthsView(user=author)
-                response = await response.edit(content=None, embed=ask_inactive_months, view=months_select)
+                await message.edit(embed=ask_inactive_months, view=months_select)
                 await months_select.wait()
 
                 # User selects an inactive months
                 if months_select.value == True:
                     inactive_months = int(months_select.months)
-                    response = await response.edit(content=f"The inactive month amount was set to {str(inactive_months)}.", embed=None, view=None)
+                    months = discord.Embed(color=self.bot.blurple, title="Inactive Months", description=f"The inactive month amount was set to {str(inactive_months)}.")
+                    await message.edit(embed=months, view=None)
                     await self.db.execute("UPDATE guilds SET inactive_months = ? WHERE guild_id = ?", (inactive_months, guild.id))
                     await self.db.commit()
                     await asyncio.sleep(3.0)
@@ -850,7 +857,7 @@ class Start(commands.Cog):
                             timestamp=timestamp
                         )
                         log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                        await logging_channel.send(content=None, embed=log)
+                        await logging_channel.send(embed=log)
             
             # Ask the user to select which cogs to add to their server
             ask_cogs = discord.Embed(
@@ -866,7 +873,7 @@ class Start(commands.Cog):
             ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
             ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
             cog_buttons = CogButtons(bot=self.bot, user=author)
-            response = await response.edit(content=None, embed=ask_cogs, view=cog_buttons)
+            await message.edit(embed=ask_cogs, view=cog_buttons)
             await cog_buttons.wait()
 
             if cog_buttons.value == True:
@@ -881,7 +888,7 @@ class Start(commands.Cog):
                     description=f"Bot startup is now complete!"
                 )
                 done.add_field(name="Commands Added", value=f"{join}")
-                response = await response.edit(content=None, embed=done, view=None)
+                await message.edit(embed=done, view=None)
 
                 # Bot sends a log to the logging channel
                 cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -897,7 +904,7 @@ class Start(commands.Cog):
                     )
                     log.set_author(name=author.display_name, icon_url=author.display_avatar)
                     log.add_field(name="Commands Added", value=f"{join}")
-                    await logging_channel.send(content=None, embed=log)
+                    await logging_channel.send(embed=log)
 
         # Send an error message if there's an issue
         except Exception as e:
@@ -908,19 +915,17 @@ class Start(commands.Cog):
                 title="Error",
                 description=f"There was an error running the `/start` or `rb!start` command. Error: {e}"
             )
-            response = await response.edit(content=None, embed=error, view=None)
+            await message.edit(embed=error, view=None)
 
-    @commands.hybrid_command(name="add_commands")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="add_commands")
     @app_commands.checks.has_permissions(administrator=True)
-    async def add_commands(self, ctx: commands.Context):
+    async def add_commands(self, interaction: discord.Interaction):
         """(Admin Only) Add desired commands to the server.
         """
-        await ctx.defer()
-        guild = ctx.guild
-        author = ctx.author
+        await interaction.response.defer()
+        guild = interaction.guild
+        author = interaction.user
         timestamp = datetime.now(tz=timezone.utc)
-        response = None
         try:
             
             # Add the guild to the database if needed
@@ -940,7 +945,7 @@ class Start(commands.Cog):
             ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
             ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
             cog_buttons = CogButtons(bot=self.bot, user=author)
-            response = await ctx.send(embed=ask_cogs, view=cog_buttons)
+            message = await interaction.followup.send(embed=ask_cogs, view=cog_buttons, wait=True)
             await cog_buttons.wait()
 
             if cog_buttons.value == True:
@@ -954,7 +959,7 @@ class Start(commands.Cog):
                     description=f"{author.mention} has successfully added commands to the server!"
                 )
                 done.add_field(name="Commands Added", value=f"{join}")
-                response = await response.edit(embed=done, view=None)
+                await message.edit(embed=done, view=None)
 
                 cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                 row = await cur.fetchone()
@@ -979,22 +984,17 @@ class Start(commands.Cog):
                 title="Error",
                 description=f"There was an error running the `/add_commands` or `rb!add_commands` command. Error: {e}"
             )
-            if response is not None:
-                await response.edit(embed=error, view=None)
-            else:
-                await ctx.send(embed=error, view=None)
+            await interaction.followup.send(embed=error, view=None)
 
-    @commands.hybrid_command(name="remove_commands")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="remove_commands")
     @app_commands.checks.has_permissions(administrator=True)
-    async def remove_commands(self, ctx: commands.Context):
+    async def remove_commands(self, interaction: discord.Interaction):
         """(Admin Only) Remove unwanted commands from the server.
         """
-        await ctx.defer()
-        guild = ctx.guild
-        author = ctx.author
+        await interaction.response.defer()
+        guild = interaction.guild
+        author = interaction.user
         timestamp = datetime.now(tz=timezone.utc)
-        response = None
         try:
 
             # Add the bot to the database if needed
@@ -1014,7 +1014,7 @@ class Start(commands.Cog):
             ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
             ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
             cog_buttons = RemoveButtons(bot=self.bot, user=author)
-            response = await ctx.send(embed=ask_cogs, view=cog_buttons)
+            message = await interaction.followup.send(embed=ask_cogs, view=cog_buttons, wait=True)
             await cog_buttons.wait()
 
             if cog_buttons.value == True:
@@ -1028,7 +1028,7 @@ class Start(commands.Cog):
                     description=f"{author.mention} has successfully removed commands from the server!"
                 )
                 done.add_field(name="Commands Removed", value=f"{join}")
-                response = await response.edit(embed=done, view=None)
+                await message.edit(embed=done, view=None)
 
                 cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                 row = await cur.fetchone()
@@ -1051,12 +1051,9 @@ class Start(commands.Cog):
             error = discord.Embed(
                 color=self.bot.red,
                 title="Error",
-                description=f"There was an error running the `/remove_commands` or `rb!remove_commands` command. Error: {e}"
+                description=f"There was an error running the `/add_commands` or `rb!add_commands` command. Error: {e}"
             )
-            if response is not None:
-                await response.edit(embed=error, view=None)
-            else:
-                await ctx.send(embed=error, view=None)
+            await interaction.followup.send(embed=error, view=None)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Start(bot=bot), override=True)
