@@ -1,95 +1,151 @@
 import discord
 import traceback
-from discord import app_commands, ChannelType
-from discord.ui import ChannelSelect
+from discord import app_commands
 from discord.ext import commands
-from typing import Any
 from datetime import datetime, timezone
 
-class ChannelSelector(ChannelSelect):
-    def __init__(self):
+class YesOrNo(discord.ui.View):
+    def __init__(self, *, timeout = 180, bot: commands.Bot, user: discord.Member):
+        super().__init__(timeout=timeout)
+        self.bot = bot
+        self.user = user
+        self.value = None
+
+    @discord.ui.button(label="Yes", style=discord.ButtonStyle.green, emoji="👍")
+    async def yes(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        if interaction.user == self.user:
+            self.value = True
+            self.stop()
+
+    @discord.ui.button(label="No", style=discord.ButtonStyle.red, emoji="👎")
+    async def no(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        if interaction.user == self.user:
+            self.value = False
+            self.stop()
+    
+    async def on_timeout(self):
+        self.value = None
+    
+    async def on_error(self, interaction: discord.Interaction, error: Exception, item):
+        await interaction.response.defer(ephemeral=True)
+        if interaction.user == self.user:
+            self.value = False
+            self.stop()
+
+            embed = discord.Embed(color=self.bot.red, title="Error", description="There was an error while trying to complete the command. Please try again later.")
+            embed.add_field(name="Error", value=f"{error}")
+            await interaction.followup.send(embed=embed, ephemeral=True)
+
+class ChannelSelect(discord.ui.ChannelSelect):
+    def __init__(self, *, user: discord.Member):
         super().__init__(
-            channel_types=[ChannelType.text],
-            placeholder="Select channels... (Limit: 25)",
+            channel_types=[discord.ChannelType.text],
+            placeholder="Select up to 25 channels...",
             min_values=1,
             max_values=25,
             row=1
         )
+        self.user = user
 
-    async def callback(self, interaction: discord.Interaction) -> Any:
+    async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
-        channels: list[DropdownView] = self.values
-        self.view.values = [c for c in channels]
+        if interaction.user == self.user:
+            self.view.channel_ids = [c.id for c in self.values]
 
-class DropdownView(discord.ui.View):
-    def __init__(self, *, timeout=180.0):
+class ChannelSelectView(discord.ui.View):
+    def __init__(self, *, timeout=180.0, bot: commands.Bot, user: discord.Member):
         super().__init__(timeout=timeout)
+        self.bot = bot
+        self.user = user
         self.value = None
-        self.add_item(ChannelSelector())
+        self.add_item(ChannelSelect(user=self.user))
 
     @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        self.value = True
-        self.stop()
+        if interaction.user == self.user:
+            self.value = True
+            self.stop()
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        self.value = False
-        self.stop()
+        if interaction.user == self.user:
+            self.value = False
+            self.stop()
 
-class Purge(commands.Cog):
+    async def on_timeout(self):
+        self.value = None
+    
+    async def on_error(self, interaction: discord.Interaction, error: Exception, item):
+        await interaction.response.defer(ephemeral=True)
+        if interaction.user == self.user:
+            self.value = False
+            self.stop()
+
+            embed = discord.Embed(color=self.bot.red, title="Error", description="There was an error while trying to complete the command. Please try again later.")
+            embed.add_field(name="Error", value=f"{error}")
+            await interaction.followup.send(embed=embed, ephemeral=True)
+
+class Purge(commands.GroupCog, group_name = "purge"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.db = bot.database
 
-    @commands.hybrid_group(name="purge", fallback="here")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="here")
     @app_commands.checks.has_permissions(administrator=True)
-    async def purge(self, ctx: commands.Context):
+    async def purge(self, interaction: discord.Interaction):
         """(Admin Only) Purge all unpinned messages in the current channel.
         """
-        await ctx.defer()
+        await interaction.response.defer()
         try:
 
-            channel = ctx.channel
-            messages = [m async for m in channel.history(limit=None)]
-            unpinned = [m for m in messages if not m.pinned]
-            deleted = []
-            while len(unpinned) > 0:
-                deleted += await channel.purge(check=lambda message: message.pinned == False, oldest_first=True)
+            user = interaction.user
+            channel = interaction.channel
+            guild = interaction.guild
+            view = YesOrNo(bot=self.bot, user=user)
+            embed = discord.Embed(color=self.bot.blurple, title="Confirm Purge", description="Are you **sure** you want to purge all unpinned messages in the current channel?")
+            response = await interaction.followup.send(embed=embed, view=view, wait=True)
+
+            if view.value == True:
+
+                wait = discord.Embed(color=self.bot.blurple, title="Purge in Progress", description="Please wait while the purge is in progress. This message will be edited when the purge is complete.")
+                await response.edit(embed=wait, view=None)
                 messages = [m async for m in channel.history(limit=None)]
                 unpinned = [m for m in messages if not m.pinned]
-            if len(deleted) == 0:
-                error = discord.Embed(color=self.bot.red, title="Error", description=f"{channel.mention} doesn't have any messages to purge!")
-                await channel.send(embed=error, delete_after=30.0)
-            elif len(deleted) == 1:
-                embed = discord.Embed(color=self.bot.green, title="Success", description=f'{len(deleted)} message was just purged from {channel.mention}!')
-                await channel.send(embed=embed, delete_after=30.0)
-            else:
-                embed = discord.Embed(color=self.bot.green, title="Success", description=f'{len(deleted)} messages were just purged from {channel.mention}!')
-                await channel.send(embed=embed, delete_after=30.0)
+                while len(unpinned) > 0:
+                    await channel.purge(check=lambda message: message.pinned == False, oldest_first=True)
+                    messages = [m async for m in channel.history(limit=None)]
+                    unpinned = [m for m in messages if not m.pinned]
+                
+                done = discord.Embed(color=self.bot.green, title="Success", description="The purge is now complete!")
+                await response.edit(embed=done, view=None)
 
-            cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
-            row = await cur.fetchone()
-            fetched_logging = row[0]
-            if fetched_logging is not None:
-                logging = self.bot.get_channel(fetched_logging)
-                now = datetime.now(tz=timezone.utc)
-                log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{ctx.author.mention} has just purged all unpinned messages from the following channel: {channel.mention}.", timestamp=now)
-                log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-                await logging.send(embed=log)
+                cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (interaction.guild.id,))
+                row = await cur.fetchone()
+                fetched_logging = row[0]
+                if fetched_logging is not None:
+                    logging = guild.get_channel(fetched_logging)
+                    now = datetime.now(tz=timezone.utc)
+                    log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{user.mention} has just purged all unpinned messages from the following channel: {channel.mention}.", timestamp=now)
+                    log.set_author(name=user.display_name, icon_url=user.display_avatar)
+                    log.set_thumbnail(url=user.display_avatar)
+                    await logging.send(embed=log)
+
+            elif view.value == False:
+                cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description="The purge has been cancelled. No messages have been deleted.")
+                await response.edit(embed=cancelled, view=None)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await channel.send(embed=error, delete_after=30.0)
             print(traceback.format_exc())
 
-    @purge.command(name="member")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="member")
     @app_commands.checks.has_permissions(administrator=True)
-    async def member(self, ctx: commands.Context, member: discord.Member):
+    async def member(self, interaction: discord.Interaction, member: discord.Member):
         """(Admin Only) Purge all of a member's unpinned messages in a set list of up to 25 channels.
 
         Parameters
@@ -97,179 +153,226 @@ class Purge(commands.Cog):
         member : discord.Member
             Provide the member who's unpinned messages you would like to purge.
         """
-        await ctx.defer()
+        await interaction.response.defer()
         try:
-
-            view = DropdownView()
-            embed = discord.Embed(color=self.bot.blurple, title="Purge Member", description=f"Which channel(s) would you like to purge {member.mention}'s unpinned messages from?")
-            response = await ctx.send(embed=embed, view=view)
-            await view.wait()
             
-            if view.value == True:
-                selected = [c.resolve() for c in view.values]
-                mentions = [c.mention for c in selected]
-                selectedlist = ", ".join(mentions)
-                embed = discord.Embed(color=self.bot.blurple, title="Selected Channels", description=f'{selectedlist}')
-                await response.edit(embed=embed, view=None)
-                for channel in selected:
-                    deleted = []
-                    messages = [m async for m in channel.history(limit=None)]
-                    unpinned = [m for m in messages if not m.pinned]
-                    while len(unpinned) > 0:
-                        deleted += await channel.purge(check=lambda message: message.author == member and message.pinned == False, oldest_first=True)
+            user = interaction.user
+            csv = ChannelSelectView(bot=self.bot, user=user)
+            embed = discord.Embed(color=self.bot.blurple, title="Purge Member", description=f"Which channel(s) would you like to purge {member.mention}'s unpinned messages from?")
+            response = await interaction.followup.send(embed=embed, view=csv, wait=True)
+            await csv.wait()
+            
+            if csv.value == True:
+
+                guild = interaction.guild
+                mentions = []
+                for id in csv.channel_ids:
+                    channel = guild.get_channel(id)
+                    mentions.append(channel.mention)
+                mentionlist = ", ".join(mentions)
+                yon = YesOrNo(bot=self.bot, user=user)
+                embed = discord.Embed(color=self.bot.blurple, title="Confirm Purge", description=f"Please review the list of selected channels below and confirm that you would like to continue with the purge of {member.mention}'s unpinned messages from the following channels:\n\n{mentionlist}")
+                await response.edit(embed=embed, view=yon)
+                await yon.wait()
+
+                if yon.value == True:
+
+                    wait = discord.Embed(color=self.bot.blurple, title="Purge in Progress", description="Please wait while the purge is in progress. This message will be edited when the purge is complete.")
+                    await response.edit(embed=wait, view=None)
+                    for id in csv.channel_ids:
+                        channel = guild.get_channel(id)
                         messages = [m async for m in channel.history(limit=None)]
                         unpinned = [m for m in messages if not m.pinned]
-                    if len(deleted) == 1:
-                        embed = discord.Embed(color=self.bot.green, title="Success", description=f'{len(deleted)} message was just purged from {channel.mention}!')
-                        await ctx.channel.send(embed=embed, delete_after=30.0)
-                    else:
-                        embed = discord.Embed(color=self.bot.green, title="Success", description=f'{len(deleted)} messages were just purged from {channel.mention}!')
-                        await ctx.channel.send(embed=embed, delete_after=30.0)
-                embed = discord.Embed(color=self.bot.green, title="Done", description=f'The purge is now complete!')
-                await ctx.channel.send(embed=embed, delete_after=30.0)
-
-                cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
-                row = await cur.fetchone()
-                fetched_logging = row[0]
-                if fetched_logging is not None:
-                    logging = self.bot.get_channel(fetched_logging)
-                    now = datetime.now(tz=timezone.utc)
-                    log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{ctx.author.mention} has just purged {member.mention}'s unpinned messages from the following channels: {selectedlist}.", timestamp=now)
-                    log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-                    await logging.send(embed=log)
-
-            elif view.value == False:
-                cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
-                await response.edit(embed=cancelled, delete_after=30.0, view=None)
-
-            else:
-                timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
-                await response.edit(embed=timed_out, delete_after=30.0, view=None)
-
-        except Exception as e:
-            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.channel.send(embed=error, delete_after=30.0)
-            print(traceback.format_exc())
-
-    @purge.command(name="channels")
-    @commands.has_guild_permissions(administrator=True)
-    @app_commands.checks.has_permissions(administrator=True)
-    async def channels(self, ctx: commands.Context):
-        """(Admin Only) Purge all unpinned messages in a set list of up to 25 channels.
-        """
-        await ctx.defer()
-        try:
-
-            view = DropdownView()
-            embed = discord.Embed(color=self.bot.blurple, title="Purge Channels", description="Which channel(s) would you like to purge all unpinned messages from?")
-            response = await ctx.send(embed=embed, view=view)
-            await view.wait()
-
-            if view.value == True:
-                selected = [c.resolve() for c in view.values]
-                mentions = [c.mention for c in selected]
-                selectedlist = ", ".join(mentions)
-                embed = discord.Embed(color=self.bot.blurple, title="Selected Channels", description=f'{selectedlist}')
-                await response.edit(embed=embed, view=None)
-                for channel in selected:
-                    messages = [m async for m in channel.history(limit=None)]
-                    unpinned = [m for m in messages if not m.pinned]
-                    deleted = []
-                    while len(unpinned) > 0:
-                        deleted += await channel.purge(check=lambda message: message.pinned == False, oldest_first=True)
-                        messages = [m async for m in channel.history(limit=None)]
-                        unpinned = [m for m in messages if not m.pinned]
-                    if len(deleted) == 1:
-                        embed = discord.Embed(color=self.bot.green, title="Success", description=f'{len(deleted)} message was just purged from {channel.mention}!')
-                        await ctx.channel.send(embed=embed, delete_after=30.0)
-                    else:
-                        embed = discord.Embed(color=self.bot.green, title="Success", description=f'{len(deleted)} messages were just purged from {channel.mention}!')
-                        await ctx.channel.send(embed=embed, delete_after=30.0)
-                embed = discord.Embed(color=self.bot.green, title="Done", description=f'The purge is now complete!')
-                await ctx.channel.send(embed=embed, delete_after=30.0)
-
-                cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
-                row = await cur.fetchone()
-                fetched_logging = row[0]
-                if fetched_logging is not None:
-                    logging = self.bot.get_channel(fetched_logging)
-                    now = datetime.now(tz=timezone.utc)
-                    log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{ctx.author.mention} has just purged all unpinned messages from the following channels: {selectedlist}.", timestamp=now)
-                    log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-                    await logging.send(embed=log)
-
-            elif view.value == False:
-                cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
-                await response.edit(embed=cancelled, delete_after=30.0, view=None)
-
-            else:
-                timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
-                await response.edit(embed=timed_out, delete_after=30.0, view=None)
-
-        except Exception as e:
-            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.channel.send(embed=error, delete_after=30.0)
-            print(traceback.format_exc())
-
-    @purge.command(name="server")
-    @commands.has_guild_permissions(administrator=True)
-    @app_commands.checks.has_permissions(administrator=True)
-    async def server(self, ctx: commands.Context):
-        """(Admin Only) Purges all unpinned messages in a server, excluding up to 25 channels.
-        """
-        await ctx.defer()
-        try:
-
-            view = DropdownView()
-            embed = discord.Embed(color=self.bot.blurple, title="Purge Server", description="Which channels would you like to **exclude** from the purge of all unpinned messages?")
-            response = await ctx.send(embed=embed, view=view)
-            await view.wait()
-
-            if view.value == True:
-                excluded = [c.resolve() for c in view.values]
-                mentions = [c.mention for c in excluded]
-                excludedlist = ", ".join(mentions)
-                embed = discord.Embed(color=self.bot.blurple, title="Excluded Channels", description=f'{excludedlist}')
-                await response.edit(embed=embed, view=None)
-                for channel in ctx.guild.text_channels:
-                    if channel not in excluded:
-                        messages = [m async for m in channel.history(limit=None)]
-                        unpinned = [m for m in messages if not m.pinned]
-                        deleted = []
                         while len(unpinned) > 0:
-                            deleted += await channel.purge(check=lambda message: message.pinned == False, oldest_first=True)
+                            await channel.purge(check=lambda message: message.author == member and message.pinned == False, oldest_first=True)
                             messages = [m async for m in channel.history(limit=None)]
                             unpinned = [m for m in messages if not m.pinned]
-                        if len(deleted) == 1:
-                            embed = discord.Embed(color=self.bot.green, title="Success", description=f'{len(deleted)} message was just purged from {channel.mention}!')
-                            await ctx.channel.send(embed=embed, delete_after=30.0)
-                        else:
-                            embed = discord.Embed(color=self.bot.green, title="Success", description=f'{len(deleted)} messages were just purged from {channel.mention}!')
-                            await ctx.channel.send(embed=embed, delete_after=30.0)
-                embed = discord.Embed(color=self.bot.green, title="Done", description=f'The purge is now complete!')
-                await ctx.channel.send(embed=embed, delete_after=30.0)
+                    
+                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete!')
+                    await response.edit(embed=success, view=None)
 
-                cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
-                row = await cur.fetchone()
-                fetched_logging = row[0]
-                if fetched_logging is not None:
-                    now = datetime.now(tz=timezone.utc)
-                    log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{ctx.author.mention} has just purged all unpinned messages from the server, except from the following channels: {excludedlist}.", timestamp=now)
-                    logging = self.bot.get_channel(fetched_logging)
-                    log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-                    await logging.send(embed=log)
+                    cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                    row = await cur.fetchone()
+                    fetched_logging = row[0]
+                    if fetched_logging is not None:
+                        logging = guild.get_channel(fetched_logging)
+                        now = datetime.now(tz=timezone.utc)
+                        log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{user.mention} has just purged {member.mention}'s unpinned messages from the following channels: {mentionlist}.", timestamp=now)
+                        log.set_author(name=user.display_name, icon_url=user.display_avatar)
+                        log.set_thumbnail(url=user.display_avatar)
+                        await logging.send(embed=log)
 
-            elif view.value == False:
+                elif yon.value == False:
+                    cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
+                    await response.edit(embed=cancelled, view=None)
+
+                else:
+                    timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
+                    await response.edit(embed=timed_out, view=None)
+
+            elif csv.value == False:
                 cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
-                await response.edit(embed=cancelled, delete_after=30.0, view=None)
+                await response.edit(embed=cancelled, view=None)
 
             else:
                 timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
-                await response.edit(embed=timed_out, delete_after=30.0, view=None)
+                await response.edit(embed=timed_out, view=None)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.channel.send(embed=error, delete_after=30.0)
+            await interaction.followup.send(embed=error, view=None)
+            print(traceback.format_exc())
+
+    @app_commands.command(name="channels")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def channels(self, interaction: discord.Interaction):
+        """(Admin Only) Purge all unpinned messages in a set list of up to 25 channels.
+        """
+        await interaction.response.defer()
+        try:
+            
+            user = interaction.user
+            csv = ChannelSelectView(bot=self.bot, user=user)
+            embed = discord.Embed(color=self.bot.blurple, title="Purge Channels", description=f"Which channel(s) would you like to purge all unpinned messages from?")
+            response = await interaction.followup.send(embed=embed, view=csv, wait=True)
+            await csv.wait()
+            
+            if csv.value == True:
+
+                guild = interaction.guild
+                mentions = []
+                for id in csv.channel_ids:
+                    channel = guild.get_channel(id)
+                    mentions.append(channel.mention)
+                mentionlist = ", ".join(mentions)
+                yon = YesOrNo(bot=self.bot, user=user)
+                embed = discord.Embed(color=self.bot.blurple, title="Confirm Purge", description=f"Please review the list of selected channels below and confirm that you would like to continue with the purge of all unpinned messages from the following channels:\n\n{mentionlist}")
+                await response.edit(embed=embed, view=yon)
+                await yon.wait()
+
+                if yon.value == True:
+
+                    wait = discord.Embed(color=self.bot.blurple, title="Purge in Progress", description="Please wait while the purge is in progress. This message will be edited when the purge is complete.")
+                    await response.edit(embed=wait, view=None)
+                    for id in csv.channel_ids:
+                        channel = guild.get_channel(id)
+                        messages = [m async for m in channel.history(limit=None)]
+                        unpinned = [m for m in messages if not m.pinned]
+                        while len(unpinned) > 0:
+                            await channel.purge(check=lambda message: message.pinned == False, oldest_first=True)
+                            messages = [m async for m in channel.history(limit=None)]
+                            unpinned = [m for m in messages if not m.pinned]
+                    
+                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete!')
+                    await response.edit(embed=success, view=None)
+
+                    cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                    row = await cur.fetchone()
+                    fetched_logging = row[0]
+                    if fetched_logging is not None:
+                        logging = guild.get_channel(fetched_logging)
+                        now = datetime.now(tz=timezone.utc)
+                        log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{user.mention} has just purged all unpinned messages from the following channels: {mentionlist}.", timestamp=now)
+                        log.set_author(name=user.display_name, icon_url=user.display_avatar)
+                        log.set_thumbnail(url=user.display_avatar)
+                        await logging.send(embed=log)
+
+                elif yon.value == False:
+                    cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
+                    await response.edit(embed=cancelled, view=None)
+
+                else:
+                    timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
+                    await response.edit(embed=timed_out, view=None)
+
+            elif csv.value == False:
+                cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
+                await response.edit(embed=cancelled, view=None)
+
+            else:
+                timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
+                await response.edit(embed=timed_out, view=None)
+
+        except Exception as e:
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.send(embed=error, view=None)
+            print(traceback.format_exc())
+
+    @app_commands.command(name="server")
+    @app_commands.checks.has_permissions(administrator=True)
+    async def server(self, interaction: discord.Interaction):
+        """(Admin Only) Purges all unpinned messages in a server, excluding up to 25 channels.
+        """
+        await interaction.response.defer()
+        try:
+            
+            user = interaction.user
+            csv = ChannelSelectView(bot=self.bot, user=user)
+            embed = discord.Embed(color=self.bot.blurple, title="Exclude Channels", description=f"Which channel(s) would you like to **exclude** from the purge?")
+            response = await interaction.followup.send(embed=embed, view=csv, wait=True)
+            await csv.wait()
+            
+            if csv.value == True:
+
+                guild = interaction.guild
+                excluded = []
+                mentions = []
+                for id in csv.channel_ids:
+                    channel = guild.get_channel(id)
+                    excluded.append(channel)
+                    mentions.append(channel.mention)
+                mentionlist = ", ".join(mentions)
+                yon = YesOrNo(bot=self.bot, user=user)
+                embed = discord.Embed(color=self.bot.blurple, title="Confirm Purge", description=f"Please review the list of excluded channels below and confirm that you would like to continue with the purge of all unpinned messages **except** from the following channels:\n\n{mentionlist}")
+                await response.edit(embed=embed, view=yon)
+                await yon.wait()
+
+                if yon.value == True:
+
+                    wait = discord.Embed(color=self.bot.blurple, title="Purge in Progress", description="Please wait while the purge is in progress. This message will be edited when the purge is complete.")
+                    await response.edit(embed=wait, view=None)
+                    for channel in guild.channels:
+                        if channel not in excluded:
+                            messages = [m async for m in channel.history(limit=None)]
+                            unpinned = [m for m in messages if not m.pinned]
+                            while len(unpinned) > 0:
+                                await channel.purge(check=lambda message: message.pinned == False, oldest_first=True)
+                                messages = [m async for m in channel.history(limit=None)]
+                                unpinned = [m for m in messages if not m.pinned]
+                    
+                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete!')
+                    await response.edit(embed=success, view=None)
+
+                    cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                    row = await cur.fetchone()
+                    fetched_logging = row[0]
+                    if fetched_logging is not None:
+                        logging = guild.get_channel(fetched_logging)
+                        now = datetime.now(tz=timezone.utc)
+                        log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{user.mention} has just purged all unpinned messages from the following channels: {mentionlist}.", timestamp=now)
+                        log.set_author(name=user.display_name, icon_url=user.display_avatar)
+                        log.set_thumbnail(url=user.display_avatar)
+                        await logging.send(embed=log)
+
+                elif yon.value == False:
+                    cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
+                    await response.edit(embed=cancelled, view=None)
+
+                else:
+                    timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
+                    await response.edit(embed=timed_out, view=None)
+
+            elif csv.value == False:
+                cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
+                await response.edit(embed=cancelled, view=None)
+
+            else:
+                timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
+                await response.edit(embed=timed_out, view=None)
+
+        except Exception as e:
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.send(embed=error, view=None)
             print(traceback.format_exc())
 
 async def setup(bot: commands.Bot):

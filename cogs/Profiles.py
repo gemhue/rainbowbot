@@ -1,16 +1,17 @@
 import discord
 import traceback
+from discord import app_commands
 from discord.ext import commands
 from datetime import datetime, timezone
 from typing import Optional
 
-class Profiles(commands.Cog):
+class Profiles(commands.GroupCog, group_name = "profile"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.db = bot.database
     
-    @commands.hybrid_group(name="profile", fallback="set")
-    async def profile(self, ctx: commands.Context, name: Optional[str], age: Optional[str], location: Optional[str], pronouns: Optional[str], gender: Optional[str], sexuality: Optional[str], relationship_status: Optional[str], family_status: Optional[str], biography: Optional[str]):
+    @app_commands.command(name="set")
+    async def set(self, interaction: discord.Interaction, name: Optional[str], age: Optional[str], location: Optional[str], pronouns: Optional[str], gender: Optional[str], sexuality: Optional[str], relationship_status: Optional[str], family_status: Optional[str], biography: Optional[str]):
         """Run this command to set up your member profile. Note that all fields are optional.
 
         Parameters
@@ -34,17 +35,18 @@ class Profiles(commands.Cog):
         biography : str, optional
             Provide a brief biography (ex. family, hobbies, interests, work, etc).
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
         try:
                 
-            guild = ctx.guild
+            guild = interaction.guild
             if member is None:
-                member = ctx.author
+                member = interaction.user
             member_id = member.id
             joined = discord.utils.format_dt(member.joined_at, style="D")
             joinedago = discord.utils.format_dt(member.joined_at, style="R")
             profile = discord.Embed(color=member.accent_color, title=f"{member.display_name}'s Member Profile", description=f"Member of {guild.name} since {joined} ({joinedago}).")
             profile.set_author(name=f"{member.display_name}", icon_url=f"{member.display_avatar}")
+            profile.set_thumbnail(url=f"{member.display_avatar}")
             await self.db.execute("INSERT OR IGNORE INTO members (member_id) VALUES (?)", (member_id,))
             await self.db.commit()
 
@@ -148,7 +150,7 @@ class Profiles(commands.Cog):
                 profile.add_field(name="📝 Roles", value=f"{roles}", inline=False)
             
             # Send the message
-            await ctx.send(embed=profile, ephemeral=True)
+            await interaction.followup.send(embed=profile, ephemeral=True)
 
             # Send a log to the logging channel, if one is set
             cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -164,11 +166,11 @@ class Profiles(commands.Cog):
         # Send an error message if there's an issue
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
-    @profile.command(name="get")
-    async def get(self, ctx: commands.Context, member: Optional[discord.Member]):
+    @app_commands.command(name="get")
+    async def get(self, interaction: discord.Interaction, member: Optional[discord.Member]):
         """Run this command to retrieve a member's profile.
 
         Parameters
@@ -176,17 +178,18 @@ class Profiles(commands.Cog):
         member : str, optional
             Provide the member whose profile you would like to retrieve.
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=True)
         try:
 
-            guild = ctx.guild
+            guild = interaction.guild
             if member is None:
-                member = ctx.author
+                member = interaction.user
             member_id = member.id
             joined = discord.utils.format_dt(member.joined_at, style="D")
             joinedago = discord.utils.format_dt(member.joined_at, style="R")
             profile = discord.Embed(color=member.accent_color, title=f"{member.display_name}'s Member Profile", description=f"Member of {guild.name} since {joined} ({joinedago}).")
             profile.set_author(name=f"{member.display_name}", icon_url=f"{member.display_avatar}")
+            profile.set_thumbnail(url=f"{member.display_avatar}")
             await self.db.execute("INSERT OR IGNORE INTO members (member_id) VALUES (?)", (member_id,))
             await self.db.commit()
 
@@ -263,12 +266,12 @@ class Profiles(commands.Cog):
                 profile.add_field(name="📝 Roles", value=f"{roles}", inline=False)
             
             # Send the message
-            await ctx.send(embed=profile, ephemeral=True)
+            await interaction.followup.send(embed=profile, ephemeral=True)
         
         # Send an error message if there's an issue
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
 async def setup(bot: commands.Bot):

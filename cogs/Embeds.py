@@ -5,7 +5,7 @@ from discord.ext import commands
 from typing import Optional
 from datetime import datetime, timezone
 
-class Embeds(commands.GroupCog, group_name = "embeds"):
+class Embeds(commands.GroupCog, group_name = "embed"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.db = bot.database
