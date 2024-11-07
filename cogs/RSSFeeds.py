@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from time import mktime
 from bs4 import BeautifulSoup
 
-class RSSFeeds(commands.Cog):
+class RSSFeeds(commands.GroupCog, group_name = "rss"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.db = bot.database
@@ -20,10 +20,9 @@ class RSSFeeds(commands.Cog):
     def cog_unload(self):
         self.postrss.cancel()
 
-    @commands.hybrid_group(name="rss", fallback="webhook_setup")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="webhook_setup")
     @app_commands.checks.has_permissions(administrator=True)
-    async def rss(self, ctx: commands.Context, webhook_url: str):
+    async def webhook_setup(self, interaction: discord.Interaction, webhook_url: str):
         """(Admin Only) Run this command to set up a Webhook for posting RSS feeds.
 
         Parameters
@@ -31,34 +30,36 @@ class RSSFeeds(commands.Cog):
         webhook_url : str
             Provide the URL for the Webhook.
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer()
         try:
 
-            await self.db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
+            guild = interaction.guild
+            await self.db.execute("INSERT OR IGNORE INTO webhooks (url, guild_id) VALUES (?, ?)", (webhook_url, guild.id))
             await self.db.commit()
+
             now = datetime.now(tz=timezone.utc)
             embed = discord.Embed(color=self.bot.blurple, title="Webhook Set", timestamp=now)
             embed.add_field(name="Webhook URL", value=f"{webhook_url}", inline=False)
+            await interaction.followup.send(embed=embed)
 
-            await ctx.send(embed=embed, ephemeral=True)
-
-            cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+            cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
             row = await cur.fetchone()
             fetched_logging = row[0]
             if fetched_logging is not None:
-                logging = ctx.guild.get_channel(fetched_logging)
-                embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+                user = interaction.user
+                logging = guild.get_channel(fetched_logging)
+                embed.set_author(name=user.display_name, icon_url=user.display_avatar)
+                embed.set_thumbnail(url=user.display_avatar)
                 await logging.send(embed=embed)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error)
             print(traceback.format_exc())
 
-    @rss.command(name="webhook_check")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="webhook_check")
     @app_commands.checks.has_permissions(administrator=True)
-    async def webhook_check(self, ctx: commands.Context, webhook_url: str):
+    async def webhook_check(self, interaction: discord.Interaction, webhook_url: str):
         """(Admin Only) Run this command to check what RSS feeds are set to the webhook.
 
         Parameters
@@ -66,14 +67,16 @@ class RSSFeeds(commands.Cog):
         webhook_url : str
             Provide the URL for the webhook.
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer()
         try:
 
-            await self.db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
+            guild = interaction.guild
+            await self.db.execute("INSERT OR IGNORE INTO webhooks (url, guild_id) VALUES (?, ?)", (webhook_url, guild.id))
             await self.db.commit()
 
             now = datetime.now(tz=timezone.utc)
             embed = discord.Embed(color=self.bot.blurple, title="Webhook Check", description=f"**Webhook URL**: {webhook_url}", timestamp=now)
+
             cur = await self.db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
             fetched_rss_url = row[0]
@@ -154,17 +157,26 @@ class RSSFeeds(commands.Cog):
             else:
                 embed.add_field(name="Position Nine", value="Empty", inline=False)
 
-            await ctx.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed)
+
+            cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+            row = await cur.fetchone()
+            fetched_logging = row[0]
+            if fetched_logging is not None:
+                user = interaction.user
+                logging = guild.get_channel(fetched_logging)
+                embed.set_author(name=user.display_name, icon_url=user.display_avatar)
+                embed.set_thumbnail(url=user.display_avatar)
+                await logging.send(embed=embed)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error)
             print(traceback.format_exc())
 
-    @rss.command(name="webhook_clear")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="webhook_clear")
     @app_commands.checks.has_permissions(administrator=True)
-    async def webhook_clear(self, ctx: commands.Context, webhook_url: str):
+    async def webhook_clear(self, interaction: discord.Interaction, webhook_url: str):
         """(Admin Only) Run this command to clear all RSS feeds set to the webhook.
 
         Parameters
@@ -172,14 +184,16 @@ class RSSFeeds(commands.Cog):
         webhook_url : str
             Provide the URL for the webhook.
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer()
         try:
 
-            await self.db.execute("INSERT OR REPLACE INTO webhooks (url) VALUES (?)", (webhook_url,))
+            guild = interaction.guild
+            await self.db.execute("INSERT OR IGNORE INTO webhooks (url, guild_id) VALUES (?, ?)", (webhook_url, guild.id))
             await self.db.commit()
 
             now = datetime.now(tz=timezone.utc)
             embed = discord.Embed(color=self.bot.blurple, title="Webhook Clear", description=f"**Webhook URL**: {webhook_url}", timestamp=now)
+
             cur = await self.db.execute("SELECT rss_url_1 FROM webhooks WHERE url = ?", (webhook_url,))
             row = await cur.fetchone()
             fetched_rss_url = row[0]
@@ -260,25 +274,26 @@ class RSSFeeds(commands.Cog):
             else:
                 embed.add_field(name="Position Nine Error", value=f"{fetched_rss_url}", inline=False)
 
-            await ctx.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed)
 
-            cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+            cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
             row = await cur.fetchone()
             fetched_logging = row[0]
             if fetched_logging is not None:
-                logging = ctx.guild.get_channel(fetched_logging)
-                embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+                user = interaction.user
+                logging = guild.get_channel(fetched_logging)
+                embed.set_author(name=user.display_name, icon_url=user.display_avatar)
+                embed.set_thumbnail(url=user.display_avatar)
                 await logging.send(embed=embed)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error)
             print(traceback.format_exc())
 
-    @rss.command(name="feed_setup")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="feed_setup")
     @app_commands.checks.has_permissions(administrator=True)
-    async def feed_setup(self, ctx: commands.Context, webhook_url: str, rss_feed_url: str):
+    async def feed_setup(self, interaction: discord.Interaction, webhook_url: str, rss_feed_url: str):
         """(Admin Only) Run this command to set an RSS Feed. All fields are required.
 
         Parameters
@@ -288,10 +303,11 @@ class RSSFeeds(commands.Cog):
         rss_feed_url : str
             Provide the URL for the RSS feed.
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer()
         try:
 
-            await self.db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
+            guild = interaction.guild
+            await self.db.execute("INSERT OR IGNORE INTO webhooks (url, guild_id) VALUES (?, ?)", (webhook_url, guild.id))
             await self.db.commit()
 
             now = datetime.now(tz=timezone.utc)
@@ -399,25 +415,26 @@ class RSSFeeds(commands.Cog):
                                                 else:
                                                     embed.add_field(name="Error", value="This webhook is already associated with 10 RSS feeds. Please use `/rss feed_clear` or `/rss webhook_clear` to remove one or all RSS feeds from this webhook.")
             
-            await ctx.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed)
 
-            cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+            cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
             row = await cur.fetchone()
             fetched_logging = row[0]
             if fetched_logging is not None:
-                logging = ctx.guild.get_channel(fetched_logging)
-                embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+                user = interaction.user
+                logging = guild.get_channel(fetched_logging)
+                embed.set_author(name=user.display_name, icon_url=user.display_avatar)
+                embed.set_thumbnail(url=user.display_avatar)
                 await logging.send(embed=embed)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
 
-    @rss.command(name="feed_clear")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="feed_clear")
     @app_commands.checks.has_permissions(administrator=True)
-    async def feed_clear(self, ctx: commands.Context, webhook_url: str, rss_feed_position: Literal[0,1,2,3,4,5,6,7,8,9]):
+    async def feed_clear(self, interaction: discord.Interaction, webhook_url: str, rss_feed_position: Literal[0,1,2,3,4,5,6,7,8,9]):
         """(Admin Only) Run this command to clear one RSS feed from a webhook.
 
         Parameters
@@ -427,10 +444,11 @@ class RSSFeeds(commands.Cog):
         rss_feed_position : int
             Provide the position (0-9) for the RSS feed you want to clear. Check position with /checkwebhook.
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer()
         try:
 
-            await self.db.execute("INSERT OR REPLACE INTO webhooks (url) VALUES (?)", (webhook_url,))
+            guild = interaction.guild
+            await self.db.execute("INSERT OR IGNORE INTO webhooks (url, guild_id) VALUES (?, ?)", (webhook_url, guild.id))
             await self.db.commit()
 
             now = datetime.now(tz=timezone.utc)
@@ -545,23 +563,22 @@ class RSSFeeds(commands.Cog):
                     embed.add_field(name="Success", value=f"Position nine cleared!", inline=False)
                 else:
                     embed.add_field(name="Error", value=f"Position nine **not** cleared!", inline=False)
-
-            else:
-                embed = discord.Embed(color=self.bot.red, title="Error", description="You must enter a number from 0 to 9 as the RSS feed position. Check which position on the Webhook the RSS feed is stored at by using `/checkwebhook`.")
             
-            await ctx.send(embed=embed, ephemeral=True)
+            await interaction.followup.send(embed=embed)
 
-            cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+            cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
             row = await cur.fetchone()
             fetched_logging = row[0]
             if fetched_logging is not None:
-                logging = ctx.guild.get_channel(fetched_logging)
-                embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+                user = interaction.user
+                logging = guild.get_channel(fetched_logging)
+                embed.set_author(name=user.display_name, icon_url=user.display_avatar)
+                embed.set_thumbnail(url=user.display_avatar)
                 await logging.send(embed=embed)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error)
             print(traceback.format_exc())
  
     async def getwebhooks(self):
