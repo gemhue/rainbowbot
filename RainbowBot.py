@@ -3,7 +3,6 @@ import aiosqlite
 import logging
 import traceback
 import os
-from discord import app_commands
 from discord.ext import commands
 from datetime import datetime, timezone
 
@@ -16,7 +15,6 @@ class RainbowBot(commands.Bot):
             activity = discord.Activity(type=discord.ActivityType.listening, name="rb!help"),
             status = discord.Status.online
         )
-        self.tree = app_commands.CommandTree(self)
         self.blurple = discord.Colour.blurple()
         self.green = discord.Colour.green()
         self.yellow = discord.Colour.yellow()
@@ -29,12 +27,12 @@ class RainbowBot(commands.Bot):
 bot = RainbowBot()
 handler = logging.FileHandler(filename="rainbowbot.log", encoding="utf-8", mode="w")
 
-@bot.command(name="sync", aliases=["sync_tree"], hidden=True)
+@bot.command(name="sync", hidden=True)
 @commands.is_owner()
 async def sync(ctx: commands.Context, where: str):
     """(Bot Owner Only) Syncs the local command tree.
     """
-    await ctx.defer(ephemeral=True)
+    await ctx.defer()
     guild = ctx.guild
     now = datetime.now(tz=timezone.utc)
     if where == "here" or where == "local":
@@ -45,7 +43,7 @@ async def sync(ctx: commands.Context, where: str):
         embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's global command tree has been synced!", timestamp=now)
     else:
         embed = discord.Embed(color=bot.red, title="Error", description=f"The bot's command tree has not been synced! Please specify if you would like to sync `here` or `all`.", timestamp=now)
-    await ctx.send(embed=embed, ephemeral=True)
+    await ctx.send(embed=embed)
     await ctx.message.delete()
 
     # Send a log to the logging channel
@@ -53,16 +51,17 @@ async def sync(ctx: commands.Context, where: str):
     row = await cur.fetchone()
     fetched_logging = row[0]
     if fetched_logging is not None:
-        logging = bot.get_channel(fetched_logging)
+        logging = ctx.guild.get_channel(fetched_logging)
         embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+        embed.set_thumbnail(url=ctx.author.display_avatar)
         await logging.send(embed=embed)
 
-@bot.command(name="clear", aliases=["clear_tree"], hidden=True)
+@bot.command(name="clear", hidden=True)
 @commands.is_owner()
 async def clear(ctx: commands.Context, where: str):
     """(Bot Owner Only) Clears the local command tree.
     """
-    await ctx.defer(ephemeral=True)
+    await ctx.defer()
     guild = ctx.guild
     now = datetime.now(tz=timezone.utc)
     if where == "here" or where == "local":
@@ -73,7 +72,7 @@ async def clear(ctx: commands.Context, where: str):
         embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's global command tree has been cleared!", timestamp=now)
     else:
         embed = discord.Embed(color=bot.red, title="Error", description=f"The bot's command tree has not been cleared! Please specify if you would like to clear \`here\` or \`global\`.", timestamp=now)
-    await ctx.send(embed=embed, ephemeral=True)
+    await ctx.send(embed=embed)
     await ctx.message.delete()
     
     # Send a log to the logging channel
@@ -81,8 +80,9 @@ async def clear(ctx: commands.Context, where: str):
     row = await cur.fetchone()
     fetched_logging = row[0]
     if fetched_logging is not None:
-        logging = bot.get_channel(fetched_logging)
+        logging = ctx.guild.get_channel(fetched_logging)
         embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+        embed.set_thumbnail(url=ctx.author.display_avatar)
         await logging.send(embed=embed)
 
 async def allcogs(x):
@@ -119,12 +119,12 @@ async def allcogs(x):
 async def get_cogs(ctx: commands.Context):
     """(Bot Owner Only) Returns all of the bot's cogs.
     """
-    await ctx.defer(ephemeral=True)
+    await ctx.defer()
     now = datetime.now(tz=timezone.utc)
     embed = discord.Embed(color=bot.blurple, title="Cogs", timestamp=now)
     for cog in await allcogs(x="names"):
         embed.add_field(name=cog, value="Retreived successfully!")
-    await ctx.send(embed=embed, ephemeral=True)
+    await ctx.send(embed=embed)
     await ctx.message.delete()
 
     # Send a log to the logging channel
@@ -132,11 +132,12 @@ async def get_cogs(ctx: commands.Context):
     row = await cur.fetchone()
     fetched_logging = row[0]
     if fetched_logging is not None:
-        logging = bot.get_channel(fetched_logging)
+        logging = ctx.guild.get_channel(fetched_logging)
         embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+        embed.set_thumbnail(url=ctx.author.display_avatar)
         await logging.send(embed=embed)
 
-@bot.command(name="load", aliases=["load_cogs","load_cog","loadcogs","loadcog"], hidden=True)
+@bot.command(name="load", hidden=True)
 @commands.is_owner()
 async def load(ctx: commands.Context, extension: str):
     """(Bot Owner Only) Loads one or all of the bot's cogs.
@@ -146,7 +147,7 @@ async def load(ctx: commands.Context, extension: str):
     extension : str
         Provide the extension that you would like to load (or all).
     """
-    await ctx.defer(ephemeral=True)
+    await ctx.defer()
     now = datetime.now(tz=timezone.utc)
     embed = discord.Embed(color=bot.blurple, title="Load Cogs", timestamp=now)
     lower = extension.lower()
@@ -169,7 +170,7 @@ async def load(ctx: commands.Context, extension: str):
                     print(traceback.format_exc())
     else:
         embed.add_field(name="Error", value="No cogs could be loaded.")
-    await ctx.send(embed=embed, ephemeral=True)
+    await ctx.send(embed=embed)
     await ctx.message.delete()
     
     # Send a log to the logging channel
@@ -177,11 +178,12 @@ async def load(ctx: commands.Context, extension: str):
     row = await cur.fetchone()
     fetched_logging = row[0]
     if fetched_logging is not None:
-        logging = bot.get_channel(fetched_logging)
+        logging = ctx.guild.get_channel(fetched_logging)
         embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+        embed.set_thumbnail(url=ctx.author.display_avatar)
         await logging.send(embed=embed)
 
-@bot.command(name="unload", aliases=["unload_cogs","unload_cog","unloadcogs","unloadcog"], hidden=True)
+@bot.command(name="unload", hidden=True)
 @commands.is_owner()
 async def unload(ctx: commands.Context, extension: str):
     """(Bot Owner Only) Unloads one or all of the bot's cogs.
@@ -191,7 +193,7 @@ async def unload(ctx: commands.Context, extension: str):
     extension : str
         Provide the extension that you would like to unload (or all).
     """
-    await ctx.defer(ephemeral=True)
+    await ctx.defer()
     now = datetime.now(tz=timezone.utc)
     embed = discord.Embed(color=bot.blurple, title="Unload Cogs", timestamp=now)
     lower = extension.lower()
@@ -214,7 +216,7 @@ async def unload(ctx: commands.Context, extension: str):
                     print(traceback.format_exc())
     else:
         embed.add_field(name="Error", value="No cogs could be unloaded.")
-    await ctx.send(embed=embed, ephemeral=True)
+    await ctx.send(embed=embed)
     await ctx.message.delete()
     
     # Send a log to the logging channel
@@ -222,11 +224,12 @@ async def unload(ctx: commands.Context, extension: str):
     row = await cur.fetchone()
     fetched_logging = row[0]
     if fetched_logging is not None:
-        logging = bot.get_channel(fetched_logging)
+        logging = ctx.guild.get_channel(fetched_logging)
         embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+        embed.set_thumbnail(url=ctx.author.display_avatar)
         await logging.send(embed=embed)
 
-@bot.command(name="reload", aliases=["reload_cogs","reload_cog","reloadcogs","reloadcog"], hidden=True)
+@bot.command(name="reload", hidden=True)
 @commands.is_owner()
 async def reload(ctx: commands.Context, extension: str):
     """(Bot Owner Only) Reloads one or all of the bot's cogs.
@@ -236,7 +239,7 @@ async def reload(ctx: commands.Context, extension: str):
     extension : str
         Provide the extension that you would like to reload (or all).
     """
-    await ctx.defer(ephemeral=True)
+    await ctx.defer()
     now = datetime.now(tz=timezone.utc)
     embed = discord.Embed(color=bot.blurple, title="Reload Cogs", timestamp=now)
     lower = extension.lower()
@@ -259,7 +262,7 @@ async def reload(ctx: commands.Context, extension: str):
                     print(traceback.format_exc())
     else:
         embed.add_field(name="Error", value="No cogs could be reloaded.")
-    await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+    await ctx.send(embed=embed)
     await ctx.message.delete()
     
     # Send a log to the logging channel
@@ -267,21 +270,22 @@ async def reload(ctx: commands.Context, extension: str):
     row = await cur.fetchone()
     fetched_logging = row[0]
     if fetched_logging is not None:
-        logging = bot.get_channel(fetched_logging)
+        logging = ctx.guild.get_channel(fetched_logging)
         embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+        embed.set_thumbnail(url=ctx.author.display_avatar)
         await logging.send(embed=embed)  
 
-@bot.command(name="ping", aliases=["latency"])
+@bot.command(name="ping")
 async def ping(ctx: commands.Context):
     """Retrieve the bot's current latency.
     """
-    await ctx.defer(ephemeral=True)
+    await ctx.defer()
     try:
         embed = discord.Embed(color=bot.blurple, title="Pong", description=f"The bot's current latency is {bot.latency} seconds!")
     except Exception as e:
         embed = discord.Embed(color=bot.red, title="Error", description=f"{e}")
         print(traceback.format_exc())
-    await ctx.send(embed=embed, delete_after=30.0, ephemeral=True)
+    await ctx.send(embed=embed)
     await ctx.message.delete()
 
     # Send a log to the logging channel
@@ -289,8 +293,9 @@ async def ping(ctx: commands.Context):
     row = await cur.fetchone()
     fetched_logging = row[0]
     if fetched_logging is not None:
-        logging = bot.get_channel(fetched_logging)
+        logging = ctx.guild.get_channel(fetched_logging)
         embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+        embed.set_thumbnail(url=ctx.author.display_avatar)
         await logging.send(embed=embed)
 
 @bot.event
