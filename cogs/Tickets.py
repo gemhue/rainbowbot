@@ -21,11 +21,10 @@ class TicketButtons(discord.ui.View):
             await thread.add_user(user)
 
             guild = interaction.guild
-            guild_id = guild.id
-            await self.db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
+            await self.db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild.id,))
             await self.db.commit()
 
-            cur = await self.db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild_id,))
+            cur = await self.db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild.id,))
             row = await cur.fetchone()
             staff_role_id = row[0]
             staff = guild.get_role(staff_role_id)
@@ -47,6 +46,7 @@ class TicketButtons(discord.ui.View):
                 log = discord.Embed(color=self.bot.blurple, title="Ticket Log", description=f"{interaction.user.mention} has just created a ticket.", timestamp=now)
                 log.add_field(name="Reason", value="Verification", inline=False)
                 log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
+                log.set_thumbnail(url=interaction.user.display_avatar)
                 await logging.send(embed=log)
 
         except Exception as e:
@@ -65,11 +65,10 @@ class TicketButtons(discord.ui.View):
             await thread.add_user(user)
 
             guild = interaction.guild
-            guild_id = guild.id
-            await self.db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
+            await self.db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild.id,))
             await self.db.commit()
 
-            cur = await self.db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild_id,))
+            cur = await self.db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild.id,))
             row = await cur.fetchone()
             staff_role_id = row[0]
             staff = guild.get_role(staff_role_id)
@@ -91,6 +90,7 @@ class TicketButtons(discord.ui.View):
                 log = discord.Embed(color=self.bot.blurple, title="Ticket Log", description=f"{interaction.user.mention} has just created a ticket.", timestamp=now)
                 log.add_field(name="Reason", value="Question", inline=False)
                 log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
+                log.set_thumbnail(url=interaction.user.display_avatar)
                 await logging.send(embed=log)
 
         except Exception as e:
@@ -109,11 +109,10 @@ class TicketButtons(discord.ui.View):
             await thread.add_user(user)
 
             guild = interaction.guild
-            guild_id = guild.id
-            await self.db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
+            await self.db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild.id,))
             await self.db.commit()
 
-            cur = await self.db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild_id,))
+            cur = await self.db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild.id,))
             row = await cur.fetchone()
             staff_role_id = row[0]
             staff = guild.get_role(staff_role_id)
@@ -135,6 +134,7 @@ class TicketButtons(discord.ui.View):
                 log = discord.Embed(color=self.bot.blurple, title="Ticket Log", description=f"{interaction.user.mention} has just created a ticket.", timestamp=now)
                 log.add_field(name="Reason", value="Suggestion", inline=False)
                 log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
+                log.set_thumbnail(url=interaction.user.display_avatar)
                 await logging.send(embed=log)
 
         except Exception as e:
@@ -153,11 +153,10 @@ class TicketButtons(discord.ui.View):
             await thread.add_user(user)
 
             guild = interaction.guild
-            guild_id = guild.id
-            await self.db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
+            await self.db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild.id,))
             await self.db.commit()
 
-            cur = await self.db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild_id,))
+            cur = await self.db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild.id,))
             row = await cur.fetchone()
             staff_role_id = row[0]
             staff = guild.get_role(staff_role_id)
@@ -179,6 +178,7 @@ class TicketButtons(discord.ui.View):
                 log = discord.Embed(color=self.bot.blurple, title="Ticket Log", description=f"{interaction.user.mention} has just created a ticket.", timestamp=now)
                 log.add_field(name="Reason", value="Complaint", inline=False)
                 log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
+                log.set_thumbnail(url=interaction.user.display_avatar)
                 await logging.send(embed=log)
 
         except Exception as e:
@@ -197,11 +197,10 @@ class TicketButtons(discord.ui.View):
             await thread.add_user(user)
 
             guild = interaction.guild
-            guild_id = guild.id
-            await self.db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
+            await self.db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild.id,))
             await self.db.commit()
 
-            cur = await self.db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild_id,))
+            cur = await self.db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild.id,))
             row = await cur.fetchone()
             staff_role_id = row[0]
             staff = guild.get_role(staff_role_id)
@@ -223,6 +222,7 @@ class TicketButtons(discord.ui.View):
                 log = discord.Embed(color=self.bot.blurple, title="Ticket Log", description=f"{interaction.user.mention} has just created a ticket.", timestamp=now)
                 log.add_field(name="Reason", value="Report", inline=False)
                 log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
+                log.set_thumbnail(url=interaction.user.display_avatar)
                 await logging.send(embed=log)
 
         except Exception as e:
@@ -241,11 +241,10 @@ class TicketButtons(discord.ui.View):
             await thread.add_user(user)
 
             guild = interaction.guild
-            guild_id = guild.id
-            await self.db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
+            await self.db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild.id,))
             await self.db.commit()
 
-            cur = await self.db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild_id,))
+            cur = await self.db.execute("SELECT role_id FROM tickets WHERE guild_id = ?", (guild.id,))
             row = await cur.fetchone()
             staff_role_id = row[0]
             staff = guild.get_role(staff_role_id)
@@ -268,6 +267,7 @@ class TicketButtons(discord.ui.View):
                 log.add_field(name="Ticket", value=f"{thread.mention}", inline=False)
                 log.add_field(name="Reason", value="Other", inline=False)
                 log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
+                log.set_thumbnail(url=interaction.user.display_avatar)
                 await logging.send(embed=log)
 
         except Exception as e:
@@ -320,6 +320,7 @@ class ConfirmButton(discord.ui.View):
                 log = discord.Embed(color=self.bot.blurple, title="Ticket Log", description=f"{interaction.user.mention} has just closed a ticket.", timestamp=now)
                 log.add_field(name="Ticket", value=f"{thread.mention}", inline=False)
                 log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
+                log.set_thumbnail(url=interaction.user.display_avatar)
                 await logging.send(embed=log)
 
             else:
@@ -342,15 +343,14 @@ class ConfirmButton(discord.ui.View):
             await interaction.followup.send(ephemeral=True, embed=error)
             print(traceback.format_exc())
 
-class Tickets(commands.Cog):
+class Tickets(commands.GroupCog, group_name = "tickets"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.db = bot.database
     
-    @commands.hybrid_group(name="tickets", fallback="setup")
-    @commands.has_guild_permissions(administrator=True)
+    @app_commands.command(name="setup")
     @app_commands.checks.has_permissions(administrator=True)
-    async def tickets(self, ctx: commands.Context, channel: discord.TextChannel, staff_role: discord.Role):
+    async def setup(self, interaction: discord.Interaction, channel: discord.TextChannel, staff_role: discord.Role):
         """(Admin Only) Set up a ticketing system for the server.
         
         Parameters
@@ -360,17 +360,16 @@ class Tickets(commands.Cog):
         staff_role : discord.Role
             Provide the role that should be pinged when a ticket is opened.
         """
-        await ctx.defer(ephemeral=True)
+        await interaction.response.defer()
+
         try:
 
-            guild_id = ctx.guild.id
-            channel_id = channel.id
-            role_id = staff_role.id
-            await self.db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild_id,))
+            guild = interaction.guild
+            await self.db.execute("INSERT OR IGNORE INTO tickets (guild_id) VALUES (?)", (guild.id,))
             await self.db.commit()
-            await self.db.execute("UPDATE tickets SET channel_id = ? WHERE guild_id = ?", (channel_id, guild_id))
+            await self.db.execute("UPDATE tickets SET channel_id = ? WHERE guild_id = ?", (channel.id, guild.id))
             await self.db.commit()
-            await self.db.execute("UPDATE tickets SET role_id = ? WHERE guild_id = ?", (role_id, guild_id))
+            await self.db.execute("UPDATE tickets SET role_id = ? WHERE guild_id = ?", (staff_role.id, guild.id))
             await self.db.commit()
             embed = discord.Embed(color=self.bot.blurple, title="🎫 Create a Ticket", description="Creating a ticket will open a private thread where you will be able to communicate with the server's staff or moderation team. To create a ticket, choose a reason from the options below.")
             await channel.send(embed=embed, view=TicketButtons(bot=self.bot))
@@ -378,21 +377,25 @@ class Tickets(commands.Cog):
             success = discord.Embed(color=self.bot.green, title="Success", description=f"The ticketing system has been set up!")
             success.add_field(name="Channel", value=f"{channel.mention}", inline=False)
             success.add_field(name="Staff Role", value=f"{staff_role.mention}", inline=False)
-            await ctx.send(embed=success, ephemeral=True)
+            await interaction.followup.send(embed=success)
 
-            cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (ctx.guild.id,))
+            cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (interaction.guild.id,))
             row = await cur.fetchone()
             fetched_logging = row[0]
             if fetched_logging is not None:
                 logging = self.bot.get_channel(fetched_logging)
                 now = datetime.now(tz=timezone.utc)
-                log = discord.Embed(color=self.bot.blurple, title="Ticket Log", description=f"{ctx.author.mention} has just set up a ticketing system for the server.", timestamp=now)
-                log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+                log = discord.Embed(color=self.bot.blurple, title="Ticket Log", description=f"{interaction.user.mention} has just set up a ticketing system for the server.", timestamp=now)
+                log.add_field(name="Channel", value=f"{channel.mention}", inline=False)
+                log.add_field(name="Staff Role", value=f"{staff_role.mention}", inline=False)
+                log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
+                log.set_thumbnail(url=interaction.user.display_avatar)
                 await logging.send(embed=log)
 
         except Exception as e:
+
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await ctx.send(embed=error, ephemeral=True)
+            await interaction.followup.send(embed=error)
             print(traceback.format_exc())
 
 async def setup(bot: commands.Bot):
