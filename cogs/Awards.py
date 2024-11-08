@@ -1,6 +1,6 @@
 import discord
 import traceback
-from discord import app_commands, ChannelType
+from discord import app_commands
 from discord.ext import commands
 from typing import Optional
 from datetime import datetime, timezone
@@ -74,7 +74,7 @@ class SingularView(discord.ui.View):
         self.stop()
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
-    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             embed = discord.Embed(color=self.bot.red, title="Cancel", description="Are you sure you want to cancel?")
@@ -166,7 +166,7 @@ class PluralView(discord.ui.View):
         self.stop()
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
-    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             embed = discord.Embed(color=self.bot.red, title="Cancel", description="Are you sure you want to cancel?")
@@ -255,7 +255,7 @@ class EmojiView(discord.ui.View):
         self.stop()
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
-    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             embed = discord.Embed(color=self.bot.red, title="Cancel", description="Are you sure you want to cancel?")
@@ -337,7 +337,7 @@ class LeaderboardView(discord.ui.View):
         self.stop()
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
-    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             embed = discord.Embed(color=self.bot.red, title="Cancel", description="Are you sure you want to cancel?")
@@ -356,7 +356,7 @@ class LeaderboardView(discord.ui.View):
 class Leaderboard(discord.ui.ChannelSelect):
     def __init__(self, *, user: discord.Member):
         super().__init__(
-            channel_types=[ChannelType.text],
+            channel_types=[discord.ChannelType.text],
             placeholder="Choose a channel...",
             min_values=1,
             max_values=1,
@@ -432,7 +432,7 @@ class AwardReactionView(discord.ui.View):
                 await error_msg.delete(delay=10.0)
     
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
-    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             embed = discord.Embed(color=self.bot.red, title="Cancel", description="Are you sure you want to cancel?")

@@ -889,6 +889,7 @@ class Start(commands.Cog):
                 )
                 done.add_field(name="Commands Added", value=f"{join}")
                 await message.edit(embed=done, view=None)
+                await message.delete(delay=10.0)
 
                 # Bot sends a log to the logging channel
                 cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -915,7 +916,8 @@ class Start(commands.Cog):
                 title="Error",
                 description=f"There was an error running the `/start` or `rb!start` command. Error: {e}"
             )
-            await message.edit(embed=error, view=None)
+            message = await interaction.followup.send(embed=error, wait=True)
+            await message.delete(delay=10.0)
 
     @app_commands.command(name="add_commands")
     @app_commands.checks.has_permissions(administrator=True)
@@ -960,6 +962,7 @@ class Start(commands.Cog):
                 )
                 done.add_field(name="Commands Added", value=f"{join}")
                 await message.edit(embed=done, view=None)
+                await message.delete(delay=10.0)
 
                 cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                 row = await cur.fetchone()
@@ -967,7 +970,7 @@ class Start(commands.Cog):
                 if fetched_logging is not None:
                     logging_channel = await guild.fetch_channel(fetched_logging)
                     log = discord.Embed(
-                        color=self.bot.red,
+                        color=self.bot.green,
                         title="Add Commands",
                         description=f"{author.mention} has just added commands to {guild.name}!",
                         timestamp=timestamp
@@ -984,7 +987,8 @@ class Start(commands.Cog):
                 title="Error",
                 description=f"There was an error running the `/add_commands` or `rb!add_commands` command. Error: {e}"
             )
-            await interaction.followup.send(embed=error, view=None)
+            message = await interaction.followup.send(embed=error, wait=True)
+            await message.delete(delay=10.0)
 
     @app_commands.command(name="remove_commands")
     @app_commands.checks.has_permissions(administrator=True)
@@ -1029,6 +1033,7 @@ class Start(commands.Cog):
                 )
                 done.add_field(name="Commands Removed", value=f"{join}")
                 await message.edit(embed=done, view=None)
+                await message.delete(delay=10.0)
 
                 cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                 row = await cur.fetchone()
@@ -1053,7 +1058,8 @@ class Start(commands.Cog):
                 title="Error",
                 description=f"There was an error running the `/add_commands` or `rb!add_commands` command. Error: {e}"
             )
-            await interaction.followup.send(embed=error, view=None)
+            message = await interaction.followup.send(embed=error, wait=True)
+            await message.delete(delay=10.0)
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Start(bot=bot), override=True)
