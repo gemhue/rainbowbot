@@ -275,7 +275,7 @@ class Profiles(commands.GroupCog, group_name = "profile"):
             print(traceback.format_exc())
 
 async def setup(bot: commands.Bot):
-    print("Setting up Cog: Profiles.Profiles")
+    print("Setting up Cog: profiles.Profiles")
 
 async def teardown(bot: commands.Bot):
-    print("Tearing down Cog: Profiles.Profiles")
+    print("Tearing down Cog: profiles.Profiles")

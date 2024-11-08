@@ -953,7 +953,7 @@ class Awards(commands.GroupCog, group_name = "awards"):
             print(traceback.format_exc())
 
 async def setup(bot: commands.Bot):
-    print("Setting up Cog: Awards.Awards")
+    print("Setting up Cog: awards.Awards")
 
 async def teardown(bot: commands.Bot):
-    print("Tearing down Cog: Awards.Awards")
+    print("Tearing down Cog: awards.Awards")

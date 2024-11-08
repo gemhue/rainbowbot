@@ -814,7 +814,7 @@ class RSSFeeds(commands.GroupCog, group_name = "rss"):
             print(traceback.format_exc())
 
 async def setup(bot: commands.Bot):
-    print("Setting up Cog: RSSFeeds.RSSFeeds")
+    print("Setting up Cog: rssfeeds.RSSFeeds")
 
 async def teardown(bot: commands.Bot):
-    print("Tearing down Cog: RSSFeeds.RSSFeeds")
+    print("Tearing down Cog: rssfeeds.RSSFeeds")

@@ -400,7 +400,7 @@ class Tickets(commands.GroupCog, group_name = "tickets"):
 
 async def setup(bot: commands.Bot):
     bot.add_view(TicketButtons(bot=bot))
-    print("Setting up Cog: Tickets.Tickets")
+    print("Setting up Cog: tickets.Tickets")
 
 async def teardown(bot: commands.Bot):
-    print("Tearing down Cog: Tickets.Tickets")
+    print("Tearing down Cog: tickets.Tickets")

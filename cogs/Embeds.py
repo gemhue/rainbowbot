@@ -376,7 +376,7 @@ class Embeds(commands.GroupCog, group_name = "embed"):
             print(traceback.format_exc())
 
 async def setup(bot: commands.Bot):
-    print("Setting up Cog: Embeds.Embeds")
+    print("Setting up Cog: embeds.Embeds")
 
 async def teardown(bot: commands.Bot):
-    print("Tearing down Cog: Embeds.Embeds")
+    print("Tearing down Cog: embeds.Embeds")

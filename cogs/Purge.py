@@ -376,7 +376,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
             print(traceback.format_exc())
 
 async def setup(bot: commands.Bot):
-    print("Setting up Cog: Purge.Purge")
+    print("Setting up Cog: purge.Purge")
 
 async def teardown(bot: commands.Bot):
-    print("Tearing down Cog: Purge.Purge")
+    print("Tearing down Cog: purge.Purge")
