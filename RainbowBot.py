@@ -27,7 +27,6 @@ class RainbowBot(commands.Bot):
         print("Connected to Database: rainbowbot.db")
 
 bot = RainbowBot()
-tree = bot.tree
 handler = logging.FileHandler(filename="rainbowbot.log", encoding="utf-8", mode="w")
 
 @bot.command(name="sync", aliases=["sync_tree"], hidden=True)
@@ -273,7 +272,6 @@ async def reload(ctx: commands.Context, extension: str):
         await logging.send(embed=embed)  
 
 @bot.command(name="ping", aliases=["latency"])
-@tree.command
 async def ping(ctx: commands.Context):
     """Retrieve the bot's current latency.
     """
