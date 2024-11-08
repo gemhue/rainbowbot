@@ -43,7 +43,7 @@ async def sync(ctx: commands.Context, where: str):
         embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's global command tree has been synced!", timestamp=now)
     else:
         embed = discord.Embed(color=bot.red, title="Error", description=f"The bot's command tree has not been synced! Please specify if you would like to sync `here` or `all`.", timestamp=now)
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed, delete_after=10.0)
     await ctx.message.delete()
 
     # Send a log to the logging channel
@@ -72,7 +72,7 @@ async def clear(ctx: commands.Context, where: str):
         embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's global command tree has been cleared!", timestamp=now)
     else:
         embed = discord.Embed(color=bot.red, title="Error", description=f"The bot's command tree has not been cleared! Please specify if you would like to clear \`here\` or \`global\`.", timestamp=now)
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed, delete_after=10.0)
     await ctx.message.delete()
     
     # Send a log to the logging channel
@@ -124,7 +124,7 @@ async def get_cogs(ctx: commands.Context):
     embed = discord.Embed(color=bot.blurple, title="Cogs", timestamp=now)
     for cog in await allcogs(x="names"):
         embed.add_field(name=cog, value="Retreived successfully!")
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed, delete_after=10.0)
     await ctx.message.delete()
 
     # Send a log to the logging channel
@@ -170,7 +170,7 @@ async def load(ctx: commands.Context, extension: str):
                     print(traceback.format_exc())
     else:
         embed.add_field(name="Error", value="No cogs could be loaded.")
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed, delete_after=10.0)
     await ctx.message.delete()
     
     # Send a log to the logging channel
@@ -216,7 +216,7 @@ async def unload(ctx: commands.Context, extension: str):
                     print(traceback.format_exc())
     else:
         embed.add_field(name="Error", value="No cogs could be unloaded.")
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed, delete_after=10.0)
     await ctx.message.delete()
     
     # Send a log to the logging channel
@@ -262,7 +262,7 @@ async def reload(ctx: commands.Context, extension: str):
                     print(traceback.format_exc())
     else:
         embed.add_field(name="Error", value="No cogs could be reloaded.")
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed, delete_after=10.0)
     await ctx.message.delete()
     
     # Send a log to the logging channel
@@ -285,7 +285,7 @@ async def ping(ctx: commands.Context):
     except Exception as e:
         embed = discord.Embed(color=bot.red, title="Error", description=f"{e}")
         print(traceback.format_exc())
-    await ctx.send(embed=embed)
+    await ctx.send(embed=embed, delete_after=10.0)
     await ctx.message.delete()
 
     # Send a log to the logging channel

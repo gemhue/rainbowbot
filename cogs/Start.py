@@ -578,7 +578,7 @@ class Start(commands.Cog):
                     await message.edit(embed=logging, view=None)
                     await self.db.execute("UPDATE guilds SET logging_channel_id = ? WHERE guild_id = ?", (logging_channel.id, guild.id))
                     await self.db.commit()
-                    await asyncio.sleep(3.0)
+                    await asyncio.sleep(2.0)
 
                     # Bot sends a log to the logging channel
                     cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -612,7 +612,7 @@ class Start(commands.Cog):
                     await message.edit(embed=welcome, view=None)
                     await self.db.execute("UPDATE guilds SET welcome_channel_id = ? WHERE guild_id = ?", (welcome_channel.id, guild.id))
                     await self.db.commit()
-                    await asyncio.sleep(3.0)
+                    await asyncio.sleep(2.0)
 
                     # Bot sends a log to the logging channel
                     cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -646,7 +646,7 @@ class Start(commands.Cog):
                     await message.edit(embed=goodbye, view=None)
                     await self.db.execute("UPDATE guilds SET goodbye_channel_id = ? WHERE guild_id = ?", (goodbye_channel.id, guild.id))
                     await self.db.commit()
-                    await asyncio.sleep(3.0)
+                    await asyncio.sleep(2.0)
 
                     # Bot sends a log to the logging channel
                     cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -693,7 +693,7 @@ class Start(commands.Cog):
                     await message.edit(embed=join, view=None)
                     await self.db.execute("UPDATE guilds SET join_role_id = ? WHERE guild_id = ?", (join_role.id, guild.id))
                     await self.db.commit()
-                    await asyncio.sleep(3.0)
+                    await asyncio.sleep(2.0)
 
                     # Bot sends a log to the logging channel
                     cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -727,7 +727,7 @@ class Start(commands.Cog):
                     await message.edit(embed=bot, view=None)
                     await self.db.execute("UPDATE guilds SET bot_role_id = ? WHERE guild_id = ?", (bot_role.id, guild.id))
                     await self.db.commit()
-                    await asyncio.sleep(3.0)
+                    await asyncio.sleep(2.0)
 
                     # Bot sends a log to the logging channel
                     cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -774,7 +774,7 @@ class Start(commands.Cog):
                     await message.edit(embed=active, view=None)
                     await self.db.execute("UPDATE guilds SET active_role_id = ? WHERE guild_id = ?", (active_role.id, guild.id))
                     await self.db.commit()
-                    await asyncio.sleep(3.0)
+                    await asyncio.sleep(2.0)
 
                     # Bot sends a log to the logging channel
                     cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -808,7 +808,7 @@ class Start(commands.Cog):
                     await message.edit(embed=inactive, view=None)
                     await self.db.execute("UPDATE guilds SET inactive_role_id = ? WHERE guild_id = ?", (inactive_role.id, guild.id))
                     await self.db.commit()
-                    await asyncio.sleep(3.0)
+                    await asyncio.sleep(2.0)
 
                     # Bot sends a log to the logging channel
                     cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -842,7 +842,7 @@ class Start(commands.Cog):
                     await message.edit(embed=months, view=None)
                     await self.db.execute("UPDATE guilds SET inactive_months = ? WHERE guild_id = ?", (inactive_months, guild.id))
                     await self.db.commit()
-                    await asyncio.sleep(3.0)
+                    await asyncio.sleep(2.0)
 
                     # Bot sends a log to the logging channel
                     cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
