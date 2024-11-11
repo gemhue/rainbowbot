@@ -1024,14 +1024,17 @@ class Start(commands.Cog):
             if cog_buttons.value == True:
 
                 await self.bot.tree.sync(guild=guild)
-                cogs = cog_buttons.guild_cogs[guild.id]
-                join = ", ".join(cogs)
                 done = discord.Embed(
                     color=self.bot.green,
                     title="Success",
                     description=f"{author.mention} has successfully removed commands from the server!"
                 )
-                done.add_field(name="Commands Removed", value=f"{join}")
+                cogs = cog_buttons.guild_cogs[guild.id]
+                if cogs is not None:
+                    join = ", ".join(cogs)
+                    done.add_field(name="Commands Removed", value=f"{join}")
+                else:
+                    done.add_field(name="Commands Removed", value=f"None")
                 await message.edit(embed=done, view=None)
                 await message.delete(delay=10.0)
 
