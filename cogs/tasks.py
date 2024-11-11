@@ -98,10 +98,12 @@ class BackgroundTasks(commands.Cog):
                 logging = guild.get_channel(fetched_logging)
                 if logging is not None:
                     log = discord.Embed(color=self.bot.blurple, title="Member Log", description=f"{member.mention} has just joined {guild.name}.")
-                    if role in member.roles:
-                        log.add_field(name="Role Given", value=f"{role.mention}")
-                    if botrole in member.roles:
-                        log.add_field(name="Role Given", value=f"{botrole.mention}")
+                    if role is not None:
+                        if role in member.roles:
+                            log.add_field(name="Role Given", value=f"{role.mention}")
+                    if botrole is not None:
+                        if botrole in member.roles:
+                            log.add_field(name="Role Given", value=f"{botrole.mention}")
                     log.set_author(name=member.display_name, icon_url=member.display_avatar)
                     log.set_thumbnail(url=member.display_avatar)
                     await logging.send(embed=embed)
