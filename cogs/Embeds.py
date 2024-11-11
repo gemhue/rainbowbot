@@ -76,19 +76,27 @@ class Embeds(commands.GroupCog, group_name = "embed"):
             message = await conv.convert(ctx, message_url)
             oldembed = message.embeds[0]
             if message_content is None:
-                message_content = message.content
-            if embed_color is not None:
-                embed_color = discord.Colour.from_str(embed_color)
+                content = message.content
             else:
-                embed_color = oldembed.colour
+                content = message_content
+            if embed_color is not None:
+                color = discord.Colour.from_str(embed_color)
+            else:
+                color = oldembed.colour
             if embed_title is None:
-                embed_title = oldembed.title
+                title = oldembed.title
+            else:
+                title = embed_title
             if embed_url is None:
-                embed_url = oldembed.url
+                url = oldembed.url
+            else:
+                url = embed_url
             if embed_description is None:
-                embed_description = oldembed.description
+                description = oldembed.description
+            else:
+                description = embed_description
             timestamp = oldembed.timestamp
-            embed = discord.Embed(color=embed_color, title=embed_title, url=embed_url, description=embed_description, timestamp=timestamp)
+            embed = discord.Embed(color=color, title=title, url=url, description=description, timestamp=timestamp)
             fields = oldembed.fields
             for field in fields:
                 field_name = field.name
@@ -105,7 +113,7 @@ class Embeds(commands.GroupCog, group_name = "embed"):
             editor_name = editor.display_name
             editor_icon = editor.display_avatar
             embed.set_footer(text=f"Edited at {time} by {editor_name}", icon_url=editor_icon)
-            await message.edit(content=message_content, embed=embed)
+            await message.edit(content=content, embed=embed)
             
             success = discord.Embed(color=self.bot.green, title="Success", description="The embed has been successfully edited.")
             await interaction.followup.send(embed=success, ephemeral=True)
