@@ -307,6 +307,7 @@ class ConfirmButton(discord.ui.View):
             thread = guild.get_thread(channel.id)
             if thread is not None:
                 await thread.edit(locked=True)
+                await thread.edit(archived=True)
             now = datetime.now(tz=timezone.utc)
             closed = discord.Embed(color=self.bot.green, title="Ticket Closed", description=f"This ticket has been closed by {interaction.user.mention}.", timestamp=now)
             await interaction.message.edit(embed=closed, view=None)
