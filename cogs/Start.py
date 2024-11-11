@@ -880,13 +880,16 @@ class Start(commands.Cog):
 
                 # The user has now completed bot startup for their server
                 await self.bot.tree.sync(guild=guild)
-                cogs = cog_buttons.guild_cogs[guild.id]
-                join = ", ".join(cogs)
                 done = discord.Embed(
-                    color=self.bot.blurple,
-                    title="Bot Startup",
-                    description=f"Bot startup is now complete!"
+                    color=self.bot.green,
+                    title="Success",
+                    description=f"{author.mention} has successfully added commands to the server!"
                 )
+                cogs = cog_buttons.guild_cogs[guild.id]
+                if cogs is not None:
+                    join = ", ".join(cogs)
+                else:
+                    join = "None"
                 done.add_field(name="Commands Added", value=f"{join}")
                 await message.edit(embed=done, view=None)
                 await message.delete(delay=10.0)
@@ -953,13 +956,16 @@ class Start(commands.Cog):
             if cog_buttons.value == True:
 
                 await self.bot.tree.sync(guild=guild)
-                cogs = cog_buttons.guild_cogs[guild.id]
-                join = ", ".join(cogs)
                 done = discord.Embed(
                     color=self.bot.green,
                     title="Success",
                     description=f"{author.mention} has successfully added commands to the server!"
                 )
+                cogs = cog_buttons.guild_cogs[guild.id]
+                if cogs is not None:
+                    join = ", ".join(cogs)
+                else:
+                    join = "None"
                 done.add_field(name="Commands Added", value=f"{join}")
                 await message.edit(embed=done, view=None)
                 await message.delete(delay=10.0)
@@ -1032,9 +1038,9 @@ class Start(commands.Cog):
                 cogs = cog_buttons.guild_cogs[guild.id]
                 if cogs is not None:
                     join = ", ".join(cogs)
-                    done.add_field(name="Commands Removed", value=f"{join}")
                 else:
-                    done.add_field(name="Commands Removed", value=f"None")
+                    join = "None"
+                done.add_field(name="Commands Removed", value=f"{join}")
                 await message.edit(embed=done, view=None)
                 await message.delete(delay=10.0)
 
