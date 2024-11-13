@@ -96,7 +96,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
     @app_commands.command(name="here")
     @app_commands.checks.has_permissions(administrator=True)
-    async def purge(self, interaction: discord.Interaction):
+    async def here(self, interaction: discord.Interaction):
         """(Admin Only) Purge all unpinned messages in the current channel.
         """
         await interaction.response.defer()
