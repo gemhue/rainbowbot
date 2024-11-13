@@ -108,6 +108,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
             view = YesOrNo(bot=self.bot, user=user)
             embed = discord.Embed(color=self.bot.blurple, title="Confirm Purge", description="Are you **sure** you want to purge all unpinned messages in the current channel?")
             response = await interaction.followup.send(embed=embed, view=view, wait=True)
+            await view.wait()
 
             if view.value == True:
 
