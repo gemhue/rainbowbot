@@ -4,7 +4,11 @@ import logging
 import traceback
 import os
 from discord.ext import commands
+from dotenv import load_dotenv
 from datetime import datetime, timezone
+
+load_dotenv()
+token = os.getenv("token")
 
 class RainbowBot(commands.Bot):
     def __init__(self):
@@ -303,5 +307,4 @@ async def ping(ctx: commands.Context):
 async def on_ready(bot=bot):
     print(f'Logged in as {bot.user}! (ID: {bot.user.id})')
 
-token = 'token'
 bot.run(token, log_handler=handler, log_level=logging.DEBUG)
