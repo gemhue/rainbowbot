@@ -75,6 +75,7 @@ class BackgroundTasks(commands.Cog):
                     content = f"-# {member.mention}"
                     await channel.send(content=content, embed=embed)
 
+            role = None
             cur = await self.db.execute("SELECT join_role_id FROM guilds WHERE guild_id = ?", (guild.id,))
             row = await cur.fetchone()
             role_id = row[0]
@@ -83,6 +84,7 @@ class BackgroundTasks(commands.Cog):
                 if role is not None:
                     await member.add_roles(role)
 
+            botrole = None
             cur = await self.db.execute("SELECT bot_role_id FROM guilds WHERE guild_id = ?", (guild.id,))
             row = await cur.fetchone()
             botrole_id = row[0]
