@@ -623,25 +623,32 @@ class Awards(commands.GroupCog, group_name = "awards"):
                     await self.db.execute("INSERT OR IGNORE INTO awards (guild_member_id) VALUES (?)", (guild_member_id,))
                     await self.db.commit()
 
-                    cur = await self.db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
-                    row = await cur.fetchone()
-                    current = int(row[0])
-                    if current is None:
-                        current = 0
-                    
-                    new = current + 1
-                    await self.db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (new, guild_member_id))
-                    await self.db.commit()
+                    yon = YesOrNo(user=user)
+                    yesorno = discord.Embed(color=self.bot.blurple, title=f"Add {sing_cap}", description=f"Would you like to add a {sing_low} to {member.display_name}'s current total?")
+                    response = await channel.send(embed=yesorno, view=yon)
+                    await yon.wait()
 
-                    cur = await self.db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
-                    row = await cur.fetchone()
-                    new = int(row[0])
-                    if new == 1:
-                        embed = discord.Embed(color=self.bot.green, title=f"{sing_cap} Added", description=f"{member.mention} now has {new} {sing_low}! ({sing_cap} added by {user.mention} via an emoji reaction.)")
-                    else:
-                        embed = discord.Embed(color=self.bot.green, title=f"{sing_cap} Added", description=f"{member.mention} now has {new} {plur_low}! ({sing_cap} added by {user.mention} via an emoji reaction.)")
-                    
-                    await channel.send(embed=embed, delete_after=30.0, reference=message)
+                    if yon.value == True:
+
+                        cur = await self.db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
+                        row = await cur.fetchone()
+                        current = row[0]
+                        if current is None:
+                            current = 0
+                        
+                        new = current + 1
+                        await self.db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (new, guild_member_id))
+                        await self.db.commit()
+
+                        cur = await self.db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
+                        row = await cur.fetchone()
+                        new = row[0]
+                        if new == 1:
+                            embed = discord.Embed(color=self.bot.green, title=f"{sing_cap} Added", description=f"{member.mention} now has {new} {sing_low}! ({sing_cap} added by {user.mention} via an emoji reaction.)")
+                        else:
+                            embed = discord.Embed(color=self.bot.green, title=f"{sing_cap} Added", description=f"{member.mention} now has {new} {plur_low}! ({sing_cap} added by {user.mention} via an emoji reaction.)")
+                        
+                        await response.edit(embed=embed, view=None)
 
         except Exception:
             traceback.print_exc()
@@ -667,7 +674,7 @@ class Awards(commands.GroupCog, group_name = "awards"):
                 cur = await self.db.execute("SELECT award_react_toggle FROM guilds WHERE guild_id = ?", (guild.id,))
                 row = await cur.fetchone()
                 toggle = row[0]
-                
+
                 if toggle == 1:
 
                     cur = await self.db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -689,26 +696,35 @@ class Awards(commands.GroupCog, group_name = "awards"):
                     await self.db.execute("INSERT OR IGNORE INTO awards (guild_member_id) VALUES (?)", (guild_member_id,))
                     await self.db.commit()
 
-                    cur = await self.db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
-                    row = await cur.fetchone()
-                    current = int(row[0])
-                    if current is None:
-                        current = 0
-                    
-                    new = current - 1
-                    await self.db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (new, guild_member_id))
-                    await self.db.commit()
+                    yon = YesOrNo(user=user)
+                    yesorno = discord.Embed(color=self.bot.blurple, title=f"Remove {sing_cap}", description=f"Would you like to remove a {sing_low} from {member.display_name}'s current total?")
+                    response = await channel.send(embed=yesorno, view=yon)
+                    await yon.wait()
 
-                    cur = await self.db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
-                    row = await cur.fetchone()
-                    new = int(row[0])
-                    if new == 0:
-                        embed = discord.Embed(color=self.bot.red, title=f"{sing_cap} Removed", description=f"{member.mention} no longer has any awards! ({sing_cap} removed by {user.mention}.)")
-                    elif new == 1:
-                        embed = discord.Embed(color=self.bot.red, title=f"{sing_cap} Removed", description=f"{member.mention} now has {new} {sing_low}! ({sing_cap} removed by {user.mention}.)")
-                    else:
-                        embed = discord.Embed(color=self.bot.red, title=f"{sing_cap} Removed", description=f"{member.mention} now has {new} {plur_low}! ({sing_cap} removed by {user.mention}.)")
-                    await channel.send(embed=embed, delete_after=30.0, reference=message)
+                    if yon.value == True:
+
+                        cur = await self.db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
+                        row = await cur.fetchone()
+                        current = row[0]
+                        if current is None:
+                            current = 0
+                        
+                        if current > 0:
+                            new = current - 1
+                        else:
+                            new = 0
+                        await self.db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (new, guild_member_id))
+                        await self.db.commit()
+
+                        cur = await self.db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
+                        row = await cur.fetchone()
+                        new = row[0]
+                        if new == 1:
+                            embed = discord.Embed(color=self.bot.green, title=f"{sing_cap} Removed", description=f"{member.mention} now has {new} {sing_low}! ({sing_cap} removed by {user.mention} via an emoji unreaction.)")
+                        else:
+                            embed = discord.Embed(color=self.bot.green, title=f"{sing_cap} Removed", description=f"{member.mention} now has {new} {plur_low}! ({sing_cap} removed by {user.mention} via an emoji unreaction.)")
+                        
+                        await response.edit(embed=embed, view=None)
 
         except Exception:
             traceback.print_exc()
@@ -762,7 +778,7 @@ class Awards(commands.GroupCog, group_name = "awards"):
 
             cur = await self.db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
             row = await cur.fetchone()
-            current = int(row[0])
+            current = row[0]
             if current is None:
                 await self.db.execute("UPDATE awards SET amount = ? WHERE guild_member_id = ?", (amount, guild_member_id))
                 await self.db.commit()
@@ -773,7 +789,7 @@ class Awards(commands.GroupCog, group_name = "awards"):
             
             cur = await self.db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
             row = await cur.fetchone()
-            new = int(row[0])
+            new = row[0]
             if amount == 1:
                 if new == 1:
                     embed = discord.Embed(color=self.bot.green, title=f"{sing_cap} Added", description=f"{interaction.user.mention} has just given {member.mention} {amount} {sing_low}. {member.mention} now has {new} {sing_low}!")
@@ -844,7 +860,7 @@ class Awards(commands.GroupCog, group_name = "awards"):
 
             cur = await self.db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
             row = await cur.fetchone()
-            current = int(row[0])
+            current = row[0]
             if current is None:
                 current = 0
             if current == 0:
@@ -859,7 +875,7 @@ class Awards(commands.GroupCog, group_name = "awards"):
                 await self.db.commit()
                 cur = await self.db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
                 row = await cur.fetchone()
-                new = int(row[0])
+                new = row[0]
                 if amount == 1:
                     if new == 0:
                         embed = discord.Embed(color=self.bot.green, title=f"{sing_cap} Removed", description=f"{member.mention} no longer has any {plur_low}!")
