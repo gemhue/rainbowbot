@@ -879,7 +879,6 @@ class Start(commands.Cog):
             if cog_buttons.value == True:
 
                 # The user has now completed bot startup for their server
-                await self.bot.tree.clear_commands(guild=guild)
                 await self.bot.tree.sync(guild=guild)
                 done = discord.Embed(
                     color=self.bot.green,
@@ -960,8 +959,7 @@ class Commands(commands.GroupCog, name = "commands"):
             await cog_buttons.wait()
 
             if cog_buttons.value == True:
-
-                await self.bot.tree.clear_commands(guild=guild)
+                
                 await self.bot.tree.sync(guild=guild)
                 done = discord.Embed(
                     color=self.bot.green,
@@ -1036,7 +1034,6 @@ class Commands(commands.GroupCog, name = "commands"):
 
             if cog_buttons.value == True:
 
-                await self.bot.tree.clear_commands(guild=guild)
                 await self.bot.tree.sync(guild=guild)
                 done = discord.Embed(
                     color=self.bot.green,
