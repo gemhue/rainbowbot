@@ -917,7 +917,7 @@ class Start(commands.Cog):
             error = discord.Embed(
                 color=self.bot.red,
                 title="Error",
-                description=f"There was an error running the `/start` or `rb!start` command. Error: {e}"
+                description=f"There was an error running `/start`. Error: {e}"
             )
             message = await interaction.followup.send(embed=error, wait=True)
             await message.delete(delay=10.0)
@@ -996,7 +996,7 @@ class Commands(commands.GroupCog, name = "commands"):
             error = discord.Embed(
                 color=self.bot.red,
                 title="Error",
-                description=f"There was an error running the `/add_commands` or `rb!add_commands` command. Error: {e}"
+                description=f"There was an error running `/commands add`. Error: {e}"
             )
             message = await interaction.followup.send(embed=error, wait=True)
             await message.delete(delay=10.0)
@@ -1065,12 +1065,12 @@ class Commands(commands.GroupCog, name = "commands"):
                     await logging_channel.send(embed=log)
                 
         except Exception as e:
-            print(f"Start Command Error (Guild ID: {guild.id}): {e}")
+            print(f"Remove Command Error (Guild ID: {guild.id}): {e}")
             print(traceback.format_exc())
             error = discord.Embed(
                 color=self.bot.red,
                 title="Error",
-                description=f"There was an error running the `/add_commands` or `rb!add_commands` command. Error: {e}"
+                description=f"There was an error running `/commands remove`. Error: {e}"
             )
             message = await interaction.followup.send(embed=error, wait=True)
             await message.delete(delay=10.0)
