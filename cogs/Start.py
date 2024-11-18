@@ -922,9 +922,14 @@ class Start(commands.Cog):
             message = await interaction.followup.send(embed=error, wait=True)
             await message.delete(delay=10.0)
 
-    @app_commands.command(name="add_commands")
+class Commands(commands.GroupCog, name = "commands"):
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
+        self.db = bot.database
+
+    @app_commands.command(name="add")
     @app_commands.checks.has_permissions(administrator=True)
-    async def add_commands(self, interaction: discord.Interaction):
+    async def add(self, interaction: discord.Interaction):
         """(Admin Only) Add desired commands to the server.
         """
         await interaction.response.defer()
@@ -996,9 +1001,9 @@ class Start(commands.Cog):
             message = await interaction.followup.send(embed=error, wait=True)
             await message.delete(delay=10.0)
 
-    @app_commands.command(name="remove_commands")
+    @app_commands.command(name="remove")
     @app_commands.checks.has_permissions(administrator=True)
-    async def remove_commands(self, interaction: discord.Interaction):
+    async def remove(self, interaction: discord.Interaction):
         """(Admin Only) Remove unwanted commands from the server.
         """
         await interaction.response.defer()
@@ -1072,6 +1077,8 @@ class Start(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Start(bot=bot), override=True)
+    await bot.add_cog(Commands(bot=bot), override=True)
 
 async def teardown(bot: commands.Bot):
     await bot.remove_cog("Start")
+    await bot.remove_cog("Commands")
