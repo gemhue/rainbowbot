@@ -108,6 +108,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
             view = YesOrNo(bot=self.bot, user=user)
             embed = discord.Embed(color=self.bot.blurple, title="Confirm Purge", description="Are you **sure** you want to purge all unpinned messages in the current channel?")
             response = await interaction.followup.send(embed=embed, view=view, wait=True)
+            await response.pin()
             await view.wait()
 
             if view.value == True:
@@ -161,6 +162,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
             csv = ChannelSelectView(bot=self.bot, user=user)
             embed = discord.Embed(color=self.bot.blurple, title="Purge Member", description=f"Which channel(s) would you like to purge {member.mention}'s unpinned messages from?")
             response = await interaction.followup.send(embed=embed, view=csv, wait=True)
+            await response.pin()
             await csv.wait()
             
             if csv.value == True:
@@ -236,6 +238,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
             csv = ChannelSelectView(bot=self.bot, user=user)
             embed = discord.Embed(color=self.bot.blurple, title="Purge Channels", description=f"Which channel(s) would you like to purge all unpinned messages from?")
             response = await interaction.followup.send(embed=embed, view=csv, wait=True)
+            await response.pin()
             await csv.wait()
             
             if csv.value == True:
@@ -311,6 +314,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
             csv = ChannelSelectView(bot=self.bot, user=user)
             embed = discord.Embed(color=self.bot.blurple, title="Exclude Channels", description=f"Which channel(s) would you like to **exclude** from the purge?")
             response = await interaction.followup.send(embed=embed, view=csv, wait=True)
+            await response.pin()
             await csv.wait()
             
             if csv.value == True:
