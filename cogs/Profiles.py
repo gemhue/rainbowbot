@@ -11,7 +11,7 @@ class Profiles(commands.GroupCog, group_name = "profile"):
         self.db = bot.database
     
     @app_commands.command(name="set")
-    async def set(self, interaction: discord.Interaction, name: Optional[str], age: Optional[str], location: Optional[str], pronouns: Optional[str], gender: Optional[str], sexuality: Optional[str], relationship_status: Optional[str], family_status: Optional[str], biography: Optional[str]):
+    async def set(self, interaction: discord.Interaction, name: Optional[str] = None, age: Optional[str] = None, location: Optional[str] = None, pronouns: Optional[str] = None, gender: Optional[str] = None, sexuality: Optional[str] = None, relationship_status: Optional[str] = None, family_status: Optional[str] = None, biography: Optional[str] = None):
         """Run this command to set up your member profile. Note that all fields are optional.
 
         Parameters
@@ -170,7 +170,7 @@ class Profiles(commands.GroupCog, group_name = "profile"):
             print(traceback.format_exc())
 
     @app_commands.command(name="get")
-    async def get(self, interaction: discord.Interaction, member: Optional[discord.Member]):
+    async def get(self, interaction: discord.Interaction, member: Optional[discord.Member] = None):
         """Run this command to retrieve a member's profile.
 
         Parameters
