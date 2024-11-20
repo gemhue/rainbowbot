@@ -39,8 +39,7 @@ class Profiles(commands.GroupCog, group_name = "profile"):
         try:
                 
             guild = interaction.guild
-            if member is None:
-                member = interaction.user
+            member = interaction.user
             member_id = member.id
             joined = discord.utils.format_dt(member.joined_at, style="D")
             joinedago = discord.utils.format_dt(member.joined_at, style="R")
