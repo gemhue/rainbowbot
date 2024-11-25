@@ -75,7 +75,7 @@ async def clear(ctx: commands.Context, where: str):
         bot.tree.clear_commands(guild=None)
         embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's global command tree has been cleared!", timestamp=now)
     else:
-        embed = discord.Embed(color=bot.red, title="Error", description=f"The bot's command tree has not been cleared! Please specify if you would like to clear \`here\` or \`global\`.", timestamp=now)
+        embed = discord.Embed(color=bot.red, title="Error", description=f"The bot's command tree has not been cleared! Please specify if you would like to clear \`here\` or \`all\`.", timestamp=now)
     await ctx.send(embed=embed, delete_after=10.0)
     await ctx.message.delete()
     

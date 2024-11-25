@@ -103,7 +103,6 @@ class Purge(commands.GroupCog, group_name = "purge"):
         try:
 
             user = interaction.user
-            channel = interaction.channel
             guild = interaction.guild
             view = YesOrNo(bot=self.bot, user=user)
             embed = discord.Embed(color=self.bot.blurple, title="Confirm Purge", description="Are you **sure** you want to purge all unpinned messages in the current channel?")
@@ -115,6 +114,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
                 wait = discord.Embed(color=self.bot.blurple, title="Purge in Progress", description="Please wait while the purge is in progress. This message will be edited when the purge is complete.")
                 await response.edit(embed=wait, view=None)
+                channel = interaction.channel
                 messages = [m async for m in channel.history(limit=None)]
                 unpinned = [m for m in messages if not m.pinned]
                 while len(unpinned) > 0:
@@ -142,7 +142,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await channel.send(embed=error, delete_after=30.0)
+            await interaction.followup.send(embed=error, delete_after=30.0)
             print(traceback.format_exc())
 
     @app_commands.command(name="member")
