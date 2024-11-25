@@ -4,7 +4,7 @@ import asyncio
 from discord.ext import commands
 from discord import app_commands, ChannelType
 from datetime import datetime, timezone
-from cogs import autodelete, awards, embeds, profiles, purge, rssfeeds, tickets
+from cogs import autodelete, awards, embeds, profiles, purge, remind, rssfeeds, tickets
 
 class YesOrNo(discord.ui.View):
     def __init__(self, *, timeout = 180, user: discord.Member):
@@ -171,7 +171,7 @@ class CogButtons(discord.ui.View):
                 coglist = self.guild_cogs[guild.id]
                 if "AutoDelete" not in coglist:
                     coglist.append("AutoDelete")
-                button.label = "Added"
+                button.label = "Added: AutoDelete"
                 button.style = discord.ButtonStyle.gray
                 button.emoji = "✅"
                 button.disabled = True
@@ -195,7 +195,7 @@ class CogButtons(discord.ui.View):
                 coglist = self.guild_cogs[guild.id]
                 if "Awards" not in coglist:
                     coglist.append("Awards")
-                button.label = "Added"
+                button.label = "Added: Awards"
                 button.style = discord.ButtonStyle.gray
                 button.emoji = "✅"
                 button.disabled = True
@@ -219,7 +219,7 @@ class CogButtons(discord.ui.View):
                 coglist = self.guild_cogs[guild.id]
                 if "Embeds" not in coglist:
                     coglist.append("Embeds")
-                button.label = "Added"
+                button.label = "Added: Embeds"
                 button.style = discord.ButtonStyle.gray
                 button.emoji = "✅"
                 button.disabled = True
@@ -243,7 +243,7 @@ class CogButtons(discord.ui.View):
                 coglist = self.guild_cogs[guild.id]
                 if "Profiles" not in coglist:
                     coglist.append("Profiles")
-                button.label = "Added"
+                button.label = "Added: Profiles"
                 button.style = discord.ButtonStyle.gray
                 button.emoji = "✅"
                 button.disabled = True
@@ -267,13 +267,37 @@ class CogButtons(discord.ui.View):
                 coglist = self.guild_cogs[guild.id]
                 if "Purge" not in coglist:
                     coglist.append("Purge")
-                button.label = "Added"
+                button.label = "Added: Purge"
                 button.style = discord.ButtonStyle.gray
                 button.emoji = "✅"
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
             print(f"There was a problem setting up Purge (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
+    
+    @discord.ui.button(label="Remind", style=discord.ButtonStyle.blurple, emoji="📅")
+    async def remind(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        message = interaction.message
+        guild = interaction.guild
+        try:
+            if interaction.user == self.user:
+                await self.bot.add_cog(remind.Remind(bot=self.bot), override=True, guild=guild)
+                if guild.id not in self.guild_cogs:
+                    self.guild_cogs[guild.id] = []
+                coglist = self.guild_cogs[guild.id]
+                if "Remind" not in coglist:
+                    coglist.append("Remind")
+                button.label = "Added: Remind"
+                button.style = discord.ButtonStyle.gray
+                button.emoji = "✅"
+                button.disabled = True
+                await interaction.followup.edit_message(message_id=message.id, view=self)
+        except Exception as e:
+            print(f"There was a problem setting up Remind (Guild ID: {guild.id}). Error: {e}")
             print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
@@ -291,7 +315,7 @@ class CogButtons(discord.ui.View):
                 coglist = self.guild_cogs[guild.id]
                 if "RSS Feeds" not in coglist:
                     coglist.append("RSS Feeds")
-                button.label = "Added"
+                button.label = "Added: RSS Feeds"
                 button.style = discord.ButtonStyle.gray
                 button.emoji = "✅"
                 button.disabled = True
@@ -315,7 +339,7 @@ class CogButtons(discord.ui.View):
                 coglist = self.guild_cogs[guild.id]
                 if "Ticket" not in coglist:
                     coglist.append("Tickets")
-                button.label = "Added"
+                button.label = "Added: Tickets"
                 button.style = discord.ButtonStyle.gray
                 button.emoji = "✅"
                 button.disabled = True
@@ -361,7 +385,7 @@ class RemoveButtons(discord.ui.View):
                 coglist = self.guild_cogs[guild.id]
                 if "AutoDelete" not in coglist:
                     coglist.append("AutoDelete")
-                button.label = "Removed"
+                button.label = "Removed: AutoDelete"
                 button.style = discord.ButtonStyle.gray
                 button.emoji = "✅"
                 button.disabled = True
@@ -386,7 +410,7 @@ class RemoveButtons(discord.ui.View):
                 coglist = self.guild_cogs[guild.id]
                 if "Awards" not in coglist:
                     coglist.append("Awards")
-                button.label = "Removed"
+                button.label = "Removed: Awards"
                 button.style = discord.ButtonStyle.gray
                 button.emoji = "✅"
                 button.disabled = True
@@ -411,7 +435,7 @@ class RemoveButtons(discord.ui.View):
                 coglist = self.guild_cogs[guild.id]
                 if "Embeds" not in coglist:
                     coglist.append("Embeds")
-                button.label = "Removed"
+                button.label = "Removed: Embeds"
                 button.style = discord.ButtonStyle.gray
                 button.emoji = "✅"
                 button.disabled = True
@@ -436,7 +460,7 @@ class RemoveButtons(discord.ui.View):
                 coglist = self.guild_cogs[guild.id]
                 if "Profiles" not in coglist:
                     coglist.append("Profiles")
-                button.label = "Removed"
+                button.label = "Removed: Profiles"
                 button.style = discord.ButtonStyle.gray
                 button.emoji = "✅"
                 button.disabled = True
@@ -461,13 +485,38 @@ class RemoveButtons(discord.ui.View):
                 coglist = self.guild_cogs[guild.id]
                 if "Purge" not in coglist:
                     coglist.append("Purge")
-                button.label = "Removed"
+                button.label = "Removed: Purge"
                 button.style = discord.ButtonStyle.gray
                 button.emoji = "✅"
                 button.disabled = True
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
             print(f"There was a problem removing Purge (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
+
+    @discord.ui.button(label="Remind", style=discord.ButtonStyle.blurple, emoji="📅")
+    async def remind(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        message = interaction.message
+        guild = interaction.guild
+        try:
+            if interaction.user == self.user:
+                await self.bot.remove_cog(remind.Remind(bot=self.bot), guild=guild)
+                self.bot.tree.remove_command("remind", guild=guild)
+                if guild.id not in self.guild_cogs:
+                    self.guild_cogs[guild.id] = []
+                coglist = self.guild_cogs[guild.id]
+                if "Remind" not in coglist:
+                    coglist.append("Remind")
+                button.label = "Removed: Remind"
+                button.style = discord.ButtonStyle.gray
+                button.emoji = "✅"
+                button.disabled = True
+                await interaction.followup.edit_message(message_id=message.id, view=self)
+        except Exception as e:
+            print(f"There was a problem removing Remind (Guild ID: {guild.id}). Error: {e}")
             print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
@@ -486,7 +535,7 @@ class RemoveButtons(discord.ui.View):
                 coglist = self.guild_cogs[guild.id]
                 if "RSS Feeds" not in coglist:
                     coglist.append("RSS Feeds")
-                button.label = "Removed"
+                button.label = "Removed: RSS Feeds"
                 button.style = discord.ButtonStyle.gray
                 button.emoji = "✅"
                 button.disabled = True
@@ -511,7 +560,7 @@ class RemoveButtons(discord.ui.View):
                 coglist = self.guild_cogs[guild.id]
                 if "Ticket" not in coglist:
                     coglist.append("Tickets")
-                button.label = "Removed"
+                button.label = "Removed: Tickets"
                 button.style = discord.ButtonStyle.gray
                 button.emoji = "✅"
                 button.disabled = True
@@ -877,6 +926,7 @@ class Start(commands.Cog):
             ask_cogs.add_field(name="Embeds", value="These commands allow you to send and edit messages containing embeds.", inline=False)
             ask_cogs.add_field(name="Profiles", value="These commands allow you and your server members to set up member profiles that can be viewed and edited.", inline=False)
             ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
+            ask_cogs.add_field(name="Remind", value="These commands allow you to set reminders for yourself, a user, a role, or everyone.", inline=False)
             ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
             ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
             cog_buttons = CogButtons(bot=self.bot, user=author)
@@ -959,6 +1009,7 @@ class Commands(commands.GroupCog, name = "commands"):
             ask_cogs.add_field(name="Embeds", value="These commands allow you to send and edit messages containing embeds.", inline=False)
             ask_cogs.add_field(name="Profiles", value="These commands allow you and your server members to set up member profiles that can be viewed and edited.", inline=False)
             ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
+            ask_cogs.add_field(name="Remind", value="These commands allow you to set reminders for yourself, a user, a role, or everyone.", inline=False)
             ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
             ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
             cog_buttons = CogButtons(bot=self.bot, user=author)
@@ -1033,6 +1084,7 @@ class Commands(commands.GroupCog, name = "commands"):
             ask_cogs.add_field(name="Embeds", value="These commands allow you to send and edit messages containing embeds.", inline=False)
             ask_cogs.add_field(name="Profiles", value="These commands allow you and your server members to set up member profiles that can be viewed and edited.", inline=False)
             ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
+            ask_cogs.add_field(name="Remind", value="These commands allow you to set reminders for yourself, a user, a role, or everyone.", inline=False)
             ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
             ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
             cog_buttons = RemoveButtons(bot=self.bot, user=author)
