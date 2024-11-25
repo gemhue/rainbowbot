@@ -47,8 +47,11 @@ class Remind(commands.GroupCog, group_name = "remind"):
     async def timeconverter(self, when: str):
         try:
 
+            time_list = []
+
             year = None
             month = None
+            week = None
             day = None
             hour = None
             minute = None
@@ -56,6 +59,7 @@ class Remind(commands.GroupCog, group_name = "remind"):
 
             year_list = ["year", "years", "yr", "yrs"]
             month_list = ["month", "months", "mo", "mos"]
+            week_list = ["week", "weeks", "wk", "wks"]
             day_list = ["day", "days", "dy", "dys"]
             hour_list = ["hour", "hours", "hr", "hrs"]
             minute_list = ["minute", "minutes", "min", "mins"]
@@ -75,6 +79,8 @@ class Remind(commands.GroupCog, group_name = "remind"):
                             year = timedelta(days=365.0*newnumber)
                         except Exception:
                             year = timedelta(days=365.0)
+                    if year is not None:
+                        time_list.append(year)
                 elif word in month_list:
                     word_index = words.index(word)
                     number_index = word_index - 1
@@ -87,6 +93,22 @@ class Remind(commands.GroupCog, group_name = "remind"):
                             month = timedelta(days=30.0*newnumber)
                         except Exception:
                             month = timedelta(days=30.0)
+                    if month is not None:
+                        time_list.append(month)
+                elif word in week_list:
+                    word_index = words.index(word)
+                    number_index = word_index - 1
+                    number = words[number_index]
+                    if number.isdigit():
+                        week = timedelta(weeks=1.0*number)
+                    else:
+                        try:
+                            newnumber = w2n.word_to_num(number)
+                            week = timedelta(weeks=1.0*newnumber)
+                        except Exception:
+                            week = timedelta(weeks=1.0)
+                    if week is not None:
+                        time_list.append(week)
                 elif word in day_list:
                     word_index = words.index(word)
                     number_index = word_index - 1
@@ -99,6 +121,8 @@ class Remind(commands.GroupCog, group_name = "remind"):
                             day = timedelta(days=1.0*newnumber)
                         except Exception:
                             day = timedelta(days=1.0)
+                    if day is not None:
+                        time_list.append(day)
                 elif word in hour_list:
                     word_index = words.index(word)
                     number_index = word_index - 1
@@ -111,6 +135,8 @@ class Remind(commands.GroupCog, group_name = "remind"):
                             hour = timedelta(hours=1.0*newnumber)
                         except Exception:
                             hour = timedelta(hours=1.0)
+                    if hour is not None:
+                        time_list.append(hour)
                 elif word in minute_list:
                     word_index = words.index(word)
                     number_index = word_index - 1
@@ -123,6 +149,8 @@ class Remind(commands.GroupCog, group_name = "remind"):
                             minute = timedelta(minutes=1.0*newnumber)
                         except Exception:
                             minute = timedelta(minutes=1.0)
+                    if minute is not None:
+                        time_list.append(minute)
                 elif word in second_list:
                     word_index = words.index(word)
                     number_index = word_index - 1
@@ -135,6 +163,17 @@ class Remind(commands.GroupCog, group_name = "remind"):
                             second = timedelta(seconds=1.0*newnumber)
                         except Exception:
                             second = timedelta(seconds=1.0)
+                    if second is not None:
+                        time_list.append(second)
+
+            total_time = 0
+            for time in time_list:
+                total_time += time
+            
+            if total_time > 0:
+                return total_time
+            else:
+                return None
 
         except Exception:
             print(traceback.format_exc())
