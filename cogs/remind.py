@@ -1,25 +1,25 @@
 import discord
 import traceback
+import dateparser
 from discord import app_commands
 from discord.ext import commands
-from datetime import datetime, timezone, timedelta
-from word2number import w2n
+from datetime import datetime, timezone
 
-class YesOrNo(discord.ui.View):
+class Confirm(discord.ui.View):
     def __init__(self, *, timeout = 180, bot: commands.Bot, user: discord.Member):
         super().__init__(timeout=timeout)
         self.bot = bot
         self.user = user
         self.value = None
 
-    @discord.ui.button(label="Yes", style=discord.ButtonStyle.green, emoji="👍")
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
     async def yes(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
             self.stop()
 
-    @discord.ui.button(label="No", style=discord.ButtonStyle.red, emoji="👎")
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
     async def no(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -35,148 +35,13 @@ class YesOrNo(discord.ui.View):
             self.value = False
             self.stop()
 
-            embed = discord.Embed(color=self.bot.red, title="Error", description="There was an error while trying to complete the command. Please try again later.")
-            embed.add_field(name="Error", value=f"{error}")
+            embed = discord.Embed(color=self.bot.red, title="Error", description=f"{error}")
             await interaction.followup.send(embed=embed, ephemeral=True)
 
 class Remind(commands.GroupCog, group_name = "remind"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.db = bot.database
-    
-    async def timeconverter(self, when: str):
-        try:
-
-            time_list = []
-
-            year = None
-            month = None
-            week = None
-            day = None
-            hour = None
-            minute = None
-            second = None
-
-            year_list = ["year", "years", "yr", "yrs"]
-            month_list = ["month", "months", "mo", "mos"]
-            week_list = ["week", "weeks", "wk", "wks"]
-            day_list = ["day", "days", "dy", "dys"]
-            hour_list = ["hour", "hours", "hr", "hrs"]
-            minute_list = ["minute", "minutes", "min", "mins"]
-            second_list = ["second", "seconds", "sec", "secs"]
-
-            words = when.split(" ")
-            for word in words:
-                if word in year_list:
-                    word_index = words.index(word)
-                    number_index = word_index - 1
-                    number = words[number_index]
-                    if number.isdigit():
-                        year = timedelta(days=365.0*number)
-                    else:
-                        try:
-                            newnumber = w2n.word_to_num(number)
-                            year = timedelta(days=365.0*newnumber)
-                        except Exception:
-                            year = timedelta(days=365.0)
-                    if year is not None:
-                        time_list.append(year)
-                elif word in month_list:
-                    word_index = words.index(word)
-                    number_index = word_index - 1
-                    number = words[number_index]
-                    if number.isdigit():
-                        month = timedelta(days=30.0*number)
-                    else:
-                        try:
-                            newnumber = w2n.word_to_num(number)
-                            month = timedelta(days=30.0*newnumber)
-                        except Exception:
-                            month = timedelta(days=30.0)
-                    if month is not None:
-                        time_list.append(month)
-                elif word in week_list:
-                    word_index = words.index(word)
-                    number_index = word_index - 1
-                    number = words[number_index]
-                    if number.isdigit():
-                        week = timedelta(weeks=1.0*number)
-                    else:
-                        try:
-                            newnumber = w2n.word_to_num(number)
-                            week = timedelta(weeks=1.0*newnumber)
-                        except Exception:
-                            week = timedelta(weeks=1.0)
-                    if week is not None:
-                        time_list.append(week)
-                elif word in day_list:
-                    word_index = words.index(word)
-                    number_index = word_index - 1
-                    number = words[number_index]
-                    if number.isdigit():
-                        day = timedelta(days=1.0*number)
-                    else:
-                        try:
-                            newnumber = w2n.word_to_num(number)
-                            day = timedelta(days=1.0*newnumber)
-                        except Exception:
-                            day = timedelta(days=1.0)
-                    if day is not None:
-                        time_list.append(day)
-                elif word in hour_list:
-                    word_index = words.index(word)
-                    number_index = word_index - 1
-                    number = words[number_index]
-                    if number.isdigit():
-                        hour = timedelta(hours=1.0*number)
-                    else:
-                        try:
-                            newnumber = w2n.word_to_num(number)
-                            hour = timedelta(hours=1.0*newnumber)
-                        except Exception:
-                            hour = timedelta(hours=1.0)
-                    if hour is not None:
-                        time_list.append(hour)
-                elif word in minute_list:
-                    word_index = words.index(word)
-                    number_index = word_index - 1
-                    number = words[number_index]
-                    if number.isdigit():
-                        minute = timedelta(minutes=1.0*number)
-                    else:
-                        try:
-                            newnumber = w2n.word_to_num(number)
-                            minute = timedelta(minutes=1.0*newnumber)
-                        except Exception:
-                            minute = timedelta(minutes=1.0)
-                    if minute is not None:
-                        time_list.append(minute)
-                elif word in second_list:
-                    word_index = words.index(word)
-                    number_index = word_index - 1
-                    number = words[number_index]
-                    if number.isdigit():
-                        second = timedelta(seconds=1.0*number)
-                    else:
-                        try:
-                            newnumber = w2n.word_to_num(number)
-                            second = timedelta(seconds=1.0*newnumber)
-                        except Exception:
-                            second = timedelta(seconds=1.0)
-                    if second is not None:
-                        time_list.append(second)
-
-            total_time = 0
-            for time in time_list:
-                total_time += time
-            
-            if total_time > 0:
-                return total_time
-            else:
-                return None
-
-        except Exception:
-            print(traceback.format_exc())
     
     @app_commands.command(name="everyone")
     @app_commands.checks.has_permissions(administrator=True)
@@ -195,7 +60,37 @@ class Remind(commands.GroupCog, group_name = "remind"):
         await interaction.response.defer()
         try:
 
-            ...
+            user = interaction.user
+
+            time = dateparser.parse(when)
+            formatted_time1 = discord.utils.format_dt(time, style="F")
+            formatted_time2 = discord.utils.format_dt(time, style="R")
+
+            confirm = discord.Embed(color=self.bot.blurple, title="Confirm", description="Please review the following information and `confirm` that everything looks correct. Otherwise, please `cancel` the interaction and try again.")
+            confirm.add_field(name="What", value=what, inline=False)
+            confirm.add_field(name="When", value=f"{formatted_time1} ({formatted_time2})", inline=False)
+            confirm.add_field(name="Where", value=where, inline=False)
+            view = Confirm(bot=self.bot, user=user)
+            response = await interaction.followup.send(embed=confirm, view=view, wait=True)
+            await view.wait()
+
+            if view.value == True:
+
+                confirmed = discord.Embed(color=self.bot.green, title="Confirmed", description="The reminder has been set successfully.")
+                await response.edit(embed=confirmed, view=None)
+                await response.delete(delay=30.0)
+
+                await discord.utils.sleep_until(when=time)
+                now = datetime.now(tz=timezone.utc)
+                reminder = discord.Embed(color=self.bot.blurple, title="Reminder", description=what, timestamp=now)
+                content = "-# @everyone"
+                await where.send(content=content, embed=reminder, allowed_mentions=discord.AllowedMentions(everyone=True))
+
+            else:
+
+                cancel = discord.Embed(color=self.bot.red, title="Cancelled", description="This interaction has been cancelled. Please try again")
+                await response.edit(embed=cancel, view=None)
+                await response.delete(delay=30.0)
         
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
@@ -221,7 +116,37 @@ class Remind(commands.GroupCog, group_name = "remind"):
         await interaction.response.defer()
         try:
 
-            ...
+            user = interaction.user
+
+            time = dateparser.parse(when)
+            formatted_time1 = discord.utils.format_dt(time, style="F")
+            formatted_time2 = discord.utils.format_dt(time, style="R")
+
+            confirm = discord.Embed(color=self.bot.blurple, title="Confirm", description="Please review the following information and `confirm` that everything looks correct. Otherwise, please `cancel` the interaction and try again.")
+            confirm.add_field(name="What", value=what, inline=False)
+            confirm.add_field(name="When", value=f"{formatted_time1} ({formatted_time2})", inline=False)
+            confirm.add_field(name="Where", value=where, inline=False)
+            view = Confirm(bot=self.bot, user=user)
+            response = await interaction.followup.send(embed=confirm, view=view, wait=True)
+            await view.wait()
+
+            if view.value == True:
+
+                confirmed = discord.Embed(color=self.bot.green, title="Confirmed", description="The reminder has been set successfully.")
+                await response.edit(embed=confirmed, view=None)
+                await response.delete(delay=30.0)
+
+                await discord.utils.sleep_until(when=time)
+                now = datetime.now(tz=timezone.utc)
+                reminder = discord.Embed(color=self.bot.blurple, title="Reminder", description=what, timestamp=now)
+                content = f"-# {who.mention}"
+                await where.send(content=content, embed=reminder)
+
+            else:
+
+                cancel = discord.Embed(color=self.bot.red, title="Cancelled", description="This interaction has been cancelled. Please try again")
+                await response.edit(embed=cancel, view=None)
+                await response.delete(delay=30.0)
         
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
@@ -247,7 +172,37 @@ class Remind(commands.GroupCog, group_name = "remind"):
         await interaction.response.defer()
         try:
 
-            ...
+            user = interaction.user
+
+            time = dateparser.parse(when)
+            formatted_time1 = discord.utils.format_dt(time, style="F")
+            formatted_time2 = discord.utils.format_dt(time, style="R")
+
+            confirm = discord.Embed(color=self.bot.blurple, title="Confirm", description="Please review the following information and `confirm` that everything looks correct. Otherwise, please `cancel` the interaction and try again.")
+            confirm.add_field(name="What", value=what, inline=False)
+            confirm.add_field(name="When", value=f"{formatted_time1} ({formatted_time2})", inline=False)
+            confirm.add_field(name="Where", value=where, inline=False)
+            view = Confirm(bot=self.bot, user=user)
+            response = await interaction.followup.send(embed=confirm, view=view, wait=True)
+            await view.wait()
+
+            if view.value == True:
+
+                confirmed = discord.Embed(color=self.bot.green, title="Confirmed", description="The reminder has been set successfully.")
+                await response.edit(embed=confirmed, view=None)
+                await response.delete(delay=30.0)
+
+                await discord.utils.sleep_until(when=time)
+                now = datetime.now(tz=timezone.utc)
+                reminder = discord.Embed(color=self.bot.blurple, title="Reminder", description=what, timestamp=now)
+                content = f"-# {who.mention}"
+                await where.send(content=content, embed=reminder)
+
+            else:
+
+                cancel = discord.Embed(color=self.bot.red, title="Cancelled", description="This interaction has been cancelled. Please try again")
+                await response.edit(embed=cancel, view=None)
+                await response.delete(delay=30.0)
         
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
@@ -272,23 +227,35 @@ class Remind(commands.GroupCog, group_name = "remind"):
 
             user = interaction.user
 
-            time = self.timeconverter(when)
+            time = dateparser.parse(when)
+            formatted_time1 = discord.utils.format_dt(time, style="F")
+            formatted_time2 = discord.utils.format_dt(time, style="R")
 
-            confirm = discord.Embed(color=self.bot.blurple, title="Confirm", description="Please review the following information and confirm that everything looks correct.")
-            confirm.add_field(name="What", value=what)
-            confirm.add_field(name="When", value=when)
-            confirm.add_field(name="Where", value=where)
-            yon = YesOrNo(bot=self.bot, user=user)
-            response = await interaction.followup.send(embed=confirm, view=yon)
-            await yon.wait()
+            confirm = discord.Embed(color=self.bot.blurple, title="Confirm", description="Please review the following information and `confirm` that everything looks correct. Otherwise, please `cancel` the interaction and try again.")
+            confirm.add_field(name="What", value=what, inline=False)
+            confirm.add_field(name="When", value=f"{formatted_time1} ({formatted_time2})", inline=False)
+            confirm.add_field(name="Where", value=where, inline=False)
+            view = Confirm(bot=self.bot, user=user)
+            response = await interaction.followup.send(embed=confirm, view=view, wait=True)
+            await view.wait()
 
-            if yon.value == True:
+            if view.value == True:
 
-                ...
+                confirmed = discord.Embed(color=self.bot.green, title="Confirmed", description="The reminder has been set successfully.")
+                await response.edit(embed=confirmed, view=None)
+                await response.delete(delay=30.0)
+
+                await discord.utils.sleep_until(when=time)
+                now = datetime.now(tz=timezone.utc)
+                reminder = discord.Embed(color=self.bot.blurple, title="Reminder", description=what, timestamp=now)
+                content = f"-# {user.mention}"
+                await where.send(content=content, embed=reminder)
 
             else:
 
-                ...
+                cancel = discord.Embed(color=self.bot.red, title="Cancelled", description="This interaction has been cancelled. Please try again")
+                await response.edit(embed=cancel, view=None)
+                await response.delete(delay=30.0)
         
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
