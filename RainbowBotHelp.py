@@ -6,6 +6,31 @@ class CogButtons(discord.ui.View):
         super().__init__(timeout=timeout)
         self.user = user
     
+    @discord.ui.button(label="Default", style=discord.ButtonStyle.blurple, emoji="🏠")
+    async def autodelete(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        if interaction.user == self.user:
+
+            embed = discord.Embed(color=discord.Color.blurple(), title="Default", description="These are the default commands which will allow you to customize the bot.")
+            embed.add_field(
+                name="/start",
+                value="(Admin Only) Start the bot by choosing desired functions.",
+                inline=False
+            )
+            embed.add_field(
+                name="/commands add",
+                value="(Admin Only) Add desired commands to the server.",
+                inline=False
+            )
+            embed.add_field(
+                name="/commands remove",
+                value="(Admin Only) Remove unwanted commands from the server.",
+                inline=False
+            )
+
+            message = interaction.message
+            await interaction.followup.edit_message(message_id=message.id, embed=embed, view=self)
+    
     @discord.ui.button(label="AutoDelete", style=discord.ButtonStyle.blurple, emoji="♻️")
     async def autodelete(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
