@@ -1,5 +1,25 @@
 # 🌈 Rainbow Bot Documentation 🌈
 
+## 🏠 Default 🏠
+
+These are the default commands which will allow you to customize the bot.
+
+### 🏠 Start
+> `/start`
+> 
+> (Admin Only) Start the bot by choosing desired functions.
+
+### 🏠 Add Commands
+> `/commands add`
+> 
+> (Admin Only) Add desired commands to the server.
+
+### 🏠 Remove Commands
+> `/commands remove`
+> 
+> (Admin Only) Remove unwanted commands from the server.
+
+
 ## ♻️ AutoDelete ♻️
 
 These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.
