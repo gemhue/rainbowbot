@@ -257,11 +257,11 @@ class RainbowBotHelp(commands.HelpCommand):
         super().__init__()
     
     async def send_bot_help(self, mapping):
-        embed = discord.Embed(color=discord.Color.blurple(), title="Help", description="If you have any questions that are not answered by this `help` command, please join the bot's support server (linked in the bot's bio).")
-
-        view = CogButtons()
-
         channel = self.get_destination()
+        embed = discord.Embed(color=discord.Color.blurple(), title="Help", description="If you have any questions that are not answered by this `help` command, please join the bot's support server (linked in the bot's bio).")
+        view = CogButtons()
         response = await channel.send(embed=embed, view=view)
         await view.wait()
         await response.delete()
+        ctx = self.context
+        await ctx.message.delete()
