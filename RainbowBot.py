@@ -20,12 +20,16 @@ class CogButtons(discord.ui.View):
         message = interaction.message
 
         embed = discord.Embed(color=discord.Color.blurple(), title="AutoDelete", description="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.")
-        embed.add_field(name="/autodelete start <amount> <interval>",
-                        value="(Admin Only) Sets the messages in the current channel to be autodeleted.\n\n> `amount` - Set the amount of time. The lowest possible frequency is 30 minutes.\n\n> `interval` - Set the time interval. The lowest possible frequency is 30 minutes.",
-                        inline=False)
-        embed.add_field(name="/autodelete cancel",
-                        value="(Admin Only) Cancels the autodelete set for the current channel.",
-                        inline=False)
+        embed.add_field(
+            name="/autodelete start <amount> <interval>",
+            value="(Admin Only) Sets the messages in the current channel to be autodeleted.\n\n> `amount` - Set the amount of time. The lowest possible frequency is 30 minutes.\n\n> `interval` - Set the time interval. The lowest possible frequency is 30 minutes.",
+            inline=False
+        )
+        embed.add_field(
+            name="/autodelete cancel",
+            value="(Admin Only) Cancels the autodelete set for the current channel.",
+            inline=False
+        )
 
         await interaction.followup.edit_message(message_id=message.id, embed=embed, view=self)
     
@@ -35,21 +39,31 @@ class CogButtons(discord.ui.View):
         message = interaction.message
 
         embed = discord.Embed(color=discord.Color.blurple(), title="Awards", description="These commands allow you to set up an awards system in your server. The award name and emoji can be customized.")
-        embed.add_field(name="/awards setup",
-                        value="(Admin Only) Sets the name, emoji, and leaderboard channel for the server awards.",
-                        inline=False)
-        embed.add_field(name="/awards clear",
-                        value="(Admin Only) Clears every member's awards in the server.",
-                        inline=False)
-        embed.add_field(name="/awards add <amount> <member>",
-                        value="Adds awards to the command user or another selected member.\n\n> `amount` - Choose the number of awards to add. (Default: 1)\n\n> `member` - Choose the member to add the awards to. (Default: Self)",
-                        inline=False)
-        embed.add_field(name="/awards remove <amount> <member>",
-                        value="Removes awards from the command user or another selected member.\n\n> `amount` - Choose the number of awards to remove. (Default: 1)\n\n> `member` - Choose the member to remove the awards from. (Default: Self)",
-                        inline=False)
-        embed.add_field(name="/awards check <member>",
-                        value="Returns the number of awards that the command user or another selected user currently has.\n\n> `member` - Choose the member that you would like to check the number of awards for. (Default: Self)",
-                        inline=False)
+        embed.add_field(
+            name="/awards setup",
+            value="(Admin Only) Sets the name, emoji, and leaderboard channel for the server awards.",
+            inline=False
+        )
+        embed.add_field(
+            name="/awards clear",
+            value="(Admin Only) Clears every member's awards in the server.",
+            inline=False
+        )
+        embed.add_field(
+            name="/awards add <amount> <member>",
+            value="Adds awards to the command user or another selected member.\n\n> `amount` - Choose the number of awards to add. (Default: 1)\n\n> `member` - Choose the member to add the awards to. (Default: Self)",
+            inline=False
+        )
+        embed.add_field(
+            name="/awards remove <amount> <member>",
+            value="Removes awards from the command user or another selected member.\n\n> `amount` - Choose the number of awards to remove. (Default: 1)\n\n> `member` - Choose the member to remove the awards from. (Default: Self)",
+            inline=False
+        )
+        embed.add_field(
+            name="/awards check <member>",
+            value="Returns the number of awards that the command user or another selected user currently has.\n\n> `member` - Choose the member that you would like to check the number of awards for. (Default: Self)",
+            inline=False
+        )
 
         await interaction.followup.edit_message(message_id=message.id, embed=embed, view=self)
 
@@ -58,13 +72,57 @@ class CogButtons(discord.ui.View):
         await interaction.response.defer()
         message = interaction.message
 
-        embed = discord.Embed(color=discord.Color.blurple(), title="AutoDelete", description="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.")
-        embed.add_field(name="/autodelete start <amount> <interval>",
-                        value="(Admin Only) Sets the messages in the current channel to be autodeleted.\n\n> `amount` - Set the amount of time. The lowest possible frequency is 30 minutes.\n\n> `interval` - Set the time interval. The lowest possible frequency is 30 minutes.",
-                        inline=False)
-        embed.add_field(name="/autodelete cancel",
-                        value="(Admin Only) Cancels the autodelete set for the current channel.",
-                        inline=False)
+        embed = discord.Embed(color=discord.Color.blurple(), title="Embeds", description="These commands allow you to send and edit messages containing embeds.")
+        embed.add_field(
+            name="/embed send <message_content> <embed_color> <embed_title> <embed_url> <embed_description>",
+            value="(Admin Only) Run this command to send an embed to the current channel.\n\n> `message_content` - Provide the content of the message above the embed.\n\n> `embed_color` - Provide the embed's color (HEX or RGB).\n\n> `embed_title` - Provide the embed's title.\n\n> `embed_url` - Provide the embed's URL.\n\n> `embed_description` - Provide the embed's description.",
+            inline=False
+        )
+        embed.add_field(
+            name="/embed edit <message_url> <message_content> <embed_color> <embed_title> <embed_url> <embed_description>",
+            value="(Admin Only) Run this command to edit the embed of a given message URL.\n\n> `message_url` - Provide the URL of the message containing the embed.\n\n> `message_content` - Provide the new content of the message above the embed.\n\n> `embed_color` - Provide the embed's new color (HEX or RGB).\n\n> `embed_title` - Provide the embed's new title.\n\n> `embed_url` - Provide the embed's new URL.\n\n> `embed_description` - Provide the embed's new description.",
+            inline=False
+        )
+        embed.add_field(
+            name="/embed set_image <message_url> <image_url>",
+            value="(Admin Only) Run this command to set an embed's image.\n\n> `message_url` - Provide the URL of the message containing the embed.\n\n> `image_url` - Provide the URL of the image.",
+            inline=False
+        )
+        embed.add_field(
+            name="/embed remove_image <message_url>",
+            value="(Admin Only) Run this command to remove an embed's image.\n\n> `message_url` - Provide the URL of the message containing the embed.",
+            inline=False
+        )
+        embed.add_field(
+            name="/embed set_thumbnail <message_url> <thumbnail_url>",
+            value="(Admin Only) Run this command to set an embed's thumbnail.\n\n> `message_url` - Provide the URL of the message containing the embed.\n\n> `thumbnail_url` - Provide the URL of the thumbnail.",
+            inline=False
+        )
+        embed.add_field(
+            name="/embed remove_thumbnail <message_url>",
+            value="(Admin Only) Run this command to remove an embed's thumbnail.\n\n> `message_url` - Provide the URL of the message containing the embed.",
+            inline=False
+        )
+        embed.add_field(
+            name="/embed add_field <message_url> <name> <value> <inline>",
+            value="(Admin Only) Run this command to add a field to an embed.\n\n> `message_url` - Provide the URL of the message containing the embed.\n\n> `name` - Provide the name of the field to be added.\n\n> `value` - Provide the value of the field to be added.\n\n> `inline` - Provide whether the field should be inline.",
+            inline=False
+        )
+        embed.add_field(
+            name="/embed edit_field <message_url> <index> <name> <value> <inline>",
+            value="(Admin Only) Run this command to edit a field of an embed by its index.\n\n> `message_url` - Provide the URL of the message containing the embed.\n\n> `index` - Provide the index of the field to be edited.\n\n> `name` - Provide the new name of the field.\n\n> `value` - Provide the new value of the field.\n\n> `inline` - Provide whether the edited field should be inline.",
+            inline=False
+        )
+        embed.add_field(
+            name="/embed insert_field <message_url> <index> <name> <value> <inline>",
+            value="(Admin Only) Run this command to insert an embed field at an index.\n\n> `message_url` - Provide the URL of the message containing the embed.\n\n> `index` - Provide the index of the field to be inserted.\n\n> `name` - Provide the name of the field to be inserted.\n\n> `value` - Provide the value of the field to be inserted.\n\n> `inline` - Provide whether the inserted field should be inline.",
+            inline=False
+        )
+        embed.add_field(
+            name="/embed remove_field <message_url> <index>",
+            value="(Admin Only) Run this command to remove a field from an embed by its index.\n\n> `message_url` - Provide the URL of the message containing the embed.\n\n> `index` - Provide the index of the field to be removed.",
+            inline=False
+        )
 
         await interaction.followup.edit_message(message_id=message.id, embed=embed, view=self)
 

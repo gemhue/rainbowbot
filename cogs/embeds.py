@@ -290,9 +290,9 @@ class Embeds(commands.GroupCog, group_name = "embed"):
         index : int
             Provide the index of the field to be edited.
         name : str
-            Provide the name of the field to be edited.
+            Provide the new name of the field.
         value : str
-            Provide the value of the field to be edited.
+            Provide the new value of the field.
         inline : bool
             Provide whether the edited field should be inline.
         """
