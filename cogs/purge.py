@@ -124,6 +124,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 
                 done = discord.Embed(color=self.bot.green, title="Success", description="The purge is now complete!")
                 await response.edit(embed=done, view=None)
+                await response.delete(delay=30.0)
 
                 cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (interaction.guild.id,))
                 row = await cur.fetchone()
@@ -193,6 +194,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     
                     success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete!')
                     await response.edit(embed=success, view=None)
+                    await response.delete(delay=30.0)
 
                     cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                     row = await cur.fetchone()
@@ -208,18 +210,22 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 elif yon.value == False:
                     cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
                     await response.edit(embed=cancelled, view=None)
+                    await response.delete(delay=30.0)
 
                 else:
                     timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
                     await response.edit(embed=timed_out, view=None)
+                    await response.delete(delay=30.0)
 
             elif csv.value == False:
                 cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
                 await response.edit(embed=cancelled, view=None)
+                await response.delete(delay=30.0)
 
             else:
                 timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
                 await response.edit(embed=timed_out, view=None)
+                await response.delete(delay=30.0)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
@@ -269,6 +275,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     
                     success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete!')
                     await response.edit(embed=success, view=None)
+                    await response.delete(delay=30.0)
 
                     cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                     row = await cur.fetchone()
@@ -284,18 +291,22 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 elif yon.value == False:
                     cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
                     await response.edit(embed=cancelled, view=None)
+                    await response.delete(delay=30.0)
 
                 else:
                     timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
                     await response.edit(embed=timed_out, view=None)
+                    await response.delete(delay=30.0)
 
             elif csv.value == False:
                 cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
                 await response.edit(embed=cancelled, view=None)
+                await response.delete(delay=30.0)
 
             else:
                 timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
                 await response.edit(embed=timed_out, view=None)
+                await response.delete(delay=30.0)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
@@ -347,6 +358,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     
                     success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete!')
                     await response.edit(embed=success, view=None)
+                    await response.delete(delay=30.0)
 
                     cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                     row = await cur.fetchone()
@@ -362,18 +374,22 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 elif yon.value == False:
                     cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
                     await response.edit(embed=cancelled, view=None)
+                    await response.delete(delay=30.0)
 
                 else:
                     timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
                     await response.edit(embed=timed_out, view=None)
+                    await response.delete(delay=30.0)
 
             elif csv.value == False:
                 cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
                 await response.edit(embed=cancelled, view=None)
+                await response.delete(delay=30.0)
 
             else:
                 timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
                 await response.edit(embed=timed_out, view=None)
+                await response.delete(delay=30.0)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
