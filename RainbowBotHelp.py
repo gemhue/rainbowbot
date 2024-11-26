@@ -7,11 +7,12 @@ class CogButtons(discord.ui.View):
         self.user = user
     
     @discord.ui.button(label="Default", style=discord.ButtonStyle.blurple, emoji="🏠")
-    async def autodelete(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def default(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
 
-            embed = discord.Embed(color=discord.Color.blurple(), title="Default", description="These are the default commands which will allow you to customize the bot.")
+            url = "https://github.com/gemhue/rainbowbot/blob/main/README.md#-default-"
+            embed = discord.Embed(color=discord.Color.blurple(), title="Default", url=url, description="These are the default commands which will allow you to customize the bot.")
             embed.add_field(
                 name="/start",
                 value="(Admin Only) Start the bot by choosing desired functions.",
@@ -36,7 +37,8 @@ class CogButtons(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
 
-            embed = discord.Embed(color=discord.Color.blurple(), title="AutoDelete", description="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.")
+            url = "https://github.com/gemhue/rainbowbot/blob/main/README.md#%EF%B8%8F-autodelete-%EF%B8%8F"
+            embed = discord.Embed(color=discord.Color.blurple(), title="AutoDelete", url=url, description="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.")
             embed.add_field(
                 name="/autodelete start <amount> <interval>",
                 value="(Admin Only) Sets the messages in the current channel to be autodeleted.\n> `amount` - Set the amount of time. The lowest possible frequency is 30 minutes.\n> `interval` - Set the time interval. The lowest possible frequency is 30 minutes.",
@@ -56,7 +58,8 @@ class CogButtons(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
 
-            embed = discord.Embed(color=discord.Color.blurple(), title="Awards", description="These commands allow you to set up an awards system in your server. The award name and emoji can be customized.")
+            url = "https://github.com/gemhue/rainbowbot/blob/main/README.md#-awards-"
+            embed = discord.Embed(color=discord.Color.blurple(), title="Awards", url=url, description="These commands allow you to set up an awards system in your server. The award name and emoji can be customized.")
             embed.add_field(
                 name="/awards setup",
                 value="(Admin Only) Sets the name, emoji, and leaderboard channel for the server awards.",
@@ -91,7 +94,8 @@ class CogButtons(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
 
-            embed = discord.Embed(color=discord.Color.blurple(), title="Embeds", description="These commands allow you to send and edit messages containing embeds.")
+            url = "https://github.com/gemhue/rainbowbot/blob/main/README.md#-embeds-"
+            embed = discord.Embed(color=discord.Color.blurple(), title="Embeds", url=url, description="These commands allow you to send and edit messages containing embeds.")
             embed.add_field(
                 name="/embed send <message_content> <embed_color> <embed_title> <embed_url> <embed_description>",
                 value="(Admin Only) Run this command to send an embed to the current channel.\n> `message_content` - Provide the content of the message above the embed.\n> `embed_color` - Provide the embed's color (HEX or RGB).\n> `embed_title` - Provide the embed's title.\n> `embed_url` - Provide the embed's URL.\n> `embed_description` - Provide the embed's description.",
@@ -151,7 +155,8 @@ class CogButtons(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
 
-            embed = discord.Embed(color=discord.Color.blurple(), title="Profiles", description="These commands allow you and your server members to set up member profiles that can be viewed and edited.")
+            url = "https://github.com/gemhue/rainbowbot/blob/main/README.md#-profiles-"
+            embed = discord.Embed(color=discord.Color.blurple(), title="Profiles", url=url, description="These commands allow you and your server members to set up member profiles that can be viewed and edited.")
             embed.add_field(
                 name="/profile set <name> <age> <location> <pronouns> <gender> <sexuality> <relationship_status> <family_status> <biography>",
                 value="Run this command to set up your member profile. Note that all fields are optional.\n> `name` - Provide your name or nickname.\n> `age` - Provide your age or age range.\n> `location` - Provide your continent, country, state, or city of residence.\n> `pronouns` - Provide your pronouns (ex. she/her, he/him, they/them, etc).\n> `gender` - Provide your gender identity label (ex. woman, man, nonbinary, etc).\n> `sexuality` - Provide your sexuality label (ex. lesbian, gay, bisexual, etc).\n> `relationship_status` - Provide your relationship status (ex. single, married, etc).\n> `family_status` - Provide your your family planning status (ex. TTC, expecting, parenting, etc).\n> `biography` - Provide a brief biography (ex. family, hobbies, interests, work, etc).",
@@ -171,7 +176,8 @@ class CogButtons(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
 
-            embed = discord.Embed(color=discord.Color.blurple(), title="Purge", description="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.")
+            url = "https://github.com/gemhue/rainbowbot/blob/main/README.md#%EF%B8%8F-purge-%EF%B8%8F"
+            embed = discord.Embed(color=discord.Color.blurple(), title="Purge", url=url, description="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.")
             embed.add_field(
                 name="/purge here",
                 value="(Admin Only) Purge all unpinned messages in the current channel.",
@@ -201,7 +207,8 @@ class CogButtons(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
 
-            embed = discord.Embed(color=discord.Color.blurple(), title="Remind", description="These commands allow you to set reminders for yourself, a user, a role, or everyone.")
+            url = "https://github.com/gemhue/rainbowbot/blob/main/README.md#-remind-"
+            embed = discord.Embed(color=discord.Color.blurple(), title="Remind", url=url, description="These commands allow you to set reminders for yourself, a user, a role, or everyone.")
             embed.add_field(
                 name="/remind everyone <what> <when> <where>",
                 value="(Admin Only) Create a reminder for everyone.\n> `what` - What would you like the bot to remind everyone about?\n> `when` - When would you like the bot to send the reminder?\n> `where` - Where would you like the bot to send the reminder?",
@@ -231,7 +238,8 @@ class CogButtons(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
 
-            embed = discord.Embed(color=discord.Color.blurple(), title="RSS Feeds", description="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.")
+            url = "https://github.com/gemhue/rainbowbot/blob/main/README.md#-rss-feeds-"
+            embed = discord.Embed(color=discord.Color.blurple(), title="RSS Feeds", url=url, description="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.")
             embed.add_field(
                 name="/rss webhook_setup <webhook_nickname> <webhook_url>",
                 value="(Admin Only) Run this command to set up a Webhook for posting RSS feeds.\n> `webhook_nickname` - Provide a nickname for the Webhook.\n> `webhook_url` - Provide the URL for the Webhook.",
@@ -267,11 +275,12 @@ class CogButtons(discord.ui.View):
             await interaction.followup.edit_message(message_id=message.id, embed=embed, view=self)
 
     @discord.ui.button(label="Tickets", style=discord.ButtonStyle.blurple, emoji="🎫")
-    async def rss_feeds(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def tickets(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
 
-            embed = discord.Embed(color=discord.Color.blurple(), title="Tickets", description="This command allows you to set up a simple ticketing system for your server using threads.")
+            url = "https://github.com/gemhue/rainbowbot/blob/main/README.md#-tickets-"
+            embed = discord.Embed(color=discord.Color.blurple(), title="Tickets", url=url, description="This command allows you to set up a simple ticketing system for your server using threads.")
             embed.add_field(
                 name="/tickets setup <channel> <staff_role>",
                 value="(Admin Only) Set up a ticketing system for the server.\n> `channel` - Provide the channel where the ticketing system should be posted.\n> `staff_role` - Provide the role that should be pinged when a ticket is opened.",
@@ -282,7 +291,7 @@ class CogButtons(discord.ui.View):
             await interaction.followup.edit_message(message_id=message.id, embed=embed, view=self)
     
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
-    async def done(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.stop()
