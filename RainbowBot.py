@@ -10,10 +10,163 @@ from datetime import datetime, timezone
 load_dotenv()
 token = os.getenv("token")
 
+class CogButtons(discord.ui.View):
+    def __init__(self, *, timeout = 180):
+        super().__init__(timeout=timeout)
+    
+    @discord.ui.button(label="AutoDelete", style=discord.ButtonStyle.blurple, emoji="♻️")
+    async def autodelete(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        message = interaction.message
+
+        embed = discord.Embed(color=discord.Color.blurple(), title="AutoDelete", description="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.")
+        embed.add_field(name="/autodelete start <amount> <interval>",
+                        value="(Admin Only) Sets the messages in the current channel to be autodeleted.\n\n> `amount` - Set the amount of time. The lowest possible frequency is 30 minutes.\n\n> `interval` - Set the time interval. The lowest possible frequency is 30 minutes.",
+                        inline=False)
+        embed.add_field(name="/autodelete cancel",
+                        value="(Admin Only) Cancels the autodelete set for the current channel.",
+                        inline=False)
+
+        await interaction.followup.edit_message(message_id=message.id, embed=embed, view=self)
+    
+    @discord.ui.button(label="Awards", style=discord.ButtonStyle.blurple, emoji="🏅")
+    async def awards(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        message = interaction.message
+
+        embed = discord.Embed(color=discord.Color.blurple(), title="Awards", description="These commands allow you to set up an awards system in your server. The award name and emoji can be customized.")
+        embed.add_field(name="/awards setup",
+                        value="(Admin Only) Sets the name, emoji, and leaderboard channel for the server awards.",
+                        inline=False)
+        embed.add_field(name="/awards clear",
+                        value="(Admin Only) Clears every member's awards in the server.",
+                        inline=False)
+        embed.add_field(name="/awards add <amount> <member>",
+                        value="Adds awards to the command user or another selected member.\n\n> `amount` - Choose the number of awards to add. (Default: 1)\n\n> `member` - Choose the member to add the awards to. (Default: Self)",
+                        inline=False)
+        embed.add_field(name="/awards remove <amount> <member>",
+                        value="Removes awards from the command user or another selected member.\n\n> `amount` - Choose the number of awards to remove. (Default: 1)\n\n> `member` - Choose the member to remove the awards from. (Default: Self)",
+                        inline=False)
+        embed.add_field(name="/awards check <member>",
+                        value="Returns the number of awards that the command user or another selected user currently has.\n\n> `member` - Choose the member that you would like to check the number of awards for. (Default: Self)",
+                        inline=False)
+
+        await interaction.followup.edit_message(message_id=message.id, embed=embed, view=self)
+
+    @discord.ui.button(label="Embeds", style=discord.ButtonStyle.blurple, emoji="📝")
+    async def embeds(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        message = interaction.message
+
+        embed = discord.Embed(color=discord.Color.blurple(), title="AutoDelete", description="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.")
+        embed.add_field(name="/autodelete start <amount> <interval>",
+                        value="(Admin Only) Sets the messages in the current channel to be autodeleted.\n\n> `amount` - Set the amount of time. The lowest possible frequency is 30 minutes.\n\n> `interval` - Set the time interval. The lowest possible frequency is 30 minutes.",
+                        inline=False)
+        embed.add_field(name="/autodelete cancel",
+                        value="(Admin Only) Cancels the autodelete set for the current channel.",
+                        inline=False)
+
+        await interaction.followup.edit_message(message_id=message.id, embed=embed, view=self)
+
+    @discord.ui.button(label="Profiles", style=discord.ButtonStyle.blurple, emoji="🪪")
+    async def profiles(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        message = interaction.message
+
+        embed = discord.Embed(color=discord.Color.blurple(), title="AutoDelete", description="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.")
+        embed.add_field(name="/autodelete start <amount> <interval>",
+                        value="(Admin Only) Sets the messages in the current channel to be autodeleted.\n\n> `amount` - Set the amount of time. The lowest possible frequency is 30 minutes.\n\n> `interval` - Set the time interval. The lowest possible frequency is 30 minutes.",
+                        inline=False)
+        embed.add_field(name="/autodelete cancel",
+                        value="(Admin Only) Cancels the autodelete set for the current channel.",
+                        inline=False)
+
+        await interaction.followup.edit_message(message_id=message.id, embed=embed, view=self)
+    
+    @discord.ui.button(label="Purge", style=discord.ButtonStyle.blurple, emoji="🗑️")
+    async def purge(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        message = interaction.message
+
+        embed = discord.Embed(color=discord.Color.blurple(), title="AutoDelete", description="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.")
+        embed.add_field(name="/autodelete start <amount> <interval>",
+                        value="(Admin Only) Sets the messages in the current channel to be autodeleted.\n\n> `amount` - Set the amount of time. The lowest possible frequency is 30 minutes.\n\n> `interval` - Set the time interval. The lowest possible frequency is 30 minutes.",
+                        inline=False)
+        embed.add_field(name="/autodelete cancel",
+                        value="(Admin Only) Cancels the autodelete set for the current channel.",
+                        inline=False)
+
+        await interaction.followup.edit_message(message_id=message.id, embed=embed, view=self)
+    
+    @discord.ui.button(label="Remind", style=discord.ButtonStyle.blurple, emoji="📅")
+    async def remind(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        message = interaction.message
+
+        embed = discord.Embed(color=discord.Color.blurple(), title="AutoDelete", description="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.")
+        embed.add_field(name="/autodelete start <amount> <interval>",
+                        value="(Admin Only) Sets the messages in the current channel to be autodeleted.\n\n> `amount` - Set the amount of time. The lowest possible frequency is 30 minutes.\n\n> `interval` - Set the time interval. The lowest possible frequency is 30 minutes.",
+                        inline=False)
+        embed.add_field(name="/autodelete cancel",
+                        value="(Admin Only) Cancels the autodelete set for the current channel.",
+                        inline=False)
+
+        await interaction.followup.edit_message(message_id=message.id, embed=embed, view=self)
+
+    @discord.ui.button(label="RSS Feeds", style=discord.ButtonStyle.blurple, emoji="📰")
+    async def rss_feeds(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        message = interaction.message
+
+        embed = discord.Embed(color=discord.Color.blurple(), title="AutoDelete", description="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.")
+        embed.add_field(name="/autodelete start <amount> <interval>",
+                        value="(Admin Only) Sets the messages in the current channel to be autodeleted.\n\n> `amount` - Set the amount of time. The lowest possible frequency is 30 minutes.\n\n> `interval` - Set the time interval. The lowest possible frequency is 30 minutes.",
+                        inline=False)
+        embed.add_field(name="/autodelete cancel",
+                        value="(Admin Only) Cancels the autodelete set for the current channel.",
+                        inline=False)
+
+        await interaction.followup.edit_message(message_id=message.id, embed=embed, view=self)
+
+    @discord.ui.button(label="Tickets", style=discord.ButtonStyle.blurple, emoji="🎫")
+    async def rss_feeds(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        message = interaction.message
+
+        embed = discord.Embed(color=discord.Color.blurple(), title="AutoDelete", description="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.")
+        embed.add_field(name="/autodelete start <amount> <interval>",
+                        value="(Admin Only) Sets the messages in the current channel to be autodeleted.\n\n> `amount` - Set the amount of time. The lowest possible frequency is 30 minutes.\n\n> `interval` - Set the time interval. The lowest possible frequency is 30 minutes.",
+                        inline=False)
+        embed.add_field(name="/autodelete cancel",
+                        value="(Admin Only) Cancels the autodelete set for the current channel.",
+                        inline=False)
+
+        await interaction.followup.edit_message(message_id=message.id, embed=embed, view=self)
+    
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
+    async def done(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        self.stop()
+
+class RainbowBotHelp(commands.HelpCommand):
+    def __init__(self):
+        super().__init__()
+    
+    async def send_bot_help(self, mapping):
+        embed = discord.Embed(color=discord.Color.blurple(), title="Help", description="If you have any questions that are not answered by this `help` command, please join the bot's support server (linked in the bot's bio).")
+
+        view = CogButtons()
+
+        channel = self.get_destination()
+        response = await channel.send(embed=embed, view=view)
+        await view.wait()
+        await response.delete()
+
 class RainbowBot(commands.Bot):
     def __init__(self):
         super().__init__(
             command_prefix = commands.when_mentioned_or("rb!"),
+            help_command = RainbowBotHelp(),
             description = "A multi-purpose Discord bot made by GitHub user gemhue.",
             intents = discord.Intents.all(),
             activity = discord.Activity(type=discord.ActivityType.listening, name="rb!help"),
