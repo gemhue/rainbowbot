@@ -367,7 +367,6 @@ class FieldEditView(discord.ui.View):
 
     @discord.ui.button(label="Value", style=discord.ButtonStyle.blurple)
     async def value(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
         if interaction.user == self.user:
             modal = FieldValueModal()
             await interaction.response.send_modal(modal)
