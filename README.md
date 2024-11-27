@@ -1,5 +1,9 @@
 # 🌈 Rainbow Bot Documentation 🌈
 
+🔗 [Discovery Page](https://discord.com/application-directory/1263872722195316737)
+
+🔗 [Support Server](https://discord.gg/5x3xBSdWbE)
+
 ## 🏠 Default 🏠
 
 These are the default commands which will allow you to customize the bot.
