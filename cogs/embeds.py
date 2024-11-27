@@ -471,7 +471,6 @@ class EmbedButtons(discord.ui.View):
     
     @discord.ui.button(label="URL", style=discord.ButtonStyle.blurple, emoji="🔗")
     async def url(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
         if interaction.user == self.user:
             modal = URLModal()
             await interaction.response.send_modal(modal)
@@ -485,7 +484,6 @@ class EmbedButtons(discord.ui.View):
     
     @discord.ui.button(label="Description", style=discord.ButtonStyle.blurple, emoji="📄")
     async def description(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
         if interaction.user == self.user:
             modal = DescriptionModal()
             await interaction.response.send_modal(modal)
@@ -498,7 +496,7 @@ class EmbedButtons(discord.ui.View):
             await message.edit(embed=self.embed, view=self)
     
     @discord.ui.button(label="Fields", style=discord.ButtonStyle.blurple, emoji="📝")
-    async def description(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def fields(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             message = interaction.message
