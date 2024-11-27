@@ -30,6 +30,7 @@ class CustomColorModal(discord.ui.Modal, title = "Custom Color"):
     input = discord.ui.TextInput(label="Custom Color", placeholder="Please provide a #<hex> or rgb(r,g,b) color code...")
 
     async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         try:
             self.color = discord.Colour.from_str(self.input.value)
         except ValueError:
@@ -37,6 +38,7 @@ class CustomColorModal(discord.ui.Modal, title = "Custom Color"):
         self.stop()
     
     async def on_error(self, interaction: discord.Interaction, error: Exception):
+        await interaction.response.defer()
         print(traceback.format_exc())
         self.stop()
 
@@ -225,10 +227,12 @@ class TitleModal(discord.ui.Modal, title = "Title"):
     input = discord.ui.TextInput(label="Title", placeholder="Please provide a title for the embed...", max_length=256)
 
     async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         self.title = self.input.value
         self.stop()
     
     async def on_error(self, interaction: discord.Interaction, error: Exception):
+        await interaction.response.defer()
         print(traceback.format_exc())
         self.stop()
 
@@ -237,10 +241,12 @@ class URLModal(discord.ui.Modal, title = "URL"):
     input = discord.ui.TextInput(label="URL", placeholder="Please provide a URL for the embed...")
 
     async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         self.url = self.input.value
         self.stop()
     
     async def on_error(self, interaction: discord.Interaction, error: Exception):
+        await interaction.response.defer()
         print(traceback.format_exc())
         self.stop()
 
@@ -249,10 +255,12 @@ class DescriptionModal(discord.ui.Modal, title = "Description"):
     input = discord.ui.TextInput(label="Description", style=discord.TextStyle.long, placeholder="Please provide a description for the embed...", max_length=4000)
 
     async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         self.description = self.input.value
         self.stop()
     
     async def on_error(self, interaction: discord.Interaction, error: Exception):
+        await interaction.response.defer()
         print(traceback.format_exc())
         self.stop()
 
@@ -319,10 +327,12 @@ class FieldNameModal(discord.ui.Modal, title = "Field Name"):
     input = discord.ui.TextInput(label="Field Name", placeholder="Please provide a name for the field...", max_length=256)
 
     async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         self.field_name = self.input.value
         self.stop()
     
     async def on_error(self, interaction: discord.Interaction, error: Exception):
+        await interaction.response.defer()
         print(traceback.format_exc())
         self.stop()
 
@@ -331,10 +341,12 @@ class FieldValueModal(discord.ui.Modal, title = "Field Value"):
     input = discord.ui.TextInput(label="Field Value", placeholder="Please provide a value for the field...", max_length=1024)
 
     async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.defer()
         self.field_value = self.input.value
         self.stop()
     
     async def on_error(self, interaction: discord.Interaction, error: Exception):
+        await interaction.response.defer()
         print(traceback.format_exc())
         self.stop()
 
