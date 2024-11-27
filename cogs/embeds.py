@@ -426,7 +426,7 @@ class EmbedButtons(discord.ui.View):
         super().__init__(timeout=timeout)
         self.bot = bot
         self.user = user
-        self.embed = discord.Embed()
+        self.embed = discord.Embed(color=self.bot.blurple, title="Title", description="Description")
 
     @discord.ui.button(label="Color", style=discord.ButtonStyle.blurple, emoji="🎨")
     async def color(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -536,12 +536,13 @@ class Embeds(commands.GroupCog, group_name = "embed"):
     @app_commands.command(name="build")
     @app_commands.checks.has_permissions(administrator=True)
     async def build(self, interaction: discord.Interaction):
+        """(Admin Only) Run this command to build and send an embed."""
         await interaction.response.defer()
         try:
 
             guild = interaction.guild
             user = interaction.user
-            embed = discord.Embed()
+            embed = discord.Embed(color=self.bot.blurple, title="Title", description="Description")
             view = EmbedButtons(bot=self.bot, user=user)
             response = await interaction.followup.send(embed=embed, view=view, wait=True)
             await view.wait()
