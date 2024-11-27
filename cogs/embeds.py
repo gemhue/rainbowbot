@@ -201,7 +201,7 @@ class ColorView(discord.ui.View):
                 await message.edit(embed=embed, view=self)
     
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
-    async def custom(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
 
             message = interaction.message
@@ -426,6 +426,7 @@ class EmbedButtons(discord.ui.View):
         super().__init__(timeout=timeout)
         self.bot = bot
         self.user = user
+        self.value = None
         self.embed = discord.Embed(color=self.bot.blurple, title="Title", description="Description")
 
     @discord.ui.button(label="Color", style=discord.ButtonStyle.blurple, emoji="🎨")
@@ -526,6 +527,7 @@ class EmbedButtons(discord.ui.View):
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
+            self.value = False
             self.stop()
 
 class Embeds(commands.GroupCog, group_name = "embed"):
