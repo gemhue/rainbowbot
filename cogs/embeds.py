@@ -201,7 +201,8 @@ class FieldsSelect(discord.ui.Select):
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         if interaction.user == self.user:
-            self.view.field = self.values[0]
+            value = self.values[0]
+            self.view.field = int(value)
 
 class FieldsSelectView(discord.ui.View):
     def __init__(self, *, timeout = 180, user: discord.Member):
@@ -518,7 +519,7 @@ class EmbedButtons(discord.ui.View):
             await view.wait()
 
             if view.value == True:
-                await message.edit(embed=self.embed, view=self)
+                await message.edit(view=self)
 
             elif view.value == False:
                 await message.edit(embed=embed, view=self)
@@ -582,7 +583,7 @@ class EmbedButtons(discord.ui.View):
                     await field_view.wait()
 
                     if field_view.value == True:
-                        await message.edit(embed=self.embed, view=self)
+                        await message.edit(view=self)
                     
                     elif field_view.value == False:
                         await message.edit(embed=embed, view=self)
@@ -602,7 +603,7 @@ class EmbedButtons(discord.ui.View):
             await view.wait()
 
             if view.value == True:
-                await message.edit(embed=self.embed, view=self)
+                await message.edit(view=self)
             
             elif view.value == False:
                 await message.edit(embed=embed, view=self)
