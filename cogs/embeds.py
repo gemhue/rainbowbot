@@ -2,6 +2,7 @@ import discord
 import traceback
 from discord import app_commands
 from discord.ext import commands
+from datetime import datetime, timezone
 
 class YesOrNo(discord.ui.View):
     def __init__(self, *, timeout = 180, user: discord.Member):
@@ -477,7 +478,8 @@ class MediaEditView(discord.ui.View):
             message = interaction.message
             embed = message.embeds[0]
             try:
-                embed.image.url = modal.image
+                if modal.image is not None:
+                    embed.image.url = modal.image
             except Exception:
                 embed.image.url = None
             await message.edit(embed=embed, view=self)
@@ -500,7 +502,8 @@ class MediaEditView(discord.ui.View):
             message = interaction.message
             embed = message.embeds[0]
             try:
-                embed.thumbnail.url = modal.thumbnail
+                if modal.thumbnail is not None:
+                    embed.thumbnail.url = modal.thumbnail
             except Exception:
                 embed.thumbnail.url = None
             await message.edit(embed=embed, view=self)
@@ -523,7 +526,8 @@ class MediaEditView(discord.ui.View):
             message = interaction.message
             embed = message.embeds[0]
             try:
-                embed.video.url = modal.video
+                if modal.video is not None:
+                    embed.video.url = modal.video
             except Exception:
                 embed.video.url = None
             await message.edit(embed=embed, view=self)
@@ -575,14 +579,14 @@ class ChannelSelectView(discord.ui.View):
         self.value = None
         self.add_item(ChannelSelect(user=self.user))
 
-    @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
+    @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, emoji="✔️", row=2)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
             self.stop()
 
-    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
+    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, emoji="✖️", row=2)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -656,6 +660,8 @@ class EmbedButtons(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
             message = interaction.message
+            embed = message.embeds[0]
+
             view = FieldsSelectView(user=self.user)
             await message.edit(view=view)
             await view.wait()
@@ -668,19 +674,13 @@ class EmbedButtons(discord.ui.View):
                     await message.edit(view=field_view)
                     await field_view.wait()
 
-                    if field_view.field:
-                        index = field_view.field["index"] or None
-                        name = field_view.field["name"] or None
-                        value = field_view.field["value"] or None
-                        inline = field_view.field["inline"] or None
+                    if field_view.value == True:
 
-                        if len(self.embed.fields) < 25:
-                            self.embed.insert_field_at(index=index, name=name, value=value, inline=inline)
-                        else:
-                            self.embed.remove_field(index=24)
-                            self.embed.insert_field_at(index=index, name=name, value=value, inline=inline)
-            
-            await message.edit(embed=self.embed, view=self)
+                        await message.edit(embed=self.embed, view=self)
+                    
+                    elif field_view.value == False:
+
+                        await message.edit(embed=embed, view=self)
     
     @discord.ui.button(label="Submit", style=discord.ButtonStyle.green, emoji="✔️", row=2)
     async def submit(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -726,7 +726,11 @@ class Embeds(commands.GroupCog, group_name = "embed"):
 
                     if channel_select_view.channel_id is not None:
                         channel = guild.get_channel_or_thread(channel_select_view.channel_id)
-                        await channel.send(embed=view.embed)
+                        embed = view.embed
+                        embed.set_author(name=f"{user.display_name}", icon_url=f"{user.display_avatar}")
+                        now = datetime.now(tz=timezone.utc)
+                        embed.timestamp = now
+                        await channel.send(embed=embed)
 
                         success = discord.Embed(color=self.bot.green, title="Success", description=f"The embed has been sent to {channel.mention}.")
                         await response.edit(embed=success, view=None)
