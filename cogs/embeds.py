@@ -46,180 +46,103 @@ class ColorView(discord.ui.View):
         super().__init__(timeout=timeout)
         self.bot = bot
         self.user = user
-        self.color = None
 
     @discord.ui.button(label="Red", style=discord.ButtonStyle.blurple, emoji="❤️", row=1)
     async def red(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
-
-            self.color = discord.Colour.red()
             message = interaction.message
-            embed = discord.Embed(color=self.color, title="Color Selected", description="You have selected **red**. Is this correct?")
-            view = YesOrNo(user=self.user)
-            await message.edit(embed=embed, view=view)
-            await view.wait()
+            embed = message.embeds[0]
 
-            if view.value == True:
-                self.stop()
-            
-            elif view.value == False:
-                embed = discord.Embed(color=self.bot.blurple, title="Color", description="Choose the embed's color.")
-                await message.edit(embed=embed, view=self)
+            embed.color = discord.Colour.red()
+            await message.edit(embed=embed, view=self)
     
     @discord.ui.button(label="Orange", style=discord.ButtonStyle.blurple, emoji="🧡", row=1)
     async def orange(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
-
-            self.color = discord.Colour.orange()
             message = interaction.message
-            embed = discord.Embed(color=self.color, title="Color Selected", description="You have selected **orange**. Is this correct?")
-            view = YesOrNo(user=self.user)
-            await message.edit(embed=embed, view=view)
-            await view.wait()
+            embed = message.embeds[0]
 
-            if view.value == True:
-                self.stop()
-            
-            elif view.value == False:
-                embed = discord.Embed(color=self.bot.blurple, title="Color", description="Choose the embed's color.")
-                await message.edit(embed=embed, view=self)
+            embed.color = discord.Colour.orange()
+            await message.edit(embed=embed, view=self)
 
     @discord.ui.button(label="Yellow", style=discord.ButtonStyle.blurple, emoji="💛", row=1)
     async def yellow(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
-
-            self.color = discord.Colour.yellow()
             message = interaction.message
-            embed = discord.Embed(color=self.color, title="Color Selected", description="You have selected **yellow**. Is this correct?")
-            view = YesOrNo(user=self.user)
-            await message.edit(embed=embed, view=view)
-            await view.wait()
+            embed = message.embeds[0]
 
-            if view.value == True:
-                self.stop()
-            
-            elif view.value == False:
-                embed = discord.Embed(color=self.bot.blurple, title="Color", description="Choose the embed's color.")
-                await message.edit(embed=embed, view=self)
+            embed.color = discord.Colour.yellow()
+            await message.edit(embed=embed, view=self)
     
     @discord.ui.button(label="Green", style=discord.ButtonStyle.blurple, emoji="💚", row=1)
     async def green(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
-
-            self.color = discord.Colour.green()
             message = interaction.message
-            embed = discord.Embed(color=self.color, title="Color Selected", description="You have selected **green**. Is this correct?")
-            view = YesOrNo(user=self.user)
-            await message.edit(embed=embed, view=view)
-            await view.wait()
+            embed = message.embeds[0]
 
-            if view.value == True:
-                self.stop()
-            
-            elif view.value == False:
-                embed = discord.Embed(color=self.bot.blurple, title="Color", description="Choose the embed's color.")
-                await message.edit(embed=embed, view=self)
+            embed.color = discord.Colour.green()
+            await message.edit(embed=embed, view=self)
     
     @discord.ui.button(label="Blue", style=discord.ButtonStyle.blurple, emoji="💙", row=1)
     async def blue(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
-
-            self.color = discord.Colour.blue()
             message = interaction.message
-            embed = discord.Embed(color=self.color, title="Color Selected", description="You have selected **blue**. Is this correct?")
-            view = YesOrNo(user=self.user)
-            await message.edit(embed=embed, view=view)
-            await view.wait()
+            embed = message.embeds[0]
 
-            if view.value == True:
-                self.stop()
-            
-            elif view.value == False:
-                embed = discord.Embed(color=self.bot.blurple, title="Color", description="Choose the embed's color.")
-                await message.edit(embed=embed, view=self)
+            embed.color = discord.Colour.blue()
+            await message.edit(embed=embed, view=self)
     
     @discord.ui.button(label="Purple", style=discord.ButtonStyle.blurple, emoji="💜", row=1)
     async def purple(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
-
-            self.color = discord.Colour.purple()
             message = interaction.message
-            embed = discord.Embed(color=self.color, title="Color Selected", description="You have selected **purple**. Is this correct?")
-            view = YesOrNo(user=self.user)
-            await message.edit(embed=embed, view=view)
-            await view.wait()
+            embed = message.embeds[0]
 
-            if view.value == True:
-                self.stop()
-            
-            elif view.value == False:
-                embed = discord.Embed(color=self.bot.blurple, title="Color", description="Choose the embed's color.")
-                await message.edit(embed=embed, view=self)
+            embed.color = discord.Colour.purple()
+            await message.edit(embed=embed, view=self)
     
     @discord.ui.button(label="Pink", style=discord.ButtonStyle.blurple, emoji="🩷", row=1)
     async def pink(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
-
-            self.color = discord.Colour.pink()
             message = interaction.message
-            embed = discord.Embed(color=self.color, title="Color Selected", description="You have selected **pink**. Is this correct?")
-            view = YesOrNo(user=self.user)
-            await message.edit(embed=embed, view=view)
-            await view.wait()
+            embed = message.embeds[0]
 
-            if view.value == True:
-                self.stop()
-            
-            elif view.value == False:
-                embed = discord.Embed(color=self.bot.blurple, title="Color", description="Choose the embed's color.")
-                await message.edit(embed=embed, view=self)
+            embed.color = discord.Colour.pink()
+            await message.edit(embed=embed, view=self)
     
     @discord.ui.button(label="Custom", style=discord.ButtonStyle.blurple, emoji="🩶", row=1)
     async def custom(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
+            message = interaction.message
+            embed = message.embeds[0]
 
             modal = CustomColorModal()
             await interaction.response.send_modal(modal)
             await modal.wait()
 
-            self.color = modal.color
-            message = interaction.message
-            embed = discord.Embed(color=self.color, title="Color Selected", description="You have selected a **custom color**. Is this correct?")
-            view = YesOrNo(user=self.user)
-            await message.edit(embed=embed, view=view)
-            await view.wait()
-
-            if view.value == True:
-                self.stop()
-            
-            elif view.value == False:
-                embed = discord.Embed(color=self.bot.blurple, title="Color", description="Choose the embed's color.")
-                await message.edit(embed=embed, view=self)
+            embed.color = modal.color
+            await message.edit(embed=embed, view=self)
     
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=2)
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        if interaction.user == self.user:
+            self.value = True
+            self.stop()
+
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=2)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         if interaction.user == self.user:
-
-            message = interaction.message
-            embed = discord.Embed(color=self.bot.red, title="Cancel", description="Are you sure you want to **cancel** this interaction?")
-            view = YesOrNo(user=self.user)
-            await message.edit(embed=embed, view=view)
-            await view.wait()
-
-            if view.value == True:
-                self.color = None
-                self.stop()
-            
-            elif view.value == False:
-                embed = discord.Embed(color=self.bot.blurple, title="Color", description="Choose the embed's color.")
-                await message.edit(embed=embed, view=self)
+            self.value = False
+            self.stop()
 
 class TitleModal(discord.ui.Modal, title = "Title"):
     title = None
@@ -606,15 +529,17 @@ class EmbedButtons(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
             message = interaction.message
-            embed = discord.Embed(color=self.bot.blurple, title="Color", description="Choose the embed's color.")
+            embed = message.embeds[0]
+            
             view = ColorView(bot=self.bot, user=self.user)
-            await message.edit(embed=embed, view=view)
+            await message.edit(view=view)
             await view.wait()
 
-            if view.color is not None:
-                self.embed.colour = view.color
-            
-            await message.edit(embed=self.embed, view=self)
+            if view.value == True:
+                await message.edit(embed=self.embed, view=self)
+
+            elif view.value == False:
+                await message.edit(embed=embed, view=self)
 
     @discord.ui.button(label="Title", style=discord.ButtonStyle.blurple, emoji="👑", row=1)
     async def title(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -675,15 +600,33 @@ class EmbedButtons(discord.ui.View):
                     await field_view.wait()
 
                     if field_view.value == True:
-
                         await message.edit(embed=self.embed, view=self)
                     
                     elif field_view.value == False:
-
                         await message.edit(embed=embed, view=self)
+
+            elif view.value == False:
+                await message.edit(embed=embed, view=self)
     
-    @discord.ui.button(label="Submit", style=discord.ButtonStyle.green, emoji="✔️", row=2)
-    async def submit(self, interaction: discord.Interaction, button: discord.ui.Button):
+    @discord.ui.button(label="Media", style=discord.ButtonStyle.blurple, emoji="📷", row=1)
+    async def media(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        if interaction.user == self.user:
+            message = interaction.message
+            embed = message.embeds[0]
+
+            view = MediaEditView(user=self.user)
+            await message.edit(view=view)
+            await view.wait()
+
+            if view.value == True:
+                await message.edit(embed=self.embed, view=self)
+            
+            elif view.value == False:
+                await message.edit(embed=embed, view=self)
+    
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=2)
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
@@ -717,7 +660,7 @@ class Embeds(commands.GroupCog, group_name = "embed"):
 
             if view.value == True:
 
-                channel_select = discord.Embed(color=self.bot.blurple, title="Channel", description="Please use the dropdown menu below to select the channel where the embed should be sent. Press the `submit` button to submit or press the `cancel` button to cancel.")
+                channel_select = discord.Embed(color=self.bot.blurple, title="Channel", description="Please use the dropdown menu below to select the channel where the embed should be sent. Press the `confirm` button to confirm or press the `cancel` button to cancel.")
                 channel_select_view = ChannelSelectView(bot=self.bot, user=user)
                 await response.edit(embed=channel_select, view=channel_select_view)
                 await channel_select_view.wait()
@@ -748,7 +691,8 @@ class Embeds(commands.GroupCog, group_name = "embed"):
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error)
+            response = await interaction.followup.send(embed=error, wait=True)
+            await response.delete(delay=10.0)
             print(traceback.format_exc())
 
 async def setup(bot: commands.Bot):
