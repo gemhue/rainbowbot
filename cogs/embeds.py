@@ -4,30 +4,6 @@ from discord import app_commands
 from discord.ext import commands
 from datetime import datetime, timezone
 
-"""
-
-class YesOrNo(discord.ui.View):
-    def __init__(self, *, timeout = 180, user: discord.Member):
-        super().__init__(timeout=timeout)
-        self.user = user
-        self.value = None
-
-    @discord.ui.button(label="Yes", style=discord.ButtonStyle.green, emoji="👍")
-    async def yes(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        if interaction.user == self.user:
-            self.value = True
-            self.stop()
-
-    @discord.ui.button(label="No", style=discord.ButtonStyle.red, emoji="👎")
-    async def no(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        if interaction.user == self.user:
-            self.value = False
-            self.stop()
-
-"""
-
 class CustomColorModal(discord.ui.Modal, title = "Custom Color"):
     color = None
     input = discord.ui.TextInput(label="Custom Color", placeholder="Please provide a #<hex> or rgb(r,g,b) color code...")
@@ -91,7 +67,7 @@ class ColorView(discord.ui.View):
             embed.color = discord.Colour.green()
             await message.edit(embed=embed, view=self)
     
-    @discord.ui.button(label="Blue", style=discord.ButtonStyle.blurple, emoji="💙", row=1)
+    @discord.ui.button(label="Blue", style=discord.ButtonStyle.blurple, emoji="💙", row=2)
     async def blue(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -101,7 +77,7 @@ class ColorView(discord.ui.View):
             embed.color = discord.Colour.blue()
             await message.edit(embed=embed, view=self)
     
-    @discord.ui.button(label="Purple", style=discord.ButtonStyle.blurple, emoji="💜", row=1)
+    @discord.ui.button(label="Purple", style=discord.ButtonStyle.blurple, emoji="💜", row=2)
     async def purple(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -111,7 +87,7 @@ class ColorView(discord.ui.View):
             embed.color = discord.Colour.purple()
             await message.edit(embed=embed, view=self)
     
-    @discord.ui.button(label="Pink", style=discord.ButtonStyle.blurple, emoji="🩷", row=1)
+    @discord.ui.button(label="Pink", style=discord.ButtonStyle.blurple, emoji="🩷", row=2)
     async def pink(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -121,7 +97,7 @@ class ColorView(discord.ui.View):
             embed.color = discord.Colour.pink()
             await message.edit(embed=embed, view=self)
     
-    @discord.ui.button(label="Custom", style=discord.ButtonStyle.blurple, emoji="🩶", row=1)
+    @discord.ui.button(label="Custom", style=discord.ButtonStyle.blurple, emoji="🩶", row=2)
     async def custom(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
             message = interaction.message
@@ -134,14 +110,14 @@ class ColorView(discord.ui.View):
             embed.color = modal.color
             await message.edit(embed=embed, view=self)
     
-    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=2)
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=3)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
             self.stop()
 
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=2)
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=3)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -420,7 +396,7 @@ class MediaEditView(discord.ui.View):
             embed.image.url = None
             await message.edit(embed=embed, view=self)
 
-    @discord.ui.button(label="Add or Edit Thumbnail", style=discord.ButtonStyle.blurple, emoji="➕", row=1)
+    @discord.ui.button(label="Add or Edit Thumbnail", style=discord.ButtonStyle.blurple, emoji="➕", row=2)
     async def add_thumbnail(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
             modal = ThumbnailModal()
@@ -436,7 +412,7 @@ class MediaEditView(discord.ui.View):
                     embed.thumbnail.url = None
             await message.edit(embed=embed, view=self)
     
-    @discord.ui.button(label="Remove Thumbnail", style=discord.ButtonStyle.blurple, emoji="➖", row=1)
+    @discord.ui.button(label="Remove Thumbnail", style=discord.ButtonStyle.blurple, emoji="➖", row=2)
     async def remove_thumbnail(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
             message = interaction.message
@@ -444,7 +420,7 @@ class MediaEditView(discord.ui.View):
             embed.thumbnail.url = None
             await message.edit(embed=embed, view=self)
     
-    @discord.ui.button(label="Add or Edit Video", style=discord.ButtonStyle.blurple, emoji="➕", row=1)
+    @discord.ui.button(label="Add or Edit Video", style=discord.ButtonStyle.blurple, emoji="➕", row=3)
     async def add_video(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
             modal = VideoModal()
@@ -460,7 +436,7 @@ class MediaEditView(discord.ui.View):
                     embed.video.url = None
             await message.edit(embed=embed, view=self)
     
-    @discord.ui.button(label="Remove Video", style=discord.ButtonStyle.blurple, emoji="➖", row=1)
+    @discord.ui.button(label="Remove Video", style=discord.ButtonStyle.blurple, emoji="➖", row=3)
     async def remove_video(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
             message = interaction.message
@@ -468,14 +444,14 @@ class MediaEditView(discord.ui.View):
             embed.video.url = None
             await message.edit(embed=embed, view=self)
     
-    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=2)
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=4)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
             self.stop()
 
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=2)
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=4)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -586,7 +562,7 @@ class EmbedButtons(discord.ui.View):
             message = interaction.message
             await message.edit(embed=self.embed, view=self)
     
-    @discord.ui.button(label="Fields", style=discord.ButtonStyle.blurple, emoji="📝", row=1)
+    @discord.ui.button(label="Fields", style=discord.ButtonStyle.blurple, emoji="📝", row=2)
     async def fields(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -614,7 +590,7 @@ class EmbedButtons(discord.ui.View):
             elif view.value == False:
                 await message.edit(embed=embed, view=self)
     
-    @discord.ui.button(label="Media", style=discord.ButtonStyle.blurple, emoji="📷", row=1)
+    @discord.ui.button(label="Media", style=discord.ButtonStyle.blurple, emoji="📷", row=2)
     async def media(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -631,14 +607,14 @@ class EmbedButtons(discord.ui.View):
             elif view.value == False:
                 await message.edit(embed=embed, view=self)
     
-    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=2)
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=3)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
             self.stop()
 
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=2)
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=3)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -675,7 +651,7 @@ class Embeds(commands.GroupCog, group_name = "embed"):
                 if channel_select_view.value == True:
 
                     if channel_select_view.channel_id is not None:
-                        
+
                         channel = guild.get_channel_or_thread(channel_select_view.channel_id)
                         embed = view.embed
                         embed.set_author(name=f"{user.display_name}", icon_url=f"{user.display_avatar}")
