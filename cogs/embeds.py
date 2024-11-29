@@ -4,6 +4,8 @@ from discord import app_commands
 from discord.ext import commands
 from datetime import datetime, timezone
 
+"""
+
 class YesOrNo(discord.ui.View):
     def __init__(self, *, timeout = 180, user: discord.Member):
         super().__init__(timeout=timeout)
@@ -23,6 +25,8 @@ class YesOrNo(discord.ui.View):
         if interaction.user == self.user:
             self.value = False
             self.stop()
+
+"""
 
 class CustomColorModal(discord.ui.Modal, title = "Custom Color"):
     color = None
@@ -242,6 +246,7 @@ class FieldsSelectView(discord.ui.View):
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
+            self.value = False
             self.stop()
 
 class FieldNameModal(discord.ui.Modal, title = "Field Name"):
@@ -290,9 +295,9 @@ class FieldEditView(discord.ui.View):
             embed = message.embeds[0]
             field = embed.fields[self.index]
             if field is None:
-                embed.insert_field_at(index=self.index, name=modal.field_name, value="Value")
+                embed.insert_field_at(index=self.index, name=modal.field_name, value="Value", inline=True)
             else:
-                embed.set_field_at(index=self.index, name=modal.field_name)
+                embed.set_field_at(index=self.index, name=modal.field_name, value=field.value, inline=field.inline)
             await message.edit(embed=embed, view=self)
 
     @discord.ui.button(label="Value", style=discord.ButtonStyle.blurple, emoji="📄", row=1)
@@ -306,9 +311,9 @@ class FieldEditView(discord.ui.View):
             embed = message.embeds[0]
             field = embed.fields[self.index]
             if field is None:
-                embed.insert_field_at(index=self.index, name="Name", value=modal.field_value)
+                embed.insert_field_at(index=self.index, name="Name", value=modal.field_value, inline=True)
             else:
-                embed.set_field_at(index=self.index, value=modal.field_value)
+                embed.set_field_at(index=self.index, name=field.name, value=modal.field_value, inline=field.inline)
             await message.edit(embed=embed, view=self)
 
     @discord.ui.button(label="Inline Toggle", style=discord.ButtonStyle.blurple, emoji="🌗", row=1)
@@ -400,11 +405,11 @@ class MediaEditView(discord.ui.View):
 
             message = interaction.message
             embed = message.embeds[0]
-            try:
-                if modal.image is not None:
+            if modal.image is not None:
+                try:
                     embed.image.url = modal.image
-            except Exception:
-                embed.image.url = None
+                except Exception:
+                    embed.image.url = None
             await message.edit(embed=embed, view=self)
     
     @discord.ui.button(label="Remove Image", style=discord.ButtonStyle.blurple, emoji="➖", row=1)
@@ -424,11 +429,11 @@ class MediaEditView(discord.ui.View):
 
             message = interaction.message
             embed = message.embeds[0]
-            try:
-                if modal.thumbnail is not None:
+            if modal.thumbnail is not None:
+                try:
                     embed.thumbnail.url = modal.thumbnail
-            except Exception:
-                embed.thumbnail.url = None
+                except Exception:
+                    embed.thumbnail.url = None
             await message.edit(embed=embed, view=self)
     
     @discord.ui.button(label="Remove Thumbnail", style=discord.ButtonStyle.blurple, emoji="➖", row=1)
@@ -448,11 +453,11 @@ class MediaEditView(discord.ui.View):
 
             message = interaction.message
             embed = message.embeds[0]
-            try:
-                if modal.video is not None:
+            if modal.video is not None:
+                try:
                     embed.video.url = modal.video
-            except Exception:
-                embed.video.url = None
+                except Exception:
+                    embed.video.url = None
             await message.edit(embed=embed, view=self)
     
     @discord.ui.button(label="Remove Video", style=discord.ButtonStyle.blurple, emoji="➖", row=1)
@@ -500,6 +505,7 @@ class ChannelSelectView(discord.ui.View):
         self.bot = bot
         self.user = user
         self.value = None
+        self.channel_id = None
         self.add_item(ChannelSelect(user=self.user))
 
     @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, emoji="✔️", row=2)
@@ -653,8 +659,9 @@ class Embeds(commands.GroupCog, group_name = "embed"):
 
             guild = interaction.guild
             user = interaction.user
-            embed = discord.Embed(color=self.bot.blurple, title="Title", description="Description")
+
             view = EmbedButtons(bot=self.bot, user=user)
+            embed = view.embed
             response = await interaction.followup.send(embed=embed, view=view, wait=True)
             await view.wait()
 
@@ -668,6 +675,7 @@ class Embeds(commands.GroupCog, group_name = "embed"):
                 if channel_select_view.value == True:
 
                     if channel_select_view.channel_id is not None:
+                        
                         channel = guild.get_channel_or_thread(channel_select_view.channel_id)
                         embed = view.embed
                         embed.set_author(name=f"{user.display_name}", icon_url=f"{user.display_avatar}")
@@ -683,10 +691,20 @@ class Embeds(commands.GroupCog, group_name = "embed"):
                     cancel = discord.Embed(color=self.bot.red, title="Cancelled", description="This interaction has been cancelled.")
                     await response.edit(embed=cancel, view=None)
                     await response.delete(delay=10.0)
+                
+                else:
+                    timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description="This interaction has timed out. Please try again.")
+                    await response.edit(embed=timed_out, view=None)
+                    await response.delete(delay=10.0)
             
             elif view.value == False:
                 cancel = discord.Embed(color=self.bot.red, title="Cancelled", description="This interaction has been cancelled.")
                 await response.edit(embed=cancel, view=None)
+                await response.delete(delay=10.0)
+            
+            else:
+                timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description="This interaction has timed out. Please try again.")
+                await response.edit(embed=timed_out, view=None)
                 await response.delete(delay=10.0)
 
         except Exception as e:
