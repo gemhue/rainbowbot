@@ -37,7 +37,7 @@ class AutoDelete(commands.GroupCog, group_name="autodelete"):
         await interaction.response.defer(ephemeral=True)
         try:
             # Add the channel_id to the database if necessary
-            await self.db.execute("INSERT OR INGORE INTO autodelete (channel_id) VALUES ?", (interaction.channel.id,))
+            await self.db.execute("INSERT OR INGORE INTO autodelete (channel_id) VALUES (?)", (interaction.channel.id,))
             await self.db.commit()
 
             # Update and retrieve the interval
