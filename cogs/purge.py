@@ -100,15 +100,14 @@ class Purge(commands.GroupCog, group_name = "purge"):
     async def here(self, interaction: discord.Interaction):
         """(Admin Only) Purge all unpinned messages in the current channel.
         """
-        await interaction.response.defer()
+        await interaction.response.defer(ephemeral=True)
         try:
 
             user = interaction.user
             guild = interaction.guild
             view = YesOrNo(bot=self.bot, user=user)
             embed = discord.Embed(color=self.bot.blurple, title="Confirm Purge", description="Are you **sure** you want to purge all unpinned messages in the current channel?")
-            response = await interaction.followup.send(embed=embed, view=view, wait=True)
-            await response.pin()
+            response = await interaction.followup.send(ephemeral=True, embed=embed, view=view, wait=True)
             await view.wait()
 
             if view.value == True:
@@ -147,22 +146,20 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error, delete_after=30.0)
+            await interaction.followup.send(ephemeral=True, embed=error, delete_after=30.0)
             print(traceback.format_exc())
 
     @app_commands.command(name="self")
-    @app_commands.checks.has_permissions(administrator=True)
     async def self(self, interaction: discord.Interaction):
-        """(Admin Only) Purge all of a member's unpinned messages in a set list of up to 25 channels.
+        """(Admin Only) Purge all of your unpinned messages in a set list of up to 25 channels.
         """
-        await interaction.response.defer()
+        await interaction.response.defer(ephemeral=True)
         try:
             
             user = interaction.user
             csv = ChannelSelectView(bot=self.bot, user=user)
-            embed = discord.Embed(color=self.bot.blurple, title="Purge Member", description=f"Which channel(s) would you like to purge {member.mention}'s unpinned messages from?")
-            response = await interaction.followup.send(embed=embed, view=csv, wait=True)
-            await response.pin()
+            embed = discord.Embed(color=self.bot.blurple, title="Purge Member", description=f"Which channel(s) would you like to purge {user.mention}'s unpinned messages from?")
+            response = await interaction.followup.send(ephemeral=True, embed=embed, view=csv, wait=True)
             await csv.wait()
             
             if csv.value == True:
@@ -174,7 +171,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     mentions.append(channel.mention)
                 mentionlist = ", ".join(mentions)
                 yon = YesOrNo(bot=self.bot, user=user)
-                embed = discord.Embed(color=self.bot.blurple, title="Confirm Purge", description=f"Please review the list of selected channels below and confirm that you would like to continue with the purge of {member.mention}'s unpinned messages from the following channels:\n\n{mentionlist}")
+                embed = discord.Embed(color=self.bot.blurple, title="Confirm Purge", description=f"Please review the list of selected channels below and confirm that you would like to continue with the purge of {user.mention}'s unpinned messages from the following channels:\n\n{mentionlist}")
                 await response.edit(embed=embed, view=yon)
                 await yon.wait()
 
@@ -190,7 +187,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
                         messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
                         unpinned = [m for m in messages if not m.pinned]
                         while len(unpinned) > 0:
-                            await channel.purge(check=lambda message: message.author == member and message.pinned == False, oldest_first=True, after=two_weeks_ago)
+                            await channel.purge(check=lambda message: message.author == user and message.pinned == False, oldest_first=True, after=two_weeks_ago)
                             messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
                             unpinned = [m for m in messages if not m.pinned]
                     
@@ -204,7 +201,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     if fetched_logging is not None:
                         logging = guild.get_channel(fetched_logging)
                         now = datetime.now(tz=timezone.utc)
-                        log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{user.mention} has just purged {member.mention}'s unpinned messages from the following channels: {mentionlist}.", timestamp=now)
+                        log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{user.mention} has just purged {user.mention}'s unpinned messages from the following channels: {mentionlist}.", timestamp=now)
                         log.set_author(name=user.display_name, icon_url=user.display_avatar)
                         log.set_thumbnail(url=user.display_avatar)
                         await logging.send(embed=log)
@@ -231,7 +228,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error, view=None)
+            await interaction.followup.send(ephemeral=True, embed=error, view=None)
             print(traceback.format_exc())
 
     @app_commands.command(name="member")
@@ -244,13 +241,13 @@ class Purge(commands.GroupCog, group_name = "purge"):
         member : discord.Member
             Provide the member who's unpinned messages you would like to purge.
         """
-        await interaction.response.defer()
+        await interaction.response.defer(ephemeral=True)
         try:
             
             user = interaction.user
             csv = ChannelSelectView(bot=self.bot, user=user)
             embed = discord.Embed(color=self.bot.blurple, title="Purge Member", description=f"Which channel(s) would you like to purge {member.mention}'s unpinned messages from?")
-            response = await interaction.followup.send(embed=embed, view=csv, wait=True)
+            response = await interaction.followup.send(ephemeral=True, embed=embed, view=csv, wait=True)
             await response.pin()
             await csv.wait()
             
@@ -320,7 +317,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error, view=None)
+            await interaction.followup.send(ephemeral=True, embed=error, view=None)
             print(traceback.format_exc())
 
     @app_commands.command(name="channels")
@@ -328,14 +325,13 @@ class Purge(commands.GroupCog, group_name = "purge"):
     async def channels(self, interaction: discord.Interaction):
         """(Admin Only) Purge all unpinned messages in a set list of up to 25 channels.
         """
-        await interaction.response.defer()
+        await interaction.response.defer(ephemeral=True)
         try:
             
             user = interaction.user
             csv = ChannelSelectView(bot=self.bot, user=user)
             embed = discord.Embed(color=self.bot.blurple, title="Purge Channels", description=f"Which channel(s) would you like to purge all unpinned messages from?")
-            response = await interaction.followup.send(embed=embed, view=csv, wait=True)
-            await response.pin()
+            response = await interaction.followup.send(ephemeral=True, embed=embed, view=csv, wait=True)
             await csv.wait()
             
             if csv.value == True:
@@ -404,7 +400,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error, view=None)
+            await interaction.followup.send(ephemeral=True, embed=error, view=None)
             print(traceback.format_exc())
 
     @app_commands.command(name="server")
@@ -412,14 +408,13 @@ class Purge(commands.GroupCog, group_name = "purge"):
     async def server(self, interaction: discord.Interaction):
         """(Admin Only) Purges all unpinned messages in a server, excluding up to 25 channels.
         """
-        await interaction.response.defer()
+        await interaction.response.defer(ephemeral=True)
         try:
             
             user = interaction.user
             csv = ChannelSelectView(bot=self.bot, user=user)
             embed = discord.Embed(color=self.bot.blurple, title="Exclude Channels", description=f"Which channel(s) would you like to **exclude** from the purge?")
-            response = await interaction.followup.send(embed=embed, view=csv, wait=True)
-            await response.pin()
+            response = await interaction.followup.send(ephemeral=True, embed=embed, view=csv, wait=True)
             await csv.wait()
             
             if csv.value == True:
@@ -490,7 +485,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error, view=None)
+            await interaction.followup.send(ephemeral=True, embed=error, view=None)
             print(traceback.format_exc())
 
 async def setup(bot: commands.Bot):
