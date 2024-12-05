@@ -52,6 +52,27 @@ class BackgroundTasks(commands.Cog):
                 await message.add_reaction(moji8)
         except Exception:
             print(traceback.format_exc())
+        try:
+            channel = message.channel
+            ids = []
+            cur = await self.db.execute("SELECT channel_id FROM autodelete")
+            rows = await cur.fetchall()
+            for row in rows:
+                ids.append(row[0])
+            for id in ids:
+                if id == channel.id:
+                    cur = await self.db.execute("SELECT interval FROM autodelete WHERE channel_id = ?", (id,))
+                    row = await cur.fetchone()
+                    interval = row[0]
+                    if interval is not None:
+                        minutes = timedelta(minutes=interval)
+                        now = datetime.now(tz=timezone.utc)
+                        delete_time = now + minutes
+                        await discord.utils.sleep_until(delete_time)
+                        await message.delete()
+        
+        except Exception:
+            print(traceback.format_exc())
         
     @commands.Cog.listener(name="on_member_join")
     async def on_member_join(self, member: discord.Member):

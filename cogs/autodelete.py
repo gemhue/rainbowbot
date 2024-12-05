@@ -2,7 +2,7 @@ import discord
 import traceback
 from discord import app_commands
 from discord.ext import commands
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 class AutoDelete(commands.GroupCog, group_name="autodelete"):
     def __init__(self, bot: commands.Bot):
@@ -114,30 +114,6 @@ class AutoDelete(commands.GroupCog, group_name="autodelete"):
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.send(embed=error, ephemeral=True)
             print(traceback.format_exc())
-
-    @commands.Cog.listener(name="on_message")
-    async def on_message(self, message: discord.Message):
-        try:
-            channel = message.channel
-            ids = []
-            cur = await self.db.execute("SELECT channel_id FROM autodelete")
-            rows = await cur.fetchall()
-            for row in rows:
-                ids.append(row[0])
-            for id in ids:
-                if id == channel.id:
-                    cur = await self.db.execute("SELECT interval FROM autodelete WHERE channel_id = ?", (id,))
-                    row = await cur.fetchone()
-                    interval = row[0]
-                    if interval is not None:
-                        minutes = timedelta(minutes=interval)
-                        now = datetime.now(tz=timezone.utc)
-                        delete_time = now + minutes
-                        await discord.utils.sleep_until(delete_time)
-                        await message.delete()
-        
-        except Exception:
-            traceback.print_exc()
 
 async def setup(bot: commands.Bot):
     print("Setting up Cog: autodelete.AutoDelete")
