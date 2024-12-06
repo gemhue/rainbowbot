@@ -18,40 +18,35 @@ class BackgroundTasks(commands.Cog):
     async def on_message(self, message: discord.Message):
         try:
             messagecont = message.content.lower()
-            list1 = ['lesbian','dyke','sapphic','wlw']
-            moji1 = self.bot.get_emoji(1274435288499884094)
-            if any(x in messagecont for x in list1):
-                await message.add_reaction(moji1)
-            list2 = ['gay','queer','faggot','achillean','mlm']
-            moji2 = self.bot.get_emoji(1274435330174615624)
-            if any(x in messagecont for x in list2):
-                await message.add_reaction(moji2)
-            list3 = ['bisexual','biromantic','bi woman','bi women','bi lady','bi ladies','bi girl','bi gal','bi man','bi men','bi guy','bi dude','bi boy','bi person','bi people']
-            moji3 = self.bot.get_emoji(1274435359878676560)
-            if any(x in messagecont for x in list3):
-                await message.add_reaction(moji3)
-            list4 = ['asexual','aromantic','acespec','arospec','ace spec','aro spec','ace-spec','aro-spec']
-            moji4 = self.bot.get_emoji(1274435406804291634)
-            if any(x in messagecont for x in list4):
-                await message.add_reaction(moji4)
-            list5 = ['transgender','transsexual','trans woman','trans women','trans lady','trans ladies','trans girl','trans gal','trans man','trans men','trans guy','trans dude','trans boy','trans person','trans people']
-            moji5 = self.bot.get_emoji(1274435448726622208)
-            if any(x in messagecont for x in list5):
-                await message.add_reaction(moji5)
-            list6 = ['nonbinary','non binary','non-binary','enby']
-            moji6 = self.bot.get_emoji(1274435483912638515)
-            if any(x in messagecont for x in list6):
-                await message.add_reaction(moji6)
-            list7 = ['transfeminine','trans feminine','trans-feminine','transfem','trans fem','trans-fem']
-            moji7 = self.bot.get_emoji(1274435557744840820)
-            if any(x in messagecont for x in list7):
-                await message.add_reaction(moji7)
-            list8 = ['transmasculine','trans masculine','trans-masculine','transmasc','trans masc','trans-masc']
-            moji8 = self.bot.get_emoji(1274435528883961989)
-            if any(x in messagecont for x in list8):
-                await message.add_reaction(moji8)
+
+            lesbian_triggers = ['lesbian','dyke','sapphic','wlw','woman loving woman','woman-loving-woman','women loving women','women-loving-women','wsw','women who have sex with women']
+            lesbian_heart = self.bot.get_emoji(1314630157767544852)
+            if any(x in messagecont for x in lesbian_triggers):
+                await message.add_reaction(lesbian_heart)
+
+            gay_triggers = ['gay','queer','faggot','achillean','mlm','man loving man','man-loving-man','men loving men','men-loving-men','msm','men who have sex with men']
+            gay_heart = self.bot.get_emoji(1314630188700794981)
+            if any(x in messagecont for x in gay_triggers):
+                await message.add_reaction(gay_heart)
+
+            bi_triggers = ['bisexual','biromantic','bi woman','bi women','bi wife','bi lady','bi ladies','bi girl','bi gal','bi man','bi men','bi husband','bi guy','bi dude','bi boy','bi person','bi people','bi partner']
+            bi_heart = self.bot.get_emoji(1314630214600495225)
+            if any(x in messagecont for x in bi_triggers):
+                await message.add_reaction(bi_heart)
+
+            trans_triggers = ['transgender','transsexual','tranny','trans woman','trans women','trans lady','trans ladies','trans girl','tgirl','t-girl','trans gal','trans man','trans men','trans guy','trans dude','trans boy','tboy','t-boy','trans person','trans people']
+            trans_heart = self.bot.get_emoji(1314630240383012936)
+            if any(x in messagecont for x in trans_triggers):
+                await message.add_reaction(trans_heart)
+
+            enby_triggers = ['nonbinary','non binary','non-binary','enby']
+            enby_heart = self.bot.get_emoji(1314630267364704319)
+            if any(x in messagecont for x in enby_triggers):
+                await message.add_reaction(enby_heart)
+
         except Exception:
             print(traceback.format_exc())
+
         try:
             channel = message.channel
             ids = []
