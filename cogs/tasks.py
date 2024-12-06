@@ -20,28 +20,28 @@ class BackgroundTasks(commands.Cog):
             messagecont = message.content.lower()
 
             lesbian_triggers = ['lesbian','dyke','sapphic','wlw','woman loving woman','woman-loving-woman','women loving women','women-loving-women','wsw','women who have sex with women']
-            lesbian_heart = self.bot.get_emoji(1314630157767544852)
             if any(x in messagecont for x in lesbian_triggers):
+                lesbian_heart = self.bot.get_emoji(1314630157767544852)
                 await message.add_reaction(lesbian_heart)
 
             gay_triggers = ['gay','queer','faggot','achillean','mlm','man loving man','man-loving-man','men loving men','men-loving-men','msm','men who have sex with men']
-            gay_heart = self.bot.get_emoji(1314630188700794981)
             if any(x in messagecont for x in gay_triggers):
+                gay_heart = self.bot.get_emoji(1314630188700794981)
                 await message.add_reaction(gay_heart)
 
             bi_triggers = ['bisexual','biromantic','bi woman','bi women','bi wife','bi lady','bi ladies','bi girl','bi gal','bi man','bi men','bi husband','bi guy','bi dude','bi boy','bi person','bi people','bi partner']
-            bi_heart = self.bot.get_emoji(1314630214600495225)
             if any(x in messagecont for x in bi_triggers):
+                bi_heart = self.bot.get_emoji(1314630214600495225)
                 await message.add_reaction(bi_heart)
 
             trans_triggers = ['transgender','transsexual','tranny','trans woman','trans women','trans lady','trans ladies','trans girl','tgirl','t-girl','trans gal','trans man','trans men','trans guy','trans dude','trans boy','tboy','t-boy','trans person','trans people']
-            trans_heart = self.bot.get_emoji(1314630240383012936)
             if any(x in messagecont for x in trans_triggers):
+                trans_heart = self.bot.get_emoji(1314630240383012936)
                 await message.add_reaction(trans_heart)
 
             enby_triggers = ['nonbinary','non binary','non-binary','enby']
-            enby_heart = self.bot.get_emoji(1314630267364704319)
             if any(x in messagecont for x in enby_triggers):
+                enby_heart = self.bot.get_emoji(1314630267364704319)
                 await message.add_reaction(enby_heart)
 
         except Exception:
