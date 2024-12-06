@@ -34,7 +34,7 @@ class BackgroundTasks(commands.Cog):
                 bi_heart = self.bot.get_emoji(1314630214600495225)
                 await message.add_reaction(bi_heart)
 
-            trans_triggers = ['transgender','transsexual','tranny','trans woman','trans women','trans lady','trans ladies','trans girl','tgirl','t-girl','trans gal','trans man','trans men','trans guy','trans dude','trans boy','tboy','t-boy','trans person','trans people']
+            trans_triggers = ['transgender','trans-gender','transsexual','trans-sexual','tranny','trans woman','trans women','trans lady','trans ladies','trans girl','tgirl','t-girl','trans gal','trans man','trans men','trans guy','trans dude','trans boy','tboy','t-boy','trans person','trans people']
             if any(x in messagecont for x in trans_triggers):
                 trans_heart = self.bot.get_emoji(1314630240383012936)
                 await message.add_reaction(trans_heart)
