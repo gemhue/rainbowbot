@@ -22,6 +22,8 @@ class BackgroundTasks(commands.Cog):
             lesbian_triggers = ['lesbian','dyke','sapphic','wlw','woman loving woman','woman-loving-woman','women loving women','women-loving-women','wsw','women who have sex with women']
             if any(x in messagecont for x in lesbian_triggers):
                 lesbian_heart = self.bot.get_emoji(1314630157767544852)
+                if lesbian_heart is None:
+                    lesbian_heart = self.bot.fet
                 await message.add_reaction(lesbian_heart)
 
             gay_triggers = ['gay','queer','faggot','achillean','mlm','man loving man','man-loving-man','men loving men','men-loving-men','msm','men who have sex with men']
