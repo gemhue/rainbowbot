@@ -288,7 +288,8 @@ async def ping(ctx: commands.Context):
     await ctx.defer()
     try:
         now = datetime.now(tz=timezone.utc)
-        embed = discord.Embed(color=bot.blurple, title="Pong", description=f"The bot's current latency is {bot.latency} seconds!", timestamp=now)
+        latency = bot.latency*1000
+        embed = discord.Embed(color=bot.blurple, title="Pong", description=f"The bot's current latency is {latency} seconds!", timestamp=now)
     except Exception as e:
         embed = discord.Embed(color=bot.red, title="Error", description=f"{e}")
         print(traceback.format_exc())

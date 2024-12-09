@@ -253,8 +253,21 @@ class BackgroundTasks(commands.Cog):
                                             log.add_field(name="Inactive Members", value=f"{len(inactivemembers)} members now have the {inactive.mention} role!", inline=False)
                                             await logging.send(embed=log)
 
-        except Exception:
+        except Exception as e:
             print(traceback.format_exc())
+            cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild_id,))
+            row = await cur.fetchone()
+            fetched_logging = row[0]
+            if fetched_logging is not None:
+                logging = guild.get_channel(fetched_logging)
+                if logging is not None:
+                    now = datetime.now(tz=timezone.utc)
+                    log = discord.Embed(color=self.bot.blurple, title="Activity Roles Assignment Error", description=f"{e}\n\nPlease check the following:", timestamp=now)
+                    log.add_field(name="Bot Permissions", value="Does the bot have both the **read message history** and **manage roles** permissions?", inline=False)
+                    log.add_field(name="Bot Role Position", value="Is the bot's highest role higher in the role hierarchy than both of the activity roles?", inline=False)
+                    log.add_field(name="Kick & Reinvite", value="If the permissions and role positions seem to be in order, try kicking the bot and reinviting it. The bot's invite link is [here](https://discord.com/oauth2/authorize?client_id=1263872722195316737).", inline=False)
+                    log.add_field(name="Report a Bug", value="If kicking & reinviting the bot also doesn't work, submit a bug report in the bot's support server. You can join the support server by following [this](https://discord.com/invite/5x3xBSdWbE) link.", inline=False)
+                    await logging.send(embed=log)
 
 async def setup(bot: commands.Bot):
 	await bot.add_cog(BackgroundTasks(bot=bot), override=True)
