@@ -140,7 +140,7 @@ class BackgroundTasks(commands.Cog):
                             log.add_field(name="Role Given", value=f"{botrole.mention}")
                     log.set_author(name=member.display_name, icon_url=member.display_avatar)
                     log.set_thumbnail(url=member.display_avatar)
-                    await logging.send(embed=embed)
+                    await logging.send(embed=log)
 
         except Exception:
             print(traceback.format_exc())
@@ -176,7 +176,7 @@ class BackgroundTasks(commands.Cog):
                     log = discord.Embed(color=self.bot.blurple, title="Member Log", description=f"{member.mention} has just left {guild.name}.")
                     log.set_author(name=member.display_name, icon_url=member.display_avatar)
                     log.set_thumbnail(url=member.display_avatar)
-                    await logging.send(embed=embed)
+                    await logging.send(embed=log)
 
         except Exception:
             print(traceback.format_exc())
