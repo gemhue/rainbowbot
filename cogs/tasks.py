@@ -270,7 +270,9 @@ class BackgroundTasks(commands.Cog):
                     await logging.send(embed=log)
 
 async def setup(bot: commands.Bot):
-	await bot.add_cog(BackgroundTasks(bot=bot), override=True)
+    print("Setting up Cog: tasks.BackgroundTasks")
+    await bot.add_cog(BackgroundTasks(bot=bot), override=True)
 
 async def teardown(bot: commands.Bot):
+    print("Tearing down Cog: tasks.BackgroundTasks")
     await bot.remove_cog("BackgroundTasks")
