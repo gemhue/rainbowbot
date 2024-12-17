@@ -44,7 +44,7 @@ class BackgroundTasks(commands.Cog):
                         bi_heart = support_server.get_emoji(1314677984594235412)
                 await message.add_reaction(bi_heart)
 
-            trans_triggers = ['transgender','trans-gender','transsexual','trans-sexual','tranny','trans woman','trans women','trans lady','trans ladies','trans girl','tgirl','t-girl','trans gal','trans man','trans men','trans guy','trans dude','trans boy','tboy','t-boy','trans person','trans people']
+            trans_triggers = ['transgender','trans-gender','transsexual','trans-sexual','tranny','trans woman','trans women','trans lady','trans ladies','trans girl','tgirl','t-girl','trans gal','trans man','trans men','trans guy','trans dude','trans boy','tboy','t-boy','trans person','trans people','transfeminine','transfem','transmasculine','transmasc','transneutral','transneu']
             if any(x in messagecont for x in trans_triggers):
                 trans_heart = self.bot.get_emoji(1314630240383012936)
                 if trans_heart is None:
@@ -52,7 +52,7 @@ class BackgroundTasks(commands.Cog):
                         trans_heart = support_server.get_emoji(1314677990017466430)
                 await message.add_reaction(trans_heart)
 
-            enby_triggers = ['nonbinary','non binary','non-binary','enby']
+            enby_triggers = ['nonbinary','nonbiney','non binary','non biney','non-binary','non-biney','enby','androgyne','neutrois','maverique','agender','bigender','multigender','polygender','pangender','demigender','demiwoman','demigirl','demiman','demiboy','genderfluid','genderflux','womanflux','girlflux','manflux','boyflux','genderqueer','x-gender']
             if any(x in messagecont for x in enby_triggers):
                 enby_heart = self.bot.get_emoji(1314630267364704319)
                 if enby_heart is None:
