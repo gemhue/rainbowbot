@@ -217,7 +217,7 @@ class BackgroundTasks(commands.Cog):
                                     setdays = timedelta(days=float(months*30))
                                     daysago = now-setdays
                                     members = [m for m in guild.members if not m.bot]
-                                    newmembers = [m for m in members if m.joined_at < daysago]
+                                    newmembers = [m for m in members if m.joined_at >= daysago]
                                     activemembers = []
                                     inactivemembers = []
                                     channels = guild.text_channels
