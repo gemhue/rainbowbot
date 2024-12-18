@@ -55,6 +55,13 @@ class ChannelSelectView(discord.ui.View):
         if interaction.user == self.user:
             self.value = True
             self.stop()
+    
+    @discord.ui.button(label='Create one for me!', style=discord.ButtonStyle.blurple, row=2)
+    async def create(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        if interaction.user == self.user:
+            self.value = "Create"
+            self.stop()
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -90,6 +97,13 @@ class RoleSelectView(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
+            self.stop()
+    
+    @discord.ui.button(label='Create one for me!', style=discord.ButtonStyle.blurple, row=2)
+    async def create(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        if interaction.user == self.user:
+            self.value = "Create"
             self.stop()
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
@@ -608,7 +622,7 @@ class Start(commands.Cog):
             start = discord.Embed(
                 color=self.bot.blurple,
                 title="Bot Startup",
-                description="Would you like to start by choosing channels for bot logging messages, member welcome messages, or member goodbye messages?"
+                description="Would you like to start by choosing or creating channels for bot logging messages, member welcome messages, or member goodbye messages?"
             )
             channels_yn = YesOrNo(user=author)
             message = await interaction.followup.send(embed=start, view=channels_yn, wait=True)
@@ -621,15 +635,19 @@ class Start(commands.Cog):
                 ask_logging = discord.Embed(
                     color=self.bot.blurple,
                     title="Logging Channel",
-                    description="Would you like to select a channel to send logging messages?\nChoose `Cancel` to skip to the next option."
+                    description="Would you like to select or create a channel to send logging messages?\nChoose `Cancel` to skip to the next option."
                 )
                 logging_select = ChannelSelectView(user=author)
                 await message.edit(embed=ask_logging, view=logging_select)
                 await logging_select.wait()
 
-                # User selects a logging channel
-                if logging_select.value == True:
-                    logging_channel = logging_select.channel
+                # User selects a logging channel or wants the bot to create a logging channel
+                if logging_select.value == True or logging_select.value == "Create":
+                    logging_channel = None
+                    if logging_select.value == True:
+                        logging_channel = logging_select.channel
+                    elif logging_select.value == "Create":
+                        logging_channel = await guild.create_text_channel(name="logging")
                     logging = discord.Embed(color=self.bot.blurple, title="Logging Channel", description=f"The logging channel has been set to {logging_channel.mention}.")
                     await message.edit(embed=logging, view=None)
                     await self.db.execute("UPDATE guilds SET logging_channel_id = ? WHERE guild_id = ?", (logging_channel.id, guild.id))
@@ -655,15 +673,19 @@ class Start(commands.Cog):
                 ask_welcome = discord.Embed(
                     color=self.bot.blurple,
                     title="Welcome Channel",
-                    description="Would you like to select a channel to send welcome messages?\nChoose `Cancel` to skip to the next option."
+                    description="Would you like to select or create a channel to send welcome messages?\nChoose `Cancel` to skip to the next option."
                 )
                 welcome_select = ChannelSelectView(user=author)
                 await message.edit(embed=ask_welcome, view=welcome_select)
                 await welcome_select.wait()
 
-                # User selects a welcome channel
-                if welcome_select.value == True:
-                    welcome_channel = welcome_select.channel
+                # User selects a welcome channel or wants the bot to create a welcome channel
+                if welcome_select.value == True or welcome_select.value == "Create":
+                    welcome_channel = None
+                    if welcome_select.value == True:
+                        welcome_channel = welcome_select.channel
+                    elif welcome_select.value == "Create":
+                        welcome_channel = await guild.create_text_channel(name="arrivals")
                     welcome = discord.Embed(color=self.bot.blurple, title="Welcome Channel", description=f"The welcome channel has been set to {welcome_channel.mention}.")
                     await message.edit(embed=welcome, view=None)
                     await self.db.execute("UPDATE guilds SET welcome_channel_id = ? WHERE guild_id = ?", (welcome_channel.id, guild.id))
@@ -689,15 +711,19 @@ class Start(commands.Cog):
                 ask_goodbye = discord.Embed(
                     color=self.bot.blurple,
                     title="Goodbye Channel",
-                    description="Would you like to select a channel to send goodbye messages?\nChoose `Cancel` to skip to the next option."
+                    description="Would you like to select or create a channel to send goodbye messages?\nChoose `Cancel` to skip to the next option."
                 )
                 goodbye_select = ChannelSelectView(user=author)
                 await message.edit(embed=ask_goodbye, view=goodbye_select)
                 await goodbye_select.wait()
 
-                # User selects a goodbye channel
-                if goodbye_select.value == True:
-                    goodbye_channel = goodbye_select.channel
+                # User selects a goodbye channel or wants the bot to create a goodbye channel
+                if goodbye_select.value == True or goodbye_select.value == "Create":
+                    goodbye_channel = None
+                    if goodbye_select.value == True:
+                        goodbye_channel = goodbye_select.channel
+                    elif goodbye_select.value == "Create":
+                        goodbye_channel = await guild.create_text_channel(name="departures")
                     goodbye = discord.Embed(color=self.bot.blurple, title="Goodbye Channel", description=f"The goodbye channel has been set to {goodbye_channel.mention}.")
                     await message.edit(embed=goodbye, view=None)
                     await self.db.execute("UPDATE guilds SET goodbye_channel_id = ? WHERE guild_id = ?", (goodbye_channel.id, guild.id))
@@ -723,7 +749,7 @@ class Start(commands.Cog):
             start = discord.Embed(
                 color=self.bot.blurple,
                 title="Bot Startup",
-                description="Would you like to choose join roles?"
+                description="Would you like to choose or create join roles?"
             )
             join_yn = YesOrNo(user=author)
             await message.edit(embed=start, view=join_yn)
@@ -736,15 +762,19 @@ class Start(commands.Cog):
                 ask_join_role = discord.Embed(
                     color=self.bot.blurple,
                     title="Join Role",
-                    description="Would you like to select a role to give members on join?\nChoose `Cancel` to skip to the next option."
+                    description="Would you like to select or create a role to give members on join?\nChoose `Cancel` to skip to the next option."
                 )
                 join_select = RoleSelectView(user=author)
                 await message.edit(embed=ask_join_role, view=join_select)
                 await join_select.wait()
 
-                # User selects a join role
-                if join_select.value == True:
-                    join_role = join_select.role
+                # User selects a join role or wants the bot to create a join role
+                if join_select.value == True or join_select.value == "Create":
+                    join_role = None
+                    if join_select.value == True:
+                        join_role = join_select.role
+                    elif join_select.value == "Create":
+                        join_role = await guild.create_role(name="Unverified")
                     join = discord.Embed(color=self.bot.blurple, title="Join Role", description=f"The join role was set to {join_role.mention}.")
                     await message.edit(embed=join, view=None)
                     await self.db.execute("UPDATE guilds SET join_role_id = ? WHERE guild_id = ?", (join_role.id, guild.id))
@@ -770,15 +800,19 @@ class Start(commands.Cog):
                 ask_bot_role = discord.Embed(
                     color=self.bot.blurple,
                     title="Bot Role",
-                    description="Would you like to select a role to give bots on join?\nChoose `Cancel` to skip to the next option."
+                    description="Would you like to select or create a role to give bots on join?\nChoose `Cancel` to skip to the next option."
                 )
                 bot_select = RoleSelectView(user=author)
                 await message.edit(embed=ask_bot_role, view=bot_select)
                 await bot_select.wait()
 
-                # User selects a bot role
-                if bot_select.value == True:
-                    bot_role = bot_select.role
+                # User selects a bot role or wants the bot to create a bot role
+                if bot_select.value == True or bot_select.value == "Create":
+                    bot_role = None
+                    if bot_select.value == True:
+                        bot_role = bot_select.role
+                    elif bot_select.value == "Create":
+                        bot_role = await guild.create_role(name="Bot")
                     bot = discord.Embed(color=self.bot.blurple, title="Bot Role", description=f"The bot role was set to {bot_role.mention}.")
                     await message.edit(embed=bot, view=None)
                     await self.db.execute("UPDATE guilds SET bot_role_id = ? WHERE guild_id = ?", (bot_role.id, guild.id))
@@ -804,7 +838,7 @@ class Start(commands.Cog):
             start = discord.Embed(
                 color=self.bot.blurple,
                 title="Bot Startup",
-                description="Would you like to choose activity roles?"
+                description="Would you like to choose or create activity roles?"
             )
             activity_yn = YesOrNo(user=author)
             await message.edit(embed=start, view=activity_yn)
@@ -817,15 +851,19 @@ class Start(commands.Cog):
                 ask_active_role = discord.Embed(
                     color=self.bot.blurple,
                     title="Active Role",
-                    description="Would you like to select a role to give active members?\nChoose `Cancel` to skip to the next option."
+                    description="Would you like to select or create a role to give active members?\nChoose `Cancel` to skip to the next option."
                 )
                 active_select = RoleSelectView(user=author)
                 await message.edit(embed=ask_active_role, view=active_select)
                 await active_select.wait()
 
-                # User selects an active role
-                if active_select.value == True:
-                    active_role = active_select.role
+                # User selects an active role or wants the bot to create an active role
+                if active_select.value == True or active_select.value == "Create":
+                    active_role = None
+                    if active_select.value == True:
+                        active_role = active_select.role
+                    elif active_select.value == "Create":
+                        active_role = await guild.create_role(name="Active")
                     active = discord.Embed(color=self.bot.blurple, title="Active Role", description=f"The active role was set to {active_role.mention}.")
                     await message.edit(embed=active, view=None)
                     await self.db.execute("UPDATE guilds SET active_role_id = ? WHERE guild_id = ?", (active_role.id, guild.id))
@@ -851,15 +889,19 @@ class Start(commands.Cog):
                 ask_inactive_role = discord.Embed(
                     color=self.bot.blurple,
                     title="Inactive Role",
-                    description="Would you like to select a role to give to inactive members?\nChoose `Cancel` to skip to the next option."
+                    description="Would you like to select or create a role to give to inactive members?\nChoose `Cancel` to skip to the next option."
                 )
                 inactive_select = RoleSelectView(user=author)
                 await message.edit(embed=ask_inactive_role, view=inactive_select)
                 await inactive_select.wait()
 
-                # User selects an inactive role
-                if inactive_select.value == True:
-                    inactive_role = inactive_select.role
+                # User selects an inactive role or wants the bot to create an inactive role
+                if inactive_select.value == True or inactive_select.value == "Create":
+                    inactive_role = None
+                    if inactive_select.value == True:
+                        inactive_role = inactive_select.role
+                    elif inactive_select.value == "Create":
+                        inactive_role = await guild.create_role(name="Inactive")
                     inactive = discord.Embed(color=self.bot.blurple, title="Inactive Role", description=f"The inactive role was set to {inactive_role.mention}.")
                     await message.edit(embed=inactive, view=None)
                     await self.db.execute("UPDATE guilds SET inactive_role_id = ? WHERE guild_id = ?", (inactive_role.id, guild.id))
@@ -935,21 +977,18 @@ class Start(commands.Cog):
 
             if cog_buttons.value == True:
 
-                # The user has now completed bot startup for their server
+                # The user adds desired commands to their server
                 await self.bot.tree.sync(guild=guild)
-                done = discord.Embed(
-                    color=self.bot.green,
-                    title="Success",
+                added = discord.Embed(
+                    color=self.bot.blurple,
+                    title="Commands Added",
                     description=f"{author.mention} has successfully added commands to the server!"
                 )
                 cogs = cog_buttons.guild_cogs[guild.id]
-                if cogs is not None:
-                    join = ", ".join(cogs)
-                else:
-                    join = "None"
-                done.add_field(name="Commands Added", value=f"{join}")
-                await message.edit(embed=done, view=None)
-                await message.delete(delay=10.0)
+                for cog in cogs:
+                    added.add_field(name=f"{cog}", value="Added successfully!")
+                await message.edit(embed=added, view=None)
+                await asyncio.sleep(2.0)
 
                 # Bot sends a log to the logging channel
                 cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -964,8 +1003,16 @@ class Start(commands.Cog):
                         timestamp=timestamp
                     )
                     log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                    if cogs is not None:
+                        join = ", ".join(cogs)
+                    else:
+                        join = "None"
                     log.add_field(name="Commands Added", value=f"{join}")
                     await logging_channel.send(embed=log)
+
+            done = discord.Embed(color=self.bot.green, title="Bot Startup Complete", description="You have successfully completed the bot startup process. This message will be deleted in a few seconds.")
+            await message.edit(embed=done, view=None)
+            await message.delete(delay=10.0)
 
         # Send an error message if there's an issue
         except Exception as e:
@@ -978,6 +1025,27 @@ class Start(commands.Cog):
             )
             message = await interaction.followup.send(embed=error, wait=True)
             await message.delete(delay=10.0)
+
+class rainbowbot(commands.GroupCog, name = "rainbowbot"):
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
+        self.db = bot.database
+    
+    @app_commands.command(name="server")
+    async def server(self, interaction: discord.Interaction):
+        """Get the invite link for 🌈 Rainbow Bot's support server.
+        """
+        await interaction.response.defer(ephemeral=True)
+        embed = discord.Embed(color=self.bot.blurple, title="Support Server", url="https://discord.gg/5x3xBSdWbE", description="You can join 🌈 Rainbow Bot's support server by using the following link: https://discord.gg/5x3xBSdWbE")
+        await interaction.followup.send(embed=embed, ephemeral=True)
+    
+    @app_commands.command(name="install")
+    async def install(self, interaction: discord.Interaction):
+        """Get the server install link for 🌈 Rainbow Bot.
+        """
+        await interaction.response.defer(ephemeral=True)
+        embed = discord.Embed(color=self.bot.blurple, title="Bot Install", url="https://discord.com/oauth2/authorize?client_id=1263872722195316737", description="You can install 🌈 Rainbow Bot in your server by using the following link: https://discord.com/oauth2/authorize?client_id=1263872722195316737")
+        await interaction.followup.send(embed=embed, ephemeral=True)
 
 class Commands(commands.GroupCog, name = "commands"):
     def __init__(self, bot: commands.Bot):
@@ -1136,8 +1204,10 @@ class Commands(commands.GroupCog, name = "commands"):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Start(bot=bot), override=True)
+    await bot.add_cog(rainbowbot(bot=bot), override=True)
     await bot.add_cog(Commands(bot=bot), override=True)
 
 async def teardown(bot: commands.Bot):
     await bot.remove_cog("Start")
+    await bot.remove_cog("rainbowbot")
     await bot.remove_cog("Commands")
