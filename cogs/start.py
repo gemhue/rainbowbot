@@ -1036,16 +1036,20 @@ class rainbowbot(commands.GroupCog, name = "rainbowbot"):
         """Get the invite link for 🌈 Rainbow Bot's support server.
         """
         await interaction.response.defer(ephemeral=True)
-        embed = discord.Embed(color=self.bot.blurple, title="Support Server", url="https://discord.gg/5x3xBSdWbE", description="You can join 🌈 Rainbow Bot's support server by using the following link: https://discord.gg/5x3xBSdWbE")
-        await interaction.followup.send(embed=embed, ephemeral=True)
+        embed = discord.Embed(color=self.bot.blurple, title="Support Server", description="You can join 🌈 Rainbow Bot's support server by clicking the button below.")
+        view = discord.ui.View()
+        view.add_item(discord.ui.Button(style=discord.ButtonStyle.link, label="Support Server", url="https://discord.gg/5x3xBSdWbE", emoji="🔗"))
+        await interaction.followup.send(embed=embed, ephemeral=True, view=view)
     
     @app_commands.command(name="install")
     async def install(self, interaction: discord.Interaction):
         """Get the server install link for 🌈 Rainbow Bot.
         """
         await interaction.response.defer(ephemeral=True)
-        embed = discord.Embed(color=self.bot.blurple, title="Bot Install", url="https://discord.com/oauth2/authorize?client_id=1263872722195316737", description="You can install 🌈 Rainbow Bot in your server by using the following link: https://discord.com/oauth2/authorize?client_id=1263872722195316737")
-        await interaction.followup.send(embed=embed, ephemeral=True)
+        embed = discord.Embed(color=self.bot.blurple, title="Bot Install", description="You can install 🌈 Rainbow Bot in your server by clicking the button below.")
+        view = discord.ui.View()
+        view.add_item(discord.ui.Button(style=discord.ButtonStyle.link, label="Install Link", url="https://discord.com/oauth2/authorize?client_id=1263872722195316737", emoji="🔗"))
+        await interaction.followup.send(embed=embed, ephemeral=True, view=view)
 
 class Commands(commands.GroupCog, name = "commands"):
     def __init__(self, bot: commands.Bot):
