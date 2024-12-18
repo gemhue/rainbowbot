@@ -36,19 +36,18 @@ handler = logging.FileHandler(filename="rainbowbot.log", encoding="utf-8", mode=
 @bot.command(name="sync", hidden=True)
 @commands.is_owner()
 async def sync(ctx: commands.Context, where: str):
-    """(Bot Owner Only) Syncs the local command tree.
+    """(Bot Owner Only) Syncs the bot's command tree either locally or globally.
     """
     await ctx.defer()
     guild = ctx.guild
-    now = datetime.now(tz=timezone.utc)
     if where == "here" or where == "local":
         await bot.tree.sync(guild=guild)
-        embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's local command tree has been synced!", timestamp=now)
+        embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's local command tree has been **synced**!")
     elif where == "all" or where == "global":
         await bot.tree.sync(guild=None)
-        embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's global command tree has been synced!", timestamp=now)
+        embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's global command tree has been **synced**!")
     else:
-        embed = discord.Embed(color=bot.red, title="Error", description=f"The bot's command tree has not been synced! Please specify if you would like to sync `here` or `all`.", timestamp=now)
+        embed = discord.Embed(color=bot.red, title="Error", description=f"The bot's command tree has not been synced! Please specify if you would like to sync `here` or `all`.")
     await ctx.send(embed=embed, delete_after=10.0)
     await ctx.message.delete()
 
@@ -58,26 +57,31 @@ async def sync(ctx: commands.Context, where: str):
     fetched_logging = row[0]
     if fetched_logging is not None:
         logging = ctx.guild.get_channel(fetched_logging)
-        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-        embed.set_thumbnail(url=ctx.author.display_avatar)
-        await logging.send(embed=embed)
+        now = datetime.now(tz=timezone.utc)
+        log = discord.Embed(color=bot.blurple, title="Command Tree Synced", timestamp=now)
+        if where == "here" or where == "local":
+            log.add_field(name="Local Tree", value=f"{ctx.author.mention} has just **synced** the bot's local command tree.")
+        if where == "all" or where == "global":
+            log.add_field(name="Global Tree", value=f"{ctx.author.mention} has just **synced** the bot's global command tree.")
+        log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+        log.set_thumbnail(url=ctx.author.display_avatar)
+        await logging.send(embed=log)
 
 @bot.command(name="clear", hidden=True)
 @commands.is_owner()
 async def clear(ctx: commands.Context, where: str):
-    """(Bot Owner Only) Clears the local command tree.
+    """(Bot Owner Only) Clears the bot's command tree either locally or globally.
     """
     await ctx.defer()
     guild = ctx.guild
-    now = datetime.now(tz=timezone.utc)
     if where == "here" or where == "local":
         bot.tree.clear_commands(guild=guild)
-        embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's local command tree has been cleared!", timestamp=now)
+        embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's local command tree has been **cleared**!")
     elif where == "all" or where == "global":
         bot.tree.clear_commands(guild=None)
-        embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's global command tree has been cleared!", timestamp=now)
+        embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's global command tree has been **cleared**!")
     else:
-        embed = discord.Embed(color=bot.red, title="Error", description=f"The bot's command tree has not been cleared! Please specify if you would like to clear \`here\` or \`all\`.", timestamp=now)
+        embed = discord.Embed(color=bot.red, title="Error", description=f"The bot's command tree has not been cleared! Please specify if you would like to clear `here` or `all`.")
     await ctx.send(embed=embed, delete_after=10.0)
     await ctx.message.delete()
     
@@ -87,9 +91,15 @@ async def clear(ctx: commands.Context, where: str):
     fetched_logging = row[0]
     if fetched_logging is not None:
         logging = ctx.guild.get_channel(fetched_logging)
-        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-        embed.set_thumbnail(url=ctx.author.display_avatar)
-        await logging.send(embed=embed)
+        now = datetime.now(tz=timezone.utc)
+        log = discord.Embed(color=bot.blurple, title="Command Tree Cleared", timestamp=now)
+        if where == "here" or where == "local":
+            log.add_field(name="Local Tree", value=f"{ctx.author.mention} has just **cleared** the bot's local command tree.")
+        if where == "all" or where == "global":
+            log.add_field(name="Global Tree", value=f"{ctx.author.mention} has just **cleared the bot's global command tree.")
+        log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+        log.set_thumbnail(url=ctx.author.display_avatar)
+        await logging.send(embed=log)
 
 async def allcogs(x):
     files = []
@@ -120,10 +130,10 @@ async def allcogs(x):
     else:
         return None
 
-@bot.command(name="get_cogs", aliases=["get_cog","getcogs","getcog"], hidden=True)
+@bot.command(name="get", hidden=True)
 @commands.is_owner()
-async def get_cogs(ctx: commands.Context):
-    """(Bot Owner Only) Returns all of the bot's cogs.
+async def get(ctx: commands.Context):
+    """(Bot Owner Only) Returns a list of all of the bot's cogs.
     """
     await ctx.defer()
     now = datetime.now(tz=timezone.utc)
