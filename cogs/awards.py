@@ -152,8 +152,8 @@ class PluralView(discord.ui.View):
                 if logging is not None:
                     now = datetime.now(tz=timezone.utc)
                     log = discord.Embed(color=self.bot.blurple, title="Awards Log", description=f"{interaction.user.mention} has successfully set the server's custom award name (plural)!", timestamp=now)
-                    log.add_field(name="Singular (Capitalized)", value=f"{fetched_plur_cap}")
-                    log.add_field(name="Singular (Lowercase)", value=f"{fetched_plur_low}")
+                    log.add_field(name="Plural (Capitalized)", value=f"{fetched_plur_cap}")
+                    log.add_field(name="Plural (Lowercase)", value=f"{fetched_plur_low}")
                     log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                     log.set_thumbnail(url=interaction.user.display_avatar)
                     await logging.send(embed=log)
@@ -373,7 +373,6 @@ class Leaderboard(discord.ui.ChannelSelect):
 class AwardReactionView(discord.ui.View):
     def __init__(self, *, timeout = 180, bot: commands.Bot, user: discord.Member):
         super().__init__(timeout=timeout)
-        self.value = None
         self.bot = bot
         self.user = user
         self.db = bot.database
@@ -404,7 +403,6 @@ class AwardReactionView(discord.ui.View):
                         log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                         log.set_thumbnail(url=interaction.user.display_avatar)
                         await logging.send(embed=log)
-                self.value = True
                 self.stop()
             
             elif toggle == "False":
@@ -423,7 +421,6 @@ class AwardReactionView(discord.ui.View):
                         log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                         log.set_thumbnail(url=interaction.user.display_avatar)
                         await logging.send(embed=log)
-                self.value = True
                 self.stop()
             
             else:
@@ -443,7 +440,6 @@ class AwardReactionView(discord.ui.View):
             if view.value == True:
                 await interaction.message.delete()
                 await cancel.delete()
-                self.value = False
                 self.stop()
             
             if view.value == False:
