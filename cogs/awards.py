@@ -1,7 +1,7 @@
 import discord
 import traceback
 from discord import app_commands
-from discord.ext import commands
+from discord.ext import commands, tasks
 from typing import Optional
 from datetime import datetime, timezone
 
@@ -578,6 +578,114 @@ class Awards(commands.GroupCog, group_name = "awards"):
             else:
                 response = await interaction.followup.send(ephemeral=True, embed=error, wait=True)
             await response.delete(delay=10.0)
+            print(traceback.format_exc())
+    
+    @tasks.loop(hours=24)
+    async def leaderboard(self):
+        try:
+
+            guilds = [guild for guild in self.bot.guilds]
+            for guild in guilds:
+
+                # Retreive leaderboard channel
+                cur = await self.db.execute("SELECT leaderboard_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                row = await cur.fetchone()
+                fetched_channel_id = row[0]
+                if fetched_channel_id is not None:
+                    fetched_channel = guild.get_channel(fetched_channel_id)
+                    if fetched_channel is not None:
+
+                        # Retreive award emoji
+                        cur = await self.db.execute("SELECT award_emoji FROM guilds WHERE guild_id = ?", (guild.id,))
+                        row = await cur.fetchone()
+                        emoji = row[0]
+                        if emoji is None:
+                            emoji = "🏅"
+                        
+                        # Retreive award name (singular)
+                        cur = await self.db.execute("SELECT award_singular FROM guilds WHERE guild_id = ?", (guild.id,))
+                        row = await cur.fetchone()
+                        sing_low = row[0]
+                        if sing_low is None:
+                            sing_low = "award"
+                        sing_cap = sing_low.title()
+
+                        # Retreive award name (plural)
+                        cur = await self.db.execute("SELECT award_plural FROM guilds WHERE guild_id = ?", (guild.id,))
+                        row = await cur.fetchone()
+                        plur_low = row[0]
+                        if plur_low is None:
+                            plur_low = "awards"
+                        plur_cap = plur_low.title()
+
+                        guild_member_ids = []
+                        guild_member_dict = {}
+                        for member in guild.members:
+                            guild_member_id = str(guild.id + member.id)
+                            guild_member_ids.append(guild_member_id)
+                            guild_member_dict[guild_member_id] = member
+                        member_awards = {}
+                        for guild_member_id in guild_member_ids:
+                            cur = await self.db.execute("SELECT amount FROM awards WHERE guild_member_id = ?", (guild_member_id,))
+                            row = await cur.fetchone()
+                            amount = row[0]
+                            if amount is not None and amount != 0:
+                                member_awards[guild_member_id] = amount
+                        if len(member_awards) > 0:
+                            now = datetime.now(tz=timezone.utc)
+                            embed = discord.Embed(color=self.bot.blurple, title=f"{emoji} {sing_cap} Leaderboard {emoji}", timestamp=now)
+                            leaderboard = dict(sorted(member_awards.items(), key=lambda item: item[1], reverse=True))
+                            count = 0
+                            for guild_member_id, awards in leaderboard.items():
+                                member = guild_member_dict[guild_member_id]
+                                if awards == 1:
+                                    name = sing_low
+                                else:
+                                    name = plur_low
+                                if count == 0:
+                                    embed.add_field(name="🥇 First Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 1:
+                                    embed.add_field(name="🥈 Second Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 2:
+                                    embed.add_field(name="🥉 Third Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 3:
+                                    embed.add_field(name="Fourth Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 4:
+                                    embed.add_field(name="Fifth Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 5:
+                                    embed.add_field(name="Sixth Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 6:
+                                    embed.add_field(name="Seventh Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 7:
+                                    embed.add_field(name="Eighth Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 8:
+                                    embed.add_field(name="Ninth Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 9:
+                                    embed.add_field(name="Tenth Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 10:
+                                    embed.add_field(name="Eleventh Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 11:
+                                    embed.add_field(name="Twelfth Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 12:
+                                    embed.add_field(name="Thirteenth Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 13:
+                                    embed.add_field(name="Fourteenth Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 14:
+                                    embed.add_field(name="Fifteenth Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 15:
+                                    embed.add_field(name="Sixteenth Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 16:
+                                    embed.add_field(name="Seventeenth Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 17:
+                                    embed.add_field(name="Eighteenth Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 18:
+                                    embed.add_field(name="Nineteenth Place", value=f"{member.mention} has {awards} {name}!")
+                                elif count == 19:
+                                    embed.add_field(name="Twentieth Place", value=f"{member.mention} has {awards} {name}!")
+                                count += 1
+                            await fetched_channel.send(embed=embed)
+
+        except Exception:
             print(traceback.format_exc())
 
     @commands.GroupCog.listener(name="on_reaction_add")
