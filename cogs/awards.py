@@ -388,7 +388,7 @@ class AwardReactionView(discord.ui.View):
 
             toggle = self.select.toggle
 
-            if toggle == True or toggle == "True":
+            if toggle == "True":
                 await self.db.execute("UPDATE guilds SET award_reaction_toggle = 1 WHERE guild_id = ?", (guild.id,))
                 await self.db.commit()
 
@@ -404,10 +404,10 @@ class AwardReactionView(discord.ui.View):
                         log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                         log.set_thumbnail(url=interaction.user.display_avatar)
                         await logging.send(embed=log)
-
+                self.value = True
                 self.stop()
             
-            elif toggle == False or toggle == "False":
+            elif toggle == "False":
                 await self.db.execute("UPDATE guilds SET award_reaction_toggle = 0 WHERE guild_id = ?", (guild.id,))
                 await self.db.commit()
 
@@ -423,7 +423,7 @@ class AwardReactionView(discord.ui.View):
                         log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                         log.set_thumbnail(url=interaction.user.display_avatar)
                         await logging.send(embed=log)
-
+                self.value = True
                 self.stop()
             
             else:
@@ -443,6 +443,7 @@ class AwardReactionView(discord.ui.View):
             if view.value == True:
                 await interaction.message.delete()
                 await cancel.delete()
+                self.value = False
                 self.stop()
             
             if view.value == False:
@@ -451,8 +452,8 @@ class AwardReactionView(discord.ui.View):
 class AwardReaction(discord.ui.Select):
     def __init__(self, *, user: discord.Member):
         options = [
-            discord.SelectOption(label="True", value=True),
-            discord.SelectOption(label="False", value=False)
+            discord.SelectOption(label="True", value="True"),
+            discord.SelectOption(label="False", value="False")
         ]
         super().__init__(
             min_values=1,
@@ -461,6 +462,7 @@ class AwardReaction(discord.ui.Select):
             row=1
         )
         self.user = user
+        self.toggle = None
 
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
