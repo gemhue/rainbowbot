@@ -377,8 +377,8 @@ class AwardReactionView(discord.ui.View):
         self.bot = bot
         self.user = user
         self.db = bot.database
-        self.view = AwardReaction(user=self.user)
-        self.add_item(self.view)
+        self.select = AwardReaction(user=self.user)
+        self.add_item(self.select)
 
     @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -386,9 +386,9 @@ class AwardReactionView(discord.ui.View):
         if interaction.user == self.user:
             guild = interaction.guild
 
-            toggle = self.view.toggle
+            toggle = self.select.toggle
 
-            if toggle == "True":
+            if toggle == True or toggle == "True":
                 await self.db.execute("UPDATE guilds SET award_reaction_toggle = 1 WHERE guild_id = ?", (guild.id,))
                 await self.db.commit()
 
@@ -407,7 +407,7 @@ class AwardReactionView(discord.ui.View):
 
                 self.stop()
             
-            elif toggle == "False":
+            elif toggle == False or toggle == "False":
                 await self.db.execute("UPDATE guilds SET award_reaction_toggle = 0 WHERE guild_id = ?", (guild.id,))
                 await self.db.commit()
 
@@ -451,8 +451,8 @@ class AwardReactionView(discord.ui.View):
 class AwardReaction(discord.ui.Select):
     def __init__(self, *, user: discord.Member):
         options = [
-            discord.SelectOption(label="True"),
-            discord.SelectOption(label="False")
+            discord.SelectOption(label="True", value=True),
+            discord.SelectOption(label="False", value=False)
         ]
         super().__init__(
             min_values=1,
