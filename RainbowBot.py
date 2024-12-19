@@ -96,7 +96,7 @@ async def clear(ctx: commands.Context, where: str):
         if where == "here" or where == "local":
             log.add_field(name="Local Tree", value=f"{ctx.author.mention} has just **cleared** the bot's local command tree.")
         if where == "all" or where == "global":
-            log.add_field(name="Global Tree", value=f"{ctx.author.mention} has just **cleared the bot's global command tree.")
+            log.add_field(name="Global Tree", value=f"{ctx.author.mention} has just **cleared** the bot's global command tree.")
         log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
         log.set_thumbnail(url=ctx.author.display_avatar)
         await logging.send(embed=log)
