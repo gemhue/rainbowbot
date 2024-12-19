@@ -126,10 +126,14 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
                 # unpinned = [m for m in messages if m.pinned == False]
                 # while len(unpinned) > 0:
-                deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True) # , after=two_weeks_ago
+                deleted = None
+                try:
+                    deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True) # , after=two_weeks_ago
+                except Exception:
+                    print(traceback.format_exc())
                     # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
                     # unpinned = [m for m in messages if m.pinned == False]
-                if len(deleted) == 0:
+                if len(deleted) == 0 or deleted is None:
                     pass
                 elif len(deleted) == 1:
                     delete_embed = discord.Embed(color=self.bot.red, title="Message Deleted", description=f"{user.mention} has just deleted {len(deleted)} message from {channel.mention} via the `/purge here` command.")
@@ -147,11 +151,12 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 fetched_logging = row[0]
                 if fetched_logging is not None:
                     logging = guild.get_channel(fetched_logging)
-                    now = datetime.now(tz=timezone.utc)
-                    log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{user.mention} has just purged all unpinned messages from the following channel: {channel.mention}.", timestamp=now)
-                    log.set_author(name=user.display_name, icon_url=user.display_avatar)
-                    log.set_thumbnail(url=user.display_avatar)
-                    await logging.send(embed=log)
+                    if logging is not None:
+                        now = datetime.now(tz=timezone.utc)
+                        log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{user.mention} has just purged all unpinned messages from the following channel: {channel.mention}.", timestamp=now)
+                        log.set_author(name=user.display_name, icon_url=user.display_avatar)
+                        log.set_thumbnail(url=user.display_avatar)
+                        await logging.send(embed=log)
 
             elif view.value == False:
                 cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
@@ -201,10 +206,14 @@ class Purge(commands.GroupCog, group_name = "purge"):
                         # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
                         # unpinned = [m for m in messages if m.pinned == False and m.author == user]
                         # while len(unpinned) > 0:
-                        deleted = await channel.purge(check=lambda m: m.pinned == False and m.author == user, oldest_first=True) # , after=two_weeks_ago
+                        deleted = None
+                        try:
+                            deleted = await channel.purge(check=lambda m: m.pinned == False and m.author == user, oldest_first=True) # , after=two_weeks_ago
+                        except Exception:
+                            print(traceback.format_exc())
                             # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
                             # unpinned = [m for m in messages if m.pinned == False and m.author == user]
-                        if len(deleted) == 0:
+                        if len(deleted) == 0 or deleted is None:
                             pass
                         elif len(deleted) == 1:
                             delete_embed = discord.Embed(color=self.bot.red, title="Message Deleted", description=f"{user.mention} has just deleted {len(deleted)} message from {channel.mention} via the `/purge self` command.")
@@ -222,11 +231,12 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     fetched_logging = row[0]
                     if fetched_logging is not None:
                         logging = guild.get_channel(fetched_logging)
-                        now = datetime.now(tz=timezone.utc)
-                        log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{user.mention} has just purged {user.mention}'s unpinned messages from the following channels: {mentionlist}.", timestamp=now)
-                        log.set_author(name=user.display_name, icon_url=user.display_avatar)
-                        log.set_thumbnail(url=user.display_avatar)
-                        await logging.send(embed=log)
+                        if logging is not None:
+                            now = datetime.now(tz=timezone.utc)
+                            log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{user.mention} has just purged {user.mention}'s unpinned messages from the following channels: {mentionlist}.", timestamp=now)
+                            log.set_author(name=user.display_name, icon_url=user.display_avatar)
+                            log.set_thumbnail(url=user.display_avatar)
+                            await logging.send(embed=log)
 
                 elif yon.value == False:
                     cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
@@ -297,10 +307,14 @@ class Purge(commands.GroupCog, group_name = "purge"):
                         # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
                         # unpinned = [m for m in messages if m.pinned == False and m.author == member]
                         # while len(unpinned) > 0:
-                        deleted = await channel.purge(check=lambda m: m.pinned == False and m.author == member, oldest_first=True) # , after=two_weeks_ago
+                        deleted = None
+                        try:
+                            deleted = await channel.purge(check=lambda m: m.pinned == False and m.author == member, oldest_first=True) # , after=two_weeks_ago
+                        except Exception:
+                            print(traceback.format_exc())
                             # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
                             # unpinned = [m for m in messages if m.pinned == False and m.author == member]
-                        if len(deleted) == 0:
+                        if len(deleted) == 0 or deleted is None:
                             pass
                         elif len(deleted) == 1:
                             delete_embed = discord.Embed(color=self.bot.red, title="Message Deleted", description=f"{user.mention} has just deleted {len(deleted)} message from {channel.mention} via the `/purge member` command.")
@@ -318,11 +332,12 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     fetched_logging = row[0]
                     if fetched_logging is not None:
                         logging = guild.get_channel(fetched_logging)
-                        now = datetime.now(tz=timezone.utc)
-                        log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{user.mention} has just purged {member.mention}'s unpinned messages from the following channels: {mentionlist}.", timestamp=now)
-                        log.set_author(name=user.display_name, icon_url=user.display_avatar)
-                        log.set_thumbnail(url=user.display_avatar)
-                        await logging.send(embed=log)
+                        if logging is not None:
+                            now = datetime.now(tz=timezone.utc)
+                            log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{user.mention} has just purged {member.mention}'s unpinned messages from the following channels: {mentionlist}.", timestamp=now)
+                            log.set_author(name=user.display_name, icon_url=user.display_avatar)
+                            log.set_thumbnail(url=user.display_avatar)
+                            await logging.send(embed=log)
 
                 elif yon.value == False:
                     cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
@@ -388,10 +403,14 @@ class Purge(commands.GroupCog, group_name = "purge"):
                         # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
                         # unpinned = [m for m in messages if m.pinned == False]
                         # while len(unpinned) > 0:
-                        deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True) # , after=two_weeks_ago
+                        deleted = None
+                        try:
+                            deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True) # , after=two_weeks_ago
+                        except Exception:
+                            print(traceback.format_exc())
                             # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
                             # unpinned = [m for m in messages if m.pinned == False]
-                        if len(deleted) == 0:
+                        if len(deleted) == 0 or deleted is None:
                             pass
                         elif len(deleted) == 1:
                             delete_embed = discord.Embed(color=self.bot.red, title="Message Deleted", description=f"{user.mention} has just deleted {len(deleted)} message from {channel.mention} via the `/purge channels` command.")
@@ -409,11 +428,12 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     fetched_logging = row[0]
                     if fetched_logging is not None:
                         logging = guild.get_channel(fetched_logging)
-                        now = datetime.now(tz=timezone.utc)
-                        log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{user.mention} has just purged all unpinned messages from the following channels: {mentionlist}.", timestamp=now)
-                        log.set_author(name=user.display_name, icon_url=user.display_avatar)
-                        log.set_thumbnail(url=user.display_avatar)
-                        await logging.send(embed=log)
+                        if logging is not None:
+                            now = datetime.now(tz=timezone.utc)
+                            log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{user.mention} has just purged all unpinned messages from the following channels: {mentionlist}.", timestamp=now)
+                            log.set_author(name=user.display_name, icon_url=user.display_avatar)
+                            log.set_thumbnail(url=user.display_avatar)
+                            await logging.send(embed=log)
 
                 elif yon.value == False:
                     cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
@@ -475,15 +495,19 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     # now = datetime.now(tz=timezone.utc)
                     # two_weeks = timedelta(weeks=2.0)
                     # two_weeks_ago = now - two_weeks
-                    for channel in guild.channels:
+                    for channel in guild.text_channels:
                         if channel not in csv.channels:
                             # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
                             # unpinned = [m for m in messages if m.pinned == False]
                             # while len(unpinned) > 0:
-                            deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True) # , after=two_weeks_ago
+                            deleted = None
+                            try:
+                                deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True) # , after=two_weeks_ago
+                            except Exception:
+                                print(traceback.format_exc())
                                 # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
                                 # unpinned = [m for m in messages if m.pinned == False]
-                            if len(deleted) == 0:
+                            if len(deleted) == 0 or deleted is None:
                                 pass
                             elif len(deleted) == 1:
                                 delete_embed = discord.Embed(color=self.bot.red, title="Message Deleted", description=f"{user.mention} has just deleted {len(deleted)} message from {channel.mention} via the `/purge server` command.")
@@ -501,11 +525,12 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     fetched_logging = row[0]
                     if fetched_logging is not None:
                         logging = guild.get_channel(fetched_logging)
-                        now = datetime.now(tz=timezone.utc)
-                        log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{user.mention} has just purged all unpinned messages in the server **except** from the following channels: {mentionlist}.", timestamp=now)
-                        log.set_author(name=user.display_name, icon_url=user.display_avatar)
-                        log.set_thumbnail(url=user.display_avatar)
-                        await logging.send(embed=log)
+                        if logging is not None:
+                            now = datetime.now(tz=timezone.utc)
+                            log = discord.Embed(color=self.bot.blurple, title="Purge Log", description=f"{user.mention} has just purged all unpinned messages in the server **except** from the following channels: {mentionlist}.", timestamp=now)
+                            log.set_author(name=user.display_name, icon_url=user.display_avatar)
+                            log.set_thumbnail(url=user.display_avatar)
+                            await logging.send(embed=log)
 
                 elif yon.value == False:
                     cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
