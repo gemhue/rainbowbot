@@ -104,14 +104,14 @@ class Purge(commands.GroupCog, group_name = "purge"):
     async def here(self, interaction: discord.Interaction):
         """(Admin Only) Purge all unpinned messages in the current channel.
         """
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer()
         try:
 
             user = interaction.user
             guild = interaction.guild
             view = YesOrNo(bot=self.bot, user=user)
             embed = discord.Embed(color=self.bot.blurple, title="Confirm Purge", description="Are you **sure** you want to purge all unpinned messages in the current channel?")
-            response = await interaction.followup.send(ephemeral=True, embed=embed, view=view, wait=True)
+            response = await interaction.followup.send(embed=embed, view=view, wait=True)
             await view.wait()
 
             if view.value == True:
@@ -141,7 +141,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 
                 done = discord.Embed(color=self.bot.green, title="Success", description="The purge is now complete! Messages older than two weeks could not be deleted due to Discord limitations. You may now dismiss this message.")
                 await response.edit(embed=done, view=None)
-                await response.delete(delay=30.0)
+                await response.delete(delay=10.0)
 
                 cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (interaction.guild.id,))
                 row = await cur.fetchone()
@@ -155,25 +155,27 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     await logging.send(embed=log)
 
             elif view.value == False:
-                cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description="The purge has been cancelled. No messages have been deleted.")
+                cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
                 await response.edit(embed=cancelled, view=None)
+                await response.delete(delay=5.0)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.followup.send(ephemeral=True, embed=error, delete_after=30.0)
+            error_msg = await interaction.followup.send(embed=error, wait=True)
+            await error_msg.delete(delay=5.0)
             print(traceback.format_exc())
 
     @app_commands.command(name="self")
     async def self(self, interaction: discord.Interaction):
         """Purge all of your own unpinned messages in a set list of up to 25 channels.
         """
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer()
         try:
             
             user = interaction.user
             csv = ChannelSelectView(bot=self.bot, user=user)
             embed = discord.Embed(color=self.bot.blurple, title="Purge Self", description=f"Which channel(s) would you like to purge your own unpinned messages from?")
-            response = await interaction.followup.send(ephemeral=True, embed=embed, view=csv, wait=True)
+            response = await interaction.followup.send(embed=embed, view=csv, wait=True)
             await csv.wait()
             
             if csv.value == True:
@@ -213,9 +215,9 @@ class Purge(commands.GroupCog, group_name = "purge"):
                             delete_embed = discord.Embed(color=self.bot.red, title="Messages Deleted", description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge self` command.")
                             await channel.send(embed=delete_embed)
                     
-                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete! Messages older than two weeks could not be deleted due to Discord limitations. You may now dismiss this message.')
+                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete! Messages older than two weeks could not be deleted due to Discord limitations.')
                     await response.edit(embed=success, view=None)
-                    await response.delete(delay=30.0)
+                    await response.delete(delay=10.0)
 
                     cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                     row = await cur.fetchone()
@@ -231,26 +233,27 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 elif yon.value == False:
                     cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
                     await response.edit(embed=cancelled, view=None)
-                    await response.delete(delay=30.0)
+                    await response.delete(delay=5.0)
 
                 else:
                     timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
                     await response.edit(embed=timed_out, view=None)
-                    await response.delete(delay=30.0)
+                    await response.delete(delay=5.0)
 
             elif csv.value == False:
                 cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
                 await response.edit(embed=cancelled, view=None)
-                await response.delete(delay=30.0)
+                await response.delete(delay=5.0)
 
             else:
                 timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
                 await response.edit(embed=timed_out, view=None)
-                await response.delete(delay=30.0)
+                await response.delete(delay=5.0)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.followup.send(ephemeral=True, embed=error, view=None)
+            error_msg = await interaction.followup.send(embed=error, wait=True)
+            await error_msg.delete(delay=5.0)
             print(traceback.format_exc())
 
     @app_commands.command(name="member")
@@ -263,13 +266,13 @@ class Purge(commands.GroupCog, group_name = "purge"):
         member : discord.Member
             Choose the member to whose messages you would like to purge.
         """
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer()
         try:
             
             user = interaction.user
             csv = ChannelSelectView(bot=self.bot, user=user)
             embed = discord.Embed(color=self.bot.blurple, title="Purge Member", description=f"Which channel(s) would you like to purge {member.mention}'s unpinned messages from?")
-            response = await interaction.followup.send(ephemeral=True, embed=embed, view=csv, wait=True)
+            response = await interaction.followup.send(embed=embed, view=csv, wait=True)
             await csv.wait()
             
             if csv.value == True:
@@ -309,9 +312,9 @@ class Purge(commands.GroupCog, group_name = "purge"):
                             delete_embed = discord.Embed(color=self.bot.red, title="Messages Deleted", description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge member` command.")
                             await channel.send(embed=delete_embed)
                     
-                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete! Messages older than two weeks could not be deleted due to Discord limitations. You may now dismiss this message.')
+                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete! Messages older than two weeks could not be deleted due to Discord limitations.')
                     await response.edit(embed=success, view=None)
-                    await response.delete(delay=30.0)
+                    await response.delete(delay=10.0)
 
                     cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                     row = await cur.fetchone()
@@ -327,26 +330,27 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 elif yon.value == False:
                     cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
                     await response.edit(embed=cancelled, view=None)
-                    await response.delete(delay=30.0)
+                    await response.delete(delay=5.0)
 
                 else:
                     timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
                     await response.edit(embed=timed_out, view=None)
-                    await response.delete(delay=30.0)
+                    await response.delete(delay=5.0)
 
             elif csv.value == False:
                 cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
                 await response.edit(embed=cancelled, view=None)
-                await response.delete(delay=30.0)
+                await response.delete(delay=5.0)
 
             else:
                 timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
                 await response.edit(embed=timed_out, view=None)
-                await response.delete(delay=30.0)
+                await response.delete(delay=5.0)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.followup.send(ephemeral=True, embed=error, view=None)
+            error_msg = await interaction.followup.send(embed=error, wait=True)
+            await error_msg.delete(delay=5.0)
             print(traceback.format_exc())
 
     @app_commands.command(name="channels")
@@ -354,13 +358,13 @@ class Purge(commands.GroupCog, group_name = "purge"):
     async def channels(self, interaction: discord.Interaction):
         """(Admin Only) Purge all unpinned messages in a set list of up to 25 channels.
         """
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer()
         try:
             
             user = interaction.user
             csv = ChannelSelectView(bot=self.bot, user=user)
             embed = discord.Embed(color=self.bot.blurple, title="Purge Channels", description=f"Which channel(s) would you like to purge all unpinned messages from?")
-            response = await interaction.followup.send(ephemeral=True, embed=embed, view=csv, wait=True)
+            response = await interaction.followup.send(embed=embed, view=csv, wait=True)
             await csv.wait()
             
             if csv.value == True:
@@ -400,9 +404,9 @@ class Purge(commands.GroupCog, group_name = "purge"):
                             delete_embed = discord.Embed(color=self.bot.red, title="Messages Deleted", description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge channels` command.")
                             await channel.send(embed=delete_embed)
                     
-                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete! Messages older than two weeks could not be deleted due to Discord limitations. You may now dismiss this message.')
+                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete! Messages older than two weeks could not be deleted due to Discord limitations.')
                     await response.edit(embed=success, view=None)
-                    await response.delete(delay=30.0)
+                    await response.delete(delay=10.0)
 
                     cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                     row = await cur.fetchone()
@@ -418,26 +422,27 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 elif yon.value == False:
                     cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
                     await response.edit(embed=cancelled, view=None)
-                    await response.delete(delay=30.0)
+                    await response.delete(delay=5.0)
 
                 else:
                     timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
                     await response.edit(embed=timed_out, view=None)
-                    await response.delete(delay=30.0)
+                    await response.delete(delay=5.0)
 
             elif csv.value == False:
                 cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
                 await response.edit(embed=cancelled, view=None)
-                await response.delete(delay=30.0)
+                await response.delete(delay=5.0)
 
             else:
                 timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
                 await response.edit(embed=timed_out, view=None)
-                await response.delete(delay=30.0)
+                await response.delete(delay=5.0)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.followup.send(ephemeral=True, embed=error, view=None)
+            error_msg = await interaction.followup.send(embed=error, wait=True)
+            await error_msg.delete(delay=5.0)
             print(traceback.format_exc())
 
     @app_commands.command(name="server")
@@ -445,13 +450,13 @@ class Purge(commands.GroupCog, group_name = "purge"):
     async def server(self, interaction: discord.Interaction):
         """(Admin Only) Purges all unpinned messages in a server, excluding up to 25 channels.
         """
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer()
         try:
             
             user = interaction.user
             csv = ChannelSelectView(bot=self.bot, user=user)
             embed = discord.Embed(color=self.bot.blurple, title="Exclude Channels", description=f"Which channel(s) would you like to **exclude** from the purge?")
-            response = await interaction.followup.send(ephemeral=True, embed=embed, view=csv, wait=True)
+            response = await interaction.followup.send(embed=embed, view=csv, wait=True)
             await csv.wait()
             
             if csv.value == True:
@@ -492,9 +497,9 @@ class Purge(commands.GroupCog, group_name = "purge"):
                                 delete_embed = discord.Embed(color=self.bot.red, title="Messages Deleted", description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge server` command.")
                                 await channel.send(embed=delete_embed)
                     
-                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete! Messages older than two weeks could not be deleted due to Discord limitations. You may now dismiss this message.')
+                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete! Messages older than two weeks could not be deleted due to Discord limitations.')
                     await response.edit(embed=success, view=None)
-                    await response.delete(delay=30.0)
+                    await response.delete(delay=10.0)
 
                     cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                     row = await cur.fetchone()
@@ -510,26 +515,27 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 elif yon.value == False:
                     cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
                     await response.edit(embed=cancelled, view=None)
-                    await response.delete(delay=30.0)
+                    await response.delete(delay=5.0)
 
                 else:
                     timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
                     await response.edit(embed=timed_out, view=None)
-                    await response.delete(delay=30.0)
+                    await response.delete(delay=5.0)
 
             elif csv.value == False:
                 cancelled = discord.Embed(color=self.bot.red, title="Cancelled", description='This interaction has been cancelled. No messages have been purged.')
                 await response.edit(embed=cancelled, view=None)
-                await response.delete(delay=30.0)
+                await response.delete(delay=5.0)
 
             else:
                 timed_out = discord.Embed(color=self.bot.yellow, title="Timed Out", description='This interaction has timed out. No messages have been purged.')
                 await response.edit(embed=timed_out, view=None)
-                await response.delete(delay=30.0)
+                await response.delete(delay=5.0)
 
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.followup.send(ephemeral=True, embed=error, view=None)
+            error_msg = await interaction.followup.send(embed=error, wait=True)
+            await error_msg.delete(delay=5.0)
             print(traceback.format_exc())
 
 async def setup(bot: commands.Bot):
