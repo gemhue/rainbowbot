@@ -121,16 +121,11 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 await response.edit(embed=wait, view=None)
                 time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                 channel = interaction.channel
-                # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                # unpinned = [m for m in messages if m.pinned == False]
-                # while len(unpinned) > 0:
                 deleted = None
                 try:
                     deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True, after=time)
                 except Exception:
                     print(traceback.format_exc())
-                    # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                    # unpinned = [m for m in messages if m.pinned == False]
                 if len(deleted) == 0 or deleted is None:
                     pass
                 elif len(deleted) == 1:
@@ -199,16 +194,11 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     await response.edit(embed=wait, view=None)
                     time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                     for channel in csv.channels:
-                        # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                        # unpinned = [m for m in messages if m.pinned == False and m.author == user]
-                        # while len(unpinned) > 0:
                         deleted = None
                         try:
                             deleted = await channel.purge(check=lambda m: m.pinned == False and m.author == user, oldest_first=True, after=time)
                         except Exception:
                             print(traceback.format_exc())
-                            # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                            # unpinned = [m for m in messages if m.pinned == False and m.author == user]
                         if len(deleted) == 0 or deleted is None:
                             pass
                         elif len(deleted) == 1:
@@ -298,16 +288,11 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     await response.edit(embed=wait, view=None)
                     time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                     for channel in csv.channels:
-                        # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                        # unpinned = [m for m in messages if m.pinned == False and m.author == member]
-                        # while len(unpinned) > 0:
                         deleted = None
                         try:
                             deleted = await channel.purge(check=lambda m: m.pinned == False and m.author == member, oldest_first=True, after=time)
                         except Exception:
                             print(traceback.format_exc())
-                            # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                            # unpinned = [m for m in messages if m.pinned == False and m.author == member]
                         if len(deleted) == 0 or deleted is None:
                             pass
                         elif len(deleted) == 1:
@@ -392,16 +377,11 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     await response.edit(embed=wait, view=None)
                     time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                     for channel in csv.channels:
-                        # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                        # unpinned = [m for m in messages if m.pinned == False]
-                        # while len(unpinned) > 0:
                         deleted = None
                         try:
                             deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True, after=time)
                         except Exception:
                             print(traceback.format_exc())
-                            # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                            # unpinned = [m for m in messages if m.pinned == False]
                         if len(deleted) == 0 or deleted is None:
                             pass
                         elif len(deleted) == 1:
@@ -487,16 +467,11 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                     for channel in guild.text_channels:
                         if channel not in csv.channels:
-                            # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                            # unpinned = [m for m in messages if m.pinned == False]
-                            # while len(unpinned) > 0:
                             deleted = None
                             try:
                                 deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True, after=time)
                             except Exception:
                                 print(traceback.format_exc())
-                                # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                                # unpinned = [m for m in messages if m.pinned == False]
                             if len(deleted) == 0 or deleted is None:
                                 pass
                             elif len(deleted) == 1:
