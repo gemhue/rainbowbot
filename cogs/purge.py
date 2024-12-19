@@ -119,16 +119,14 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
                 wait = discord.Embed(color=self.bot.blurple, title="Purge in Progress", description="Please wait while the purge is in progress. This message will be edited when the purge is complete.")
                 await response.edit(embed=wait, view=None)
-                # now = datetime.now(tz=timezone.utc)
-                # two_weeks = timedelta(weeks=2.0)
-                # two_weeks_ago = now - two_weeks
+                time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                 channel = interaction.channel
                 # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
                 # unpinned = [m for m in messages if m.pinned == False]
                 # while len(unpinned) > 0:
                 deleted = None
                 try:
-                    deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True) # , after=two_weeks_ago
+                    deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True, after=time)
                 except Exception:
                     print(traceback.format_exc())
                     # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
@@ -199,16 +197,14 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
                     wait = discord.Embed(color=self.bot.blurple, title="Purge in Progress", description="Please wait while the purge is in progress. This message will be edited when the purge is complete.")
                     await response.edit(embed=wait, view=None)
-                    # now = datetime.now(tz=timezone.utc)
-                    # two_weeks = timedelta(weeks=2.0)
-                    # two_weeks_ago = now - two_weeks
+                    time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                     for channel in csv.channels:
                         # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
                         # unpinned = [m for m in messages if m.pinned == False and m.author == user]
                         # while len(unpinned) > 0:
                         deleted = None
                         try:
-                            deleted = await channel.purge(check=lambda m: m.pinned == False and m.author == user, oldest_first=True) # , after=two_weeks_ago
+                            deleted = await channel.purge(check=lambda m: m.pinned == False and m.author == user, oldest_first=True, after=time)
                         except Exception:
                             print(traceback.format_exc())
                             # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
@@ -300,16 +296,14 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
                     wait = discord.Embed(color=self.bot.blurple, title="Purge in Progress", description="Please wait while the purge is in progress. This message will be edited when the purge is complete.")
                     await response.edit(embed=wait, view=None)
-                    # now = datetime.now(tz=timezone.utc)
-                    # two_weeks = timedelta(weeks=2.0)
-                    # two_weeks_ago = now - two_weeks
+                    time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                     for channel in csv.channels:
                         # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
                         # unpinned = [m for m in messages if m.pinned == False and m.author == member]
                         # while len(unpinned) > 0:
                         deleted = None
                         try:
-                            deleted = await channel.purge(check=lambda m: m.pinned == False and m.author == member, oldest_first=True) # , after=two_weeks_ago
+                            deleted = await channel.purge(check=lambda m: m.pinned == False and m.author == member, oldest_first=True, after=time)
                         except Exception:
                             print(traceback.format_exc())
                             # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
@@ -396,16 +390,14 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
                     wait = discord.Embed(color=self.bot.blurple, title="Purge in Progress", description="Please wait while the purge is in progress. This message will be edited when the purge is complete.")
                     await response.edit(embed=wait, view=None)
-                    # now = datetime.now(tz=timezone.utc)
-                    # two_weeks = timedelta(weeks=2.0)
-                    # two_weeks_ago = now - two_weeks
+                    time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                     for channel in csv.channels:
                         # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
                         # unpinned = [m for m in messages if m.pinned == False]
                         # while len(unpinned) > 0:
                         deleted = None
                         try:
-                            deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True) # , after=two_weeks_ago
+                            deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True, after=time)
                         except Exception:
                             print(traceback.format_exc())
                             # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
@@ -492,9 +484,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
                     wait = discord.Embed(color=self.bot.blurple, title="Purge in Progress", description="Please wait while the purge is in progress. This message will be edited when the purge is complete.")
                     await response.edit(embed=wait, view=None)
-                    # now = datetime.now(tz=timezone.utc)
-                    # two_weeks = timedelta(weeks=2.0)
-                    # two_weeks_ago = now - two_weeks
+                    time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                     for channel in guild.text_channels:
                         if channel not in csv.channels:
                             # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
@@ -502,7 +492,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
                             # while len(unpinned) > 0:
                             deleted = None
                             try:
-                                deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True) # , after=two_weeks_ago
+                                deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True, after=time)
                             except Exception:
                                 print(traceback.format_exc())
                                 # messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
