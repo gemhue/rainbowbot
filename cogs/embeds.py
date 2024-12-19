@@ -197,12 +197,13 @@ class FieldsSelect(discord.ui.Select):
         ]
         super().__init__(placeholder="Please select a field to edit...", min_values=1, max_values=1, options=options, row=1)
         self.user = user
+        self.value = None
 
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         if interaction.user == self.user:
-            value = self.values[0]
-            self.view.field = int(value)
+            field = self.values[0]
+            self.value = int(field)
 
 class FieldsSelectView(discord.ui.View):
     def __init__(self, *, timeout = 180, user: discord.Member):
@@ -210,13 +211,15 @@ class FieldsSelectView(discord.ui.View):
         self.user = user
         self.value = None
         self.field = None
-        self.add_item(FieldsSelect(user=self.user))
+        self.select = FieldsSelect(user=self.user)
+        self.add_item(self.select)
     
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=2)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
+            self.field = self.select.value
             self.stop()
 
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=2)
