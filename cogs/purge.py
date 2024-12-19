@@ -124,7 +124,10 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 deleted = None
                 try:
                     deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True, after=time)
-                except Exception:
+                except Exception as e:
+                    error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+                    error_msg = await interaction.followup.send(embed=error, wait=True)
+                    await error_msg.delete(delay=5.0)
                     print(traceback.format_exc())
                 if len(deleted) == 0 or deleted is None:
                     pass
@@ -197,7 +200,10 @@ class Purge(commands.GroupCog, group_name = "purge"):
                         deleted = None
                         try:
                             deleted = await channel.purge(check=lambda m: m.pinned == False and m.author == user, oldest_first=True, after=time)
-                        except Exception:
+                        except Exception as e:
+                            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+                            error_msg = await interaction.followup.send(embed=error, wait=True)
+                            await error_msg.delete(delay=5.0)
                             print(traceback.format_exc())
                         if len(deleted) == 0 or deleted is None:
                             pass
@@ -291,7 +297,10 @@ class Purge(commands.GroupCog, group_name = "purge"):
                         deleted = None
                         try:
                             deleted = await channel.purge(check=lambda m: m.pinned == False and m.author == member, oldest_first=True, after=time)
-                        except Exception:
+                        except Exception as e:
+                            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+                            error_msg = await interaction.followup.send(embed=error, wait=True)
+                            await error_msg.delete(delay=5.0)
                             print(traceback.format_exc())
                         if len(deleted) == 0 or deleted is None:
                             pass
@@ -380,7 +389,10 @@ class Purge(commands.GroupCog, group_name = "purge"):
                         deleted = None
                         try:
                             deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True, after=time)
-                        except Exception:
+                        except Exception as e:
+                            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+                            error_msg = await interaction.followup.send(embed=error, wait=True)
+                            await error_msg.delete(delay=5.0)
                             print(traceback.format_exc())
                         if len(deleted) == 0 or deleted is None:
                             pass
@@ -470,7 +482,10 @@ class Purge(commands.GroupCog, group_name = "purge"):
                             deleted = None
                             try:
                                 deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True, after=time)
-                            except Exception:
+                            except Exception as e:
+                                error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+                                error_msg = await interaction.followup.send(embed=error, wait=True)
+                                await error_msg.delete(delay=5.0)
                                 print(traceback.format_exc())
                             if len(deleted) == 0 or deleted is None:
                                 pass
