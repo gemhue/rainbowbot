@@ -69,7 +69,7 @@ class SingularView(discord.ui.View):
         if modal.value == False:
             
             error = discord.Embed(color=self.bot.red, title="Error", description="There was a problem. Please try again later.")
-            await interaction.message.edit(embed=error, delete_after=10.0, view=None)
+            await interaction.message.edit(embed=error, delete_after=5.0, view=None)
         
         self.stop()
 
@@ -161,7 +161,7 @@ class PluralView(discord.ui.View):
         if modal.value == False:
             
             error = discord.Embed(color=self.bot.red, title="Error", description="There was a problem. Please try again later.")
-            await interaction.message.edit(embed=error, delete_after=10.0, view=None)
+            await interaction.message.edit(embed=error, delete_after=5.0, view=None)
         
         self.stop()
 
@@ -250,7 +250,7 @@ class EmojiView(discord.ui.View):
         if modal.value == False:
             
             error = discord.Embed(color=self.bot.red, title="Error", description="There was a problem. Please try again later.")
-            await interaction.message.edit(embed=error, delete_after=10.0, view=None)
+            await interaction.message.edit(embed=error, delete_after=5.0, view=None)
         
         self.stop()
 
@@ -304,8 +304,8 @@ class LeaderboardView(discord.ui.View):
         self.bot = bot
         self.user = user
         self.db = bot.database
-        self.view = Leaderboard(user=self.user)
-        self.add_item(self.view)
+        self.select = Leaderboard(user=self.user)
+        self.add_item(self.select)
 
     @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -313,7 +313,7 @@ class LeaderboardView(discord.ui.View):
         if interaction.user == self.user:
             guild = interaction.guild
 
-            channel = self.view.channel
+            channel = self.select.channel
             await self.db.execute("UPDATE guilds SET leaderboard_channel_id = ? WHERE guild_id = ?", (channel.id, guild.id))
             await self.db.commit()
             cur = await self.db.execute("SELECT leaderboard_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -334,7 +334,7 @@ class LeaderboardView(discord.ui.View):
                     log.set_thumbnail(url=interaction.user.display_avatar)
                     await logging.send(embed=log)
 
-        self.stop()
+            self.stop()
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -384,10 +384,9 @@ class AwardReactionView(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
             guild = interaction.guild
-
             toggle = self.select.toggle
 
-            if toggle == "True":
+            if toggle == True:
                 await self.db.execute("UPDATE guilds SET award_reaction_toggle = 1 WHERE guild_id = ?", (guild.id,))
                 await self.db.commit()
 
@@ -403,9 +402,10 @@ class AwardReactionView(discord.ui.View):
                         log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                         log.set_thumbnail(url=interaction.user.display_avatar)
                         await logging.send(embed=log)
+                
                 self.stop()
             
-            elif toggle == "False":
+            elif toggle == False:
                 await self.db.execute("UPDATE guilds SET award_reaction_toggle = 0 WHERE guild_id = ?", (guild.id,))
                 await self.db.commit()
 
@@ -421,12 +421,13 @@ class AwardReactionView(discord.ui.View):
                         log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
                         log.set_thumbnail(url=interaction.user.display_avatar)
                         await logging.send(embed=log)
+                
                 self.stop()
             
             else:
                 error = discord.Embed(color=self.bot.red, title="Error", description=f"Please choose an option from the dropdown before confirming!")
                 error_msg = await interaction.followup.send(embed=error, wait=True)
-                await error_msg.delete(delay=10.0)
+                await error_msg.delete(delay=5.0)
     
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -463,7 +464,12 @@ class AwardReaction(discord.ui.Select):
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         if interaction.user == self.user:
-            self.toggle = self.values[0]
+            if self.values[0] == "True":
+                self.toggle = True
+            elif self.values[0] == "False":
+                self.toggle = False
+            else:
+                self.toggle = None
 
 class Awards(commands.GroupCog, group_name = "awards"):
     def __init__(self, bot: commands.Bot):
