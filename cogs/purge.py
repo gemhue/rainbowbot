@@ -48,11 +48,12 @@ class ChannelSelect(discord.ui.ChannelSelect):
             row=1
         )
         self.user = user
+        self.channels = []
 
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         if interaction.user == self.user:
-            self.view.channel_ids = [c.id for c in self.values]
+            self.channels = [c.resolve() for c in self.values]
 
 class ChannelSelectView(discord.ui.View):
     def __init__(self, *, timeout=180.0, bot: commands.Bot, user: discord.Member):
@@ -60,13 +61,16 @@ class ChannelSelectView(discord.ui.View):
         self.bot = bot
         self.user = user
         self.value = None
-        self.add_item(ChannelSelect(user=self.user))
+        self.channels = None
+        self.select = ChannelSelect(user=self.user)
+        self.add_item(self.select)
 
     @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
+            self.channels = self.select.channels
             self.stop()
 
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
@@ -119,13 +123,23 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 two_weeks_ago = now - two_weeks
                 channel = interaction.channel
                 messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                unpinned = [m for m in messages if not m.pinned]
+                unpinned = [m for m in messages if m.pinned == False]
+                deleted = 0
                 while len(unpinned) > 0:
-                    await channel.purge(check=lambda message: message.pinned == False, oldest_first=True, after=two_weeks_ago)
+                    deleted += await channel.purge(check=lambda m: m.pinned == False, oldest_first=True, after=two_weeks_ago)
                     messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                    unpinned = [m for m in messages if not m.pinned]
+                    unpinned = [m for m in messages if m.pinned == False]
+                len_deleted = len(deleted)
+                if len_deleted == 0:
+                    pass
+                elif len_deleted == 1:
+                    delete_embed = discord.Embed(color=self.bot.red, title="Message Deleted", description=f"{user.mention} has just deleted {len(deleted)} message from {channel.mention} via the `/purge self` command.")
+                    await channel.send(embed=delete_embed)
+                else:
+                    delete_embed = discord.Embed(color=self.bot.red, title="Messages Deleted", description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge self` command.")
+                    await channel.send(embed=delete_embed)
                 
-                done = discord.Embed(color=self.bot.green, title="Success", description="The purge is now complete! You may now dismiss this message.")
+                done = discord.Embed(color=self.bot.green, title="Success", description="The purge is now complete! Messages older than two weeks could not be deleted due to Discord limitations. You may now dismiss this message.")
                 await response.edit(embed=done, view=None)
                 await response.delete(delay=30.0)
 
@@ -166,8 +180,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
                 guild = interaction.guild
                 mentions = []
-                for id in csv.channel_ids:
-                    channel = guild.get_channel(id)
+                for channel in csv.channels:
                     mentions.append(channel.mention)
                 mentionlist = ", ".join(mentions)
                 yon = YesOrNo(bot=self.bot, user=user)
@@ -182,16 +195,25 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     now = datetime.now(tz=timezone.utc)
                     two_weeks = timedelta(weeks=2.0)
                     two_weeks_ago = now - two_weeks
-                    for id in csv.channel_ids:
-                        channel = guild.get_channel(id)
+                    for channel in csv.channels:
                         messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                        unpinned = [m for m in messages if not m.pinned]
+                        unpinned = [m for m in messages if m.pinned == False and m.author == user]
+                        deleted = 0
                         while len(unpinned) > 0:
-                            await channel.purge(check=lambda message: message.author == user and message.pinned == False, oldest_first=True, after=two_weeks_ago)
+                            deleted += await channel.purge(check=lambda m: m.pinned == False and m.author == user, oldest_first=True, after=two_weeks_ago)
                             messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                            unpinned = [m for m in messages if not m.pinned]
+                            unpinned = [m for m in messages if m.pinned == False and m.author == user]
+                        len_deleted = len(deleted)
+                        if len_deleted == 0:
+                            pass
+                        elif len_deleted == 1:
+                            delete_embed = discord.Embed(color=self.bot.red, title="Message Deleted", description=f"{user.mention} has just deleted {len(deleted)} message from {channel.mention} via the `/purge self` command.")
+                            await channel.send(embed=delete_embed)
+                        else:
+                            delete_embed = discord.Embed(color=self.bot.red, title="Messages Deleted", description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge self` command.")
+                            await channel.send(embed=delete_embed)
                     
-                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete! You may now dismiss this message.')
+                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete! Messages older than two weeks could not be deleted due to Discord limitations. You may now dismiss this message.')
                     await response.edit(embed=success, view=None)
                     await response.delete(delay=30.0)
 
@@ -234,12 +256,12 @@ class Purge(commands.GroupCog, group_name = "purge"):
     @app_commands.command(name="member")
     @app_commands.checks.has_permissions(administrator=True)
     async def member(self, interaction: discord.Interaction, member: discord.Member):
-        """(Admin Only) Purge all of a member's unpinned messages in a set list of up to 25 channels.
+        """(Admin Only) Purge a member's unpinned messages in a set list of up to 25 channels.
 
         Parameters
         -----------
         member : discord.Member
-            Provide the member who's unpinned messages you would like to purge.
+            Choose the member to whose messages you would like to purge.
         """
         await interaction.response.defer(ephemeral=True)
         try:
@@ -248,15 +270,13 @@ class Purge(commands.GroupCog, group_name = "purge"):
             csv = ChannelSelectView(bot=self.bot, user=user)
             embed = discord.Embed(color=self.bot.blurple, title="Purge Member", description=f"Which channel(s) would you like to purge {member.mention}'s unpinned messages from?")
             response = await interaction.followup.send(ephemeral=True, embed=embed, view=csv, wait=True)
-            await response.pin()
             await csv.wait()
             
             if csv.value == True:
 
                 guild = interaction.guild
                 mentions = []
-                for id in csv.channel_ids:
-                    channel = guild.get_channel(id)
+                for channel in csv.channels:
                     mentions.append(channel.mention)
                 mentionlist = ", ".join(mentions)
                 yon = YesOrNo(bot=self.bot, user=user)
@@ -271,16 +291,25 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     now = datetime.now(tz=timezone.utc)
                     two_weeks = timedelta(weeks=2.0)
                     two_weeks_ago = now - two_weeks
-                    for id in csv.channel_ids:
-                        channel = guild.get_channel(id)
+                    for channel in csv.channels:
                         messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                        unpinned = [m for m in messages if not m.pinned]
+                        unpinned = [m for m in messages if m.pinned == False and m.author == member]
+                        deleted = 0
                         while len(unpinned) > 0:
-                            await channel.purge(check=lambda message: message.author == member and message.pinned == False, oldest_first=True, after=two_weeks_ago)
+                            deleted += await channel.purge(check=lambda m: m.pinned == False and m.author == member, oldest_first=True, after=two_weeks_ago)
                             messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                            unpinned = [m for m in messages if not m.pinned]
+                            unpinned = [m for m in messages if m.pinned == False and m.author == member]
+                        len_deleted = len(deleted)
+                        if len_deleted == 0:
+                            pass
+                        elif len_deleted == 1:
+                            delete_embed = discord.Embed(color=self.bot.red, title="Message Deleted", description=f"{user.mention} has just deleted {len(deleted)} message from {channel.mention} via the `/purge member` command.")
+                            await channel.send(embed=delete_embed)
+                        else:
+                            delete_embed = discord.Embed(color=self.bot.red, title="Messages Deleted", description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge member` command.")
+                            await channel.send(embed=delete_embed)
                     
-                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete! You may now dismiss this message.')
+                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete! Messages older than two weeks could not be deleted due to Discord limitations. You may now dismiss this message.')
                     await response.edit(embed=success, view=None)
                     await response.delete(delay=30.0)
 
@@ -338,8 +367,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
                 guild = interaction.guild
                 mentions = []
-                for id in csv.channel_ids:
-                    channel = guild.get_channel(id)
+                for channel in csv.channels:
                     mentions.append(channel.mention)
                 mentionlist = ", ".join(mentions)
                 yon = YesOrNo(bot=self.bot, user=user)
@@ -354,16 +382,25 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     now = datetime.now(tz=timezone.utc)
                     two_weeks = timedelta(weeks=2.0)
                     two_weeks_ago = now - two_weeks
-                    for id in csv.channel_ids:
-                        channel = guild.get_channel(id)
+                    for channel in csv.channels:
                         messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                        unpinned = [m for m in messages if not m.pinned]
+                        unpinned = [m for m in messages if m.pinned == False]
+                        deleted = 0
                         while len(unpinned) > 0:
-                            await channel.purge(check=lambda message: message.pinned == False, oldest_first=True, after=two_weeks_ago)
+                            deleted += await channel.purge(check=lambda m: m.pinned == False, oldest_first=True, after=two_weeks_ago)
                             messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                            unpinned = [m for m in messages if not m.pinned]
+                            unpinned = [m for m in messages if m.pinned == False]
+                        len_deleted = len(deleted)
+                        if len_deleted == 0:
+                            pass
+                        elif len_deleted == 1:
+                            delete_embed = discord.Embed(color=self.bot.red, title="Message Deleted", description=f"{user.mention} has just deleted {len(deleted)} message from {channel.mention} via the `/purge channels` command.")
+                            await channel.send(embed=delete_embed)
+                        else:
+                            delete_embed = discord.Embed(color=self.bot.red, title="Messages Deleted", description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge channels` command.")
+                            await channel.send(embed=delete_embed)
                     
-                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete! You may now dismiss this message.')
+                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete! Messages older than two weeks could not be deleted due to Discord limitations. You may now dismiss this message.')
                     await response.edit(embed=success, view=None)
                     await response.delete(delay=30.0)
 
@@ -420,11 +457,8 @@ class Purge(commands.GroupCog, group_name = "purge"):
             if csv.value == True:
 
                 guild = interaction.guild
-                excluded = []
                 mentions = []
-                for id in csv.channel_ids:
-                    channel = guild.get_channel(id)
-                    excluded.append(channel)
+                for channel in csv.channels:
                     mentions.append(channel.mention)
                 mentionlist = ", ".join(mentions)
                 yon = YesOrNo(bot=self.bot, user=user)
@@ -440,15 +474,25 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     two_weeks = timedelta(weeks=2.0)
                     two_weeks_ago = now - two_weeks
                     for channel in guild.channels:
-                        if channel not in excluded:
+                        if channel not in csv.channels:
                             messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                            unpinned = [m for m in messages if not m.pinned]
+                            unpinned = [m for m in messages if m.pinned == False]
+                            deleted = 0
                             while len(unpinned) > 0:
-                                await channel.purge(check=lambda message: message.pinned == False, oldest_first=True, after=two_weeks_ago)
+                                deleted += await channel.purge(check=lambda m: m.pinned == False, oldest_first=True, after=two_weeks_ago)
                                 messages = [m async for m in channel.history(limit=None, after=two_weeks_ago)]
-                                unpinned = [m for m in messages if not m.pinned]
+                                unpinned = [m for m in messages if m.pinned == False]
+                            len_deleted = len(deleted)
+                            if len_deleted == 0:
+                                pass
+                            elif len_deleted == 1:
+                                delete_embed = discord.Embed(color=self.bot.red, title="Message Deleted", description=f"{user.mention} has just deleted {len(deleted)} message from {channel.mention} via the `/purge server` command.")
+                                await channel.send(embed=delete_embed)
+                            else:
+                                delete_embed = discord.Embed(color=self.bot.red, title="Messages Deleted", description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge server` command.")
+                                await channel.send(embed=delete_embed)
                     
-                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete! You may now dismiss this message.')
+                    success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete! Messages older than two weeks could not be deleted due to Discord limitations. You may now dismiss this message.')
                     await response.edit(embed=success, view=None)
                     await response.delete(delay=30.0)
 
