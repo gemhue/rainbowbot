@@ -28,18 +28,33 @@ class RainbowBot(commands.Bot):
     
     async def setup_hook(self):
         # Connect to database
-        self.database = await aiosqlite.connect("rainbowbot.db")
-        print("Connected to Database: rainbowbot.db")
+        try:
+            self.database = await aiosqlite.connect("rainbowbot.db")
+            print("Connected to Database: rainbowbot.db")
+        except Exception:
+            print("There was an error connecting to the database.")
         # Load all extensions
-        cogs = []
-        for cog in await allcogs(x="cogs"):
-            try:
-                await bot.load_extension(cog)
+        try:
+            cogs = []
+            for cog in await allcogs(x="cogs"):
+                await self.load_extension(cog)
                 cogs.append(cog)
-            except Exception:
-                print(traceback.format_exc())
-        list = ", ".join(cogs)
-        print(f"Extensions Loaded: {list}")
+            list = ", ".join(cogs)
+            print(f"Extensions Loaded: {list}")
+        except Exception:
+            print("There was an error loading the extensions.")
+        # Clear the global command tree
+        try:
+            self.tree.clear_commands(guild=None)
+            print("Global Command Tree: Cleared")
+        except Exception:
+            print("There was an error clearing the global command tree.")
+        # Sync the global command tree
+        try:
+            await self.tree.sync(guild=None)
+            print("Global Command Tree: Synced")
+        except Exception:
+            print("There was an error syncing the global command tree.")
 
 bot = RainbowBot()
 handler = logging.FileHandler(filename="rainbowbot.log", encoding="utf-8", mode="w")
