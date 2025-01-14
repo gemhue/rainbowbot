@@ -996,19 +996,27 @@ class Start(commands.Cog):
                 fetched_logging = row[0]
                 if fetched_logging is not None:
                     logging_channel = await guild.fetch_channel(fetched_logging)
-                    log = discord.Embed(
-                        color=self.bot.blurple,
-                        title="Bot Startup Log",
-                        description=f"{author.mention} has just added commands to {guild.name}!",
-                        timestamp=timestamp
-                    )
-                    log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                    if cogs is not None:
-                        join = ", ".join(cogs)
+                    if logging_channel is None:
+                        log = discord.Embed(
+                            color=self.bot.red,
+                            title="Logging Channel Not Found",
+                            description=f"A logging channel with the ID {fetched_logging} was not found! Please set a new logging channel by re-running the `/start` command.",
+                            timestamp=timestamp
+                        )
                     else:
-                        join = "None"
-                    log.add_field(name="Commands Added", value=f"{join}")
-                    await logging_channel.send(embed=log)
+                        log = discord.Embed(
+                            color=self.bot.blurple,
+                            title="Bot Startup Log",
+                            description=f"{author.mention} has just added commands to {guild.name}!",
+                            timestamp=timestamp
+                        )
+                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                        if cogs is not None:
+                            join = ", ".join(cogs)
+                        else:
+                            join = "None"
+                        log.add_field(name="Commands Added", value=f"{join}")
+                        await logging_channel.send(embed=log)
 
             done = discord.Embed(color=self.bot.green, title="Bot Startup Complete", description="You have successfully completed the bot startup process. This message will be deleted in a few seconds.")
             await message.edit(embed=done, view=None)
@@ -1110,15 +1118,23 @@ class Commands(commands.GroupCog, name = "commands"):
                 fetched_logging = row[0]
                 if fetched_logging is not None:
                     logging_channel = await guild.fetch_channel(fetched_logging)
-                    log = discord.Embed(
-                        color=self.bot.green,
-                        title="Add Commands",
-                        description=f"{author.mention} has just added commands to {guild.name}!",
-                        timestamp=timestamp
-                    )
-                    log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                    log.add_field(name="Commands Added", value=f"{join}")
-                    await logging_channel.send(embed=log)
+                    if logging_channel is None:
+                        log = discord.Embed(
+                            color=self.bot.red,
+                            title="Logging Channel Not Found",
+                            description=f"A logging channel with the ID {fetched_logging} was not found! Please set a new logging channel by re-running the `/start` command.",
+                            timestamp=timestamp
+                        )
+                    else:
+                        log = discord.Embed(
+                            color=self.bot.green,
+                            title="Add Commands",
+                            description=f"{author.mention} has just added commands to {guild.name}!",
+                            timestamp=timestamp
+                        )
+                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                        log.add_field(name="Commands Added", value=f"{join}")
+                        await logging_channel.send(embed=log)
                 
         except Exception as e:
             print(f"Start Command Error (Guild ID: {guild.id}): {e}")
@@ -1185,15 +1201,23 @@ class Commands(commands.GroupCog, name = "commands"):
                 fetched_logging = row[0]
                 if fetched_logging is not None:
                     logging_channel = await guild.fetch_channel(fetched_logging)
-                    log = discord.Embed(
-                        color=self.bot.red,
-                        title="Remove Commands",
-                        description=f"{author.mention} has just removed commands from {guild.name}!",
-                        timestamp=timestamp
-                    )
-                    log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                    log.add_field(name="Commands Removed", value=f"{join}")
-                    await logging_channel.send(embed=log)
+                    if logging_channel is None:
+                        log = discord.Embed(
+                            color=self.bot.red,
+                            title="Logging Channel Not Found",
+                            description=f"A logging channel with the ID {fetched_logging} was not found! Please set a new logging channel by re-running the `/start` command.",
+                            timestamp=timestamp
+                        )
+                    else:
+                        log = discord.Embed(
+                            color=self.bot.red,
+                            title="Remove Commands",
+                            description=f"{author.mention} has just removed commands from {guild.name}!",
+                            timestamp=timestamp
+                        )
+                        log.set_author(name=author.display_name, icon_url=author.display_avatar)
+                        log.add_field(name="Commands Removed", value=f"{join}")
+                        await logging_channel.send(embed=log)
                 
         except Exception as e:
             print(f"Remove Command Error (Guild ID: {guild.id}): {e}")
