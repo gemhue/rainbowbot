@@ -389,45 +389,30 @@ class AwardReactionView(discord.ui.View):
             if toggle == True:
                 await self.db.execute("UPDATE guilds SET award_reaction_toggle = 1 WHERE guild_id = ?", (guild.id,))
                 await self.db.commit()
-
-                cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (interaction.guild.id,))
-                row = await cur.fetchone()
-                fetched_logging = row[0]
-                if fetched_logging is not None:
-                    logging = guild.get_channel(fetched_logging)
-                    if logging is not None:
-                        now = datetime.now(tz=timezone.utc)
-                        log = discord.Embed(color=self.bot.blurple, title="Awards Log", description=f"{interaction.user.mention} has successfully set the server's award reaction toggle!", timestamp=now)
-                        log.add_field(name="Toggle", value=f"True")
-                        log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
-                        log.set_thumbnail(url=interaction.user.display_avatar)
-                        await logging.send(embed=log)
-                
-                self.stop()
             
             elif toggle == False:
                 await self.db.execute("UPDATE guilds SET award_reaction_toggle = 0 WHERE guild_id = ?", (guild.id,))
                 await self.db.commit()
-
-                cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (interaction.guild.id,))
-                row = await cur.fetchone()
-                fetched_logging = row[0]
-                if fetched_logging is not None:
-                    logging = guild.get_channel(fetched_logging)
-                    if logging is not None:
-                        now = datetime.now(tz=timezone.utc)
-                        log = discord.Embed(color=self.bot.blurple, title="Awards Log", description=f"{interaction.user.mention} has successfully set the server's award reaction toggle!", timestamp=now)
-                        log.add_field(name="Toggle", value=f"False")
-                        log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
-                        log.set_thumbnail(url=interaction.user.display_avatar)
-                        await logging.send(embed=log)
-                
-                self.stop()
             
             else:
                 error = discord.Embed(color=self.bot.red, title="Error", description=f"Please choose an option from the dropdown before confirming!")
                 error_msg = await interaction.followup.send(embed=error, wait=True)
                 await error_msg.delete(delay=5.0)
+            
+            cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (interaction.guild.id,))
+            row = await cur.fetchone()
+            fetched_logging = row[0]
+            if fetched_logging is not None:
+                logging = guild.get_channel(fetched_logging)
+                if logging is not None:
+                    now = datetime.now(tz=timezone.utc)
+                    log = discord.Embed(color=self.bot.blurple, title="Awards Log", description=f"{interaction.user.mention} has successfully set the server's award reaction toggle!", timestamp=now)
+                    log.add_field(name="Toggle", value=f"True")
+                    log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
+                    log.set_thumbnail(url=interaction.user.display_avatar)
+                    await logging.send(embed=log)
+            
+            self.stop()
     
     @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -449,8 +434,8 @@ class AwardReactionView(discord.ui.View):
 class AwardReaction(discord.ui.Select):
     def __init__(self, *, user: discord.Member):
         options = [
-            discord.SelectOption(label="True", value="True"),
-            discord.SelectOption(label="False", value="False")
+            discord.SelectOption(label="True"),
+            discord.SelectOption(label="False")
         ]
         super().__init__(
             min_values=1,
