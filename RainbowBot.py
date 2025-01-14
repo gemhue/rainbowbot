@@ -27,8 +27,19 @@ class RainbowBot(commands.Bot):
         self.red = discord.Colour.red()
     
     async def setup_hook(self):
+        # Connect to database
         self.database = await aiosqlite.connect("rainbowbot.db")
         print("Connected to Database: rainbowbot.db")
+        # Load all extensions
+        cogs = []
+        for cog in await allcogs(x="cogs"):
+            try:
+                await bot.load_extension(cog)
+                cogs.append(cog)
+            except Exception:
+                print(traceback.format_exc())
+        list = ", ".join(cogs)
+        print(f"Extensions Loaded: {list}")
 
 bot = RainbowBot()
 handler = logging.FileHandler(filename="rainbowbot.log", encoding="utf-8", mode="w")
@@ -56,16 +67,29 @@ async def sync(ctx: commands.Context, where: str):
     row = await cur.fetchone()
     fetched_logging = row[0]
     if fetched_logging is not None:
-        logging = ctx.guild.get_channel(fetched_logging)
+        logging_channel = ctx.guild.get_channel(fetched_logging)
         now = datetime.now(tz=timezone.utc)
-        log = discord.Embed(color=bot.blurple, title="Command Tree Synced", timestamp=now)
-        if where == "here" or where == "local":
-            log.add_field(name="Local Tree", value=f"{ctx.author.mention} has just **synced** the bot's local command tree.")
-        if where == "all" or where == "global":
-            log.add_field(name="Global Tree", value=f"{ctx.author.mention} has just **synced** the bot's global command tree.")
-        log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-        log.set_thumbnail(url=ctx.author.display_avatar)
-        await logging.send(embed=log)
+        if logging_channel is None:
+            log = discord.Embed(
+                color=bot.red,
+                title="Logging Channel Not Found",
+                description=f"A logging channel with the ID {fetched_logging} was not found! Please set a new logging channel by re-running the `/start` command.",
+                timestamp=now
+            )
+            await ctx.send(embed=log, delete_after=10.0)
+        else:
+            log = discord.Embed(
+                color=bot.blurple,
+                title="Command Tree Synced",
+                timestamp=now
+            )
+            if where == "here" or where == "local":
+                log.add_field(name="Local Tree", value=f"{ctx.author.mention} has just **synced** the bot's local command tree.")
+            if where == "all" or where == "global":
+                log.add_field(name="Global Tree", value=f"{ctx.author.mention} has just **synced** the bot's global command tree.")
+            log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+            log.set_thumbnail(url=ctx.author.display_avatar)
+            await logging_channel.send(embed=log)
 
 @bot.command(name="clear", hidden=True)
 @commands.is_owner()
@@ -90,16 +114,29 @@ async def clear(ctx: commands.Context, where: str):
     row = await cur.fetchone()
     fetched_logging = row[0]
     if fetched_logging is not None:
-        logging = ctx.guild.get_channel(fetched_logging)
+        logging_channel = ctx.guild.get_channel(fetched_logging)
         now = datetime.now(tz=timezone.utc)
-        log = discord.Embed(color=bot.blurple, title="Command Tree Cleared", timestamp=now)
-        if where == "here" or where == "local":
-            log.add_field(name="Local Tree", value=f"{ctx.author.mention} has just **cleared** the bot's local command tree.")
-        if where == "all" or where == "global":
-            log.add_field(name="Global Tree", value=f"{ctx.author.mention} has just **cleared** the bot's global command tree.")
-        log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-        log.set_thumbnail(url=ctx.author.display_avatar)
-        await logging.send(embed=log)
+        if logging_channel is None:
+            log = discord.Embed(
+                color=bot.red,
+                title="Logging Channel Not Found",
+                description=f"A logging channel with the ID {fetched_logging} was not found! Please set a new logging channel by re-running the `/start` command.",
+                timestamp=now
+            )
+            await ctx.send(embed=log, delete_after=10.0)
+        else:
+            log = discord.Embed(
+                color=bot.blurple,
+                title="Command Tree Cleared",
+                timestamp=now
+            )
+            if where == "here" or where == "local":
+                log.add_field(name="Local Tree", value=f"{ctx.author.mention} has just **cleared** the bot's local command tree.")
+            if where == "all" or where == "global":
+                log.add_field(name="Global Tree", value=f"{ctx.author.mention} has just **cleared** the bot's global command tree.")
+            log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+            log.set_thumbnail(url=ctx.author.display_avatar)
+            await logging_channel.send(embed=log)
 
 async def allcogs(x):
     files = []
@@ -148,10 +185,19 @@ async def get(ctx: commands.Context):
     row = await cur.fetchone()
     fetched_logging = row[0]
     if fetched_logging is not None:
-        logging = ctx.guild.get_channel(fetched_logging)
-        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-        embed.set_thumbnail(url=ctx.author.display_avatar)
-        await logging.send(embed=embed)
+        logging_channel = ctx.guild.get_channel(fetched_logging)
+        if logging_channel is None:
+            log = discord.Embed(
+                color=bot.red,
+                title="Logging Channel Not Found",
+                description=f"A logging channel with the ID {fetched_logging} was not found! Please set a new logging channel by re-running the `/start` command.",
+                timestamp=now
+            )
+            await ctx.send(embed=log, delete_after=10.0)
+        else:
+            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+            embed.set_thumbnail(url=ctx.author.display_avatar)
+            await logging_channel.send(embed=embed)
 
 @bot.command(name="load", hidden=True)
 @commands.is_owner()
@@ -194,10 +240,19 @@ async def load(ctx: commands.Context, extension: str):
     row = await cur.fetchone()
     fetched_logging = row[0]
     if fetched_logging is not None:
-        logging = ctx.guild.get_channel(fetched_logging)
-        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-        embed.set_thumbnail(url=ctx.author.display_avatar)
-        await logging.send(embed=embed)
+        logging_channel = ctx.guild.get_channel(fetched_logging)
+        if logging_channel is None:
+            log = discord.Embed(
+                color=bot.red,
+                title="Logging Channel Not Found",
+                description=f"A logging channel with the ID {fetched_logging} was not found! Please set a new logging channel by re-running the `/start` command.",
+                timestamp=now
+            )
+            await ctx.send(embed=log, delete_after=10.0)
+        else:
+            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+            embed.set_thumbnail(url=ctx.author.display_avatar)
+            await logging_channel.send(embed=embed)
 
 @bot.command(name="unload", hidden=True)
 @commands.is_owner()
@@ -240,10 +295,19 @@ async def unload(ctx: commands.Context, extension: str):
     row = await cur.fetchone()
     fetched_logging = row[0]
     if fetched_logging is not None:
-        logging = ctx.guild.get_channel(fetched_logging)
-        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-        embed.set_thumbnail(url=ctx.author.display_avatar)
-        await logging.send(embed=embed)
+        logging_channel = ctx.guild.get_channel(fetched_logging)
+        if logging_channel is None:
+            log = discord.Embed(
+                color=bot.red,
+                title="Logging Channel Not Found",
+                description=f"A logging channel with the ID {fetched_logging} was not found! Please set a new logging channel by re-running the `/start` command.",
+                timestamp=now
+            )
+            await ctx.send(embed=log, delete_after=10.0)
+        else:
+            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+            embed.set_thumbnail(url=ctx.author.display_avatar)
+            await logging_channel.send(embed=embed)
 
 @bot.command(name="reload", hidden=True)
 @commands.is_owner()
@@ -286,10 +350,19 @@ async def reload(ctx: commands.Context, extension: str):
     row = await cur.fetchone()
     fetched_logging = row[0]
     if fetched_logging is not None:
-        logging = ctx.guild.get_channel(fetched_logging)
-        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-        embed.set_thumbnail(url=ctx.author.display_avatar)
-        await logging.send(embed=embed)  
+        logging_channel = ctx.guild.get_channel(fetched_logging)
+        if logging_channel is None:
+            log = discord.Embed(
+                color=bot.red,
+                title="Logging Channel Not Found",
+                description=f"A logging channel with the ID {fetched_logging} was not found! Please set a new logging channel by re-running the `/start` command.",
+                timestamp=now
+            )
+            await ctx.send(embed=log, delete_after=10.0)
+        else:
+            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+            embed.set_thumbnail(url=ctx.author.display_avatar)
+            await logging_channel.send(embed=embed) 
 
 @bot.command(name="ping")
 async def ping(ctx: commands.Context):
@@ -311,10 +384,19 @@ async def ping(ctx: commands.Context):
     row = await cur.fetchone()
     fetched_logging = row[0]
     if fetched_logging is not None:
-        logging = ctx.guild.get_channel(fetched_logging)
-        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
-        embed.set_thumbnail(url=ctx.author.display_avatar)
-        await logging.send(embed=embed)
+        logging_channel = ctx.guild.get_channel(fetched_logging)
+        if logging_channel is None:
+            log = discord.Embed(
+                color=bot.red,
+                title="Logging Channel Not Found",
+                description=f"A logging channel with the ID {fetched_logging} was not found! Please set a new logging channel by re-running the `/start` command.",
+                timestamp=now
+            )
+            await ctx.send(embed=log, delete_after=10.0)
+        else:
+            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
+            embed.set_thumbnail(url=ctx.author.display_avatar)
+            await logging_channel.send(embed=embed)
 
 @bot.event
 async def on_ready(bot=bot):
