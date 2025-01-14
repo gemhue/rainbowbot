@@ -341,7 +341,7 @@ class CogButtons(discord.ui.View):
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
     @discord.ui.button(label="Tickets", style=discord.ButtonStyle.blurple, emoji="🎫")
-    async def rss_feeds(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def tickets(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         message = interaction.message
         guild = interaction.guild
@@ -561,7 +561,7 @@ class RemoveButtons(discord.ui.View):
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
     @discord.ui.button(label="Tickets", style=discord.ButtonStyle.blurple, emoji="🎫")
-    async def rss_feeds(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def tickets(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         message = interaction.message
         guild = interaction.guild
