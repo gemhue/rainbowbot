@@ -201,48 +201,16 @@ These commands allow you to set reminders for yourself, a user, a role, or every
 ## 📰 RSS Feeds 📰
 
 > [!WARNING]
-> These commands are unstable. They work anywhere from unreliably to not at all. Use them at your own risk. A complete rewrite is likely required.
+> This system is unstable. It works anywhere from unreliably to not at all. Use it at your own risk.
 
-These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.
+This command allows you to easily assign an RSS feed to a Webhook.
 
 ### 📰 Setup Webhook
-> `/rss webhook_setup <webhook_nickname> <webhook_url>`
+> `/rssfeed setup <webhook_url> <rss_feed_url>`
 > 
-> (Admin Only) Run this command to set up a Webhook for posting RSS feeds.
-> - `webhook_nickname` - Provide a nickname for the Webhook.
+> (Admin Only) Run this command to set up an RSS feed to a Webhook.
 > - `webhook_url` - Provide the URL for the Webhook.
-
-### 📰 Check Webhook
-> `/rss webhook_check <webhook_nickname>`
-> 
-> (Admin Only) Run this command to check what RSS feeds are set to the webhook.
-> - `webhook_nickname` - Provide the nickname for the webhook that you would like to check.
-
-### 📰 Clear Webhook
-> `/rss webhook_clear <webhook_nickname>`
-> 
-> (Admin Only) Run this command to clear all RSS feeds assigned to a webhook.
-> - `webhook_nickname` - Provide the nickname for the webhook that you would like to clear.
-
-### 📰 Delete Webhook
-> `/rss webhook_delete <webhook_nickname>`
-> 
-> (Admin Only) Run this command to delete a webhook from the database.
-> - `webhook_nickname` - Provide the nickname for the webhook that you would like to delete.
-
-### 📰 Setup Feed
-> `/rss feed_setup <webhook_nickname> <rss_feed_url>`
-> 
-> (Admin Only) Run this command to set an RSS Feed. All fields are required.
-> - `webhook_nickname` - Provide the nickname for the webhook that you are assigning the RSS feed to.
-> - `rss_feed_url` - Provide the URL for the RSS feed that you are assigning to the webhook.
-
-### 📰 Clear Feed
-> `/rss feed_clear <webhook_nickname> <rss_feed_position>`
-> 
-> (Admin Only) Run this command to clear one RSS feed from a webhook.
-> - `webhook_nickname` - Provide the nickname for the webhook that contains the RSS feed to be cleared.
-> - `rss_feed_position` - Provide the position (0-9) on the webhook where the RSS feed to be cleared is located.
+> - `rss_feed_url` - Provide the URL for the RSS Feed.
 
 
 ## 🎫 Tickets 🎫
