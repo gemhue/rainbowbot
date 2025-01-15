@@ -92,6 +92,9 @@ These commands allow you to set up an awards system in your server. The award na
 
 ## 📝 Embeds 📝
 
+> [!WARNING]
+> The embed builder is still a work in progress. Adding embed fields and media (images, thumbnails, videos) does not work as intended (AKA it doesn't work at all).
+
 This command allows you to build and send embeds to selected channels.
 
 ### 📝 Build
@@ -205,7 +208,7 @@ These commands allow you to set reminders for yourself, a user, a role, or every
 
 This command allows you to easily assign an RSS feed to a Webhook.
 
-### 📰 Setup Webhook
+### 📰 Setup
 > `/rssfeed setup <webhook_url> <rss_feed_url>`
 > 
 > (Admin Only) Run this command to set up an RSS feed to a Webhook.
