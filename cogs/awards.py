@@ -387,11 +387,11 @@ class AwardReactionView(discord.ui.View):
             toggle = self.select.toggle
 
             if toggle == True:
-                await self.db.execute("UPDATE guilds SET award_reaction_toggle = 1 WHERE guild_id = ?", (guild.id,))
+                await self.db.execute("UPDATE guilds SET award_react_toggle = 1 WHERE guild_id = ?", (guild.id,))
                 await self.db.commit()
             
             elif toggle == False:
-                await self.db.execute("UPDATE guilds SET award_reaction_toggle = 0 WHERE guild_id = ?", (guild.id,))
+                await self.db.execute("UPDATE guilds SET award_react_toggle = 0 WHERE guild_id = ?", (guild.id,))
                 await self.db.commit()
             
             else:
