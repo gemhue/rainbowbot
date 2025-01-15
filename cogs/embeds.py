@@ -447,7 +447,7 @@ class MediaEditView(discord.ui.View):
         if interaction.user == self.user:
             message = interaction.message
             embed = message.embeds[0]
-            
+
             modal = VideoModal()
             await interaction.response.send_modal(modal)
             await modal.wait()
@@ -498,6 +498,7 @@ class ChannelSelect(discord.ui.ChannelSelect):
         await interaction.response.defer()
         if interaction.user == self.user:
             channel = self.values[0]
+            self.view = ChannelSelectView()
             self.view.channel_id = channel.id
 
 class ChannelSelectView(discord.ui.View):
@@ -553,40 +554,46 @@ class EmbedButtons(discord.ui.View):
     @discord.ui.button(label="Title", style=discord.ButtonStyle.blurple, emoji="👑", row=1)
     async def title(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
+            message = interaction.message
+            embed = message.embeds[0]
+
             modal = TitleModal()
             await interaction.response.send_modal(modal)
             await modal.wait()
 
             if modal.title is not None:
-                self.embed.title = modal.title
-            
-            message = interaction.message
+                embed.title = modal.title
+            self.embed = embed
             await message.edit(embed=self.embed, view=self)
     
     @discord.ui.button(label="URL", style=discord.ButtonStyle.blurple, emoji="🔗", row=1)
     async def url(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
+            message = interaction.message
+            embed = message.embeds[0]
+
             modal = URLModal()
             await interaction.response.send_modal(modal)
             await modal.wait()
 
             if modal.url is not None:
-                self.embed.url = modal.url
-            
-            message = interaction.message
+                embed.url = modal.url
+            self.embed = embed
             await message.edit(embed=self.embed, view=self)
     
     @discord.ui.button(label="Description", style=discord.ButtonStyle.blurple, emoji="📄", row=1)
     async def description(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
+            message = interaction.message
+            embed = message.embeds[0]
+
             modal = DescriptionModal()
             await interaction.response.send_modal(modal)
             await modal.wait()
 
             if modal.description is not None:
-                self.embed.description = modal.description
-            
-            message = interaction.message
+                embed.description = modal.description
+            self.embed = embed
             await message.edit(embed=self.embed, view=self)
     
     @discord.ui.button(label="Fields", style=discord.ButtonStyle.blurple, emoji="📝", row=2)
@@ -609,7 +616,7 @@ class EmbedButtons(discord.ui.View):
                     await field_view.wait()
 
                     if field_view.value == True:
-                        self.embed = view.embed
+                        self.embed = field_view.embed
                         await message.edit(embed=self.embed, view=self)
                     
                     elif field_view.value == False:
@@ -632,7 +639,8 @@ class EmbedButtons(discord.ui.View):
             await view.wait()
 
             if view.value == True:
-                await message.edit(view=self)
+                self.embed = view.embed
+                await message.edit(embed=self.embed, view=self)
             
             elif view.value == False:
                 await message.edit(embed=embed, view=self)
