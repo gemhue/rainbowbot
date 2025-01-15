@@ -1,5 +1,8 @@
 # 🌈 Rainbow Bot Documentation 🌈
 
+> [!IMPORTANT]
+> If you find that any commands are not responding, first check that the bot is online. If the bot is online, run the `/commands remove` command and remove all commands from the server. Afterwards, run the `/commands add` command to add the commands that you would like. Try the unresponsive commands again - they should work. If they don't, please either open an [issue](https://github.com/gemhue/rainbowbot/issues) on GitHub or report the bug in the [support server](https://discord.gg/5x3xBSdWbE).
+
 🔗 [Discovery Page](https://discord.com/application-directory/1263872722195316737)
 
 🔗 [Support Server](https://discord.gg/5x3xBSdWbE)
@@ -23,17 +26,25 @@ These are the default commands which will allow you to customize the bot.
 > 
 > (Admin Only) Remove unwanted commands from the server.
 
+### 🏠 Server
+> `/rainbowbot server`
+> 
+> Get the invite link for 🌈 Rainbow Bot's support server.
+
+### 🏠 Install
+> `/rainbowbot install`
+> 
+> Get the server install link for 🌈 Rainbow Bot.
 
 ## ♻️ AutoDelete ♻️
 
 These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.
 
 ### ♻️ Start
-> `/autodelete start <amount> <interval>`
+> `/autodelete start <interval>`
 > 
 > (Admin Only) Sets the messages in the current channel to be autodeleted.
-> - `amount` - Set the amount of time. The lowest possible frequency is 30 minutes.
-> - `interval` - Set the time interval. The lowest possible frequency is 30 minutes.
+> - `interval` - Choose how often the bot should delete messages from the current channel.
 
 ### ♻️ Cancel
 > `/autodelete cancel`
@@ -42,6 +53,9 @@ These commands allow you to set the messages in a channel to be automatically de
 
     
 ## 🏅 Awards 🏅
+
+> [!WARNING]
+> There is a known issue with the `/awards setup` command. It does not allow you to choose an award reaction toggle. These commands can't be used until this issue is resolved.
 
 These commands allow you to set up an awards system in your server. The award name and emoji can be customized.
 
@@ -78,90 +92,12 @@ These commands allow you to set up an awards system in your server. The award na
 
 ## 📝 Embeds 📝
 
-These commands allow you to send and edit messages containing embeds.
+This command allows you to build and send embeds to selected channels.
 
-### 📝 Send
-> `/embed send <message_content> <embed_color> <embed_title> <embed_url> <embed_description>`
+### 📝 Build
+> `/embed build`
 >
-> (Admin Only) Run this command to send an embed to the current channel.
-> - `message_content` - Provide the content of the message above the embed.
-> - `embed_color` - Provide the embed's color (HEX or RGB).
-> - `embed_title` - Provide the embed's title.
-> - `embed_url` - Provide the embed's URL.
-> - `embed_description` - Provide the embed's description.
-
-### 📝 Edit
-> `/embed edit <message_url> <message_content> <embed_color> <embed_title> <embed_url> <embed_description>`
->
-> (Admin Only) Run this command to edit the embed of a given message URL.
-> - `message_url` - Provide the URL of the message containing the embed.
-> - `message_content` - Provide the new content of the message above the embed.
-> - `embed_color` - Provide the embed's new color (HEX or RGB).
-> - `embed_title` - Provide the embed's new title.
-> - `embed_url` - Provide the embed's new URL.
-> - `embed_description` - Provide the embed's new description.
-
-### 📝 Set Image
-> `/embed set_image <message_url> <image_url>`
->
-> (Admin Only) Run this command to set an embed's image.
-> - `message_url` - Provide the URL of the message containing the embed.
-> - `image_url` - Provide the URL of the image.
-
-### 📝 Remove Image
-> `/embed remove_image <message_url>`
->
-> (Admin Only) Run this command to remove an embed's image.
-> - `message_url` - Provide the URL of the message containing the embed.
-
-### 📝 Set Thumbnail
-> `/embed set_thumbnail <message_url> <thumbnail_url>`
->
-> (Admin Only) Run this command to set an embed's thumbnail.
-> - `message_url` - Provide the URL of the message containing the embed.
-> - `thumbnail_url` - Provide the URL of the thumbnail.
-
-### 📝 Remove Thumbnail
-> `/embed remove_thumbnail <message_url>`
->
-> (Admin Only) Run this command to remove an embed's thumbnail.
-> - `message_url` - Provide the URL of the message containing the embed.
-
-### 📝 Add Field
-> `/embed add_field <message_url> <name> <value> <inline>`
->
-> (Admin Only) Run this command to add a field to an embed.
-> - `message_url` - Provide the URL of the message containing the embed.
-> - `name` - Provide the name of the field to be added.
-> - `value` - Provide the value of the field to be added.
-> - `inline` - Provide whether the field should be inline.
-
-### 📝 Edit Field
-> `/embed edit_field <message_url> <index> <name> <value> <inline>`
->
-> (Admin Only) Run this command to edit a field of an embed by its index.
-> - `message_url` - Provide the URL of the message containing the embed.
-> - `index` - Provide the index of the field to be edited.
-> - `name` - Provide the new name of the field.
-> - `value` - Provide the new value of the field.
-> - `inline` - Provide whether the edited field should be inline.
-
-### 📝 Insert Field
-> `/embed insert_field <message_url> <index> <name> <value> <inline>`
->
-> (Admin Only) Run this command to insert an embed field at an index.
-> - `message_url` - Provide the URL of the message containing the embed.
-> - `index` - Provide the index of the field to be inserted.
-> - `name` - Provide the name of the field to be inserted.
-> - `value` - Provide the value of the field to be inserted.
-> - `inline` - Provide whether the inserted field should be inline.
-
-### 📝 Remove Field
-> `/embed remove_field <message_url> <index>`
->
-> (Admin Only) Run this command to remove a field from an embed by its index.
-> - `message_url` - Provide the URL of the message containing the embed.
-> - `index` - Provide the index of the field to be removed.
+> (Admin Only) Run this command to build and send an embed.
 
 
 ## 🪪 Profiles 🪪
@@ -172,7 +108,8 @@ These commands allow you and your server members to set up member profiles that 
 > `/profile set <name> <age> <location> <pronouns> <gender> <sexuality> <relationship_status> <family_status> <biography>`
 >
 > Run this command to set up your member profile. Note that all fields are optional.
-> - `name` - Provide your name or nickname.\n> `age` - Provide your age or age range.
+> - `name` - Provide your name or nickname.
+> - `age` - Provide your age or age range.
 > - `location` - Provide your continent, country, state, or city of residence.
 > - `pronouns` - Provide your pronouns (ex. she/her, he/him, they/them, etc).
 > - `gender` - Provide your gender identity label (ex. woman, man, nonbinary, etc).
@@ -190,12 +127,20 @@ These commands allow you and your server members to set up member profiles that 
     
 ## 🗑️ Purge 🗑️
 
+> [!WARNING]
+> If you are deleting a large number of messages from a large number of channels, expect these commands to take some time to complete. Sometimes, even a small number of messages from a small number of channels may take some time. These commands are very prone to being ratelimited by Discord.
+
 These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.
 
 ### 🗑️ Here
 > `/purge here`
 > 
 > (Admin Only) Purge all unpinned messages in the current channel.
+
+### 🗑️ Self
+> `/purge self`
+> 
+> Purge all of your own unpinned messages in a set list of up to 25 channels.
 
 ### 🗑️ Member
 > `/purge member <member>`
@@ -255,6 +200,9 @@ These commands allow you to set reminders for yourself, a user, a role, or every
 
 ## 📰 RSS Feeds 📰
 
+> [!WARNING]
+> These commands are unstable. They work anywhere from unreliably to not at all. Use them at your own risk. A complete rewrite is likely required.
+
 These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.
 
 ### 📰 Setup Webhook
@@ -299,7 +247,7 @@ These commands allow you to easily assign and unassign RSS feeds to Webhooks to 
 
 ## 🎫 Tickets 🎫
 
-These commands allow you to set up a simple ticketing system for your server using threads.
+This command allows you to set up a simple ticketing system for your server using threads.
 
 ### 🎫 Setup
 > `/tickets setup <channel> <staff_role>`
