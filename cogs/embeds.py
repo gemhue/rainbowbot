@@ -280,36 +280,38 @@ class FieldEditView(discord.ui.View):
     @discord.ui.button(label="Name", style=discord.ButtonStyle.blurple, emoji="🏷️", row=1)
     async def field_name(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
+            print(f"Embed Debugging Note: Index is {self.index}")
             message = interaction.message
             embed = message.embeds[0]
-            field = embed.fields[self.index]
-
-            if field is None:
-                embed.insert_field_at(index=self.index, name="Default Field Name", value="Default Field Value", inline=True)
 
             modal = FieldNameModal()
             await interaction.response.send_modal(modal)
             await modal.wait()
 
-            embed.fields[self.index].name = modal.field_name
+            field = embed.fields[self.index]
+            if field is None:
+                embed.insert_field_at(index=self.index, name=modal.field_name, value="Default Field Value", inline=True)
+            else:
+                embed.set_field_at(index=self.index, name=modal.field_name, value=field.value, inline=field.inline)
             self.embed = embed
             await message.edit(embed=self.embed, view=self)
 
     @discord.ui.button(label="Value", style=discord.ButtonStyle.blurple, emoji="📄", row=1)
     async def field_value(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
+            print(f"Embed Debugging Note: Index is {self.index}")
             message = interaction.message
             embed = message.embeds[0]
-            field = embed.fields[self.index]
-
-            if field is None:
-                embed.insert_field_at(index=self.index, name="Default Field Name", value="Default Field Value", inline=True)
 
             modal = FieldValueModal()
             await interaction.response.send_modal(modal)
             await modal.wait()
 
-            embed.fields[self.index].value = modal.field_value
+            field = embed.fields[self.index]
+            if field is None:
+                embed.insert_field_at(index=self.index, name="Default Field Name", value=modal.field_value, inline=True)
+            else:
+                embed.set_field_at(index=self.index, name=field.name, value=modal.field_value, inline=field.inline)
             self.embed = embed
             await message.edit(embed=self.embed, view=self)
 
@@ -317,22 +319,24 @@ class FieldEditView(discord.ui.View):
     async def inline_toggle(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
+            print(f"Embed Debugging Note: Index is {self.index}")
             message = interaction.message
             embed = message.embeds[0]
-            field = embed.fields[self.index]
 
+            field = embed.fields[self.index]
             if field is None:
                 embed.insert_field_at(index=self.index, name="Default Field Name", value="Default Field Value", inline=True)
-
-            if field.inline == True:
-                field.inline = False
-                button.label = "Inline: False"
-                button.emoji = "🌑"
-            elif field.inline == False:
-                field.inline = True
                 button.label = "Inline: True"
                 button.emoji = "🌕"
-
+            else:
+                if field.inline == True:
+                    field.inline = False
+                    button.label = "Inline: False"
+                    button.emoji = "🌑"
+                elif field.inline == False:
+                    field.inline = True
+                    button.label = "Inline: True"
+                    button.emoji = "🌕"
             self.embed = embed
             await message.edit(embed=self.embed, view=self)
     
