@@ -33,9 +33,10 @@ class ColorView(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
             message = interaction.message
-            self.embed = message.embeds[0]
+            embed = message.embeds[0]
 
-            self.embed.color = discord.Colour.red()
+            embed.color = discord.Colour.red()
+            self.embed = embed
             await message.edit(embed=self.embed, view=self)
     
     @discord.ui.button(label="Orange", style=discord.ButtonStyle.blurple, emoji="🧡", row=1)
@@ -43,9 +44,10 @@ class ColorView(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
             message = interaction.message
-            self.embed = message.embeds[0]
+            embed = message.embeds[0]
 
-            self.embed.color = discord.Colour.orange()
+            embed.color = discord.Colour.orange()
+            self.embed = embed
             await message.edit(embed=self.embed, view=self)
 
     @discord.ui.button(label="Yellow", style=discord.ButtonStyle.blurple, emoji="💛", row=1)
@@ -53,9 +55,10 @@ class ColorView(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
             message = interaction.message
-            self.embed = message.embeds[0]
+            embed = message.embeds[0]
 
-            self.embed.color = discord.Colour.yellow()
+            embed.color = discord.Colour.yellow()
+            self.embed = embed
             await message.edit(embed=self.embed, view=self)
     
     @discord.ui.button(label="Green", style=discord.ButtonStyle.blurple, emoji="💚", row=1)
@@ -63,9 +66,10 @@ class ColorView(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
             message = interaction.message
-            self.embed = message.embeds[0]
+            embed = message.embeds[0]
 
-            self.embed.color = discord.Colour.green()
+            embed.color = discord.Colour.green()
+            self.embed = embed
             await message.edit(embed=self.embed, view=self)
     
     @discord.ui.button(label="Blue", style=discord.ButtonStyle.blurple, emoji="💙", row=2)
@@ -73,9 +77,10 @@ class ColorView(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
             message = interaction.message
-            self.embed = message.embeds[0]
+            embed = message.embeds[0]
 
-            self.embed.color = discord.Colour.blue()
+            embed.color = discord.Colour.blue()
+            self.embed = embed
             await message.edit(embed=self.embed, view=self)
     
     @discord.ui.button(label="Purple", style=discord.ButtonStyle.blurple, emoji="💜", row=2)
@@ -83,9 +88,10 @@ class ColorView(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
             message = interaction.message
-            self.embed = message.embeds[0]
+            embed = message.embeds[0]
 
-            self.embed.color = discord.Colour.purple()
+            embed.color = discord.Colour.purple()
+            self.embed = embed
             await message.edit(embed=self.embed, view=self)
     
     @discord.ui.button(label="Pink", style=discord.ButtonStyle.blurple, emoji="🩷", row=2)
@@ -93,22 +99,24 @@ class ColorView(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
             message = interaction.message
-            self.embed = message.embeds[0]
+            embed = message.embeds[0]
 
-            self.embed.color = discord.Colour.pink()
+            embed.color = discord.Colour.pink()
+            self.embed = embed
             await message.edit(embed=self.embed, view=self)
     
     @discord.ui.button(label="Custom", style=discord.ButtonStyle.blurple, emoji="🩶", row=2)
     async def custom(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
             message = interaction.message
-            self.embed = message.embeds[0]
+            embed = message.embeds[0]
 
             modal = CustomColorModal()
             await interaction.response.send_modal(modal)
             await modal.wait()
 
-            self.embed.color = modal.color
+            embed.color = modal.color
+            self.embed = embed
             await message.edit(embed=self.embed, view=self)
     
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=3)
