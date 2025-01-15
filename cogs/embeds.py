@@ -232,6 +232,8 @@ class FieldsSelectView(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
+            if self.index is None:
+                self.index = self.select.index
             self.stop()
 
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=2)
@@ -677,6 +679,7 @@ class EmbedButtons(discord.ui.View):
 
                 if view.value == True:
 
+                    print(f"Embed Debugging Note: Index is {view.index}")
                     field_view = FieldEditView(user=self.user, index=view.index)
                     await message.edit(view=field_view)
                     await field_view.wait()
