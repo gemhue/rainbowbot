@@ -206,20 +206,24 @@ class FieldsSelect(discord.ui.Select):
         ]
         super().__init__(placeholder="Please select a field to edit...", min_values=1, max_values=1, options=options, row=1)
         self.user = user
-        self.value = None
+        self.view = None
+        self.index = None
 
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         if interaction.user == self.user:
             field = self.values[0]
-            self.value = int(field)
+            index = int(field)
+            self.index = index
+            self.view = FieldsSelectView()
+            self.view.index = index
 
 class FieldsSelectView(discord.ui.View):
     def __init__(self, *, timeout = 180, user: discord.Member):
         super().__init__(timeout=timeout)
         self.user = user
         self.value = None
-        self.field = None
+        self.index = None
         self.select = FieldsSelect(user=self.user)
         self.add_item(self.select)
     
@@ -228,7 +232,6 @@ class FieldsSelectView(discord.ui.View):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
-            self.field = self.select.value
             self.stop()
 
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=2)
@@ -617,19 +620,17 @@ class EmbedButtons(discord.ui.View):
 
             if view.value == True:
 
-                if view.field is not None:
+                field_view = FieldEditView(user=self.user, index=view.index)
+                await message.edit(view=field_view)
+                await field_view.wait()
 
-                    field_view = FieldEditView(user=self.user, index=view.field)
-                    await message.edit(view=field_view)
-                    await field_view.wait()
-
-                    if field_view.value == True:
-                        self.embed = field_view.embed
-                        await message.edit(embed=self.embed, view=self)
-                    
-                    elif field_view.value == False:
-                        self.embed = embed
-                        await message.edit(embed=self.embed, view=self)
+                if field_view.value == True:
+                    self.embed = field_view.embed
+                    await message.edit(embed=self.embed, view=self)
+                
+                elif field_view.value == False:
+                    self.embed = embed
+                    await message.edit(embed=self.embed, view=self)
 
             elif view.value == False:
                 self.embed = embed
