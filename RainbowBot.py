@@ -33,6 +33,12 @@ class RainbowBot(commands.Bot):
             print("Connected to Database: rainbowbot.db")
         except Exception:
             print("There was an error connecting to the database.")
+        # Clear the global command tree
+        try:
+            self.tree.clear_commands(guild=None)
+            print("Global Command Tree: Cleared")
+        except Exception:
+            print("There was an error clearing the global command tree.")
         # Load all extensions
         try:
             cogs = []
@@ -43,12 +49,6 @@ class RainbowBot(commands.Bot):
             print(f"Extensions Loaded: {list}")
         except Exception:
             print("There was an error loading the extensions.")
-        # Clear the global command tree
-        try:
-            self.tree.clear_commands(guild=None)
-            print("Global Command Tree: Cleared")
-        except Exception:
-            print("There was an error clearing the global command tree.")
         # Sync the global command tree
         try:
             await self.tree.sync(guild=None)
