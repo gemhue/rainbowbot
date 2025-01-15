@@ -281,64 +281,79 @@ class FieldEditView(discord.ui.View):
     async def field_name(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
             print(f"Embed Debugging Note: Index is {self.index}")
-            message = interaction.message
-            embed = message.embeds[0]
 
-            modal = FieldNameModal()
-            await interaction.response.send_modal(modal)
-            await modal.wait()
+            try:
+                message = interaction.message
+                embed = message.embeds[0]
 
-            field = embed.fields[self.index]
-            if field is None:
-                embed.insert_field_at(index=self.index, name=modal.field_name, value="Default Field Value", inline=True)
-            else:
-                embed.set_field_at(index=self.index, name=modal.field_name, value=field.value, inline=field.inline)
-            self.embed = embed
-            await message.edit(embed=self.embed, view=self)
+                modal = FieldNameModal()
+                await interaction.response.send_modal(modal)
+                await modal.wait()
+
+                field = embed.fields[self.index]
+                if field is None:
+                    embed.insert_field_at(index=self.index, name=modal.field_name, value="Default Field Value", inline=True)
+                else:
+                    embed.set_field_at(index=self.index, name=modal.field_name, value=field.value, inline=field.inline)
+                self.embed = embed
+                await message.edit(embed=self.embed, view=self)
+
+            except Exception:
+                print(traceback.format_exc())
 
     @discord.ui.button(label="Value", style=discord.ButtonStyle.blurple, emoji="📄", row=1)
     async def field_value(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
             print(f"Embed Debugging Note: Index is {self.index}")
-            message = interaction.message
-            embed = message.embeds[0]
 
-            modal = FieldValueModal()
-            await interaction.response.send_modal(modal)
-            await modal.wait()
+            try:
+                message = interaction.message
+                embed = message.embeds[0]
 
-            field = embed.fields[self.index]
-            if field is None:
-                embed.insert_field_at(index=self.index, name="Default Field Name", value=modal.field_value, inline=True)
-            else:
-                embed.set_field_at(index=self.index, name=field.name, value=modal.field_value, inline=field.inline)
-            self.embed = embed
-            await message.edit(embed=self.embed, view=self)
+                modal = FieldValueModal()
+                await interaction.response.send_modal(modal)
+                await modal.wait()
+
+                field = embed.fields[self.index]
+                if field is None:
+                    embed.insert_field_at(index=self.index, name="Default Field Name", value=modal.field_value, inline=True)
+                else:
+                    embed.set_field_at(index=self.index, name=field.name, value=modal.field_value, inline=field.inline)
+                self.embed = embed
+                await message.edit(embed=self.embed, view=self)
+            
+            except Exception:
+                print(traceback.format_exc())
 
     @discord.ui.button(label="Inline Toggle", style=discord.ButtonStyle.blurple, emoji="🌗", row=1)
     async def inline_toggle(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             print(f"Embed Debugging Note: Index is {self.index}")
-            message = interaction.message
-            embed = message.embeds[0]
 
-            field = embed.fields[self.index]
-            if field is None:
-                embed.insert_field_at(index=self.index, name="Default Field Name", value="Default Field Value", inline=True)
-                button.label = "Inline: True"
-                button.emoji = "🌕"
-            else:
-                if field.inline == True:
-                    field.inline = False
-                    button.label = "Inline: False"
-                    button.emoji = "🌑"
-                elif field.inline == False:
-                    field.inline = True
+            try:
+                message = interaction.message
+                embed = message.embeds[0]
+
+                field = embed.fields[self.index]
+                if field is None:
+                    embed.insert_field_at(index=self.index, name="Default Field Name", value="Default Field Value", inline=True)
                     button.label = "Inline: True"
                     button.emoji = "🌕"
-            self.embed = embed
-            await message.edit(embed=self.embed, view=self)
+                else:
+                    if field.inline == True:
+                        field.inline = False
+                        button.label = "Inline: False"
+                        button.emoji = "🌑"
+                    elif field.inline == False:
+                        field.inline = True
+                        button.label = "Inline: True"
+                        button.emoji = "🌕"
+                self.embed = embed
+                await message.edit(embed=self.embed, view=self)
+            
+            except Exception:
+                print(traceback.format_exc())
     
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=2)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -405,84 +420,120 @@ class MediaEditView(discord.ui.View):
     
     @discord.ui.button(label="Add or Edit Image", style=discord.ButtonStyle.blurple, emoji="➕", row=1)
     async def add_image(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         if interaction.user == self.user:
-            message = interaction.message
-            embed = message.embeds[0]
 
-            modal = ImageModal()
-            await interaction.response.send_modal(modal)
-            await modal.wait()
+            try:
+                message = interaction.message
+                embed = message.embeds[0]
 
-            if modal.image is not None:
-                try:
-                    embed.image.url = modal.image
-                except Exception:
-                    embed.image.url = None
-            self.embed = embed
-            await message.edit(embed=self.embed, view=self)
+                modal = ImageModal()
+                await interaction.response.send_modal(modal)
+                await modal.wait()
+
+                if modal.image is not None:
+                    try:
+                        embed.image.url = modal.image
+                    except Exception:
+                        embed.image.url = None
+                self.embed = embed
+                await message.edit(embed=self.embed, view=self)
+                
+            except Exception:
+                print(traceback.format_exc())
     
     @discord.ui.button(label="Remove Image", style=discord.ButtonStyle.blurple, emoji="➖", row=1)
     async def remove_image(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         if interaction.user == self.user:
-            message = interaction.message
-            embed = message.embeds[0]
-            embed.image.url = None
-            self.embed = embed
-            await message.edit(embed=self.embed, view=self)
+
+            try:
+                message = interaction.message
+                embed = message.embeds[0]
+                embed.image.url = None
+                self.embed = embed
+                await message.edit(embed=self.embed, view=self)
+            
+            except Exception:
+                print(traceback.format_exc())
 
     @discord.ui.button(label="Add or Edit Thumbnail", style=discord.ButtonStyle.blurple, emoji="➕", row=2)
     async def add_thumbnail(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         if interaction.user == self.user:
-            message = interaction.message
-            embed = message.embeds[0]
 
-            modal = ThumbnailModal()
-            await interaction.response.send_modal(modal)
-            await modal.wait()
+            try:
+                message = interaction.message
+                embed = message.embeds[0]
 
-            if modal.thumbnail is not None:
-                try:
-                    embed.thumbnail.url = modal.thumbnail
-                except Exception:
-                    embed.thumbnail.url = None
-            self.embed = embed
-            await message.edit(embed=self.embed, view=self)
+                modal = ThumbnailModal()
+                await interaction.response.send_modal(modal)
+                await modal.wait()
+
+                if modal.thumbnail is not None:
+                    try:
+                        embed.thumbnail.url = modal.thumbnail
+                    except Exception:
+                        embed.thumbnail.url = None
+                self.embed = embed
+                await message.edit(embed=self.embed, view=self)
+                
+            except Exception:
+                print(traceback.format_exc())
     
     @discord.ui.button(label="Remove Thumbnail", style=discord.ButtonStyle.blurple, emoji="➖", row=2)
     async def remove_thumbnail(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         if interaction.user == self.user:
-            message = interaction.message
-            embed = message.embeds[0]
-            embed.thumbnail.url = None
-            self.embed = embed
-            await message.edit(embed=self.embed, view=self)
+
+            try:
+                message = interaction.message
+                embed = message.embeds[0]
+                embed.thumbnail.url = None
+                self.embed = embed
+                await message.edit(embed=self.embed, view=self)
+                
+            except Exception:
+                print(traceback.format_exc())
     
     @discord.ui.button(label="Add or Edit Video", style=discord.ButtonStyle.blurple, emoji="➕", row=3)
     async def add_video(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         if interaction.user == self.user:
-            message = interaction.message
-            embed = message.embeds[0]
 
-            modal = VideoModal()
-            await interaction.response.send_modal(modal)
-            await modal.wait()
+            try:
+                message = interaction.message
+                embed = message.embeds[0]
 
-            if modal.video is not None:
-                try:
-                    embed.video.url = modal.video
-                except Exception:
-                    embed.video.url = None
-            self.embed = embed
-            await message.edit(embed=self.embed, view=self)
+                modal = VideoModal()
+                await interaction.response.send_modal(modal)
+                await modal.wait()
+
+                if modal.video is not None:
+                    try:
+                        embed.video.url = modal.video
+                    except Exception:
+                        embed.video.url = None
+                self.embed = embed
+                await message.edit(embed=self.embed, view=self)
+            
+            except Exception:
+                print(traceback.format_exc())
     
     @discord.ui.button(label="Remove Video", style=discord.ButtonStyle.blurple, emoji="➖", row=3)
     async def remove_video(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
         if interaction.user == self.user:
-            message = interaction.message
-            embed = message.embeds[0]
-            embed.video.url = None
-            self.embed = embed
-            await message.edit(embed=self.embed, view=self)
+
+            try:
+                message = interaction.message
+                embed = message.embeds[0]
+                embed.video.url = None
+                self.embed = embed
+                await message.edit(embed=self.embed, view=self)
+                
+            except Exception:
+                print(traceback.format_exc())
     
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=4)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -615,48 +666,58 @@ class EmbedButtons(discord.ui.View):
     async def fields(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
-            message = interaction.message
-            embed = message.embeds[0]
 
-            view = FieldsSelectView(user=self.user)
-            await message.edit(view=view)
-            await view.wait()
+            try:
+                message = interaction.message
+                embed = message.embeds[0]
 
-            if view.value == True:
+                view = FieldsSelectView(user=self.user)
+                await message.edit(view=view)
+                await view.wait()
 
-                field_view = FieldEditView(user=self.user, index=view.index)
-                await message.edit(view=field_view)
-                await field_view.wait()
+                if view.value == True:
 
-                if field_view.value == True:
-                    self.embed = field_view.embed
-                    await message.edit(embed=self.embed, view=self)
-                
-                elif field_view.value == False:
+                    field_view = FieldEditView(user=self.user, index=view.index)
+                    await message.edit(view=field_view)
+                    await field_view.wait()
+
+                    if field_view.value == True:
+                        self.embed = field_view.embed
+                        await message.edit(embed=self.embed, view=self)
+                    
+                    elif field_view.value == False:
+                        self.embed = embed
+                        await message.edit(embed=self.embed, view=self)
+
+                elif view.value == False:
                     self.embed = embed
                     await message.edit(embed=self.embed, view=self)
-
-            elif view.value == False:
-                self.embed = embed
-                await message.edit(embed=self.embed, view=self)
+            
+            except Exception:
+                print(traceback.format_exc())
     
     @discord.ui.button(label="Media", style=discord.ButtonStyle.blurple, emoji="📷", row=2)
     async def media(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
-            message = interaction.message
-            embed = message.embeds[0]
 
-            view = MediaEditView(user=self.user)
-            await message.edit(view=view)
-            await view.wait()
+            try:
+                message = interaction.message
+                embed = message.embeds[0]
 
-            if view.value == True:
-                self.embed = view.embed
-                await message.edit(embed=self.embed, view=self)
+                view = MediaEditView(user=self.user)
+                await message.edit(view=view)
+                await view.wait()
+
+                if view.value == True:
+                    self.embed = view.embed
+                    await message.edit(embed=self.embed, view=self)
+                
+                elif view.value == False:
+                    await message.edit(embed=embed, view=self)
             
-            elif view.value == False:
-                await message.edit(embed=embed, view=self)
+            except Exception:
+                print(traceback.format_exc())
     
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=3)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
