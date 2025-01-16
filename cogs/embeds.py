@@ -178,31 +178,31 @@ class DescriptionModal(discord.ui.Modal, title = "Description"):
 class FieldsSelect(discord.ui.Select):
     def __init__(self, *, user: discord.Member):
         options = [
-            discord.SelectOption(label="Field 1", value="1"),
-            discord.SelectOption(label="Field 2", value="2"),
-            discord.SelectOption(label="Field 3", value="3"),
-            discord.SelectOption(label="Field 4", value="4"),
-            discord.SelectOption(label="Field 5", value="5"),
-            discord.SelectOption(label="Field 6", value="6"),
-            discord.SelectOption(label="Field 7", value="7"),
-            discord.SelectOption(label="Field 8", value="8"),
-            discord.SelectOption(label="Field 9", value="9"),
-            discord.SelectOption(label="Field 10", value="10"),
-            discord.SelectOption(label="Field 11", value="11"),
-            discord.SelectOption(label="Field 12", value="12"),
-            discord.SelectOption(label="Field 13", value="13"),
-            discord.SelectOption(label="Field 14", value="14"),
-            discord.SelectOption(label="Field 15", value="15"),
-            discord.SelectOption(label="Field 16", value="16"),
-            discord.SelectOption(label="Field 17", value="17"),
-            discord.SelectOption(label="Field 18", value="18"),
-            discord.SelectOption(label="Field 19", value="19"),
-            discord.SelectOption(label="Field 20", value="20"),
-            discord.SelectOption(label="Field 21", value="21"),
-            discord.SelectOption(label="Field 22", value="22"),
-            discord.SelectOption(label="Field 23", value="23"),
-            discord.SelectOption(label="Field 24", value="24"),
-            discord.SelectOption(label="Field 25", value="25"),
+            discord.SelectOption(label="Field 1", value="0"),
+            discord.SelectOption(label="Field 2", value="1"),
+            discord.SelectOption(label="Field 3", value="2"),
+            discord.SelectOption(label="Field 4", value="3"),
+            discord.SelectOption(label="Field 5", value="4"),
+            discord.SelectOption(label="Field 6", value="5"),
+            discord.SelectOption(label="Field 7", value="6"),
+            discord.SelectOption(label="Field 8", value="7"),
+            discord.SelectOption(label="Field 9", value="8"),
+            discord.SelectOption(label="Field 10", value="9"),
+            discord.SelectOption(label="Field 11", value="10"),
+            discord.SelectOption(label="Field 12", value="11"),
+            discord.SelectOption(label="Field 13", value="12"),
+            discord.SelectOption(label="Field 14", value="13"),
+            discord.SelectOption(label="Field 15", value="14"),
+            discord.SelectOption(label="Field 16", value="15"),
+            discord.SelectOption(label="Field 17", value="16"),
+            discord.SelectOption(label="Field 18", value="17"),
+            discord.SelectOption(label="Field 19", value="18"),
+            discord.SelectOption(label="Field 20", value="19"),
+            discord.SelectOption(label="Field 21", value="20"),
+            discord.SelectOption(label="Field 22", value="21"),
+            discord.SelectOption(label="Field 23", value="22"),
+            discord.SelectOption(label="Field 24", value="23"),
+            discord.SelectOption(label="Field 25", value="24"),
         ]
         super().__init__(placeholder="Please select a field to edit...", min_values=1, max_values=1, options=options, row=1)
         self.user = user
@@ -290,11 +290,12 @@ class FieldEditView(discord.ui.View):
                 await interaction.response.send_modal(modal)
                 await modal.wait()
 
-                field = embed.fields[self.index]
-                if field is None:
-                    embed.insert_field_at(index=self.index, name=modal.field_name, value="Default Field Value", inline=True)
-                else:
-                    embed.set_field_at(index=self.index, name=modal.field_name, value=field.value, inline=field.inline)
+                try:
+                    field = embed.fields[self.index]
+                    if field:
+                        embed.set_field_at(index=self.index, name=modal.field_name, value=field.value, inline=field.inline)
+                except IndexError:
+                    embed.add_field(name=modal.field_name, value="Default Field Value", inline=True)
                 self.embed = embed
                 await message.edit(embed=self.embed, view=self)
 
@@ -314,11 +315,12 @@ class FieldEditView(discord.ui.View):
                 await interaction.response.send_modal(modal)
                 await modal.wait()
 
-                field = embed.fields[self.index]
-                if field is None:
-                    embed.insert_field_at(index=self.index, name="Default Field Name", value=modal.field_value, inline=True)
-                else:
-                    embed.set_field_at(index=self.index, name=field.name, value=modal.field_value, inline=field.inline)
+                try:
+                    field = embed.fields[self.index]
+                    if field:
+                        embed.set_field_at(index=self.index, name=field.name, value=modal.field_value, inline=field.inline)
+                except IndexError:
+                    embed.add_field(name="Default Field Name", value=modal.field_value, inline=True)
                 self.embed = embed
                 await message.edit(embed=self.embed, view=self)
             
@@ -335,20 +337,20 @@ class FieldEditView(discord.ui.View):
                 message = interaction.message
                 embed = message.embeds[0]
 
-                field = embed.fields[self.index]
-                if field is None:
-                    embed.insert_field_at(index=self.index, name="Default Field Name", value="Default Field Value", inline=True)
-                    button.label = "Inline: True"
-                    button.emoji = "🌕"
-                else:
+                try:
+                    field = embed.fields[self.index]
                     if field.inline == True:
-                        field.inline = False
+                        embed.set_field_at(index=self.index, name=field.name, value=field.value, inline=False)
                         button.label = "Inline: False"
                         button.emoji = "🌑"
                     elif field.inline == False:
-                        field.inline = True
+                        embed.set_field_at(index=self.index, name=field.name, value=field.value, inline=True)
                         button.label = "Inline: True"
                         button.emoji = "🌕"
+                except IndexError:
+                    embed.add_field(name="Default Field Name", value="Default Field Value", inline=True)
+                    button.label = "Inline: True"
+                    button.emoji = "🌕"
                 self.embed = embed
                 await message.edit(embed=self.embed, view=self)
             
@@ -636,8 +638,8 @@ class EmbedButtons(discord.ui.View):
             self.embed = embed
             await message.edit(embed=self.embed, view=self)
     
-    @discord.ui.button(label="Fields", style=discord.ButtonStyle.blurple, emoji="📝", row=2)
-    async def fields(self, interaction: discord.Interaction, button: discord.ui.Button):
+    @discord.ui.button(label="Add Field", style=discord.ButtonStyle.green, emoji="➕", row=2)
+    async def add_field(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
 
@@ -671,7 +673,33 @@ class EmbedButtons(discord.ui.View):
             except Exception:
                 print(traceback.format_exc())
     
-    @discord.ui.button(label="Media", style=discord.ButtonStyle.blurple, emoji="📷", row=2)
+    @discord.ui.button(label="Remove Field", style=discord.ButtonStyle.red, emoji="➖", row=2)
+    async def remove_field(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        if interaction.user == self.user:
+
+            try:
+                message = interaction.message
+                embed = message.embeds[0]
+
+                view = FieldsSelectView(user=self.user)
+                await message.edit(view=view)
+                await view.wait()
+
+                if view.value == True:
+
+                    embed.remove_field(index=view.index)
+                    self.embed = embed
+                    await message.edit(embed=self.embed, view=self)
+
+                elif view.value == False:
+                    self.embed = embed
+                    await message.edit(embed=self.embed, view=self)
+            
+            except Exception:
+                print(traceback.format_exc())
+    
+    @discord.ui.button(label="Media Editor", style=discord.ButtonStyle.blurple, emoji="📷", row=2)
     async def media(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
