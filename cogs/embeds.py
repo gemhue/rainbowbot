@@ -1,5 +1,6 @@
 import discord
 import traceback
+import validators
 from discord import app_commands
 from discord.ext import commands
 from datetime import datetime, timezone
@@ -430,7 +431,7 @@ class MediaEditView(discord.ui.View):
             await interaction.response.send_modal(modal)
             await modal.wait()
 
-            if modal.url is not None:
+            if modal.url and validators.url(modal.url):
                 embed.url = modal.url
             self.embed = embed
             await message.edit(embed=self.embed, view=self)
@@ -462,11 +463,8 @@ class MediaEditView(discord.ui.View):
                 await interaction.response.send_modal(modal)
                 await modal.wait()
 
-                if modal.image is not None:
-                    try:
-                        embed.set_image(url=modal.image)
-                    except Exception:
-                        embed.set_image(url=None)
+                if modal.image and validators.url(modal.image):
+                    embed.set_image(url=modal.image)
                 self.embed = embed
                 await message.edit(embed=self.embed, view=self)
                 
@@ -500,11 +498,8 @@ class MediaEditView(discord.ui.View):
                 await interaction.response.send_modal(modal)
                 await modal.wait()
 
-                if modal.thumbnail is not None:
-                    try:
-                        embed.set_thumbnail(url=modal.thumbnail)
-                    except Exception:
-                        embed.set_thumbnail(url=None)
+                if modal.thumbnail and validators.url(modal.thumbnail):
+                    embed.set_thumbnail(url=modal.thumbnail)
                 self.embed = embed
                 await message.edit(embed=self.embed, view=self)
                 
