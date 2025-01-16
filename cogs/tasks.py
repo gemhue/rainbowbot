@@ -35,7 +35,7 @@ class BackgroundTasks(commands.Cog):
                 row = await cur.fetchone()
                 most_recent = row[0]
                 now = datetime.now(tz=timezone.utc)
-                now_int = int(now)
+                now_int = int(now.timestamp())
                 if most_recent is not None:
                     recent_time = datetime.fromtimestamp(most_recent, tz=timezone.utc)
                     since_recent = now - recent_time
@@ -60,7 +60,7 @@ class BackgroundTasks(commands.Cog):
                 row = await cur.fetchone()
                 most_recent = row[0]
                 now = datetime.now(tz=timezone.utc)
-                now_int = int(now)
+                now_int = int(now.timestamp())
                 if most_recent is not None:
                     recent_time = datetime.fromtimestamp(most_recent, tz=timezone.utc)
                     since_recent = now - recent_time
@@ -85,7 +85,7 @@ class BackgroundTasks(commands.Cog):
                 row = await cur.fetchone()
                 most_recent = row[0]
                 now = datetime.now(tz=timezone.utc)
-                now_int = int(now)
+                now_int = int(now.timestamp())
                 if most_recent is not None:
                     recent_time = datetime.fromtimestamp(most_recent, tz=timezone.utc)
                     since_recent = now - recent_time
@@ -110,7 +110,7 @@ class BackgroundTasks(commands.Cog):
                 row = await cur.fetchone()
                 most_recent = row[0]
                 now = datetime.now(tz=timezone.utc)
-                now_int = int(now)
+                now_int = int(now.timestamp())
                 if most_recent is not None:
                     recent_time = datetime.fromtimestamp(most_recent, tz=timezone.utc)
                     since_recent = now - recent_time
@@ -135,7 +135,7 @@ class BackgroundTasks(commands.Cog):
                 row = await cur.fetchone()
                 most_recent = row[0]
                 now = datetime.now(tz=timezone.utc)
-                now_int = int(now)
+                now_int = int(now.timestamp())
                 if most_recent is not None:
                     recent_time = datetime.fromtimestamp(most_recent, tz=timezone.utc)
                     since_recent = now - recent_time
