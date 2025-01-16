@@ -281,7 +281,6 @@ class FieldEditView(discord.ui.View):
     @discord.ui.button(label="Name", style=discord.ButtonStyle.blurple, emoji="🏷️", row=1)
     async def field_name(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
-            print(f"Embed Debugging Note: Index is {self.index}")
 
             try:
                 message = interaction.message
@@ -306,7 +305,6 @@ class FieldEditView(discord.ui.View):
     @discord.ui.button(label="Value", style=discord.ButtonStyle.blurple, emoji="📄", row=1)
     async def field_value(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
-            print(f"Embed Debugging Note: Index is {self.index}")
 
             try:
                 message = interaction.message
@@ -332,7 +330,6 @@ class FieldEditView(discord.ui.View):
     async def inline_toggle(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
-            print(f"Embed Debugging Note: Index is {self.index}")
 
             try:
                 message = interaction.message
@@ -659,7 +656,6 @@ class EmbedButtons(discord.ui.View):
 
                 if view.value == True:
 
-                    print(f"Embed Debugging Note: Index is {view.index}")
                     field_view = FieldEditView(user=self.user, index=view.index)
                     await message.edit(view=field_view)
                     await field_view.wait()
