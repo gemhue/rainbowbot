@@ -20,40 +20,45 @@ class BackgroundTasks(commands.Cog):
             support_server = self.bot.get_guild(1289953061778882644)
             messagecont = message.content.lower()
 
-            lesbian_triggers = ['lesbian','dyke','sapphic','wlw','woman loving woman','woman-loving-woman','women loving women','women-loving-women','wsw','women who have sex with women']
-            if any(x in messagecont for x in lesbian_triggers):
+            #lesbian_triggers = ['lesbian','dyke','sapphic','wlw','woman loving woman','woman-loving-woman','women loving women','women-loving-women','wsw','women who have sex with women']
+            #if any(x in messagecont for x in lesbian_triggers):
+            if "lesbian" in messagecont:
                 lesbian_heart = self.bot.get_emoji(1314630157767544852)
                 if lesbian_heart is None:
                     if support_server is not None:
                         lesbian_heart = support_server.get_emoji(1314677988373168249)
                 await message.add_reaction(lesbian_heart)
 
-            gay_triggers = ['gay','queer','faggot','achillean','mlm','man loving man','man-loving-man','men loving men','men-loving-men','msm','men who have sex with men']
-            if any(x in messagecont for x in gay_triggers):
+            #gay_triggers = ['gay','queer','faggot','achillean','mlm','man loving man','man-loving-man','men loving men','men-loving-men','msm','men who have sex with men']
+            #if any(x in messagecont for x in gay_triggers):
+            if "gay" in messagecont:
                 gay_heart = self.bot.get_emoji(1314630188700794981)
                 if gay_heart is None:
                     if support_server is not None:
                         gay_heart = support_server.get_emoji(1314677987165339688)
                 await message.add_reaction(gay_heart)
 
-            bi_triggers = ['bisexual','biromantic','bi woman','bi women','bi wife','bi lady','bi ladies','bi girl','bi gal','bi man','bi men','bi husband','bi guy','bi dude','bi boy','bi person','bi people','bi partner']
-            if any(x in messagecont for x in bi_triggers):
+            #bi_triggers = ['bisexual','biromantic','bi woman','bi women','bi wife','bi lady','bi ladies','bi girl','bi gal','bi man','bi men','bi husband','bi guy','bi dude','bi boy','bi person','bi people','bi partner']
+            #if any(x in messagecont for x in bi_triggers):
+            if "bisexual" in messagecont:
                 bi_heart = self.bot.get_emoji(1314630214600495225)
                 if bi_heart is None:
                     if support_server is not None:
                         bi_heart = support_server.get_emoji(1314677984594235412)
                 await message.add_reaction(bi_heart)
 
-            trans_triggers = ['transgender','trans-gender','transsexual','trans-sexual','tranny','trans woman','trans women','trans lady','trans ladies','trans girl','tgirl','t-girl','trans gal','trans man','trans men','trans guy','trans dude','trans boy','tboy','t-boy','trans person','trans people','transfeminine','transfem','transmasculine','transmasc','transneutral','transneu']
-            if any(x in messagecont for x in trans_triggers):
+            #trans_triggers = ['transgender','trans-gender','transsexual','trans-sexual','tranny','trans woman','trans women','trans lady','trans ladies','trans girl','tgirl','t-girl','trans gal','trans man','trans men','trans guy','trans dude','trans boy','tboy','t-boy','trans person','trans people','transfeminine','transfem','transmasculine','transmasc','transneutral','transneu']
+            #if any(x in messagecont for x in trans_triggers):
+            if "transgender" in messagecont:
                 trans_heart = self.bot.get_emoji(1314630240383012936)
                 if trans_heart is None:
                     if support_server is not None:
                         trans_heart = support_server.get_emoji(1314677990017466430)
                 await message.add_reaction(trans_heart)
 
-            enby_triggers = ['nonbinary','nonbiney','non binary','non biney','non-binary','non-biney','enby','androgyne','neutrois','maverique','agender','bigender','multigender','polygender','pangender','demigender','demiwoman','demigirl','demiman','demiboy','genderfluid','genderflux','womanflux','girlflux','manflux','boyflux','genderqueer','x-gender']
-            if any(x in messagecont for x in enby_triggers):
+            #enby_triggers = ['nonbinary','nonbiney','non binary','non biney','non-binary','non-biney','enby','androgyne','neutrois','maverique','agender','bigender','multigender','polygender','pangender','demigender','demiwoman','demigirl','demiman','demiboy','genderfluid','genderflux','womanflux','girlflux','manflux','boyflux','genderqueer','x-gender']
+            #if any(x in messagecont for x in enby_triggers):
+            if "nonbinary" in messagecont:
                 enby_heart = self.bot.get_emoji(1314630267364704319)
                 if enby_heart is None:
                     if support_server is not None:

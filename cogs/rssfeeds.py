@@ -138,15 +138,18 @@ class RSSFeeds(commands.GroupCog, group_name = "rssfeed"):
         try:
 
             urls = await self.getwebhooks()
-            for url in urls:
-                feed = await self.getfeed(url)
-                if feed is not None:
-                    embeds = await self.parsefeed(url, feed)
-                    if len(embeds) > 0:
-                        for embed in embeds:
-                            async with aiohttp.ClientSession() as session:
-                                webhook = Webhook.from_url(url=url, session=session, client=self.bot)
-                                await webhook.send(embed=embed)
+            if urls is not None:
+                if len(urls) > 0:
+                    for url in urls:
+                        feed = await self.getfeed(url)
+                        if feed is not None:
+                            embeds = await self.parsefeed(url, feed)
+                            if embeds is not None:
+                                if len(embeds) > 0:
+                                    for embed in embeds:
+                                        async with aiohttp.ClientSession() as session:
+                                            webhook = Webhook.from_url(url=url, session=session, client=self.bot)
+                                            await webhook.send(embed=embed)
 
         except Exception:
             print(traceback.format_exc())
