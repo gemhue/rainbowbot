@@ -77,7 +77,7 @@ class RSSFeeds(commands.GroupCog, group_name = "rssfeed"):
         try:
 
             feed = None
-            await self.db.execute("INSERT OR IGNORE INTO webhooks (url) VALUES (?)", (webhook_url,))
+            await self.db.execute("INSERT OR IGNORE INTO webhooks (webhook_url) VALUES (?)", (webhook_url,))
             await self.db.commit()
             cur = await self.db.execute("SELECT rss_feed_url FROM webhooks WHERE webhook_url = ?", (webhook_url,))
             row = await cur.fetchone()

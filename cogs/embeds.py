@@ -206,7 +206,6 @@ class FieldsSelect(discord.ui.Select):
         ]
         super().__init__(placeholder="Please select a field to edit...", min_values=1, max_values=1, options=options, row=1)
         self.user = user
-        self.view = None
         self.index = None
 
     async def callback(self, interaction: discord.Interaction):
@@ -215,7 +214,6 @@ class FieldsSelect(discord.ui.Select):
             field = self.values[0]
             index = int(field)
             self.index = index
-            self.view = FieldsSelectView()
             self.view.index = index
 
 class FieldsSelectView(discord.ui.View):
