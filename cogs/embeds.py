@@ -435,9 +435,9 @@ class MediaEditView(discord.ui.View):
 
                 if modal.image is not None:
                     try:
-                        embed.image.url = modal.image
+                        embed.set_image(url=modal.image)
                     except Exception:
-                        embed.image.url = None
+                        embed.set_image(url=None)
                 self.embed = embed
                 await message.edit(embed=self.embed, view=self)
                 
@@ -452,7 +452,7 @@ class MediaEditView(discord.ui.View):
             try:
                 message = interaction.message
                 embed = message.embeds[0]
-                embed.image.url = None
+                embed.set_image(url=None)
                 self.embed = embed
                 await message.edit(embed=self.embed, view=self)
             
@@ -474,9 +474,9 @@ class MediaEditView(discord.ui.View):
 
                 if modal.thumbnail is not None:
                     try:
-                        embed.thumbnail.url = modal.thumbnail
+                        embed.set_thumbnail(url=modal.thumbnail)
                     except Exception:
-                        embed.thumbnail.url = None
+                        embed.set_thumbnail(url=None)
                 self.embed = embed
                 await message.edit(embed=self.embed, view=self)
                 
@@ -491,60 +491,21 @@ class MediaEditView(discord.ui.View):
             try:
                 message = interaction.message
                 embed = message.embeds[0]
-                embed.thumbnail.url = None
+                embed.set_thumbnail(url=None)
                 self.embed = embed
                 await message.edit(embed=self.embed, view=self)
                 
             except Exception:
                 print(traceback.format_exc())
     
-    @discord.ui.button(label="Add or Edit Video", style=discord.ButtonStyle.blurple, emoji="➕", row=3)
-    async def add_video(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        if interaction.user == self.user:
-
-            try:
-                message = interaction.message
-                embed = message.embeds[0]
-
-                modal = VideoModal()
-                await interaction.response.send_modal(modal)
-                await modal.wait()
-
-                if modal.video is not None:
-                    try:
-                        embed.video.url = modal.video
-                    except Exception:
-                        embed.video.url = None
-                self.embed = embed
-                await message.edit(embed=self.embed, view=self)
-            
-            except Exception:
-                print(traceback.format_exc())
-    
-    @discord.ui.button(label="Remove Video", style=discord.ButtonStyle.blurple, emoji="➖", row=3)
-    async def remove_video(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        if interaction.user == self.user:
-
-            try:
-                message = interaction.message
-                embed = message.embeds[0]
-                embed.video.url = None
-                self.embed = embed
-                await message.edit(embed=self.embed, view=self)
-                
-            except Exception:
-                print(traceback.format_exc())
-    
-    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=4)
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=3)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
             self.stop()
 
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=4)
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=3)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
