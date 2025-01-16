@@ -34,17 +34,19 @@ class BackgroundTasks(commands.Cog):
                 cur = await self.db.execute("SELECT most_recent_lgbt_react FROM guilds WHERE guild_id = ?", (message_server.id,))
                 row = await cur.fetchone()
                 most_recent = row[0]
+                now = datetime.now(tz=timezone.utc)
+                now_int = int(now)
                 if most_recent is not None:
                     recent_time = datetime.fromtimestamp(most_recent, tz=timezone.utc)
-                    now = datetime.now(tz=timezone.utc)
                     since_recent = now - recent_time
                     five_mins = timedelta(minutes=5.0)
                     if since_recent > five_mins:
-                        now_int = int(now)
                         await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
                         await self.db.commit()
                         await message.add_reaction(lesbian_heart)
                 else:
+                    await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
+                    await self.db.commit()
                     await message.add_reaction(lesbian_heart)
 
             # gay_triggers = ['gay','queer','faggot','achillean','mlm','man loving man','man-loving-man','men loving men','men-loving-men','msm','men who have sex with men']
@@ -57,17 +59,19 @@ class BackgroundTasks(commands.Cog):
                 cur = await self.db.execute("SELECT most_recent_lgbt_react FROM guilds WHERE guild_id = ?", (message_server.id,))
                 row = await cur.fetchone()
                 most_recent = row[0]
+                now = datetime.now(tz=timezone.utc)
+                now_int = int(now)
                 if most_recent is not None:
                     recent_time = datetime.fromtimestamp(most_recent, tz=timezone.utc)
-                    now = datetime.now(tz=timezone.utc)
                     since_recent = now - recent_time
                     five_mins = timedelta(minutes=5.0)
                     if since_recent > five_mins:
-                        now_int = int(now)
                         await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
                         await self.db.commit()
                         await message.add_reaction(gay_heart)
                 else:
+                    await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
+                    await self.db.commit()
                     await message.add_reaction(gay_heart)
 
             # bi_triggers = ['bisexual','biromantic','bi woman','bi women','bi wife','bi lady','bi ladies','bi girl','bi gal','bi man','bi men','bi husband','bi guy','bi dude','bi boy','bi person','bi people','bi partner']
@@ -80,17 +84,19 @@ class BackgroundTasks(commands.Cog):
                 cur = await self.db.execute("SELECT most_recent_lgbt_react FROM guilds WHERE guild_id = ?", (message_server.id,))
                 row = await cur.fetchone()
                 most_recent = row[0]
+                now = datetime.now(tz=timezone.utc)
+                now_int = int(now)
                 if most_recent is not None:
                     recent_time = datetime.fromtimestamp(most_recent, tz=timezone.utc)
-                    now = datetime.now(tz=timezone.utc)
                     since_recent = now - recent_time
                     five_mins = timedelta(minutes=5.0)
                     if since_recent > five_mins:
-                        now_int = int(now)
                         await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
                         await self.db.commit()
                         await message.add_reaction(bi_heart)
                 else:
+                    await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
+                    await self.db.commit()
                     await message.add_reaction(bi_heart)
 
             # trans_triggers = ['transgender','trans-gender','transsexual','trans-sexual','tranny','trans woman','trans women','trans lady','trans ladies','trans girl','tgirl','t-girl','trans gal','trans man','trans men','trans guy','trans dude','trans boy','tboy','t-boy','trans person','trans people','transfeminine','transfem','transmasculine','transmasc','transneutral','transneu']
@@ -103,17 +109,19 @@ class BackgroundTasks(commands.Cog):
                 cur = await self.db.execute("SELECT most_recent_lgbt_react FROM guilds WHERE guild_id = ?", (message_server.id,))
                 row = await cur.fetchone()
                 most_recent = row[0]
+                now = datetime.now(tz=timezone.utc)
+                now_int = int(now)
                 if most_recent is not None:
                     recent_time = datetime.fromtimestamp(most_recent, tz=timezone.utc)
-                    now = datetime.now(tz=timezone.utc)
                     since_recent = now - recent_time
                     five_mins = timedelta(minutes=5.0)
                     if since_recent > five_mins:
-                        now_int = int(now)
                         await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
                         await self.db.commit()
                         await message.add_reaction(trans_heart)
                 else:
+                    await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
+                    await self.db.commit()
                     await message.add_reaction(trans_heart)
 
             # enby_triggers = ['nonbinary','nonbiney','non binary','non biney','non-binary','non-biney','enby','androgyne','neutrois','maverique','agender','bigender','multigender','polygender','pangender','demigender','demiwoman','demigirl','demiman','demiboy','genderfluid','genderflux','womanflux','girlflux','manflux','boyflux','genderqueer','x-gender']
@@ -126,17 +134,19 @@ class BackgroundTasks(commands.Cog):
                 cur = await self.db.execute("SELECT most_recent_lgbt_react FROM guilds WHERE guild_id = ?", (message_server.id,))
                 row = await cur.fetchone()
                 most_recent = row[0]
+                now = datetime.now(tz=timezone.utc)
+                now_int = int(now)
                 if most_recent is not None:
                     recent_time = datetime.fromtimestamp(most_recent, tz=timezone.utc)
-                    now = datetime.now(tz=timezone.utc)
                     since_recent = now - recent_time
                     five_mins = timedelta(minutes=5.0)
                     if since_recent > five_mins:
-                        now_int = int(now)
                         await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
                         await self.db.commit()
                         await message.add_reaction(enby_heart)
                 else:
+                    await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
+                    await self.db.commit()
                     await message.add_reaction(enby_heart)
 
         except Exception:
