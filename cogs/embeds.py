@@ -990,8 +990,9 @@ class Embeds(commands.GroupCog, group_name = "embed"):
         try:
 
             user = interaction.user
-            ctx = commands.Context.from_interaction(interaction)
-            message = await commands.MessageConverter.convert(ctx=ctx, argument=url)
+            ctx = await commands.Context.from_interaction(interaction)
+            converter = commands.MessageConverter()
+            message = await converter.convert(ctx=ctx, argument=url)
 
             if isinstance(message, discord.Message):
 
