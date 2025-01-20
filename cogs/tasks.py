@@ -1,4 +1,5 @@
 import discord
+import aiosqlite
 import traceback
 from discord.ext import commands, tasks
 from datetime import datetime, timedelta, timezone
@@ -6,7 +7,8 @@ from datetime import datetime, timedelta, timezone
 class BackgroundTasks(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.db = bot.database
+        if isinstance(bot.database, aiosqlite.Connection):
+            self.db = bot.database
 
     def cog_load(self):
         self.activity_check.start()
@@ -21,31 +23,35 @@ class BackgroundTasks(commands.Cog):
             message_server = message.guild
             messagecont = message.content.lower()
 
-            await self.db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (message_server.id,))
-            await self.db.commit()
+            if isinstance(message_server, discord.Guild):
+                await self.db.execute("INSERT OR IGNORE INTO guilds (guild_id) VALUES (?)", (message_server.id,))
+                await self.db.commit()
+            
+            most_recent = None
+            now = datetime.now(tz=timezone.utc)
+            now_float = now.timestamp()
 
             # lesbian_triggers = ['lesbian','dyke','sapphic','wlw','woman loving woman','woman-loving-woman','women loving women','women-loving-women','wsw','women who have sex with women']
             # if any(x in messagecont for x in lesbian_triggers):
             if "lesbian" in messagecont:
                 lesbian_heart = self.bot.get_emoji(1314630157767544852)
                 if lesbian_heart is None:
-                    if support_server is not None:
+                    if isinstance(support_server, discord.Guild):
                         lesbian_heart = support_server.get_emoji(1314677988373168249)
-                cur = await self.db.execute("SELECT most_recent_lgbt_react FROM guilds WHERE guild_id = ?", (message_server.id,))
-                row = await cur.fetchone()
-                most_recent = row[0]
-                now = datetime.now(tz=timezone.utc)
-                now_int = int(now.timestamp())
-                if most_recent is not None:
+                if isinstance(message_server, discord.Guild):
+                    cur = await self.db.execute("SELECT most_recent_lgbt_react FROM guilds WHERE guild_id = ?", (message_server.id,))
+                    row = await cur.fetchone()
+                    most_recent = row[0]
+                if isinstance(most_recent, float):
                     recent_time = datetime.fromtimestamp(most_recent, tz=timezone.utc)
                     since_recent = now - recent_time
                     five_mins = timedelta(minutes=5.0)
                     if since_recent > five_mins:
-                        await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
+                        await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_float, message_server.id))
                         await self.db.commit()
                         await message.add_reaction(lesbian_heart)
                 else:
-                    await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
+                    await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_float, message_server.id))
                     await self.db.commit()
                     await message.add_reaction(lesbian_heart)
 
@@ -54,23 +60,22 @@ class BackgroundTasks(commands.Cog):
             if "gay" in messagecont:
                 gay_heart = self.bot.get_emoji(1314630188700794981)
                 if gay_heart is None:
-                    if support_server is not None:
+                    if isinstance(support_server, discord.Guild):
                         gay_heart = support_server.get_emoji(1314677987165339688)
-                cur = await self.db.execute("SELECT most_recent_lgbt_react FROM guilds WHERE guild_id = ?", (message_server.id,))
-                row = await cur.fetchone()
-                most_recent = row[0]
-                now = datetime.now(tz=timezone.utc)
-                now_int = int(now.timestamp())
-                if most_recent is not None:
+                if isinstance(message_server, discord.Guild):
+                    cur = await self.db.execute("SELECT most_recent_lgbt_react FROM guilds WHERE guild_id = ?", (message_server.id,))
+                    row = await cur.fetchone()
+                    most_recent = row[0]
+                if isinstance(most_recent, float):
                     recent_time = datetime.fromtimestamp(most_recent, tz=timezone.utc)
                     since_recent = now - recent_time
                     five_mins = timedelta(minutes=5.0)
                     if since_recent > five_mins:
-                        await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
+                        await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_float, message_server.id))
                         await self.db.commit()
                         await message.add_reaction(gay_heart)
                 else:
-                    await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
+                    await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_float, message_server.id))
                     await self.db.commit()
                     await message.add_reaction(gay_heart)
 
@@ -79,23 +84,22 @@ class BackgroundTasks(commands.Cog):
             if "bisexual" in messagecont:
                 bi_heart = self.bot.get_emoji(1314630214600495225)
                 if bi_heart is None:
-                    if support_server is not None:
+                    if isinstance(support_server, discord.Guild):
                         bi_heart = support_server.get_emoji(1314677984594235412)
-                cur = await self.db.execute("SELECT most_recent_lgbt_react FROM guilds WHERE guild_id = ?", (message_server.id,))
-                row = await cur.fetchone()
-                most_recent = row[0]
-                now = datetime.now(tz=timezone.utc)
-                now_int = int(now.timestamp())
-                if most_recent is not None:
+                if isinstance(message_server, discord.Guild):
+                    cur = await self.db.execute("SELECT most_recent_lgbt_react FROM guilds WHERE guild_id = ?", (message_server.id,))
+                    row = await cur.fetchone()
+                    most_recent = row[0]
+                if isinstance(most_recent, float):
                     recent_time = datetime.fromtimestamp(most_recent, tz=timezone.utc)
                     since_recent = now - recent_time
                     five_mins = timedelta(minutes=5.0)
                     if since_recent > five_mins:
-                        await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
+                        await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_float, message_server.id))
                         await self.db.commit()
                         await message.add_reaction(bi_heart)
                 else:
-                    await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
+                    await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_float, message_server.id))
                     await self.db.commit()
                     await message.add_reaction(bi_heart)
 
@@ -104,23 +108,22 @@ class BackgroundTasks(commands.Cog):
             if "transgender" in messagecont:
                 trans_heart = self.bot.get_emoji(1314630240383012936)
                 if trans_heart is None:
-                    if support_server is not None:
+                    if isinstance(support_server, discord.Guild):
                         trans_heart = support_server.get_emoji(1314677990017466430)
-                cur = await self.db.execute("SELECT most_recent_lgbt_react FROM guilds WHERE guild_id = ?", (message_server.id,))
-                row = await cur.fetchone()
-                most_recent = row[0]
-                now = datetime.now(tz=timezone.utc)
-                now_int = int(now.timestamp())
-                if most_recent is not None:
+                if isinstance(message_server, discord.Guild):
+                    cur = await self.db.execute("SELECT most_recent_lgbt_react FROM guilds WHERE guild_id = ?", (message_server.id,))
+                    row = await cur.fetchone()
+                    most_recent = row[0]
+                if isinstance(most_recent, float):
                     recent_time = datetime.fromtimestamp(most_recent, tz=timezone.utc)
                     since_recent = now - recent_time
                     five_mins = timedelta(minutes=5.0)
                     if since_recent > five_mins:
-                        await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
+                        await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_float, message_server.id))
                         await self.db.commit()
                         await message.add_reaction(trans_heart)
                 else:
-                    await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
+                    await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_float, message_server.id))
                     await self.db.commit()
                     await message.add_reaction(trans_heart)
 
@@ -129,23 +132,22 @@ class BackgroundTasks(commands.Cog):
             if "nonbinary" in messagecont:
                 enby_heart = self.bot.get_emoji(1314630267364704319)
                 if enby_heart is None:
-                    if support_server is not None:
+                    if isinstance(support_server, discord.Guild):
                         enby_heart = support_server.get_emoji(1314677986007715912)
-                cur = await self.db.execute("SELECT most_recent_lgbt_react FROM guilds WHERE guild_id = ?", (message_server.id,))
-                row = await cur.fetchone()
-                most_recent = row[0]
-                now = datetime.now(tz=timezone.utc)
-                now_int = int(now.timestamp())
-                if most_recent is not None:
+                if isinstance(message_server, discord.Guild):
+                    cur = await self.db.execute("SELECT most_recent_lgbt_react FROM guilds WHERE guild_id = ?", (message_server.id,))
+                    row = await cur.fetchone()
+                    most_recent = row[0]
+                if isinstance(most_recent, float):
                     recent_time = datetime.fromtimestamp(most_recent, tz=timezone.utc)
                     since_recent = now - recent_time
                     five_mins = timedelta(minutes=5.0)
                     if since_recent > five_mins:
-                        await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
+                        await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_float, message_server.id))
                         await self.db.commit()
                         await message.add_reaction(enby_heart)
                 else:
-                    await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_int, message_server.id))
+                    await self.db.execute("UPDATE guilds SET most_recent_lgbt_react = ? WHERE guild_id = ?", (now_float, message_server.id))
                     await self.db.commit()
                     await message.add_reaction(enby_heart)
 
@@ -187,7 +189,7 @@ class BackgroundTasks(commands.Cog):
             channel_id = row[0]
             if channel_id is not None:
                 channel = guild.get_channel(channel_id)
-                if channel is not None:
+                if isinstance(channel, discord.TextChannel):
                     message = f"Welcome to {guild.name}, {member.mention}!"
                     time = datetime.now(tz=timezone.utc)
                     embed = discord.Embed(color=self.bot.blurple, description=f"{message}", timestamp=time)
@@ -218,8 +220,8 @@ class BackgroundTasks(commands.Cog):
             row = await cur.fetchone()
             fetched_logging = row[0]
             if fetched_logging is not None:
-                logging = guild.get_channel(fetched_logging)
-                if logging is not None:
+                logging_channel = guild.get_channel(fetched_logging)
+                if isinstance(logging_channel, discord.TextChannel):
                     log = discord.Embed(color=self.bot.blurple, title="Member Log", description=f"{member.mention} has just joined {guild.name}.")
                     if role is not None:
                         if role in member.roles:
@@ -229,7 +231,7 @@ class BackgroundTasks(commands.Cog):
                             log.add_field(name="Role Given", value=f"{botrole.mention}")
                     log.set_author(name=member.display_name, icon_url=member.display_avatar)
                     log.set_thumbnail(url=member.display_avatar)
-                    await logging.send(embed=log)
+                    await logging_channel.send(embed=log)
 
         except Exception:
             print(traceback.format_exc())
@@ -247,7 +249,7 @@ class BackgroundTasks(commands.Cog):
             channel_id = row[0]
             if channel_id is not None:
                 channel = guild.get_channel(channel_id)
-                if channel is not None:
+                if isinstance(channel, discord.TextChannel):
                     message = f"{member.mention} has just left {guild.name}. Goodbye for now!"
                     time = datetime.now(tz=timezone.utc)
                     embed = discord.Embed(color=self.bot.blurple, description=f"{message}", timestamp=time)
@@ -260,12 +262,12 @@ class BackgroundTasks(commands.Cog):
             row = await cur.fetchone()
             fetched_logging = row[0]
             if fetched_logging is not None:
-                logging = guild.get_channel(fetched_logging)
-                if logging is not None:
+                logging_channel = guild.get_channel(fetched_logging)
+                if isinstance(logging_channel, discord.TextChannel):
                     log = discord.Embed(color=self.bot.blurple, title="Member Log", description=f"{member.mention} has just left {guild.name}.")
                     log.set_author(name=member.display_name, icon_url=member.display_avatar)
                     log.set_thumbnail(url=member.display_avatar)
-                    await logging.send(embed=log)
+                    await logging_channel.send(embed=log)
 
         except Exception:
             print(traceback.format_exc())
@@ -292,7 +294,7 @@ class BackgroundTasks(commands.Cog):
                     if active_id is not None:
 
                         active = guild.get_role(active_id)
-                        if active is not None:
+                        if isinstance(active, discord.Role):
 
                             cur = await self.db.execute("SELECT inactive_role_id FROM guilds WHERE guild_id = ?", (guild_id,))
                             row = await cur.fetchone()
@@ -300,7 +302,7 @@ class BackgroundTasks(commands.Cog):
                             if inactive_id is not None:
 
                                 inactive = guild.get_role(inactive_id)
-                                if inactive is not None:
+                                if isinstance(inactive, discord.Role):
 
                                     now = datetime.now(tz=timezone.utc)
                                     setdays = timedelta(days=float(months*30))
@@ -320,27 +322,29 @@ class BackgroundTasks(commands.Cog):
                                         if member in newmembers and member not in activemembers:
                                             activemembers.append(member)
                                     for member in activemembers:
-                                        if active not in member.roles:
-                                            await member.add_roles(active)
-                                        if inactive in member.roles:
-                                            await member.remove_roles(inactive)
+                                        if isinstance(member, discord.Member):
+                                            if active not in member.roles:
+                                                await member.add_roles(active)
+                                            if inactive in member.roles:
+                                                await member.remove_roles(inactive)
                                     for member in inactivemembers:
-                                        if inactive not in member.roles:
-                                            await member.add_roles(inactive)
-                                        if active in member.roles:
-                                            await member.remove_roles(active)
+                                        if isinstance(member, discord.Member):
+                                            if inactive not in member.roles:
+                                                await member.add_roles(inactive)
+                                            if active in member.roles:
+                                                await member.remove_roles(active)
                                     
                                     cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild_id,))
                                     row = await cur.fetchone()
                                     fetched_logging = row[0]
                                     if fetched_logging is not None:
-                                        logging = guild.get_channel(fetched_logging)
-                                        if logging is not None:
+                                        logging_channel = guild.get_channel(fetched_logging)
+                                        if isinstance(logging_channel, discord.TextChannel):
                                             now = datetime.now(tz=timezone.utc)
                                             log = discord.Embed(color=self.bot.blurple, title="Activity Roles Assigned", timestamp=now)
                                             log.add_field(name="Active Members", value=f"{len(activemembers)} members now have the {active.mention} role!", inline=False)
                                             log.add_field(name="Inactive Members", value=f"{len(inactivemembers)} members now have the {inactive.mention} role!", inline=False)
-                                            await logging.send(embed=log)
+                                            await logging_channel.send(embed=log)
 
         except Exception as e:
             print(traceback.format_exc())
@@ -348,15 +352,15 @@ class BackgroundTasks(commands.Cog):
             row = await cur.fetchone()
             fetched_logging = row[0]
             if fetched_logging is not None:
-                logging = guild.get_channel(fetched_logging)
-                if logging is not None:
+                logging_channel = guild.get_channel(fetched_logging)
+                if isinstance(logging_channel, discord.TextChannel):
                     now = datetime.now(tz=timezone.utc)
                     log = discord.Embed(color=self.bot.blurple, title="Activity Roles Assignment Error", description=f"{e}\n\nPlease check the following:", timestamp=now)
                     log.add_field(name="Bot Permissions", value="Does the bot have both the **read message history** and **manage roles** permissions?", inline=False)
                     log.add_field(name="Bot Role Position", value="Is the bot's highest role higher in the role hierarchy than both of the activity roles?", inline=False)
                     log.add_field(name="Kick & Reinvite", value="If the permissions and role positions seem to be in order, try kicking the bot and reinviting it. The bot's invite link is [here](https://discord.com/oauth2/authorize?client_id=1263872722195316737).", inline=False)
                     log.add_field(name="Report a Bug", value="If kicking & reinviting the bot also doesn't work, submit a bug report in the bot's support server. You can join the support server by following [this](https://discord.com/invite/5x3xBSdWbE) link.", inline=False)
-                    await logging.send(embed=log)
+                    await logging_channel.send(embed=log)
 
 async def setup(bot: commands.Bot):
     print("Setting up Cog: tasks.BackgroundTasks")

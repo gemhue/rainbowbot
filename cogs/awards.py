@@ -1,4 +1,5 @@
 import discord
+import aiosqlite
 import traceback
 from discord import app_commands
 from discord.ext import commands, tasks
@@ -30,7 +31,8 @@ class SingularView(discord.ui.View):
         super().__init__(timeout=timeout)
         self.bot = bot
         self.user = user
-        self.db = bot.database
+        if isinstance(bot.database, aiosqlite.Connection):
+            self.db = bot.database
         self.value = None
 
     @discord.ui.button(label="Set Custom Award Name (Singular)", style=discord.ButtonStyle.blurple)
@@ -95,7 +97,6 @@ class Singular(discord.ui.Modal):
         super().__init__(title=title, timeout=timeout)
         self.bot = bot
         self.user = user
-        self.db = bot.database
         self.value = None
     
     singular = discord.ui.TextInput(label="Singular", custom_id="singular_input", placeholder="Enter a cutom name (singular) for you server awards...")
@@ -122,7 +123,8 @@ class PluralView(discord.ui.View):
         super().__init__(timeout=timeout)
         self.bot = bot
         self.user = user
-        self.db = bot.database
+        if isinstance(bot.database, aiosqlite.Connection):
+            self.db = bot.database
         self.value = None
 
     @discord.ui.button(label="Set Custom Award Name (Plural)", style=discord.ButtonStyle.blurple)
@@ -187,7 +189,6 @@ class Plural(discord.ui.Modal):
         super().__init__(title=title, timeout=timeout)
         self.bot = bot
         self.user = user
-        self.db = bot.database
         self.value = None
     
     plural = discord.ui.TextInput(label="Plural", custom_id="plural_input", placeholder="Enter a cutom name (plural) for you server awards...")
@@ -214,7 +215,8 @@ class EmojiView(discord.ui.View):
         super().__init__(timeout=timeout)
         self.bot = bot
         self.user = user
-        self.db = bot.database
+        if isinstance(bot.database, aiosqlite.Connection):
+            self.db = bot.database
         self.value = None
 
     @discord.ui.button(label="Set Custom Award Emoji", style=discord.ButtonStyle.blurple)
@@ -276,7 +278,6 @@ class Emoji(discord.ui.Modal):
         super().__init__(title=title, timeout=timeout)
         self.bot = bot
         self.user = user
-        self.db = bot.database
         self.value = None
     
     emoji = discord.ui.TextInput(label="Emoji", custom_id="emoji_input", placeholder="Enter a cutom emoji for you server awards...")
@@ -303,7 +304,8 @@ class LeaderboardView(discord.ui.View):
         super().__init__(timeout=timeout)
         self.bot = bot
         self.user = user
-        self.db = bot.database
+        if isinstance(bot.database, aiosqlite.Connection):
+            self.db = bot.database
         self.select = Leaderboard(user=self.user)
         self.add_item(self.select)
 
@@ -375,7 +377,8 @@ class AwardReactionView(discord.ui.View):
         super().__init__(timeout=timeout)
         self.bot = bot
         self.user = user
-        self.db = bot.database
+        if isinstance(bot.database, aiosqlite.Connection):
+            self.db = bot.database
         self.select = AwardReaction(user=self.user)
         self.add_item(self.select)
 
@@ -459,7 +462,8 @@ class AwardReaction(discord.ui.Select):
 class Awards(commands.GroupCog, group_name = "awards"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.db = bot.database
+        if isinstance(bot.database, aiosqlite.Connection):
+            self.db = bot.database
 
     @app_commands.command(name="setup")
     @app_commands.checks.has_permissions(administrator=True)

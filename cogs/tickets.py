@@ -1,4 +1,5 @@
 import discord
+import aiosqlite
 import traceback
 from discord import app_commands
 from discord.ext import commands
@@ -346,7 +347,8 @@ class ConfirmButton(discord.ui.View):
 class Tickets(commands.GroupCog, group_name = "tickets"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.db = bot.database
+        if isinstance(bot.database, aiosqlite.Connection):
+            self.db = bot.database
     
     @app_commands.command(name="setup")
     @app_commands.checks.has_permissions(administrator=True)

@@ -1,4 +1,5 @@
 import discord
+import aiosqlite
 import traceback
 import feedparser
 import aiohttp
@@ -11,7 +12,8 @@ from bs4 import BeautifulSoup
 class RSSFeeds(commands.GroupCog, group_name = "rssfeed"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.db = bot.database
+        if isinstance(bot.database, aiosqlite.Connection):
+            self.db = bot.database
 
     def cog_load(self):
         self.postrss.start()

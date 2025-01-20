@@ -1,4 +1,5 @@
 import discord
+import aiosqlite
 import traceback
 from discord import app_commands
 from discord.ext import commands
@@ -8,7 +9,8 @@ from typing import Optional
 class Profiles(commands.GroupCog, group_name = "profile"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.db = bot.database
+        if isinstance(bot.database, aiosqlite.Connection):
+            self.db = bot.database
     
     @app_commands.command(name="set")
     async def set(self, interaction: discord.Interaction, name: Optional[str] = None, age: Optional[str] = None, location: Optional[str] = None, pronouns: Optional[str] = None, gender: Optional[str] = None, sexuality: Optional[str] = None, relationship_status: Optional[str] = None, family_status: Optional[str] = None, biography: Optional[str] = None):

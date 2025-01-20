@@ -1,4 +1,5 @@
 import discord
+import aiosqlite
 import traceback
 from discord import app_commands
 from discord.ext import commands
@@ -7,7 +8,8 @@ from datetime import datetime, timezone
 class AutoDelete(commands.GroupCog, group_name="autodelete"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.db = bot.database
+        if isinstance(bot.database, aiosqlite.Connection):
+            self.db = bot.database
     
     @app_commands.command(name="start")
     @app_commands.checks.has_permissions(administrator=True)

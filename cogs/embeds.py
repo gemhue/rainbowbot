@@ -911,7 +911,6 @@ class EmbedButtons(discord.ui.View):
 class Embeds(commands.GroupCog, group_name = "embed"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.db = bot.database
     
     @app_commands.command(name="build")
     @app_commands.checks.has_permissions(administrator=True)

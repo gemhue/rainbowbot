@@ -1,4 +1,5 @@
 import discord
+import aiosqlite
 import traceback
 import asyncio
 from discord.ext import commands
@@ -601,7 +602,8 @@ class RemoveButtons(discord.ui.View):
 class Start(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.db = bot.database
+        if isinstance(bot.database, aiosqlite.Connection):
+            self.db = bot.database
 
     @app_commands.command(name="start")
     @app_commands.checks.has_permissions(administrator=True)
@@ -1037,7 +1039,6 @@ class Start(commands.Cog):
 class rainbowbot(commands.GroupCog, name = "rainbowbot"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.db = bot.database
     
     @app_commands.command(name="server")
     async def server(self, interaction: discord.Interaction):
@@ -1062,7 +1063,8 @@ class rainbowbot(commands.GroupCog, name = "rainbowbot"):
 class Commands(commands.GroupCog, name = "commands"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.db = bot.database
+        if isinstance(bot.database, aiosqlite.Connection):
+            self.db = bot.database
 
     @app_commands.command(name="add")
     @app_commands.checks.has_permissions(administrator=True)

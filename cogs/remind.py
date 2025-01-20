@@ -1,4 +1,5 @@
 import discord
+import aiosqlite
 import traceback
 import dateparser
 from discord import app_commands
@@ -74,7 +75,8 @@ class ReminderButtons(discord.ui.View):
 class Remind(commands.GroupCog, group_name = "remind"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.db = bot.database
+        if isinstance(bot.database, aiosqlite.Connection):
+            self.db = bot.database
     
     @app_commands.command(name="everyone")
     @app_commands.checks.has_permissions(administrator=True)
