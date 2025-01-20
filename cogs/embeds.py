@@ -727,7 +727,7 @@ class EmbedButtons(discord.ui.View):
             self.embed = embed
             await message.edit(embed=self.embed, view=self)
     
-    @discord.ui.button(label="Add or Edit Description", style=discord.ButtonStyle.blurple, emoji="✏️", row=1)
+    @discord.ui.button(label="Add or Edit Description", style=discord.ButtonStyle.blurple, emoji="✏️", row=2)
     async def description(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
             message = interaction.message
@@ -742,7 +742,7 @@ class EmbedButtons(discord.ui.View):
             self.embed = embed
             await message.edit(embed=self.embed, view=self)
     
-    @discord.ui.button(label="Remove Description", style=discord.ButtonStyle.red, emoji="➖", row=1)
+    @discord.ui.button(label="Remove Description", style=discord.ButtonStyle.red, emoji="➖", row=2)
     async def remove_description(self, interaction: discord.Interaction, button: discord.ui.Button):
         if interaction.user == self.user:
             message = interaction.message
@@ -753,7 +753,7 @@ class EmbedButtons(discord.ui.View):
             self.embed = embed
             await message.edit(embed=self.embed, view=self)
     
-    @discord.ui.button(label="Add Field", style=discord.ButtonStyle.green, emoji="➕", row=2)
+    @discord.ui.button(label="Add Field", style=discord.ButtonStyle.green, emoji="➕", row=3)
     async def add_field(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -779,7 +779,7 @@ class EmbedButtons(discord.ui.View):
             except Exception:
                 print(traceback.format_exc())
 
-    @discord.ui.button(label="Edit Field", style=discord.ButtonStyle.blurple, emoji="✏️", row=2)
+    @discord.ui.button(label="Edit Field", style=discord.ButtonStyle.blurple, emoji="✏️", row=3)
     async def edit_field(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -815,7 +815,7 @@ class EmbedButtons(discord.ui.View):
             except Exception:
                 print(traceback.format_exc())
     
-    @discord.ui.button(label="Remove Field", style=discord.ButtonStyle.red, emoji="➖", row=2)
+    @discord.ui.button(label="Remove Field", style=discord.ButtonStyle.red, emoji="➖", row=3)
     async def remove_field(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -843,7 +843,7 @@ class EmbedButtons(discord.ui.View):
             except Exception:
                 print(traceback.format_exc())
     
-    @discord.ui.button(label="Color Editor", style=discord.ButtonStyle.blurple, emoji="🌈", row=3)
+    @discord.ui.button(label="Color Editor", style=discord.ButtonStyle.blurple, emoji="🌈", row=4)
     async def color(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -866,7 +866,7 @@ class EmbedButtons(discord.ui.View):
                 self.embed = embed
                 await message.edit(embed=self.embed, view=self)
     
-    @discord.ui.button(label="Media Editor", style=discord.ButtonStyle.blurple, emoji="📷", row=3)
+    @discord.ui.button(label="Media Editor", style=discord.ButtonStyle.blurple, emoji="📷", row=4)
     async def media(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -894,14 +894,14 @@ class EmbedButtons(discord.ui.View):
             except Exception:
                 print(traceback.format_exc())
 
-    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=4)
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=5)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
             self.stop()
 
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=4)
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=5)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
