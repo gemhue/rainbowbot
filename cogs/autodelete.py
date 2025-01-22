@@ -79,13 +79,14 @@ class AutoDelete(commands.GroupCog, group_name="autodelete"):
                     log.set_thumbnail(url=user.display_avatar)
                     await logging_channel.send(embed=log)
                 else:
-                    log = discord.Embed(
+                    error = discord.Embed(
                         color=self.bot.red,
                         title="Logging Channel Not Found",
                         description=f"A logging channel with the ID {fetched_logging} was not found! Please set a new logging channel by re-running the `/start` command.",
                         timestamp=now
                     )
-                    await interaction.followup.send(embed=log, delete_after=10.0)
+                    log_error = await interaction.followup.send(embed=error, wait=True)
+                    await log_error.delete(delay=10.0)
 
         # Send an error message if there is an issue
         except Exception as e:
@@ -141,13 +142,14 @@ class AutoDelete(commands.GroupCog, group_name="autodelete"):
                         log.set_thumbnail(url=user.display_avatar)
                         await logging_channel.send(embed=log)
                     else:
-                        log = discord.Embed(
+                        error = discord.Embed(
                             color=self.bot.red,
                             title="Logging Channel Not Found",
                             description=f"A logging channel with the ID {fetched_logging} was not found! Please set a new logging channel by re-running the `/start` command.",
                             timestamp=now
                         )
-                        await interaction.followup.send(embed=log, delete_after=10.0)
+                        log_error = await interaction.followup.send(embed=error, wait=True)
+                        await log_error.delete(delay=10.0)
 
             else:
                 # Send a message that there was an issue cancelling the AutoDelete
