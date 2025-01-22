@@ -38,32 +38,54 @@ class AutoDelete(commands.GroupCog, group_name="autodelete"):
         """
         await interaction.response.defer(ephemeral=True)
         try:
+            guild = interaction.guild
+            channel = interaction.channel
+            user = interaction.user
+
             # Add the channel_id to the database if necessary
-            await self.db.execute("INSERT OR INGORE INTO autodelete (channel_id) VALUES (?)", (interaction.channel.id,))
+            await self.db.execute("INSERT OR INGORE INTO autodelete (channel_id) VALUES (?)", (channel.id,))
             await self.db.commit()
 
             # Update and retrieve the interval
-            await self.db.execute("UPDATE autodelete SET interval = ? WHERE channel_id = ?", (interval, interaction.channel.id))
+            await self.db.execute("UPDATE autodelete SET interval = ? WHERE channel_id = ?", (interval, channel.id))
             await self.db.commit()
-            cur = await self.db.execute("SELECT interval FROM autodelete WHERE channel_id = ?", (interaction.channel.id,))
+            cur = await self.db.execute("SELECT interval FROM autodelete WHERE channel_id = ?", (channel.id,))
             row = await cur.fetchone()
             interval = row[0]
 
             # Send a message that the AutoDelete has been set
-            embed = discord.Embed(color=self.bot.green, title="Success", description=f"The autodelete for {interaction.channel.mention} has been set up. Any unpinned messages older than **{interval} minutes** will be automatically deleted.")
+            embed = discord.Embed(
+                color=self.bot.green,
+                title="Success",
+                description=f"The AutoDelete for {channel.mention} has been set up. Any unpinned messages older than **{interval} minutes** will be automatically deleted."
+            )
             await interaction.followup.send(embed=embed, ephemeral=True)
-
+            
             # Send a log to the logging channel
-            cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (interaction.guild.id,))
+            cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
             row = await cur.fetchone()
             fetched_logging = row[0]
             if fetched_logging is not None:
+                logging_channel = guild.get_channel(fetched_logging)
                 now = datetime.now(tz=timezone.utc)
-                log = discord.Embed(color=self.bot.blurple, title="AutoDelete Log", description=f"{interaction.user.mention} has just set up AutoDelete for {interaction.channel.mention}. Any unpinned messages in the channel older than **{interval} minutes** will be automatically deleted.", timestamp=now)
-                log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
-                log.set_thumbnail(url=interaction.user.display_avatar)
-                logging = self.bot.get_channel(fetched_logging)
-                await logging.send(embed=log)
+                if isinstance(logging_channel, discord.TextChannel):
+                    log = discord.Embed(
+                        color=self.bot.blurple,
+                        title="AutoDelete Log",
+                        description=f"{user.mention} has just set up AutoDelete for {channel.mention}. Any unpinned messages in the channel older than **{interval} minutes** will be automatically deleted.",
+                        timestamp=now
+                    )
+                    log.set_author(name=user.display_name, icon_url=user.display_avatar)
+                    log.set_thumbnail(url=user.display_avatar)
+                    await logging_channel.send(embed=log)
+                else:
+                    log = discord.Embed(
+                        color=self.bot.red,
+                        title="Logging Channel Not Found",
+                        description=f"A logging channel with the ID {fetched_logging} was not found! Please set a new logging channel by re-running the `/start` command.",
+                        timestamp=now
+                    )
+                    await interaction.followup.send(embed=log, delete_after=10.0)
 
         # Send an error message if there is an issue
         except Exception as e:
@@ -78,35 +100,56 @@ class AutoDelete(commands.GroupCog, group_name="autodelete"):
         """
         await interaction.response.defer(ephemeral=True)
         try:
+            guild = interaction.guild
+            channel = interaction.channel
+            user = interaction.user
+
             # Delete the channel_id from the database
-            await self.db.execute("DELETE FROM autodelete WHERE channel_id = ?", (interaction.channel.id,))
+            await self.db.execute("DELETE FROM autodelete WHERE channel_id = ?", (channel.id,))
             await self.db.commit()
 
             # Confirm that the channel_id has been removed from autodelete
-            cur = await self.db.execute("SELECT EXISTS(SELECT 1 FROM autodelete WHERE channel_id = ?)", (interaction.channel.id,))
+            cur = await self.db.execute("SELECT EXISTS(SELECT 1 FROM autodelete WHERE channel_id = ?)", (channel.id,))
             row = await cur.fetchone()
             exists = row[0]
 
             if exists == 0:
 
                 # Send a message that the AutoDelete has been cancelled
-                embed = discord.Embed(color=self.bot.green, title="Success", description=f"The autodelete for {interaction.channel.mention} has been cancelled.")
+                embed = discord.Embed(
+                    color=self.bot.green,
+                    title="Success",
+                    description=f"The AutoDelete for {channel.mention} has been cancelled."
+                )
                 await interaction.followup.send(embed=embed, ephemeral=True)
 
                 # Send a log to the logging channel
-                cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (interaction.guild.id,))
+                cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                 row = await cur.fetchone()
                 fetched_logging = row[0]
                 if fetched_logging is not None:
+                    logging_channel = guild.get_channel(fetched_logging)
                     now = datetime.now(tz=timezone.utc)
-                    log = discord.Embed(color=self.bot.blurple, title="AutoDelete Log", description=f"{interaction.user.mention} has just cancelled AutoDelete for {interaction.channel.mention}.", timestamp=now)
-                    log.set_author(name=interaction.user.display_name, icon_url=interaction.user.display_avatar)
-                    log.set_thumbnail(url=interaction.user.display_avatar)
-                    logging = self.bot.get_channel(fetched_logging)
-                    await logging.send(embed=log)
+                    if isinstance(logging_channel, discord.TextChannel):
+                        log = discord.Embed(
+                            color=self.bot.blurple,
+                            title="AutoDelete Log",
+                            description=f"{user.mention} has just cancelled AutoDelete for {channel.mention}.",
+                            timestamp=now
+                        )
+                        log.set_author(name=user.display_name, icon_url=user.display_avatar)
+                        log.set_thumbnail(url=user.display_avatar)
+                        await logging_channel.send(embed=log)
+                    else:
+                        log = discord.Embed(
+                            color=self.bot.red,
+                            title="Logging Channel Not Found",
+                            description=f"A logging channel with the ID {fetched_logging} was not found! Please set a new logging channel by re-running the `/start` command.",
+                            timestamp=now
+                        )
+                        await interaction.followup.send(embed=log, delete_after=10.0)
 
             else:
-
                 # Send a message that there was an issue cancelling the AutoDelete
                 error = discord.Embed(color=self.bot.red, title="Error", description="There was an issue cancelling the AutoDelete. Please try again later.")
                 await interaction.followup.send(embed=error, ephemeral=True)
