@@ -717,6 +717,7 @@ class AddTitle(discord.ui.Button):
                 if isinstance(modal.title, str):
                     embed.title = modal.title
                 self.view.embed = embed
+                await self.view.refresh_view()
                 await message.edit(embed=self.view.embed, view=self.view)
 
             except Exception as e:
@@ -762,6 +763,7 @@ class EditTitle(discord.ui.Button):
                 if isinstance(modal.title, str):
                     embed.title = modal.title
                 self.view.embed = embed
+                await self.view.refresh_view()
                 await message.edit(embed=self.view.embed, view=self.view)
 
             except Exception as e:
@@ -803,6 +805,7 @@ class RemoveTitle(discord.ui.Button):
 
                 embed.title = None
                 self.view.embed = embed
+                await self.view.refresh_view()
                 await message.edit(embed=self.view.embed, view=self.view)
 
             except Exception as e:
@@ -846,6 +849,7 @@ class AddDescription(discord.ui.Button):
                 if isinstance(modal.description, str):
                     embed.description = modal.description
                 self.view.embed = embed
+                await self.view.refresh_view()
                 await message.edit(embed=self.view.embed, view=self.view)
 
             except Exception as e:
@@ -891,6 +895,7 @@ class EditDescription(discord.ui.Button):
                 if isinstance(modal.description, str):
                     embed.description = modal.description
                 self.view.embed = embed
+                await self.view.refresh_view()
                 await message.edit(embed=self.view.embed, view=self.view)
 
             except Exception as e:
@@ -932,6 +937,7 @@ class RemoveDescription(discord.ui.Button):
 
                 embed.description = None
                 self.view.embed = embed
+                await self.view.refresh_view()
                 await message.edit(embed=self.view.embed, view=self.view)
             
             except Exception as e:
@@ -975,9 +981,11 @@ class AddField(discord.ui.Button):
                 if view.value == True:
                     if isinstance(view.embed, discord.Embed):
                         self.view.embed = view.embed
+                        await self.view.refresh_view()
                         await message.edit(embed=self.view.embed, view=self.view)
 
                 else:
+                    await self.view.refresh_view()
                     await message.edit(view=self.view)
 
             except Exception as e:
@@ -1026,12 +1034,15 @@ class EditField(discord.ui.Button):
 
                     if field_view.value == True:
                         self.view.embed = field_view.embed
+                        await self.view.refresh_view()
                         await message.edit(embed=self.view.embed, view=self.view)
                     
                     else:
+                        await self.view.refresh_view()
                         await message.edit(view=self.view)
 
                 else:
+                    await self.view.refresh_view()
                     await message.edit(view=self.view)
 
             except Exception as e:
@@ -1077,9 +1088,11 @@ class RemoveField(discord.ui.Button):
 
                     embed.remove_field(index=view.index)
                     self.view.embed = embed
+                    await self.view.refresh_view()
                     await message.edit(embed=self.view.embed, view=self.view)
 
                 else:
+                    await self.view.refresh_view()
                     await message.edit(view=self.view)
             
             except Exception as e:
@@ -1099,36 +1112,18 @@ class RemoveField(discord.ui.Button):
             )
             await interaction.followup.send(ephemeral=True, embed=error)
 
-class EmbedButtons(discord.ui.View):
-    def __init__(self, *, timeout = 180, bot: commands.Bot, user: discord.Member, embed: discord.Embed):
-        super().__init__(timeout=timeout)
+class ColorEditor(discord.ui.Button):
+    def __init__(self, *, bot: commands.Bot, user: discord.Member):
+        super().__init__(
+            style=discord.ButtonStyle.blurple,
+            label="Color Editor",
+            emoji="🌈",
+            row=3
+        )
         self.bot = bot
         self.user = user
-        self.value = None
-        self.embed = embed
-
-        if self.embed.title is None:
-            self.add_item(AddTitle(bot=self.bot, user=self.user))
-        elif isinstance(self.embed.title, str):
-            self.add_item(EditTitle(bot=self.bot, user=self.user))
-            if isinstance(self.embed.description, str):
-                self.add_item(RemoveTitle(bot=self.bot, user=self.user))
     
-        if self.embed.description is None:
-            self.add_item(AddDescription(bot=self.bot, user=self.user))
-        elif isinstance(self.embed.description, str):
-            self.add_item(EditDescription(bot=self.bot, user=self.user))
-            if isinstance(self.embed.title, str):
-                self.add_item(RemoveDescription(bot=self.bot, user=self.user))
-    
-        if len(self.embed.fields) < 25:
-            self.add_item(AddField(bot=self.bot, user=self.user))
-        if len(self.embed.fields) > 0:
-            self.add_item(EditField(bot=self.bot, user=self.user))
-            self.add_item(RemoveField(bot=self.bot, user=self.user))
-    
-    @discord.ui.button(label="Color Editor", style=discord.ButtonStyle.blurple, emoji="🌈", row=3)
-    async def color(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
         if interaction.user == self.user:
             try:
@@ -1142,13 +1137,15 @@ class EmbedButtons(discord.ui.View):
                 if view.value == True:
 
                     if isinstance(view.embed, discord.Embed):
-                        self.embed = view.embed
-                        await message.edit(embed=self.embed, view=self)
+                        self.view.embed = view.embed
+                        await self.view.refresh_view()
+                        await message.edit(embed=self.view.embed, view=self)
 
                 elif view.value == False:
-                    self.embed = embed
-                    await message.edit(embed=self.embed, view=self)
-
+                    self.view.embed = embed
+                    await self.view.refresh_view()
+                    await message.edit(embed=self.view.embed, view=self)
+            
             except Exception as e:
                 error = discord.Embed(
                     color=self.bot.red,
@@ -1165,9 +1162,19 @@ class EmbedButtons(discord.ui.View):
                 description="Only the command user can interact with this button."
             )
             await interaction.followup.send(ephemeral=True, embed=error)
+
+class MediaEditor(discord.ui.Button):
+    def __init__(self, *, bot: commands.Bot, user: discord.Member):
+        super().__init__(
+            style=discord.ButtonStyle.blurple,
+            label="Media Editor",
+            emoji="📷",
+            row=3
+        )
+        self.bot = bot
+        self.user = user
     
-    @discord.ui.button(label="Media Editor", style=discord.ButtonStyle.blurple, emoji="📷", row=3)
-    async def media(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
         if interaction.user == self.user:
             try:
@@ -1181,12 +1188,14 @@ class EmbedButtons(discord.ui.View):
                 if view.value == True:
 
                     if isinstance(view.embed, discord.Embed):
-                        self.embed = view.embed
-                        await message.edit(embed=self.embed, view=self)
+                        self.view.embed = view.embed
+                        await self.view.refresh_view()
+                        await message.edit(embed=self.view.embed, view=self)
                 
                 elif view.value == False:
-                    self.embed = embed
-                    await message.edit(embed=self.embed, view=self)
+                    self.view.embed = embed
+                    await self.view.refresh_view()
+                    await message.edit(embed=self.view.embed, view=self)
             
             except Exception as e:
                 error = discord.Embed(
@@ -1205,19 +1214,110 @@ class EmbedButtons(discord.ui.View):
             )
             await interaction.followup.send(ephemeral=True, embed=error)
 
-    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=4)
-    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
+class Confirm(discord.ui.Button):
+    def __init__(self, *, bot: commands.Bot, user: discord.Member):
+        super().__init__(
+            style=discord.ButtonStyle.green,
+            label="Confirm",
+            emoji="✔️",
+            row=4
+        )
+        self.bot = bot
+        self.user = user
+    
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
         if interaction.user == self.user:
-            self.value = True
-            self.stop()
+            try:
+                self.view.value = True
+                self.view.stop()
 
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=4)
-    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
+            except Exception as e:
+                error = discord.Embed(
+                    color=self.bot.red,
+                    title="Error",
+                    description=f"{e}"
+                )
+                error = await interaction.followup.send(ephemeral=True, embed=error)
+                print(traceback.format_exc())
+            
+        else:
+            error = discord.Embed(
+                color=discord.Colour.red,
+                title="Error",
+                description="Only the command user can interact with this button."
+            )
+            await interaction.followup.send(ephemeral=True, embed=error)
+
+class Cancel(discord.ui.Button):
+    def __init__(self, *, bot: commands.Bot, user: discord.Member):
+        super().__init__(
+            style=discord.ButtonStyle.red,
+            label="Cancel",
+            emoji="✖️",
+            row=4
+        )
+        self.bot = bot
+        self.user = user
+    
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
         if interaction.user == self.user:
-            self.value = False
-            self.stop()
+            try:
+                self.view.value = False
+                self.view.stop()
+
+            except Exception as e:
+                error = discord.Embed(
+                    color=self.bot.red,
+                    title="Error",
+                    description=f"{e}"
+                )
+                error = await interaction.followup.send(ephemeral=True, embed=error)
+                print(traceback.format_exc())
+            
+        else:
+            error = discord.Embed(
+                color=discord.Colour.red,
+                title="Error",
+                description="Only the command user can interact with this button."
+            )
+            await interaction.followup.send(ephemeral=True, embed=error)
+
+class EmbedButtons(discord.ui.View):
+    def __init__(self, *, bot: commands.Bot, user: discord.Member, embed: discord.Embed):
+        super().__init__(timeout=None)
+        self.value = None
+        self.bot = bot
+        self.user = user
+        self.embed = embed
+        self.refresh_view()
+
+    async def refresh_view(self):
+        self.clear_items()
+
+        if self.embed.title is None:
+            self.add_item(AddTitle(bot=self.bot, user=self.user))
+        else:
+            self.add_item(EditTitle(bot=self.bot, user=self.user))
+            self.add_item(RemoveTitle(bot=self.bot, user=self.user))
+
+        if self.embed.description is None:
+            self.add_item(AddDescription(bot=self.bot, user=self.user))
+        else:
+            self.add_item(EditDescription(bot=self.bot, user=self.user))
+            self.add_item(RemoveDescription(bot=self.bot, user=self.user))
+
+        if len(self.embed.fields) < 25:
+            self.add_item(AddField(bot=self.bot, user=self.user))
+        if len(self.embed.fields) > 0:
+            self.add_item(EditField(bot=self.bot, user=self.user))
+            self.add_item(RemoveField(bot=self.bot, user=self.user))
+
+        self.add_item(ColorEditor(bot=self.bot, user=self.user))
+        self.add_item(MediaEditor(bot=self.bot, user=self.user))
+        self.add_item(Confirm(bot=self.bot, user=self.user))
+        self.add_item(Cancel(bot=self.bot, user=self.user))
 
 class Embeds(commands.GroupCog, group_name = "embed"):
     def __init__(self, bot: commands.Bot):
