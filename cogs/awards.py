@@ -750,7 +750,11 @@ class Awards(commands.GroupCog, group_name = "awards"):
         
         # Send a message and print a traceback on error
         except Exception as e:
-            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            error = discord.Embed(
+                color=self.bot.red,
+                title="Error",
+                description=f"{e}"
+            )
             error = await interaction.followup.send(embed=error, wait=True)
             await error.delete(delay=10.0)
             print(traceback.format_exc())
@@ -814,7 +818,11 @@ class Awards(commands.GroupCog, group_name = "awards"):
 
         # Send a message and print a traceback on error
         except Exception as e:
-            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            error = discord.Embed(
+                color=self.bot.red,
+                title="Error",
+                description=f"{e}"
+            )
             error = await interaction.followup.send(embed=error, wait=True)
             await error.delete(delay=10.0)
             print(traceback.format_exc())
@@ -1312,7 +1320,7 @@ class Awards(commands.GroupCog, group_name = "awards"):
                 title="Error",
                 description=f"{e}"
             )
-            error = await interaction.followup.send(ephemeral=True, embed=error, wait=True)
+            error = await interaction.followup.send(embed=error, wait=True)
             await error.delete(delay=10.0)
             print(traceback.format_exc())
 
