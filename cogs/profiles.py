@@ -52,93 +52,93 @@ class Profiles(commands.GroupCog, group_name = "profile"):
             await self.db.commit()
 
             # Set and retrieve the member's name
-            if name is not None:
+            if isinstance(name, str):
                 await self.db.execute("UPDATE members SET name = ? WHERE member_id = ?", (name, member_id))
                 await self.db.commit()
             cur = await self.db.execute("SELECT name FROM members WHERE member_id = ?", (member_id,))
             row = await cur.fetchone()
             fetched_name = row[0]
-            if fetched_name is not None:
+            if isinstance(fetched_name, str):
                 profile.add_field(name="🏷️ Name", value=f"{fetched_name}", inline=True)
             
             # Set and retrieve the member's age
-            if age is not None:
+            if isinstance(age, str):
                 await self.db.execute("UPDATE members SET age = ? WHERE member_id = ?", (age, member_id))
                 await self.db.commit()
             cur = await self.db.execute("SELECT age FROM members WHERE member_id = ?", (member_id,))
             row = await cur.fetchone()
             fetched_age = row[0]
-            if fetched_age is not None:
+            if isinstance(fetched_age, str):
                 profile.add_field(name="🏷️ Age", value=f"{fetched_age}", inline=True)
             
             # Set and retrieve the member's location
-            if location is not None:
+            if isinstance(location, str):
                 await self.db.execute("UPDATE members SET location = ? WHERE member_id = ?", (location, member_id))
                 await self.db.commit()
             cur = await self.db.execute("SELECT location FROM members WHERE member_id = ?", (member_id,))
             row = await cur.fetchone()
             fetched_location = row[0]
-            if fetched_location is not None:
+            if isinstance(fetched_location, str):
                 profile.add_field(name="🏷️ Location", value=f"{fetched_location}", inline=True)
             
             # Set and retrieve the member's pronouns
-            if pronouns is not None:
+            if isinstance(pronouns, str):
                 await self.db.execute("UPDATE members SET pronouns = ? WHERE member_id = ?", (pronouns, member_id))
                 await self.db.commit()
             cur = await self.db.execute("SELECT pronouns FROM members WHERE member_id = ?", (member_id,))
             row = await cur.fetchone()
             fetched_pronouns = row[0]
-            if fetched_pronouns is not None:
+            if isinstance(fetched_pronouns, str):
                 profile.add_field(name="🏷️ Pronouns", value=f"{fetched_pronouns}", inline=True)
             
             # Set and retrieve the member's gender
-            if gender is not None:
+            if isinstance(gender, str):
                 await self.db.execute("UPDATE members SET gender = ? WHERE member_id = ?", (gender, member_id))
                 await self.db.commit()
             cur = await self.db.execute("SELECT gender FROM members WHERE member_id = ?", (member_id,))
             row = await cur.fetchone()
             fetched_gender = row[0]
-            if fetched_gender is not None:
+            if isinstance(fetched_gender, str):
                 profile.add_field(name="🏷️ Gender", value=f"{fetched_gender}", inline=True)
             
             # Set and retrieve the member's sexuality
-            if sexuality is not None:
+            if isinstance(sexuality, str):
                 await self.db.execute("UPDATE members SET sexuality = ? WHERE member_id = ?", (sexuality, member_id))
                 await self.db.commit()
             cur = await self.db.execute("SELECT sexuality FROM members WHERE member_id = ?", (member_id,))
             row = await cur.fetchone()
             fetched_sexuality = row[0]
-            if fetched_sexuality is not None:
+            if isinstance(fetched_sexuality, str):
                 profile.add_field(name="🏷️ Sexuality", value=f"{fetched_sexuality}", inline=True)
             
             # Set and retrieve the member's relationship status
-            if relationship_status is not None:
+            if isinstance(relationship_status, str):
                 await self.db.execute("UPDATE members SET relationship_status = ? WHERE member_id = ?", (relationship_status, member_id))
                 await self.db.commit()
             cur = await self.db.execute("SELECT relationship_status FROM members WHERE member_id = ?", (member_id,))
             row = await cur.fetchone()
             fetched_relationship_status = row[0]
-            if fetched_relationship_status is not None:
+            if isinstance(fetched_relationship_status, str):
                 profile.add_field(name="📝 Relationship Status", value=f"{fetched_relationship_status}", inline=True)
             
             # Set and retrieve the member's family planning status
-            if family_status is not None:
+            if isinstance(family_status, str):
                 await self.db.execute("UPDATE members SET family_status = ? WHERE member_id = ?", (family_status, member_id))
                 await self.db.commit()
             cur = await self.db.execute("SELECT family_status FROM members WHERE member_id = ?", (member_id,))
             row = await cur.fetchone()
             fetched_family_status = row[0]
-            if fetched_family_status is not None:
+            if isinstance(fetched_family_status, str):
                 profile.add_field(name="📝 Family Planning Status", value=f"{fetched_family_status}", inline=True)
             
             # Set and retrieve the member's biography
-            if biography is not None:
+            if isinstance(biography, str):
                 await self.db.execute("UPDATE members SET biography = ? WHERE member_id = ?", (biography, member_id))
                 await self.db.commit()
             cur = await self.db.execute("SELECT biography FROM members WHERE member_id = ?", (member_id,))
             row = await cur.fetchone()
             fetched_biography = row[0]
-            if fetched_biography is not None:
+            if isinstance(fetched_biography, str):
                 profile.add_field(name="📝 Biography", value=f"{fetched_biography}", inline=False)
             
             # Retrieve the member's roles
@@ -147,27 +147,43 @@ class Profiles(commands.GroupCog, group_name = "profile"):
                 if role.name != "@everyone":
                     roles.append(role.mention)
             if len(roles) > 0:
-                roles = ", ".join(roles)
+                roles = ", ".join(reversed(roles))
                 profile.add_field(name="📝 Roles", value=f"{roles}", inline=False)
             
             # Send the message
-            await interaction.followup.send(embed=profile, ephemeral=True)
+            await interaction.followup.send(ephemeral=True, embed=profile)
 
-            # Send a log to the logging channel, if one is set
+            # Send a log to the logging channel
             cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
             row = await cur.fetchone()
             fetched_logging = row[0]
             if fetched_logging is not None:
-                logging_channel = await guild.fetch_channel(fetched_logging)
-                timestamp = datetime.now(tz=timezone.utc)
-                log = discord.Embed(color=self.bot.blurple, title="Profile Log", description=f"{member.mention} has just set their profile!", timestamp=timestamp)
-                log.set_author(name=member.display_name, icon_url=member.display_avatar)
-                await logging_channel.send(embed=log)
+                logging_channel = guild.get_channel(fetched_logging)
+                now = datetime.now(tz=timezone.utc)
+                if isinstance(logging_channel, discord.TextChannel):
+                    log = discord.Embed(
+                        color=self.bot.blurple,
+                        title="Profile Log",
+                        description=f"{member.mention} has just set their profile!",
+                        timestamp=now)
+                    await logging_channel.send(embed=log)
+                else:
+                    error = discord.Embed(
+                        color=self.bot.red,
+                        title="Logging Channel Not Found",
+                        description=f"A logging channel with the ID {fetched_logging} was not found! Please set a new logging channel by re-running the `/start` command.",
+                        timestamp=now
+                    )
+                    await interaction.followup.send(ephemeral=True, embed=error)
 
-        # Send an error message if there's an issue
+        # Send a message and print a traceback on error
         except Exception as e:
-            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error, ephemeral=True)
+            error = discord.Embed(
+                color=self.bot.red,
+                title="Error",
+                description=f"{e}"
+            )
+            await interaction.followup.send(ephemeral=True, embed=error)
             print(traceback.format_exc())
 
     @app_commands.command(name="get")
@@ -263,16 +279,20 @@ class Profiles(commands.GroupCog, group_name = "profile"):
                 if role.name != "@everyone":
                     roles.append(role.mention)
             if len(roles) > 0:
-                roles = ", ".join(roles)
+                roles = ", ".join(reversed(roles))
                 profile.add_field(name="📝 Roles", value=f"{roles}", inline=False)
             
             # Send the message
-            await interaction.followup.send(embed=profile, ephemeral=True)
+            await interaction.followup.send(ephemeral=True, embed=profile)
         
-        # Send an error message if there's an issue
+        # Send a message and print a traceback on error
         except Exception as e:
-            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.followup.send(embed=error, ephemeral=True)
+            error = discord.Embed(
+                color=self.bot.red,
+                title="Error",
+                description=f"{e}"
+            )
+            await interaction.followup.send(ephemeral=True, embed=error)
             print(traceback.format_exc())
 
 async def setup(bot: commands.Bot):
