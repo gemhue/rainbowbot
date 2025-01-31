@@ -1291,7 +1291,29 @@ class EmbedButtons(discord.ui.View):
         self.bot = bot
         self.user = user
         self.embed = embed
-        self.refresh_view()
+
+        if self.embed.title is None:
+            self.add_item(AddTitle(bot=self.bot, user=self.user))
+        else:
+            self.add_item(EditTitle(bot=self.bot, user=self.user))
+            self.add_item(RemoveTitle(bot=self.bot, user=self.user))
+
+        if self.embed.description is None:
+            self.add_item(AddDescription(bot=self.bot, user=self.user))
+        else:
+            self.add_item(EditDescription(bot=self.bot, user=self.user))
+            self.add_item(RemoveDescription(bot=self.bot, user=self.user))
+
+        if len(self.embed.fields) < 25:
+            self.add_item(AddField(bot=self.bot, user=self.user))
+        if len(self.embed.fields) > 0:
+            self.add_item(EditField(bot=self.bot, user=self.user))
+            self.add_item(RemoveField(bot=self.bot, user=self.user))
+
+        self.add_item(ColorEditor(bot=self.bot, user=self.user))
+        self.add_item(MediaEditor(bot=self.bot, user=self.user))
+        self.add_item(Confirm(bot=self.bot, user=self.user))
+        self.add_item(Cancel(bot=self.bot, user=self.user))
 
     async def refresh_view(self):
         self.clear_items()
