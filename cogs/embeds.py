@@ -45,26 +45,35 @@ class ChannelSelectView(discord.ui.View):
         self.value = False
         self.stop()
 
-class FieldNameModal(discord.ui.Modal, title = "Field Name"):
-    field_name = None
-    input = discord.ui.TextInput(
+class FieldNameModal(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="Field Name", timeout=None)
+        self.field_name = None
+
+        self.input = discord.ui.TextInput(
             label="Field Name",
             placeholder="Please provide a name for the field...",
             max_length=256
-    )
+        )
+        self.add_item(self.input)
 
     async def on_submit(self, interaction: discord.Interaction):
         await interaction.response.defer()
         self.field_name = self.input.value
         self.stop()
 
-class FieldValueModal(discord.ui.Modal, title = "Field Value"):
-    field_value = None
-    input = discord.ui.TextInput(
+class FieldValueModal(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="Field Value", timeout=None)
+        self.field_value = None
+
+        self.input = discord.ui.TextInput(
             label="Field Value",
+            style=discord.TextStyle.long,
             placeholder="Please provide a value for the field...",
             max_length=1024
-    )
+        )
+        self.add_item(self.input)
 
     async def on_submit(self, interaction: discord.Interaction):
         await interaction.response.defer()
@@ -426,27 +435,35 @@ class MediaEditor(discord.ui.View):
         self.value = False
         self.stop()
 
-class TitleModal(discord.ui.Modal, title = "Title"):
-    embed_title = None
-    input = discord.ui.TextInput(
+class TitleModal(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="Title", timeout=None)
+        self.embed_title = None
+
+        self.input = discord.ui.TextInput(
             label="Title",
             placeholder="Please provide a title for the embed...",
             max_length=256
-    )
+        )
+        self.add_item(self.input)
 
     async def on_submit(self, interaction: discord.Interaction):
         await interaction.response.defer()
         self.embed_title = self.input.value
         self.stop()
 
-class DescriptionModal(discord.ui.Modal, title = "Description"):
-    embed_description = None
-    input = discord.ui.TextInput(
+class DescriptionModal(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(title="Description", timeout=None)
+        self.embed_description = None
+
+        self.input = discord.ui.TextInput(
             label="Description",
             style=discord.TextStyle.long,
             placeholder="Please provide a description for the embed...",
             max_length=4096
-    )
+        )
+        self.add_item(self.input)
 
     async def on_submit(self, interaction: discord.Interaction):
         await interaction.response.defer()
