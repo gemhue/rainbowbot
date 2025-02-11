@@ -45,18 +45,12 @@ class ChannelSelectView(discord.ui.View):
         self.value = False
         self.stop()
 
-class FieldNameModal(discord.ui.Modal):
-    def __init__(self):
-        super().__init__(
-            title="Field Name",
-            timeout=None
-        )
-        self.field_name = None
-
+class FieldNameModal(discord.ui.Modal, title = "Field Name"):
+    field_name = None
     input = discord.ui.TextInput(
-        label="Field Name",
-        placeholder="Please provide a name for the field...",
-        max_length=256
+            label="Field Name",
+            placeholder="Please provide a name for the field...",
+            max_length=256
     )
 
     async def on_submit(self, interaction: discord.Interaction):
@@ -64,19 +58,12 @@ class FieldNameModal(discord.ui.Modal):
         self.field_name = self.input.value
         self.stop()
 
-class FieldValueModal(discord.ui.Modal):
-    def __init__(self):
-        super().__init__(
-            title="Field Value",
-            timeout=None
-        )
-        self.field_value = None
-
+class FieldValueModal(discord.ui.Modal, title = "Field Value"):
+    field_value = None
     input = discord.ui.TextInput(
-        label="Field Value",
-        style=discord.TextStyle.long,
-        placeholder="Please provide a value for the field...",
-        max_length=1024
+            label="Field Value",
+            placeholder="Please provide a value for the field...",
+            max_length=1024
     )
 
     async def on_submit(self, interaction: discord.Interaction):
@@ -331,17 +318,11 @@ class ColorSelectView(discord.ui.View):
         self.value = False
         self.stop()
 
-class URLModal(discord.ui.Modal):
-    def __init__(self):
-        super().__init__(
-            title="URL",
-            timeout=None
-        )
-        self.embed_url = None
-
+class URLModal(discord.ui.Modal, title = "Embed URL"):
+    embed_url = None
     input = discord.ui.TextInput(
-        label="URL",
-        placeholder="Please provide a URL for the embed..."
+            label="Embed URL",
+            placeholder="Please provide a URL for the embed..."
     )
 
     async def on_submit(self, interaction: discord.Interaction):
@@ -349,17 +330,11 @@ class URLModal(discord.ui.Modal):
         self.embed_url = self.input.value
         self.stop()
 
-class ImageURLModal(discord.ui.Modal):
-    def __init__(self):
-        super().__init__(
-            title="Image URL",
-            timeout=None
-        )
-        self.image_url = None
-
+class ImageURLModal(discord.ui.Modal, title = "Image URL"):
+    image_url = None
     input = discord.ui.TextInput(
-        label="Image URL",
-        placeholder="Please provide an image URL for the embed..."
+            label="Image URL",
+            placeholder="Please provide an image URL for the embed..."
     )
 
     async def on_submit(self, interaction: discord.Interaction):
@@ -367,17 +342,11 @@ class ImageURLModal(discord.ui.Modal):
         self.image_url = self.input.value
         self.stop()
 
-class ThumbnailURLModal(discord.ui.Modal):
-    def __init__(self):
-        super().__init__(
-            title="Thumbnail URL",
-            timeout=None
-        )
-        self.thumbnail_url = None
-
+class ThumbnailURLModal(discord.ui.Modal, title = "Thumbnail URL"):
+    thumbnail_url = None
     input = discord.ui.TextInput(
-        label="Thumbnail URL",
-        placeholder="Please provide a thumbnail URL for the embed..."
+            label="Thumbnail URL",
+            placeholder="Please provide a thumbnail URL for the embed..."
     )
 
     async def on_submit(self, interaction: discord.Interaction):
@@ -457,18 +426,12 @@ class MediaEditor(discord.ui.View):
         self.value = False
         self.stop()
 
-class TitleModal(discord.ui.Modal):
-    def __init__(self):
-        super().__init__(
-            title="Title",
-            timeout=None
-        )
-        self.embed_title = None
-
+class TitleModal(discord.ui.Modal, title = "Title"):
+    embed_title = None
     input = discord.ui.TextInput(
-        label="Title",
-        placeholder="Please provide a title for the embed...",
-        max_length=256
+            label="Title",
+            placeholder="Please provide a title for the embed...",
+            max_length=256
     )
 
     async def on_submit(self, interaction: discord.Interaction):
@@ -476,19 +439,13 @@ class TitleModal(discord.ui.Modal):
         self.embed_title = self.input.value
         self.stop()
 
-class DescriptionModal(discord.ui.Modal):
-    def __init__(self):
-        super().__init__(
-            title="Description",
-            timeout=None
-        )
-        self.embed_description = None
-
+class DescriptionModal(discord.ui.Modal, title = "Description"):
+    embed_description = None
     input = discord.ui.TextInput(
-        label="Description",
-        style=discord.TextStyle.long,
-        placeholder="Please provide a description for the embed...",
-        max_length=4096
+            label="Description",
+            style=discord.TextStyle.long,
+            placeholder="Please provide a description for the embed...",
+            max_length=4096
     )
 
     async def on_submit(self, interaction: discord.Interaction):
