@@ -137,7 +137,9 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 )
                 await response.edit(embed=wait, view=None)
                 time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
-                deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True, after=time)
+                messages = [m async for m in await channel.history()]
+                limit = len(messages)
+                deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False, after=time, oldest_first=True, bulk=True)
                 if len(deleted) == 1:
                     delete_embed = discord.Embed(
                         color=self.bot.green,
@@ -253,7 +255,9 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     await response.edit(embed=wait, view=None)
                     time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                     for channel in csv.channels:
-                        deleted = await channel.purge(check=lambda m: m.pinned == False and m.author == member, oldest_first=True, after=time)
+                        messages = [m async for m in await channel.history()]
+                        limit = len(messages)
+                        deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False and m.author == member, after=time, oldest_first=True, bulk=True)
                         if len(deleted) == 1:
                             delete_embed = discord.Embed(
                                 color=self.bot.green,
@@ -387,7 +391,9 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     await response.edit(embed=wait, view=None)
                     time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                     for channel in csv.channels:
-                        deleted = await channel.purge(check=lambda m: m.pinned == False and m.author == member, oldest_first=True, after=time)
+                        messages = [m async for m in await channel.history()]
+                        limit = len(messages)
+                        deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False and m.author == member, after=time, oldest_first=True, bulk=True)
                         if len(deleted) == 1:
                             delete_embed = discord.Embed(
                                 color=self.bot.green,
@@ -516,7 +522,9 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     await response.edit(embed=wait, view=None)
                     time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                     for channel in csv.channels:
-                        deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True, after=time)
+                        messages = [m async for m in await channel.history()]
+                        limit = len(messages)
+                        deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False, after=time, oldest_first=True, bulk=True)
                         if len(deleted) == 1:
                             delete_embed = discord.Embed(
                                 color=self.bot.green,
@@ -646,7 +654,9 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                     purge_channels = [c for c in guild.text_channels if c not in csv.channels]
                     for channel in purge_channels:
-                        deleted = await channel.purge(check=lambda m: m.pinned == False, oldest_first=True, after=time)
+                        messages = [m async for m in await channel.history()]
+                        limit = len(messages)
+                        deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False, after=time, oldest_first=True, bulk=True)
                         if len(deleted) == 1:
                             delete_embed = discord.Embed(
                                 color=self.bot.green,
