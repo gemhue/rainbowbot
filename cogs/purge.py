@@ -252,9 +252,12 @@ class Purge(commands.GroupCog, group_name = "purge"):
                         title="Purge in Progress",
                         description="Please wait while the purge is in progress. This message will be edited when the purge is complete."
                     )
+                    wait.add_field(name="Currently Purging", value="None", inline=False)
                     await response.edit(embed=wait, view=None)
                     time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                     for channel in csv.channels:
+                        wait.set_field_at(index=0, name="Currently Purging", value=f"{channel.mention}", inline=False)
+                        await response.edit(embed=wait, view=None)
                         messages = [m async for m in channel.history()]
                         limit = len(messages)
                         deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False and m.author == member, after=time, oldest_first=True, bulk=True)
@@ -388,9 +391,12 @@ class Purge(commands.GroupCog, group_name = "purge"):
                         title="Purge in Progress",
                         description="Please wait while the purge is in progress. This message will be edited when the purge is complete."
                     )
+                    wait.add_field(name="Currently Purging", value="None", inline=False)
                     await response.edit(embed=wait, view=None)
                     time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                     for channel in csv.channels:
+                        wait.set_field_at(index=0, name="Currently Purging", value=f"{channel.mention}", inline=False)
+                        await response.edit(embed=wait, view=None)
                         messages = [m async for m in channel.history()]
                         limit = len(messages)
                         deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False and m.author == member, after=time, oldest_first=True, bulk=True)
@@ -519,9 +525,12 @@ class Purge(commands.GroupCog, group_name = "purge"):
                         title="Purge in Progress",
                         description="Please wait while the purge is in progress. This message will be edited when the purge is complete."
                     )
+                    wait.add_field(name="Currently Purging", value="None", inline=False)
                     await response.edit(embed=wait, view=None)
                     time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                     for channel in csv.channels:
+                        wait.set_field_at(index=0, name="Currently Purging", value=f"{channel.mention}", inline=False)
+                        await response.edit(embed=wait, view=None)
                         messages = [m async for m in channel.history()]
                         limit = len(messages)
                         deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False, after=time, oldest_first=True, bulk=True)
@@ -650,10 +659,13 @@ class Purge(commands.GroupCog, group_name = "purge"):
                         title="Purge in Progress",
                         description="Please wait while the purge is in progress. This message will be edited when the purge is complete."
                     )
+                    wait.add_field(name="Currently Purging", value="None", inline=False)
                     await response.edit(embed=wait, view=None)
                     time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                     purge_channels = [c for c in guild.text_channels if c not in csv.channels]
                     for channel in purge_channels:
+                        wait.set_field_at(index=0, name="Currently Purging", value=f"{channel.mention}", inline=False)
+                        await response.edit(embed=wait, view=None)
                         messages = [m async for m in channel.history()]
                         limit = len(messages)
                         deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False, after=time, oldest_first=True, bulk=True)
