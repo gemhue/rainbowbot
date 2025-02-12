@@ -17,6 +17,7 @@ class YesOrNo(discord.ui.View):
     async def yes(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
+            button.disabled = True
             self.value = True
             self.stop()
 
@@ -24,6 +25,7 @@ class YesOrNo(discord.ui.View):
     async def no(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
+            button.disabled = True
             self.value = False
             self.stop()
 
@@ -54,6 +56,7 @@ class ChannelSelectView(discord.ui.View):
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
+            button.disabled = True
             self.value = True
             self.stop()
     
@@ -61,6 +64,7 @@ class ChannelSelectView(discord.ui.View):
     async def create(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
+            button.disabled = True
             self.value = "Create"
             self.stop()
 
@@ -68,6 +72,7 @@ class ChannelSelectView(discord.ui.View):
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
+            button.disabled = True
             self.value = False
             self.stop()
 
@@ -97,6 +102,7 @@ class RoleSelectView(discord.ui.View):
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
+            button.disabled = True
             self.value = True
             self.stop()
     
@@ -104,6 +110,7 @@ class RoleSelectView(discord.ui.View):
     async def create(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
+            button.disabled = True
             self.value = "Create"
             self.stop()
 
@@ -111,6 +118,7 @@ class RoleSelectView(discord.ui.View):
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
+            button.disabled = True
             self.value = False
             self.stop()
 
@@ -155,6 +163,7 @@ class InactiveMonthsView(discord.ui.View):
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
+            button.disabled = True
             self.value = True
             self.stop()
 
@@ -162,6 +171,7 @@ class InactiveMonthsView(discord.ui.View):
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
+            button.disabled = True
             self.value = False
             self.stop()
 
@@ -371,6 +381,7 @@ class CogButtons(discord.ui.View):
         message = interaction.message
         try:
             if interaction.user == self.user:
+                button.disabled = True
                 self.value = True
                 self.stop()
         except Exception as e:
@@ -592,6 +603,7 @@ class RemoveButtons(discord.ui.View):
         message = interaction.message
         try:
             if interaction.user == self.user:
+                button.disabled = True
                 self.value = True
                 self.stop()
         except Exception as e:
