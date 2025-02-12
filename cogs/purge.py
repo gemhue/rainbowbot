@@ -135,6 +135,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     title="Purge in Progress",
                     description="Please wait while the purge is in progress. This message will be edited when the purge is complete."
                 )
+                wait.add_field(name="Currently Purging", value=f"{channel.mention}", inline=False)
                 await response.edit(embed=wait, view=None)
                 time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
                 messages = [m async for m in channel.history()]
