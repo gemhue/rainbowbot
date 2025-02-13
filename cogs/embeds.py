@@ -800,6 +800,10 @@ class Embeds(commands.GroupCog, group_name = "embed"):
                 else:
                     cancel = discord.Embed(color=self.bot.red, title="Cancelled", description="This interaction has been cancelled.")
                     await interaction.followup.edit_message(message_id=response.id, embed=cancel, view=None)
+
+            else:
+                debug = discord.Embed(color=self.bot.red, title="Error", description="An embed was not found using the provided URL.")
+                await interaction.followup.edit_message(message_id=response.id, embed=debug, view=None)
         
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
