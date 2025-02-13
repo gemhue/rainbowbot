@@ -5,7 +5,7 @@ import asyncio
 from discord.ext import commands
 from discord import app_commands, ChannelType
 from datetime import datetime, timezone
-from cogs import autodelete, awards, embeds, profiles, purge, remind, rssfeeds, tickets
+from cogs import autodelete, awards, embeds, profiles, purge, remind, tickets
 
 class YesOrNo(discord.ui.View):
     def __init__(self, *, timeout = 180, user: discord.Member):
@@ -326,7 +326,7 @@ class CogButtons(discord.ui.View):
             print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
-
+    """
     @discord.ui.button(label="RSS Feeds", style=discord.ButtonStyle.blurple, emoji="📰")
     async def rss_feeds(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
@@ -350,6 +350,7 @@ class CogButtons(discord.ui.View):
             print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
+    """
 
     @discord.ui.button(label="Tickets", style=discord.ButtonStyle.blurple, emoji="🎫")
     async def tickets(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -547,6 +548,7 @@ class RemoveButtons(discord.ui.View):
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
+    """
     @discord.ui.button(label="RSS Feeds", style=discord.ButtonStyle.blurple, emoji="📰")
     async def rss_feeds(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
@@ -571,6 +573,7 @@ class RemoveButtons(discord.ui.View):
             print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
+    """
 
     @discord.ui.button(label="Tickets", style=discord.ButtonStyle.blurple, emoji="🎫")
     async def tickets(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -983,7 +986,7 @@ class Start(commands.Cog):
             ask_cogs.add_field(name="Profiles", value="These commands allow you and your server members to set up member profiles that can be viewed and edited.", inline=False)
             ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
             ask_cogs.add_field(name="Remind", value="These commands allow you to set reminders for yourself, a user, a role, or everyone.", inline=False)
-            ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
+            # ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
             ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
             cog_buttons = CogButtons(bot=self.bot, user=author)
             await message.edit(embed=ask_cogs, view=cog_buttons)
@@ -1104,7 +1107,7 @@ class Commands(commands.GroupCog, name = "commands"):
             ask_cogs.add_field(name="Profiles", value="These commands allow you and your server members to set up member profiles that can be viewed and edited.", inline=False)
             ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
             ask_cogs.add_field(name="Remind", value="These commands allow you to set reminders for yourself, a user, a role, or everyone.", inline=False)
-            ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
+            # ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
             ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
             cog_buttons = CogButtons(bot=self.bot, user=author)
             message = await interaction.followup.send(embed=ask_cogs, view=cog_buttons, wait=True)
@@ -1187,7 +1190,7 @@ class Commands(commands.GroupCog, name = "commands"):
             ask_cogs.add_field(name="Profiles", value="These commands allow you and your server members to set up member profiles that can be viewed and edited.", inline=False)
             ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
             ask_cogs.add_field(name="Remind", value="These commands allow you to set reminders for yourself, a user, a role, or everyone.", inline=False)
-            ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
+            # ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
             ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
             cog_buttons = RemoveButtons(bot=self.bot, user=author)
             message = await interaction.followup.send(embed=ask_cogs, view=cog_buttons, wait=True)

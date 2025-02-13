@@ -50,12 +50,12 @@ async def create_tables(bot: commands.Bot):
             guild_member_id	TEXT PRIMARY KEY,
             amount INTEGER DEFAULT NULL
         )"""
-    custom_reactions_table = """CREATE TABLE IF NOT EXISTS custom_reactions (
-            guild_id INTEGER,
-            emoji_id INTEGER,
-            trigger TEXT,
-            frequency INTEGER
-        )"""
+    # custom_reactions_table = """CREATE TABLE IF NOT EXISTS custom_reactions (
+    #         guild_id INTEGER,
+    #         emoji_id INTEGER,
+    #         trigger TEXT,
+    #         frequency INTEGER
+    #     )"""
     guilds_table = """CREATE TABLE IF NOT EXISTS guilds (
             guild_id INTEGER PRIMARY KEY,
             logging_channel_id INTEGER DEFAULT NULL,
@@ -91,10 +91,10 @@ async def create_tables(bot: commands.Bot):
             channel_id INTEGER DEFAULT NULL,
             role_id INTEGER DEFAULT NULL
         )"""
-    webhooks_table = """CREATE TABLE IF NOT EXISTS webhooks (
-            webhook_url TEXT PRIMARY KEY,
-            rss_feed_url TEXT
-        )"""
+    # webhooks_table = """CREATE TABLE IF NOT EXISTS webhooks (
+    #         webhook_url TEXT PRIMARY KEY,
+    #         rss_feed_url TEXT
+    #     )"""
     if isinstance(bot.database, aiosqlite.Connection):
         db = bot.database
         try:
@@ -109,12 +109,12 @@ async def create_tables(bot: commands.Bot):
         except Exception:
             print("There was a problem creating the Awards table.")
             print(traceback.format_exc())
-        try:
-            await db.execute(custom_reactions_table)
-            await db.commit()
-        except Exception:
-            print("There was a problem creating the Custom Reactions table.")
-            print(traceback.format_exc())
+        # try:
+        #     await db.execute(custom_reactions_table)
+        #     await db.commit()
+        # except Exception:
+        #     print("There was a problem creating the Custom Reactions table.")
+        #     print(traceback.format_exc())
         try:
             await db.execute(guilds_table)
             await db.commit()
@@ -133,12 +133,12 @@ async def create_tables(bot: commands.Bot):
         except Exception:
             print("There was a problem creating the Tickets table.")
             print(traceback.format_exc())
-        try:
-            await db.execute(webhooks_table)
-            await db.commit()
-        except Exception:
-            print("There was a problem creating the Webhooks table.")
-            print(traceback.format_exc())
+        # try:
+        #     await db.execute(webhooks_table)
+        #     await db.commit()
+        # except Exception:
+        #     print("There was a problem creating the Webhooks table.")
+        #     print(traceback.format_exc())
     else:
         print("There was a problem connecting to the database.")
 
@@ -173,14 +173,6 @@ class RainbowBot(commands.Bot):
         except Exception:
             print("There was an error clearing the global command tree.")
             print(traceback.format_exc())
-        # Clear all local command trees
-        for guild in self.guilds:
-            try:
-                self.tree.clear_commands(guild=guild)
-                print(f"Local Command Tree (Guild ID: {guild.id}): Cleared")
-            except Exception:
-                print(f"There was an error clearing the local command tree (Guild ID: {guild.id}).")
-                print(traceback.format_exc())
         # Load all extensions
         for cog in await allcogs(x="cogs"):
             try:
@@ -196,14 +188,6 @@ class RainbowBot(commands.Bot):
         except Exception:
             print("There was an error syncing the global command tree.")
             print(traceback.format_exc())
-        # Sync all local command trees
-        for guild in self.guilds:
-            try:
-                await self.tree.sync(guild=guild)
-                print(f"Local Command Tree (Guild ID: {guild.id}): Synced")
-            except Exception:
-                print(f"There was an error syncing the local command tree (Guild ID: {guild.id}).")
-                print(traceback.format_exc())
 
 bot = RainbowBot()
 handler = logging.FileHandler(filename="rainbowbot.log", encoding="utf-8", mode="w")
@@ -211,18 +195,30 @@ handler = logging.FileHandler(filename="rainbowbot.log", encoding="utf-8", mode=
 @bot.command(name="sync", hidden=True)
 @commands.is_owner()
 async def sync(ctx: commands.Context, where: str):
-    """(Bot Owner Only) Syncs the bot's command tree either locally or globally.
+    """(Bot Owner Only) Syncs the bot's command tree either locally, globally, or per guild.
     """
     await ctx.defer()
     guild = ctx.guild
     if where == "here" or where == "local":
+        # Syncs the local command tree
         await bot.tree.sync(guild=guild)
         embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's local command tree has been **synced**!")
     elif where == "all" or where == "global":
+        # Syncs the global command tree
         await bot.tree.sync(guild=None)
         embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's global command tree has been **synced**!")
+    elif where == "guilds":
+        # Sync all guild command trees
+        for guild in bot.guilds:
+            try:
+                await bot.tree.sync(guild=guild)
+                print(f"Local Command Tree (Guild ID: {guild.id}): Synced")
+            except Exception:
+                print(f"There was an error syncing the local command tree (Guild ID: {guild.id}).")
+                print(traceback.format_exc())
+        embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's local command tree has been **synced** for every guild!")
     else:
-        embed = discord.Embed(color=bot.red, title="Error", description=f"The bot's command tree has not been synced! Please specify if you would like to sync `here` or `all`.")
+        embed = discord.Embed(color=bot.red, title="Error", description=f"The bot's command tree has not been synced! Please specify if you would like to sync `here`, `all`, or `guilds`.")
     await ctx.send(embed=embed, delete_after=10.0)
     await ctx.message.delete()
 
@@ -241,8 +237,10 @@ async def sync(ctx: commands.Context, where: str):
             )
             if where == "here" or where == "local":
                 log.add_field(name="Local Tree", value=f"{ctx.author.mention} has just **synced** the bot's local command tree.")
-            if where == "all" or where == "global":
+            elif where == "all" or where == "global":
                 log.add_field(name="Global Tree", value=f"{ctx.author.mention} has just **synced** the bot's global command tree.")
+            elif where == "guilds":
+                log.add_field(name="Guild Trees", value=f"{ctx.author.mention} has just **synced** the bot's local command tree for every guild.")
             log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
             log.set_thumbnail(url=ctx.author.display_avatar)
             await logging_channel.send(embed=log)
@@ -268,6 +266,16 @@ async def clear(ctx: commands.Context, where: str):
     elif where == "all" or where == "global":
         bot.tree.clear_commands(guild=None)
         embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's global command tree has been **cleared**!")
+    elif where == "guilds":
+        # Clear all local command trees
+        for guild in bot.guilds:
+            try:
+                bot.tree.clear_commands(guild=guild)
+                print(f"Local Command Tree (Guild ID: {guild.id}): Cleared")
+            except Exception:
+                print(f"There was an error clearing the local command tree (Guild ID: {guild.id}).")
+                print(traceback.format_exc())
+        embed = discord.Embed(color=bot.green, title="Success", description=f"The bot's local command tree has been **cleared** for every guild!")
     else:
         embed = discord.Embed(color=bot.red, title="Error", description=f"The bot's command tree has not been cleared! Please specify if you would like to clear `here` or `all`.")
     await ctx.send(embed=embed, delete_after=10.0)
@@ -288,8 +296,10 @@ async def clear(ctx: commands.Context, where: str):
             )
             if where == "here" or where == "local":
                 log.add_field(name="Local Tree", value=f"{ctx.author.mention} has just **cleared** the bot's local command tree.")
-            if where == "all" or where == "global":
+            elif where == "all" or where == "global":
                 log.add_field(name="Global Tree", value=f"{ctx.author.mention} has just **cleared** the bot's global command tree.")
+            elif where == "guilds":
+                log.add_field(name="Guild Trees", value=f"{ctx.author.mention} has just **cleared** the bot's local command tree for every guild.")
             log.set_author(name=ctx.author.display_name, icon_url=ctx.author.display_avatar)
             log.set_thumbnail(url=ctx.author.display_avatar)
             await logging_channel.send(embed=log)
