@@ -79,16 +79,13 @@ class RainbowBot(commands.Bot):
                 print(f"There was an error clearing the local command tree (Guild ID: {guild.id}).")
                 print(traceback.format_exc())
         # Load all extensions
-        try:
-            cogs = []
-            for cog in await allcogs(x="cogs"):
+        for cog in await allcogs(x="cogs"):
+            try:
                 await self.load_extension(cog)
-                cogs.append(cog)
-            list = ", ".join(cogs)
-            print(f"Extensions Loaded: {list}")
-        except Exception:
-            print("There was an error loading the extensions.")
-            print(traceback.format_exc())
+                print(f"Loaded Successfully: {cog}")
+            except Exception:
+                print(f"There was an error loading {cog}.")
+                print(traceback.format_exc())
         # Sync the global command tree
         try:
             await self.tree.sync(guild=None)
