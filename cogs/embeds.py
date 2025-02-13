@@ -21,6 +21,11 @@ class ChannelSelect(discord.ui.ChannelSelect):
         await interaction.response.defer()
         channel = self.values[0]
         self.channel = channel
+        if not self.view.channel:
+            self.view.channel = self.channel
+
+        # Debugging print
+        print(f"ChannelSelect callback: {self.channel.name}")
 
 class ChannelSelectView(discord.ui.View):
     def __init__(self):
@@ -34,10 +39,13 @@ class ChannelSelectView(discord.ui.View):
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=1)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        if isinstance(self.select.channel, discord.TextChannel):
+        if not self.channel:
             self.channel = self.select.channel
         self.value = True
         self.stop()
+
+        # Debugging print
+        print(f"ChannelSelectView confirm: {self.channel.name}")
     
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=1)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -190,6 +198,11 @@ class FieldSelect(discord.ui.Select):
         await interaction.response.defer()
         index = self.values[0]
         self.index = int(index)
+        if not self.view.index:
+            self.view.index = self.index
+
+        # Debugging print
+        print(f"FieldSelect callback: {self.index}")
 
 class FieldSelectView(discord.ui.View):
     def __init__(self):
@@ -203,10 +216,13 @@ class FieldSelectView(discord.ui.View):
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=1)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        if isinstance(self.select.index, int):
+        if not self.index:
             self.index = self.select.index
         self.value = True
         self.stop()
+
+        # Debugging print
+        print(f"FieldSelectView confirm: {self.index}")
     
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=1)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -304,6 +320,11 @@ class ColorSelect(discord.ui.Select):
         await interaction.response.defer()
         color = self.values[0]
         self.color = discord.Colour.from_str(color)
+        if not self.view.color:
+            self.view.color = self.color
+        
+        # Debugging print
+        print(f"ColorSelect callback: {self.color.__str__}")
 
 class ColorSelectView(discord.ui.View):
     def __init__(self):
@@ -317,9 +338,13 @@ class ColorSelectView(discord.ui.View):
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=1)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        self.color = self.select.color
+        if not self.color:
+            self.color = self.select.color
         self.value = True
         self.stop()
+
+        # Debugging print
+        print(f"ColorSelectView confirm: {self.color.__str__}")
     
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red, emoji="✖️", row=1)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -378,8 +403,11 @@ class MediaEditor(discord.ui.View):
         if isinstance(modal.embed_url, str):
             if validators.url(modal.embed_url):
                 self.embed.url = modal.embed_url
-        
         await interaction.message.edit(embed=self.embed, view=self)
+
+        # Debugging print
+        if self.embed.url:
+            print(f"MediaEditor set_url: {self.embed.url}")
     
     @discord.ui.button(label="Remove URL", style=discord.ButtonStyle.gray, emoji="➖", row=0)
     async def remove_url(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -396,8 +424,11 @@ class MediaEditor(discord.ui.View):
         if isinstance(modal.image_url, str):
             if validators.url(modal.image_url):
                 self.embed.set_image(modal.image_url)
-        
         await interaction.message.edit(embed=self.embed, view=self)
+
+        # Debugging print
+        if self.embed.image:
+            print(f"MediaEditor set_image: {self.embed.image.url}")
     
     @discord.ui.button(label="Remove Image", style=discord.ButtonStyle.gray, emoji="➖", row=1)
     async def remove_image(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -414,8 +445,11 @@ class MediaEditor(discord.ui.View):
         if isinstance(modal.thumbnail_url, str):
             if validators.url(modal.thumbnail_url):
                 self.embed.set_thumbnail(modal.thumbnail_url)
-        
         await interaction.message.edit(embed=self.embed, view=self)
+
+        # Debugging print
+        if self.embed.thumbnail:
+            print(f"MediaEditor set_thumbnail: {self.embed.thumbnail.url}")
     
     @discord.ui.button(label="Remove Thumbnail", style=discord.ButtonStyle.gray, emoji="➖", row=2)
     async def remove_thumbnail(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -452,6 +486,9 @@ class TitleModal(discord.ui.Modal):
         self.embed_title = self.input.value
         self.stop()
 
+        # Debugging print
+        print(f"TitleModal on_submit: {self.embed_title}")
+
 class DescriptionModal(discord.ui.Modal):
     def __init__(self):
         super().__init__(title="Description", timeout=None)
@@ -470,6 +507,9 @@ class DescriptionModal(discord.ui.Modal):
         self.embed_description = self.input.value
         self.stop()
 
+        # Debugging print
+        print(f"DescriptionModal on_submit: {self.embed_description}")
+
 class EmbedEditor(discord.ui.View):
     def __init__(self, *, timeout = None, embed: discord.Embed):
         super().__init__(timeout=timeout)
@@ -485,6 +525,9 @@ class EmbedEditor(discord.ui.View):
         if isinstance(modal.embed_title, str):
             self.embed.title = modal.embed_title
         await interaction.message.edit(embed=self.embed, view=self)
+
+        # Debugging print
+        print(f"EmbedEditor set_title: {self.embed.title}")
     
     @discord.ui.button(label="Remove Title", style=discord.ButtonStyle.gray, emoji="➖", row=0)
     async def remove_title(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -501,6 +544,9 @@ class EmbedEditor(discord.ui.View):
         if isinstance(modal.embed_description, str):
             self.embed.description = modal.embed_description
         await interaction.message.edit(embed=self.embed, view=self)
+
+        # Debugging print
+        print(f"EmbedEditor set_description: {self.embed.description}")
     
     @discord.ui.button(label="Remove Description", style=discord.ButtonStyle.gray, emoji="➖", row=1)
     async def remove_description(self, interaction: discord.Interaction, button: discord.ui.Button):
