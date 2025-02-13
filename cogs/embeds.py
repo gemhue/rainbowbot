@@ -413,7 +413,7 @@ class MediaEditor(discord.ui.View):
 
         if isinstance(modal.thumbnail_url, str):
             if validators.url(modal.thumbnail_url):
-                self.embed.set_image(modal.thumbnail_url)
+                self.embed.set_thumbnail(modal.thumbnail_url)
         
         await interaction.message.edit(embed=self.embed, view=self)
     
