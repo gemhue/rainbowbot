@@ -12,14 +12,14 @@ class YesOrNo(discord.ui.View):
         self.user = user
         self.value = None
 
-    @discord.ui.button(label="Yes", style=discord.ButtonStyle.green, emoji="👍")
+    @discord.ui.button(label="Yes", style=discord.ButtonStyle.green, emoji="👍", row=0)
     async def yes(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
             self.stop()
 
-    @discord.ui.button(label="No", style=discord.ButtonStyle.red, emoji="👎")
+    @discord.ui.button(label="No", style=discord.ButtonStyle.red, emoji="👎", row=0)
     async def no(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -49,7 +49,7 @@ class ChannelSelect(discord.ui.ChannelSelect):
             placeholder="Select up to 25 channels...",
             min_values=1,
             max_values=25,
-            row=1
+            row=0
         )
         self.user = user
         self.channels = []
@@ -69,7 +69,7 @@ class ChannelSelectView(discord.ui.View):
         self.select = ChannelSelect(user=self.user)
         self.add_item(self.select)
 
-    @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=2)
+    @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green, row=1)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -77,7 +77,7 @@ class ChannelSelectView(discord.ui.View):
             self.channels = self.select.channels
             self.stop()
 
-    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=2)
+    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red, row=1)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
@@ -101,12 +101,14 @@ class ChannelSelectView(discord.ui.View):
             await interaction.followup.send(embed=embed, ephemeral=True)
             print(traceback.format_exc())
 
+# Group cog for all purge commands
 class Purge(commands.GroupCog, group_name = "purge"):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         if isinstance(bot.database, aiosqlite.Connection):
             self.db = bot.database
 
+    # /purge here
     @app_commands.command(name="here")
     @app_commands.checks.has_permissions(administrator=True)
     async def here(self, interaction: discord.Interaction):
@@ -141,27 +143,11 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 messages = [m async for m in channel.history()]
                 limit = len(messages)
                 deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False, after=time, oldest_first=True, bulk=True)
-                if len(deleted) == 1:
-                    delete_embed = discord.Embed(
-                        color=self.bot.green,
-                        title="Message Deleted",
-                        description=f"{user.mention} has just deleted {len(deleted)} message from {channel.mention} via the `/purge here` command."
-                    )
-                elif len(deleted) > 1:
-                    delete_embed = discord.Embed(
-                        color=self.bot.green,
-                        title="Messages Deleted",
-                        description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge here` command."
-                    )
-                else:
-                    delete_embed = discord.Embed(
-                        color=self.bot.red,
-                        title="No Messages Deleted",
-                        description=f"No messages were deleted from {channel.mention} via the `/purge here` command."
-                    )
-                await response.edit(embed=delete_embed)
-                await response.delete(delay=10.0)
 
+                success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete!')
+                await response.edit(embed=success, view=None)
+                await response.delete(delay=10.0)
+                                        
                 # Send a log to the logging channel
                 cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
                 row = await cur.fetchone()
@@ -170,15 +156,13 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     logging_channel = guild.get_channel(fetched_logging)
                     now = datetime.now(tz=timezone.utc)
                     if isinstance(logging_channel, discord.TextChannel):
-                        log = discord.Embed(
-                            color=self.bot.blurple,
+                        purge_log = discord.Embed(
+                            color=self.bot.green,
                             title="Purge Log",
-                            description=f"{user.mention} has just purged all unpinned messages from the following channel: {channel.mention}.",
+                            description=f"{user.mention} has just deleted {len(deleted)} out of {limit} messages from {channel.mention} via the `/purge here` command.",
                             timestamp=now
                         )
-                        log.set_author(name=user.display_name, icon_url=user.display_avatar)
-                        log.set_thumbnail(url=user.display_avatar)
-                        await logging_channel.send(embed=log)
+                        await logging_channel.send(embed=purge_log)
                     
                     # Sends an error message if the logging channel was not found
                     else:
@@ -213,6 +197,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
             )
             await interaction.channel.send(embed=error, delete_after=10.0)
 
+    # /purge self
     @app_commands.command(name="self")
     async def self(self, interaction: discord.Interaction):
         """Purge all of your own unpinned messages in a set list of up to 25 channels.
@@ -262,25 +247,21 @@ class Purge(commands.GroupCog, group_name = "purge"):
                         messages = [m async for m in channel.history()]
                         limit = len(messages)
                         deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False and m.author == member, after=time, oldest_first=True, bulk=True)
-                        if len(deleted) == 1:
-                            delete_embed = discord.Embed(
-                                color=self.bot.green,
-                                title="Message Deleted",
-                                description=f"{member.mention} has just deleted {len(deleted)} message from {channel.mention} via the `/purge self` command."
-                            )
-                        elif len(deleted) > 1:
-                            delete_embed = discord.Embed(
-                                color=self.bot.green,
-                                title="Messages Deleted",
-                                description=f"{member.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge self` command."
-                            )
-                        else:
-                            delete_embed = discord.Embed(
-                                color=self.bot.red,
-                                title="No Messages Deleted",
-                                description=f"No messages were deleted from {channel.mention} via the `/purge self` command."
-                            )
-                        await channel.send(embed=delete_embed, delete_after=10.0)
+                        
+                        # Send logs to the logging channel as the channels are purged
+                        cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                        row = await cur.fetchone()
+                        fetched_logging = row[0]
+                        if fetched_logging is not None:
+                            logging_channel = guild.get_channel(fetched_logging)
+                            now = datetime.now(tz=timezone.utc)
+                            if isinstance(logging_channel, discord.TextChannel):
+                                purge_log = discord.Embed(
+                                    color=self.bot.green,
+                                    title="Purge Log",
+                                    description=f"{member.mention} has just deleted {len(deleted)} out of {limit} messages from {channel.mention} via the `/purge self` command."
+                                )
+                                await logging_channel.send(embed=purge_log)
                     
                     success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete!')
                     await response.edit(embed=success, view=None)
@@ -346,6 +327,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
             )
             await interaction.channel.send(embed=error, delete_after=10.0)
 
+    # /purge member
     @app_commands.command(name="member")
     @app_commands.checks.has_permissions(administrator=True)
     async def member(self, interaction: discord.Interaction, member: discord.Member):
@@ -401,25 +383,21 @@ class Purge(commands.GroupCog, group_name = "purge"):
                         messages = [m async for m in channel.history()]
                         limit = len(messages)
                         deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False and m.author == member, after=time, oldest_first=True, bulk=True)
-                        if len(deleted) == 1:
-                            delete_embed = discord.Embed(
-                                color=self.bot.green,
-                                title="Message Deleted",
-                                description=f"{user.mention} has just deleted {len(deleted)} message from {channel.mention} via the `/purge member` command."
-                            )
-                        elif len(deleted) > 1:
-                            delete_embed = discord.Embed(
-                                color=self.bot.green,
-                                title="Messages Deleted",
-                                description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge member` command."
-                            )
-                        else:
-                            delete_embed = discord.Embed(
-                                color=self.bot.red,
-                                title="No Messages Deleted",
-                                description=f"No messages were deleted from {channel.mention} via the `/purge member` command."
-                            )
-                        await channel.send(embed=delete_embed, delete_after=10.0)
+                        
+                        # Send logs to the logging channel as the channels are purged
+                        cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                        row = await cur.fetchone()
+                        fetched_logging = row[0]
+                        if fetched_logging is not None:
+                            logging_channel = guild.get_channel(fetched_logging)
+                            now = datetime.now(tz=timezone.utc)
+                            if isinstance(logging_channel, discord.TextChannel):
+                                purge_log = discord.Embed(
+                                    color=self.bot.green,
+                                    title="Purge Log",
+                                    description=f"{user.mention} has just deleted {len(deleted)} out of {limit} messages from {channel.mention} via the `/purge member` command."
+                                )
+                                await logging_channel.send(embed=purge_log)
                     
                     success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete!')
                     await response.edit(embed=success, view=None)
@@ -485,6 +463,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
             )
             await interaction.channel.send(embed=error, delete_after=10.0)
 
+    # /purge channels
     @app_commands.command(name="channels")
     @app_commands.checks.has_permissions(administrator=True)
     async def channels(self, interaction: discord.Interaction):
@@ -535,25 +514,21 @@ class Purge(commands.GroupCog, group_name = "purge"):
                         messages = [m async for m in channel.history()]
                         limit = len(messages)
                         deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False, after=time, oldest_first=True, bulk=True)
-                        if len(deleted) == 1:
-                            delete_embed = discord.Embed(
-                                color=self.bot.green,
-                                title="Message Deleted",
-                                description=f"{user.mention} has just deleted {len(deleted)} message from {channel.mention} via the `/purge channels` command."
-                            )
-                        elif len(deleted) > 1:
-                            delete_embed = discord.Embed(
-                                color=self.bot.green,
-                                title="Messages Deleted",
-                                description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge channels` command."
-                            )
-                        else:
-                            delete_embed = discord.Embed(
-                                color=self.bot.red,
-                                title="No Messages Deleted",
-                                description=f"No messages were deleted from {channel.mention} via the `/purge channels` command."
-                            )
-                        await channel.send(embed=delete_embed, delete_after=10.0)
+
+                        # Send logs to the logging channel as the channels are purged
+                        cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                        row = await cur.fetchone()
+                        fetched_logging = row[0]
+                        if fetched_logging is not None:
+                            logging_channel = guild.get_channel(fetched_logging)
+                            now = datetime.now(tz=timezone.utc)
+                            if isinstance(logging_channel, discord.TextChannel):
+                                purge_log = discord.Embed(
+                                    color=self.bot.green,
+                                    title="Purge Log",
+                                    description=f"{user.mention} has just deleted {len(deleted)} out of {limit} messages from {channel.mention} via the `/purge channels` command."
+                                )
+                                await logging_channel.send(embed=purge_log)
                     
                     success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete!')
                     await response.edit(embed=success, view=None)
@@ -619,6 +594,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
             )
             await interaction.channel.send(embed=error, delete_after=10.0)
 
+    # /purge server
     @app_commands.command(name="server")
     @app_commands.checks.has_permissions(administrator=True)
     async def server(self, interaction: discord.Interaction):
@@ -670,25 +646,21 @@ class Purge(commands.GroupCog, group_name = "purge"):
                         messages = [m async for m in channel.history()]
                         limit = len(messages)
                         deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False, after=time, oldest_first=True, bulk=True)
-                        if len(deleted) == 1:
-                            delete_embed = discord.Embed(
-                                color=self.bot.green,
-                                title="Message Deleted",
-                                description=f"{user.mention} has just deleted {len(deleted)} message from {channel.mention} via the `/purge server` command."
-                            )
-                        elif len(deleted) > 1:
-                            delete_embed = discord.Embed(
-                                color=self.bot.green,
-                                title="Messages Deleted",
-                                description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge server` command."
-                            )
-                        else:
-                            delete_embed = discord.Embed(
-                                color=self.bot.red,
-                                title="No Messages Deleted",
-                                description=f"No messages were deleted from {channel.mention} via the `/purge server` command."
-                            )
-                        await channel.send(embed=delete_embed, delete_after=10.0)
+
+                        # Send logs to the logging channel as the channels are purged
+                        cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
+                        row = await cur.fetchone()
+                        fetched_logging = row[0]
+                        if fetched_logging is not None:
+                            logging_channel = guild.get_channel(fetched_logging)
+                            now = datetime.now(tz=timezone.utc)
+                            if isinstance(logging_channel, discord.TextChannel):
+                                purge_log = discord.Embed(
+                                    color=self.bot.green,
+                                    title="Purge Log",
+                                    description=f"{user.mention} has just deleted {len(deleted)} out of {limit} messages from {channel.mention} via the `/purge server` command."
+                                )
+                                await logging_channel.send(embed=purge_log)
                     
                     success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete!')
                     await response.edit(embed=success, view=None)
