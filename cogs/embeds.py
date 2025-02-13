@@ -89,60 +89,72 @@ class FieldValueModal(discord.ui.Modal):
         self.stop()
 
 class FieldEditor(discord.ui.View):
-    def __init__(self, *, embed: discord.Embed, index: Optional[int] = None):
+    def __init__(self, *, index: Optional[int] = None):
         super().__init__(timeout=None)
-        self.embed = embed
+        self.embed = None
         self.index = index
     
     @discord.ui.button(label="Set Name", style=discord.ButtonStyle.blurple, emoji="✏️", row=0)
     async def set_name(self, interaction: discord.Interaction, button: discord.ui.Button):
+        message = interaction.message
+        embed = message.embeds[0]
+
         modal = FieldNameModal()
         await interaction.response.send_modal(modal)
         await modal.wait()
 
         if isinstance(modal.field_name, str):
             if self.index is None:
-                self.embed.add_field(name=modal.field_name, value="Default Field Value", inline=True)
-                self.index = len(self.embed.fields)-1
+                embed.add_field(name=modal.field_name, value="Default Field Value", inline=True)
+                self.index = len(embed.fields)-1
             else:
-                field = self.embed.fields[self.index]
-                self.embed.set_field_at(index=self.index, name=modal.field_name, value=field.value, inline=field.inline)
-        await interaction.message.edit(embed=self.embed, view=self)
+                field = embed.fields[self.index]
+                embed.set_field_at(index=self.index, name=modal.field_name, value=field.value, inline=field.inline)
+        self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
     
     @discord.ui.button(label="Set Value", style=discord.ButtonStyle.blurple, emoji="✏️", row=0)
     async def set_value(self, interaction: discord.Interaction, button: discord.ui.Button):
+        message = interaction.message
+        embed = message.embeds[0]
+
         modal = FieldValueModal()
         await interaction.response.send_modal(modal)
         await modal.wait()
 
         if isinstance(modal.field_value, str):
             if self.index is None:
-                self.embed.add_field(name="Default Field Name", value=modal.field_value, inline=True)
-                self.index = len(self.embed.fields)-1
+                embed.add_field(name="Default Field Name", value=modal.field_value, inline=True)
+                self.index = len(embed.fields)-1
             else:
-                field = self.embed.fields[self.index]
-                self.embed.set_field_at(index=self.index, name=field.name, value=modal.field_value, inline=field.inline)
-        await interaction.message.edit(embed=self.embed, view=self)
+                field = embed.fields[self.index]
+                embed.set_field_at(index=self.index, name=field.name, value=modal.field_value, inline=field.inline)
+        self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
     
     @discord.ui.button(label="Inline Toggle", style=discord.ButtonStyle.blurple, emoji="🌓", row=0)
     async def inline_toggle(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
+        message = interaction.message
+        embed = message.embeds[0]
+
         if self.index is None:
-            self.embed.add_field(name="Default Field Name", value="Default Field Value", inline=True)
+            embed.add_field(name="Default Field Name", value="Default Field Value", inline=True)
             button.label = "Inline: True"
             button.emoji = "🌕"
-            self.index = len(self.embed.fields)-1
+            self.index = len(embed.fields)-1
         else:
-            field = self.embed.fields[self.index]
+            field = embed.fields[self.index]
             if field.inline == True:
-                self.embed.set_field_at(index=self.index, name=field.name, value=field.value, inline=False)
+                embed.set_field_at(index=self.index, name=field.name, value=field.value, inline=False)
                 button.label = "Inline: False"
                 button.emoji = "🌑"
             else:
-                self.embed.set_field_at(index=self.index, name=field.name, value=field.value, inline=True)
+                embed.set_field_at(index=self.index, name=field.name, value=field.value, inline=True)
                 button.label = "Inline: True"
                 button.emoji = "🌕"
-        await interaction.message.edit(embed=self.embed, view=self)
+        self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
 
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=1)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -231,53 +243,63 @@ class FieldSelectView(discord.ui.View):
         self.stop()
 
 class FieldView(discord.ui.View):
-    def __init__(self, *, embed = discord.Embed):
+    def __init__(self):
         super().__init__(timeout=None)
-        self.embed = embed
+        self.embed = None
     
     @discord.ui.button(label="Add Field", style=discord.ButtonStyle.green, emoji="➕", row=0)
     async def add_field(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        view = FieldEditor(embed=self.embed)
-        await interaction.message.edit(embed=self.embed, view=view)
+        message = interaction.message
+        embed = message.embeds[0]
+        self.embed = embed
+        
+        view = FieldEditor()
+        await interaction.followup.edit_message(message_id=message.id, embed=embed, view=view)
         await view.wait()
 
         if view.value == True:
             self.embed = view.embed
-                
-        await interaction.message.edit(embed=self.embed, view=self)
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
     
     @discord.ui.button(label="Edit Field", style=discord.ButtonStyle.green, emoji="✏️", row=0)
     async def edit_field(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
+        message = interaction.message
+        embed = message.embeds[0]
+        self.embed = embed
+
         view = FieldSelectView()
-        await interaction.message.edit(embed=self.embed, view=view)
+        await interaction.followup.edit_message(message_id=message.id, embed=embed, view=view)
         await view.wait()
 
         if view.value == True:
 
             if isinstance(view.index, int):
-                fieldview = FieldEditor(embed=self.embed, index=view.index)
-                await interaction.message.edit(embed=self.embed, view=fieldview)
+                fieldview = FieldEditor(index=view.index)
+                await interaction.followup.edit_message(message_id=message.id, embed=embed, view=fieldview)
                 await fieldview.wait()
 
                 if fieldview.value == True:
                     self.embed = fieldview.embed
-                
-        await interaction.message.edit(embed=self.embed, view=self)
-    
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
+
     @discord.ui.button(label="Remove Field", style=discord.ButtonStyle.red, emoji="➖", row=0)
     async def remove_field(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
+        message = interaction.message
+        embed = message.embeds[0]
+        self.embed = embed
+
         view = FieldSelectView()
-        await interaction.message.edit(embed=self.embed, view=view)
+        await interaction.followup.edit_message(message_id=message.id, embed=embed, view=view)
         await view.wait()
 
         if view.value == True:
             if isinstance(view.index, int):
-                self.embed.remove_field(index=view.index)
-
-        await interaction.message.edit(embed=self.embed, view=self)
+                embed.remove_field(index=view.index)
+                self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
     
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=2)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -389,21 +411,26 @@ class ThumbnailURLModal(discord.ui.Modal, title = "Thumbnail URL"):
         self.stop()
 
 class MediaEditor(discord.ui.View):
-    def __init__(self, *, timeout = None, embed: discord.Embed):
-        super().__init__(timeout=timeout)
-        self.embed = embed
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.embed = None
         self.value = None
     
     @discord.ui.button(label="Set URL", style=discord.ButtonStyle.blurple, emoji="✏️", row=0)
     async def set_url(self, interaction: discord.Interaction, button: discord.ui.Button):
+        message = interaction.message
+        embed = message.embeds[0]
+        self.embed = embed
+
         modal = URLModal()
         await interaction.response.send_modal(modal)
         await modal.wait()
 
         if isinstance(modal.embed_url, str):
             if validators.url(modal.embed_url):
-                self.embed.url = modal.embed_url
-        await interaction.message.edit(embed=self.embed, view=self)
+                embed.url = modal.embed_url
+                self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
 
         # Debugging print
         if self.embed.url:
@@ -412,19 +439,28 @@ class MediaEditor(discord.ui.View):
     @discord.ui.button(label="Remove URL", style=discord.ButtonStyle.gray, emoji="➖", row=0)
     async def remove_url(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        self.embed.url = None
-        await interaction.message.edit(embed=self.embed, view=self)
+        message = interaction.message
+        embed = message.embeds[0]
+        
+        embed.url = None
+        self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
 
     @discord.ui.button(label="Set Image", style=discord.ButtonStyle.blurple, emoji="✏️", row=1)
     async def set_image(self, interaction: discord.Interaction, button: discord.ui.Button):
+        message = interaction.message
+        embed = message.embeds[0]
+        self.embed = embed
+
         modal = ImageURLModal()
         await interaction.response.send_modal(modal)
         await modal.wait()
 
         if isinstance(modal.image_url, str):
             if validators.url(modal.image_url):
-                self.embed.set_image(modal.image_url)
-        await interaction.message.edit(embed=self.embed, view=self)
+                embed.set_image(modal.image_url)
+                self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
 
         # Debugging print
         if self.embed.image:
@@ -433,19 +469,28 @@ class MediaEditor(discord.ui.View):
     @discord.ui.button(label="Remove Image", style=discord.ButtonStyle.gray, emoji="➖", row=1)
     async def remove_image(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        self.embed.set_image(None)
-        await interaction.message.edit(embed=self.embed, view=self)
+        message = interaction.message
+        embed = message.embeds[0]
+        
+        embed.set_image(None)
+        self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
 
     @discord.ui.button(label="Set Thumbnail", style=discord.ButtonStyle.blurple, emoji="✏️", row=2)
     async def set_thumbnail(self, interaction: discord.Interaction, button: discord.ui.Button):
+        message = interaction.message
+        embed = message.embeds[0]
+        self.embed = embed
+
         modal = ThumbnailURLModal()
         await interaction.response.send_modal(modal)
         await modal.wait()
 
         if isinstance(modal.thumbnail_url, str):
             if validators.url(modal.thumbnail_url):
-                self.embed.set_thumbnail(modal.thumbnail_url)
-        await interaction.message.edit(embed=self.embed, view=self)
+                embed.set_thumbnail(modal.thumbnail_url)
+                self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
 
         # Debugging print
         if self.embed.thumbnail:
@@ -454,8 +499,12 @@ class MediaEditor(discord.ui.View):
     @discord.ui.button(label="Remove Thumbnail", style=discord.ButtonStyle.gray, emoji="➖", row=2)
     async def remove_thumbnail(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        self.embed.set_thumbnail(None)
-        await interaction.message.edit(embed=self.embed, view=self)
+        message = interaction.message
+        embed = message.embeds[0]
+
+        embed.set_thumbnail(None)
+        self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
     
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=3)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -511,20 +560,24 @@ class DescriptionModal(discord.ui.Modal):
         print(f"DescriptionModal on_submit: {self.embed_description}")
 
 class EmbedEditor(discord.ui.View):
-    def __init__(self, *, timeout = None, embed: discord.Embed):
-        super().__init__(timeout=timeout)
-        self.embed = embed
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.embed = None
         self.value = None
     
     @discord.ui.button(label="Set Title", style=discord.ButtonStyle.blurple, emoji="✏️", row=0)
     async def set_title(self, interaction: discord.Interaction, button: discord.ui.Button):
+        message = interaction.message
+        embed = message.embeds[0]
+
         modal = TitleModal()
         await interaction.response.send_modal(modal)
         await modal.wait()
 
         if isinstance(modal.embed_title, str):
-            self.embed.title = modal.embed_title
-        await interaction.message.edit(embed=self.embed, view=self)
+            embed.title = modal.embed_title
+        self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
 
         # Debugging print
         print(f"EmbedEditor set_title: {self.embed.title}")
@@ -532,18 +585,26 @@ class EmbedEditor(discord.ui.View):
     @discord.ui.button(label="Remove Title", style=discord.ButtonStyle.gray, emoji="➖", row=0)
     async def remove_title(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        self.embed.title = None
-        await interaction.message.edit(embed=self.embed, view=self)
+        message = interaction.message
+        embed = message.embeds[0]
+
+        embed.title = None
+        self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
     
     @discord.ui.button(label="Set Description", style=discord.ButtonStyle.blurple, emoji="✏️", row=1)
     async def set_description(self, interaction: discord.Interaction, button: discord.ui.Button):
+        message = interaction.message
+        embed = message.embeds[0]
+
         modal = DescriptionModal()
         await interaction.response.send_modal(modal)
         await modal.wait()
 
         if isinstance(modal.embed_description, str):
-            self.embed.description = modal.embed_description
-        await interaction.message.edit(embed=self.embed, view=self)
+            embed.description = modal.embed_description
+        self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
 
         # Debugging print
         print(f"EmbedEditor set_description: {self.embed.description}")
@@ -551,45 +612,61 @@ class EmbedEditor(discord.ui.View):
     @discord.ui.button(label="Remove Description", style=discord.ButtonStyle.gray, emoji="➖", row=1)
     async def remove_description(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-        self.embed.description = None
-        await interaction.message.edit(embed=self.embed, view=self)
+        message = interaction.message
+        embed = message.embeds[0]
+
+        embed.description = None
+        self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
     
     @discord.ui.button(label="Field Editor", style=discord.ButtonStyle.gray, emoji="📋", row=2)
     async def field_editor(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
+        message = interaction.message
+        embed = message.embeds[0]
+        self.embed = embed
         
-        view = FieldView(embed=self.embed)
-        await interaction.message.edit(embed=self.embed, view=view)
+        view = FieldView()
+        await interaction.followup.edit_message(message_id=message.id, embed=embed, view=view)
         await view.wait()
 
         if view.value == True:
-            self.embed = view.embed
-        await interaction.message.edit(embed=self.embed, view=self)
+            embed = view.embed
+            self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
     
     @discord.ui.button(label="Color Editor", style=discord.ButtonStyle.gray, emoji="🎨", row=2)
     async def color_editor(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
+        message = interaction.message
+        embed = message.embeds[0]
+        self.embed = embed
 
         view = ColorSelectView()
-        await interaction.message.edit(embed=self.embed, view=view)
+        await interaction.followup.edit_message(message_id=message.id, embed=embed, view=view)
         await view.wait()
 
         if view.value == True:
             if isinstance(view.color, discord.Colour):
-                self.embed.colour = view.color
-        await interaction.message.edit(embed=self.embed, view=self)
+                embed.colour = view.color
+                self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
     
     @discord.ui.button(label="Media Editor", style=discord.ButtonStyle.gray, emoji="📷", row=2)
     async def media_editor(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
-
+        message = interaction.message
+        embed = message.embeds[0]
+        self.embed = embed
+        
         view = MediaEditor()
-        await interaction.message.edit(embed=self.embed, view=view)
+        await interaction.followup.edit_message(message_id=message.id, embed=embed, view=view)
         await view.wait()
 
         if view.value == True:
-            self.embed = view.embed
-        await interaction.message.edit(embed=self.embed, view=self)
+            embed = view.embed
+            self.embed = embed
+        await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
     
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=3)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
@@ -618,59 +695,48 @@ class Embeds(commands.GroupCog, group_name = "embed"):
                 title="Default Embed Title",
                 description="Default Embed Description"
             )
-            view = EmbedEditor(embed=embed)
+            view = EmbedEditor()
             response = await interaction.followup.send(ephemeral=True, embed=embed, view=view, wait=True)
             await view.wait()
 
             if view.value == True:
 
+                embed = view.embed
                 channelselect = ChannelSelectView()
-                await response.edit(embed=view.embed, view=channelselect)
+                await interaction.followup.edit_message(message_id=response.id, embed=embed, view=channelselect)
                 await channelselect.wait()
 
                 if channelselect.value == True:
 
                     if isinstance(channelselect.channel, discord.TextChannel):
                         user = interaction.user
-                        view.embed.set_author(name=user.display_name, icon_url=user.display_avatar)
-                        view.embed.timestamp = datetime.now(tz=timezone.utc)
+                        embed.set_author(name=user.display_name, icon_url=user.display_avatar)
+                        embed.timestamp = datetime.now(tz=timezone.utc)
                         message = await channelselect.channel.send(embed=view.embed)
 
                         if isinstance(message, discord.Message):
                             success = discord.Embed(color=self.bot.green, title="Success", description=f"The embed has been sent to {channelselect.channel.mention} successfully!")
                             success.add_field(name="Link to Message", value=f"{message.jump_url}", inline=False)
-                            await response.edit(embed=success, view=None)
+                            await interaction.followup.edit_message(message_id=response.id, embed=success, view=None)
 
                         else:
-                            debug = discord.Embed(title="Error", description="The sent message is not recognised as a `discord.Message`.")
-                            await response.edit(embed=debug, view=None)
+                            debug = discord.Embed(color=self.bot.red, title="Error", description="The sent message is not recognised as a `discord.Message`.")
+                            await interaction.followup.edit_message(message_id=response.id, embed=debug, view=None)
                     
                     else:
-                        debug = discord.Embed(title="Error", description="The selected channel is not recognised as a `discord.TextChannel`.")
-                        await response.edit(embed=debug, view=None)
+                        debug = discord.Embed(color=self.bot.red, title="Error", description="The selected channel is not recognised as a `discord.TextChannel`.")
+                        await interaction.followup.edit_message(message_id=response.id, embed=debug, view=None)
 
                 else:
-                    cancel = discord.Embed(
-                        color=self.bot.red,
-                        title="Cancelled",
-                        description="This interaction has been cancelled."
-                    )
-                    await response.edit(embed=cancel, view=None)
+                    cancel = discord.Embed(color=self.bot.red, title="Cancelled", description="This interaction has been cancelled.")
+                    await interaction.followup.edit_message(message_id=response.id, embed=cancel, view=None)
             
             else:
-                cancel = discord.Embed(
-                    color=self.bot.red,
-                    title="Cancelled",
-                    description="This interaction has been cancelled."
-                )
-                await response.edit(embed=cancel, view=None)
+                cancel = discord.Embed(color=self.bot.red, title="Cancelled", description="This interaction has been cancelled.")
+                await interaction.followup.edit_message(message_id=response.id, embed=cancel, view=None)
         
         except Exception as e:
-            error = discord.Embed(
-                color=self.bot.red,
-                title="Error",
-                description=f"{e}"
-            )
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.send(ephemeral=True, embed=error)
             print(traceback.format_exc())
 
@@ -695,59 +761,48 @@ class Embeds(commands.GroupCog, group_name = "embed"):
                 embed = message.embeds[0]
             
             if isinstance(embed, discord.Embed):
-                view = EmbedEditor(embed=embed)
+                view = EmbedEditor()
                 response = await interaction.followup.send(ephemeral=True, embed=embed, view=view, wait=True)
                 await view.wait()
 
                 if view.value == True:
 
+                    embed = view.embed
                     channelselect = ChannelSelectView()
-                    await response.edit(embed=view.embed, view=channelselect)
+                    await interaction.followup.edit_message(message_id=response.id, embed=embed, view=channelselect)
                     await channelselect.wait()
 
                     if channelselect.value == True:
 
                         if isinstance(channelselect.channel, discord.TextChannel):
                             user = interaction.user
-                            view.embed.set_author(name=user.display_name, icon_url=user.display_avatar)
-                            view.embed.timestamp = datetime.now(tz=timezone.utc)
+                            embed.set_author(name=user.display_name, icon_url=user.display_avatar)
+                            embed.timestamp = datetime.now(tz=timezone.utc)
                             message = await channelselect.channel.send(embed=view.embed)
 
                             if isinstance(message, discord.Message):
                                 success = discord.Embed(color=self.bot.green, title="Success", description=f"The embed has been sent to {channelselect.channel.mention} successfully!")
                                 success.add_field(name="Link to Message", value=f"{message.jump_url}", inline=False)
-                                await response.edit(embed=success, view=None)
+                                await interaction.followup.edit_message(message_id=response.id, embed=success, view=None)
 
                             else:
-                                debug = discord.Embed(title="Error", description="The sent message is not recognised as a `discord.Message`.")
-                                await response.edit(embed=debug, view=None)
+                                debug = discord.Embed(color=self.bot.red, title="Error", description="The sent message is not recognised as a `discord.Message`.")
+                                await interaction.followup.edit_message(message_id=response.id, embed=debug, view=None)
                         
                         else:
-                            debug = discord.Embed(title="Error", description="The selected channel is not recognised as a `discord.TextChannel`.")
-                            await response.edit(embed=debug, view=None)
+                            debug = discord.Embed(color=self.bot.red, title="Error", description="The selected channel is not recognised as a `discord.TextChannel`.")
+                            await interaction.followup.edit_message(message_id=response.id, embed=debug, view=None)
 
                     else:
-                        cancel = discord.Embed(
-                            color=self.bot.red,
-                            title="Cancelled",
-                            description="This interaction has been cancelled."
-                        )
-                        await response.edit(embed=cancel, view=None)
+                        cancel = discord.Embed(color=self.bot.red, title="Cancelled", description="This interaction has been cancelled.")
+                        await interaction.followup.edit_message(message_id=response.id, embed=cancel, view=None)
                 
                 else:
-                    cancel = discord.Embed(
-                        color=self.bot.red,
-                        title="Cancelled",
-                        description="This interaction has been cancelled."
-                    )
-                    await response.edit(embed=cancel, view=None)
+                    cancel = discord.Embed(color=self.bot.red, title="Cancelled", description="This interaction has been cancelled.")
+                    await interaction.followup.edit_message(message_id=response.id, embed=cancel, view=None)
         
         except Exception as e:
-            error = discord.Embed(
-                color=self.bot.red,
-                title="Error",
-                description=f"{e}"
-            )
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.send(ephemeral=True, embed=error)
             print(traceback.format_exc())
 
