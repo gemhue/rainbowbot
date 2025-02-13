@@ -11,6 +11,35 @@ from RainbowBotHelp import RainbowBotHelp
 load_dotenv()
 token = os.getenv("token")
 
+async def allcogs(x):
+    files = []
+    cogs = []
+    cogsdict = {}
+    folder = "./cogs"
+    for file in os.listdir(folder):
+        if file.endswith(".py"):
+            files.append(file[:-3])
+    for file in files:
+        if x == "cogs":
+            cogs.append(f"cogs.{file}")
+        elif x == "modules":
+            title = file.title()
+            cogs.append(f"{file}.{title}")
+        elif x == "names":
+            cogs.append(file)
+        elif x == "names_lower":
+            name = file.lower()
+            cogs.append(name)
+        elif x == "names_dict":
+            lower = file.lower()
+            cogsdict[lower] = file
+    if len(cogs) > 0:
+        return cogs
+    elif len(cogsdict) > 0:
+        return cogsdict
+    else:
+        return None
+
 class RainbowBot(commands.Bot):
     def __init__(self):
         super().__init__(
@@ -41,6 +70,14 @@ class RainbowBot(commands.Bot):
         except Exception:
             print("There was an error clearing the global command tree.")
             print(traceback.format_exc())
+        # Clear all local command trees
+        for guild in self.guilds:
+            try:
+                self.tree.clear_commands(guild=guild)
+                print(f"Local Command Tree (Guild ID: {guild.id}): Cleared")
+            except Exception:
+                print(f"There was an error clearing the local command tree (Guild ID: {guild.id}).")
+                print(traceback.format_exc())
         # Load all extensions
         try:
             cogs = []
@@ -59,6 +96,14 @@ class RainbowBot(commands.Bot):
         except Exception:
             print("There was an error syncing the global command tree.")
             print(traceback.format_exc())
+        # Sync all local command trees
+        for guild in self.guilds:
+            try:
+                await self.tree.sync(guild=guild)
+                print(f"Local Command Tree (Guild ID: {guild.id}): Synced")
+            except Exception:
+                print(f"There was an error syncing the local command tree (Guild ID: {guild.id}).")
+                print(traceback.format_exc())
 
 bot = RainbowBot()
 handler = logging.FileHandler(filename="rainbowbot.log", encoding="utf-8", mode="w")
@@ -156,35 +201,6 @@ async def clear(ctx: commands.Context, where: str):
                 timestamp=now
             )
             await ctx.send(embed=log, delete_after=10.0)
-
-async def allcogs(x):
-    files = []
-    cogs = []
-    cogsdict = {}
-    folder = "./cogs"
-    for file in os.listdir(folder):
-        if file.endswith(".py"):
-            files.append(file[:-3])
-    for file in files:
-        if x == "cogs":
-            cogs.append(f"cogs.{file}")
-        elif x == "modules":
-            title = file.title()
-            cogs.append(f"{file}.{title}")
-        elif x == "names":
-            cogs.append(file)
-        elif x == "names_lower":
-            name = file.lower()
-            cogs.append(name)
-        elif x == "names_dict":
-            lower = file.lower()
-            cogsdict[lower] = file
-    if len(cogs) > 0:
-        return cogs
-    elif len(cogsdict) > 0:
-        return cogsdict
-    else:
-        return None
 
 @bot.command(name="get", hidden=True)
 @commands.is_owner()
