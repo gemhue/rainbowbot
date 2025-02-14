@@ -457,9 +457,12 @@ class MediaEditor(discord.ui.View):
         await modal.wait()
 
         if isinstance(modal.image_url, str):
+            print(f"MediaEditor set_image modal.image_url: {modal.image_url}")
             if validators.url(modal.image_url):
                 embed.set_image(modal.image_url)
                 self.embed = embed
+            else:
+                print(f"MediaEditor set_image modal.image_url: Could Not Be Set")
         await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
 
         # Debugging print
@@ -487,9 +490,12 @@ class MediaEditor(discord.ui.View):
         await modal.wait()
 
         if isinstance(modal.thumbnail_url, str):
+            print(f"MediaEditor set_thumbnail modal.thumbnail_url: {modal.thumbnail_url}")
             if validators.url(modal.thumbnail_url):
                 embed.set_thumbnail(modal.thumbnail_url)
                 self.embed = embed
+            else:
+                print(f"MediaEditor set_thumbnail modal.thumbnail_url: Could Not Be Set")
         await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
 
         # Debugging print
