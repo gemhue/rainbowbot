@@ -20,7 +20,7 @@ class ChannelSelect(discord.ui.ChannelSelect):
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         channel = self.values[0]
-        self.channel = channel
+        self.channel = channel.resolve()
         if not self.view.channel:
             self.view.channel = self.channel
 
@@ -518,13 +518,13 @@ class MediaEditor(discord.ui.View):
         self.value = False
         self.stop()
 
-class TitleModal(discord.ui.Modal):
+class EmbedTitleModal(discord.ui.Modal):
     def __init__(self):
-        super().__init__(title="Title", timeout=None)
+        super().__init__(title="Embed Title", timeout=None)
         self.embed_title = None
 
         self.input = discord.ui.TextInput(
-            label="Title",
+            label="Embed Title",
             placeholder="Please provide a title for the embed...",
             max_length=256
         )
@@ -536,15 +536,15 @@ class TitleModal(discord.ui.Modal):
         self.stop()
 
         # Debugging print
-        print(f"TitleModal on_submit: {self.embed_title}")
+        print(f"EmbedTitleModal on_submit: {self.embed_title}")
 
-class DescriptionModal(discord.ui.Modal):
+class EmbedDescriptionModal(discord.ui.Modal):
     def __init__(self):
-        super().__init__(title="Description", timeout=None)
+        super().__init__(title="Embed Description", timeout=None)
         self.embed_description = None
 
         self.input = discord.ui.TextInput(
-            label="Description",
+            label="Embed Description",
             style=discord.TextStyle.long,
             placeholder="Please provide a description for the embed...",
             max_length=4096
@@ -557,7 +557,7 @@ class DescriptionModal(discord.ui.Modal):
         self.stop()
 
         # Debugging print
-        print(f"DescriptionModal on_submit: {self.embed_description}")
+        print(f"EmbedDescriptionModal on_submit: {self.embed_description}")
 
 class EmbedEditor(discord.ui.View):
     def __init__(self):
@@ -570,7 +570,7 @@ class EmbedEditor(discord.ui.View):
         message = interaction.message
         embed = message.embeds[0]
 
-        modal = TitleModal()
+        modal = EmbedTitleModal()
         await interaction.response.send_modal(modal)
         await modal.wait()
 
@@ -597,7 +597,7 @@ class EmbedEditor(discord.ui.View):
         message = interaction.message
         embed = message.embeds[0]
 
-        modal = DescriptionModal()
+        modal = EmbedDescriptionModal()
         await interaction.response.send_modal(modal)
         await modal.wait()
 
