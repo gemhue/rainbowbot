@@ -547,4 +547,4 @@ async def ping(ctx: commands.Context):
 async def on_ready(bot=bot):
     print(f'Logged in as {bot.user}! (ID: {bot.user.id})')
 
-bot.run(token, log_handler=handler, log_level=logging.DEBUG)
+bot.run(token, log_handler=handler, log_level=logging.INFO)
