@@ -703,8 +703,7 @@ class Embeds(commands.GroupCog, group_name = "embed"):
 
             if view.value == True:
 
-                message = interaction.message
-                embed = message.embeds[0]
+                embed = response.embeds[0]
                 channelselect = ChannelSelectView()
                 await interaction.followup.edit_message(message_id=response.id, embed=embed, view=channelselect)
                 await channelselect.wait()
@@ -770,8 +769,7 @@ class Embeds(commands.GroupCog, group_name = "embed"):
 
                 if view.value == True:
 
-                    message = interaction.message
-                    embed = message.embeds[0]
+                    embed = response.embeds[0]
                     channelselect = ChannelSelectView()
                     await interaction.followup.edit_message(message_id=response.id, embed=embed, view=channelselect)
                     await channelselect.wait()
