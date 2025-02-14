@@ -567,6 +567,7 @@ class EmbedEditor(discord.ui.View):
     
     @discord.ui.button(label="Set Title", style=discord.ButtonStyle.blurple, emoji="✏️", row=0)
     async def set_title(self, interaction: discord.Interaction, button: discord.ui.Button):
+        print("EmbedEditor set_title: Attempting to send EmbedTitleModal")
         message = interaction.message
         embed = message.embeds[0]
 
@@ -594,6 +595,7 @@ class EmbedEditor(discord.ui.View):
     
     @discord.ui.button(label="Set Description", style=discord.ButtonStyle.blurple, emoji="✏️", row=1)
     async def set_description(self, interaction: discord.Interaction, button: discord.ui.Button):
+        print("EmbedEditor set_description: Attempting to send EmbedDescriptionModal")
         message = interaction.message
         embed = message.embeds[0]
 
