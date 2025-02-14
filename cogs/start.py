@@ -1001,9 +1001,13 @@ class Start(commands.Cog):
                     title="Commands Added",
                     description=f"{author.mention} has successfully added commands to the server!"
                 )
-                cogs = cog_buttons.guild_cogs[guild.id]
-                for cog in cogs:
-                    added.add_field(name=f"{cog}", value="Added successfully!")
+                if cog_buttons.guild_cogs[guild.id]:
+                    cogs = cog_buttons.guild_cogs[guild.id]
+                    coglist = []
+                    for cog in cogs:
+                        added.add_field(name=f"{cog}", value="Added successfully!")
+                        coglist.append(cog)
+                    join = ", ".join(coglist)
                 await message.edit(embed=added, view=None)
                 await asyncio.sleep(2.0)
 
@@ -1028,10 +1032,6 @@ class Start(commands.Cog):
                             timestamp=timestamp
                         )
                         log.set_author(name=author.display_name, icon_url=author.display_avatar)
-                        if cogs is not None:
-                            join = ", ".join(cogs)
-                        else:
-                            join = "None"
                         log.add_field(name="Commands Added", value=f"{join}")
                         await logging_channel.send(embed=log)
 
@@ -1121,12 +1121,13 @@ class Commands(commands.GroupCog, name = "commands"):
                     title="Success",
                     description=f"{author.mention} has successfully added commands to the server!"
                 )
-                cogs = cog_buttons.guild_cogs[guild.id]
-                if cogs is not None:
-                    join = ", ".join(cogs)
-                else:
-                    join = "None"
-                done.add_field(name="Commands Added", value=f"{join}")
+                if cog_buttons.guild_cogs[guild.id]:
+                    cogs = cog_buttons.guild_cogs[guild.id]
+                    coglist = []
+                    for cog in cogs:
+                        done.add_field(name=f"{cog}", value="Added successfully!")
+                        coglist.append(cog)
+                    join = ", ".join(coglist)
                 await message.edit(embed=done, view=None)
                 await message.delete(delay=10.0)
 
@@ -1204,12 +1205,13 @@ class Commands(commands.GroupCog, name = "commands"):
                     title="Success",
                     description=f"{author.mention} has successfully removed commands from the server!"
                 )
-                cogs = cog_buttons.guild_cogs[guild.id]
-                if cogs is not None:
-                    join = ", ".join(cogs)
-                else:
-                    join = "None"
-                done.add_field(name="Commands Removed", value=f"{join}")
+                if cog_buttons.guild_cogs[guild.id]:
+                    cogs = cog_buttons.guild_cogs[guild.id]
+                    coglist = []
+                    for cog in cogs:
+                        done.add_field(name=f"{cog}", value="Removed successfully!")
+                        coglist.append(cog)
+                    join = ", ".join(coglist)
                 await message.edit(embed=done, view=None)
                 await message.delete(delay=10.0)
 
