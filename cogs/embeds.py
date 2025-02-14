@@ -701,7 +701,8 @@ class Embeds(commands.GroupCog, group_name = "embed"):
 
             if view.value == True:
 
-                embed = view.embed
+                message = interaction.message
+                embed = message.embeds[0]
                 channelselect = ChannelSelectView()
                 await interaction.followup.edit_message(message_id=response.id, embed=embed, view=channelselect)
                 await channelselect.wait()
@@ -712,7 +713,7 @@ class Embeds(commands.GroupCog, group_name = "embed"):
                         user = interaction.user
                         embed.set_author(name=user.display_name, icon_url=user.display_avatar)
                         embed.timestamp = datetime.now(tz=timezone.utc)
-                        message = await channelselect.channel.send(embed=view.embed)
+                        message = await channelselect.channel.send(embed=embed)
 
                         if isinstance(message, discord.Message):
                             success = discord.Embed(color=self.bot.green, title="Success", description=f"The embed has been sent to {channelselect.channel.mention} successfully!")
@@ -767,7 +768,8 @@ class Embeds(commands.GroupCog, group_name = "embed"):
 
                 if view.value == True:
 
-                    embed = view.embed
+                    message = interaction.message
+                    embed = message.embeds[0]
                     channelselect = ChannelSelectView()
                     await interaction.followup.edit_message(message_id=response.id, embed=embed, view=channelselect)
                     await channelselect.wait()
@@ -778,7 +780,7 @@ class Embeds(commands.GroupCog, group_name = "embed"):
                             user = interaction.user
                             embed.set_author(name=user.display_name, icon_url=user.display_avatar)
                             embed.timestamp = datetime.now(tz=timezone.utc)
-                            message = await channelselect.channel.send(embed=view.embed)
+                            message = await channelselect.channel.send(embed=embed)
 
                             if isinstance(message, discord.Message):
                                 success = discord.Embed(color=self.bot.green, title="Success", description=f"The embed has been sent to {channelselect.channel.mention} successfully!")
