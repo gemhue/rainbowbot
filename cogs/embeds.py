@@ -262,7 +262,7 @@ class FieldView(discord.ui.View):
             self.embed = view.embed
         await interaction.followup.edit_message(message_id=message.id, embed=self.embed, view=self)
     
-    @discord.ui.button(label="Edit Field", style=discord.ButtonStyle.green, emoji="✏️", row=0)
+    @discord.ui.button(label="Edit Field", style=discord.ButtonStyle.gray, emoji="✏️", row=0)
     async def edit_field(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         message = interaction.message
