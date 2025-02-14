@@ -547,7 +547,7 @@ class EmbedDescriptionModal(discord.ui.Modal):
             label="Embed Description",
             style=discord.TextStyle.long,
             placeholder="Please provide a description for the embed...",
-            max_length=4096
+            max_length=4000
         )
         self.add_item(self.input)
 
