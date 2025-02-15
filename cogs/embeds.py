@@ -679,6 +679,9 @@ class EmbedEditor(discord.ui.View):
     @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green, emoji="✔️", row=3)
     async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
+        message = interaction.message
+        embed = message.embeds[0]
+        self.embed = embed
         self.value = True
         self.stop()
     
@@ -696,20 +699,22 @@ class Embeds(commands.GroupCog, group_name = "embed"):
     @app_commands.checks.has_permissions(administrator=True)
     async def build(self, interaction: discord.Interaction):
         """(Admin Only) Run this command to build and send an embed."""
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer()
         try:
-            embed = discord.Embed(
+            default_embed = discord.Embed(
                 color=self.bot.blurple,
                 title="Default Embed Title",
                 description="Default Embed Description"
             )
             view = EmbedEditor()
-            response = await interaction.followup.send(ephemeral=True, embed=embed, view=view, wait=True)
+            response = await interaction.followup.send(embed=default_embed, view=view, wait=True)
             await view.wait()
 
             if view.value == True:
 
-                embed = response.embeds[0]
+                embed = view.embed
+                if embed is None:
+                    embed = response.embeds[0]
                 channelselect = ChannelSelectView()
                 await interaction.followup.edit_message(message_id=response.id, embed=embed, view=channelselect)
                 await channelselect.wait()
@@ -725,27 +730,33 @@ class Embeds(commands.GroupCog, group_name = "embed"):
                         if isinstance(message, discord.Message):
                             success = discord.Embed(color=self.bot.green, title="Success", description=f"The embed has been sent to {channelselect.channel.mention} successfully!")
                             success.add_field(name="Link to Message", value=f"{message.jump_url}", inline=False)
-                            await interaction.followup.edit_message(message_id=response.id, embed=success, view=None)
+                            success_msg = await interaction.followup.edit_message(message_id=response.id, embed=success, view=None)
+                            await success_msg.delete(delay=10.0)
 
                         else:
                             debug = discord.Embed(color=self.bot.red, title="Error", description="The sent message is not recognised as a `discord.Message`.")
-                            await interaction.followup.edit_message(message_id=response.id, embed=debug, view=None)
+                            debug_msg = await interaction.followup.edit_message(message_id=response.id, embed=debug, view=None)
+                            await debug_msg.delete(delay=5.0)
                     
                     else:
                         debug = discord.Embed(color=self.bot.red, title="Error", description="The selected channel is not recognised as a `discord.TextChannel`.")
-                        await interaction.followup.edit_message(message_id=response.id, embed=debug, view=None)
+                        debug_msg = await interaction.followup.edit_message(message_id=response.id, embed=debug, view=None)
+                        await debug_msg.delete(delay=5.0)
 
                 else:
                     cancel = discord.Embed(color=self.bot.red, title="Cancelled", description="This interaction has been cancelled.")
-                    await interaction.followup.edit_message(message_id=response.id, embed=cancel, view=None)
+                    cancel_msg = await interaction.followup.edit_message(message_id=response.id, embed=cancel, view=None)
+                    await cancel_msg.delete(delay=5.0)
             
             else:
                 cancel = discord.Embed(color=self.bot.red, title="Cancelled", description="This interaction has been cancelled.")
-                await interaction.followup.edit_message(message_id=response.id, embed=cancel, view=None)
+                cancel_msg = await interaction.followup.edit_message(message_id=response.id, embed=cancel, view=None)
+                await cancel_msg.delete(delay=5.0)
         
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.followup.send(ephemeral=True, embed=error)
+            error_msg = await interaction.followup.send(embed=error, wait=True)
+            await error_msg.delete(delay=5.0)
             print(traceback.format_exc())
 
     @app_commands.command(name="edit")
@@ -758,24 +769,24 @@ class Embeds(commands.GroupCog, group_name = "embed"):
         url : str
             Provide the URL of the message containing the embed.
         """
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer()
         try:
             ctx = await commands.Context.from_interaction(interaction)
             converter = commands.MessageConverter()
             message = await converter.convert(ctx=ctx, argument=url)
 
-            embed = None
+            original_embed = None
             if isinstance(message, discord.Message):
-                embed = message.embeds[0]
-            
-            if isinstance(embed, discord.Embed):
+                original_embed = message.embeds[0]
                 view = EmbedEditor()
-                response = await interaction.followup.send(ephemeral=True, embed=embed, view=view, wait=True)
+                response = await interaction.followup.send(embed=original_embed, view=view, wait=True)
                 await view.wait()
 
                 if view.value == True:
 
-                    embed = response.embeds[0]
+                    embed = view.embed
+                    if embed is None:
+                        embed = response.embeds[0]
                     channelselect = ChannelSelectView()
                     await interaction.followup.edit_message(message_id=response.id, embed=embed, view=channelselect)
                     await channelselect.wait()
@@ -791,31 +802,38 @@ class Embeds(commands.GroupCog, group_name = "embed"):
                             if isinstance(message, discord.Message):
                                 success = discord.Embed(color=self.bot.green, title="Success", description=f"The embed has been sent to {channelselect.channel.mention} successfully!")
                                 success.add_field(name="Link to Message", value=f"{message.jump_url}", inline=False)
-                                await interaction.followup.edit_message(message_id=response.id, embed=success, view=None)
+                                success_msg = await interaction.followup.edit_message(message_id=response.id, embed=success, view=None)
+                                await success_msg.delete(delay=10.0)
 
                             else:
                                 debug = discord.Embed(color=self.bot.red, title="Error", description="The sent message is not recognised as a `discord.Message`.")
-                                await interaction.followup.edit_message(message_id=response.id, embed=debug, view=None)
+                                debug_msg = await interaction.followup.edit_message(message_id=response.id, embed=debug, view=None)
+                                await debug_msg.delete(delay=5.0)
                         
                         else:
                             debug = discord.Embed(color=self.bot.red, title="Error", description="The selected channel is not recognised as a `discord.TextChannel`.")
-                            await interaction.followup.edit_message(message_id=response.id, embed=debug, view=None)
+                            debug_msg = await interaction.followup.edit_message(message_id=response.id, embed=debug, view=None)
+                            await debug_msg.delete(delay=5.0)
 
                     else:
                         cancel = discord.Embed(color=self.bot.red, title="Cancelled", description="This interaction has been cancelled.")
-                        await interaction.followup.edit_message(message_id=response.id, embed=cancel, view=None)
+                        cancel_msg = await interaction.followup.edit_message(message_id=response.id, embed=cancel, view=None)
+                        await cancel_msg.delete(delay=5.0)
                 
                 else:
                     cancel = discord.Embed(color=self.bot.red, title="Cancelled", description="This interaction has been cancelled.")
-                    await interaction.followup.edit_message(message_id=response.id, embed=cancel, view=None)
-
+                    cancel_msg = await interaction.followup.edit_message(message_id=response.id, embed=cancel, view=None)
+                    await cancel_msg.delete(delay=5.0)
+            
             else:
                 debug = discord.Embed(color=self.bot.red, title="Error", description="An embed was not found using the provided URL.")
-                await interaction.followup.edit_message(message_id=response.id, embed=debug, view=None)
+                debug_msg = await interaction.followup.edit_message(message_id=response.id, embed=debug, view=None)
+                await debug_msg.delete(delay=5.0)
         
         except Exception as e:
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
-            await interaction.followup.send(ephemeral=True, embed=error)
+            error_msg = await interaction.followup.send(embed=error, wait=True)
+            await error_msg.delete(delay=5.0)
             print(traceback.format_exc())
 
 async def setup(bot: commands.Bot):
