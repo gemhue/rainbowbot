@@ -5,7 +5,7 @@ import asyncio
 from discord.ext import commands
 from discord import app_commands, ChannelType
 from datetime import datetime, timezone
-from cogs import autodelete, awards, embeds, profiles, purge, remind, tickets
+from cogs import autodelete, awards, embeds, photodelete, profiles, purge, remind, tickets
 
 class YesOrNo(discord.ui.View):
     def __init__(self, *, timeout = 180, user: discord.Member):
@@ -255,6 +255,30 @@ class CogButtons(discord.ui.View):
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
 
+    @discord.ui.button(label="PhotoDelete", style=discord.ButtonStyle.blurple, emoji="🖼️")
+    async def photodelete(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        message = interaction.message
+        guild = interaction.guild
+        try:
+            if interaction.user == self.user:
+                await self.bot.add_cog(photodelete.PhotoDelete(bot=self.bot), override=True, guild=guild)
+                if guild.id not in self.guild_cogs:
+                    self.guild_cogs[guild.id] = []
+                coglist = self.guild_cogs[guild.id]
+                if "PhotoDelete" not in coglist:
+                    coglist.append("PhotoDelete")
+                button.label = "Added: PhotoDelete"
+                button.style = discord.ButtonStyle.gray
+                button.emoji = "✅"
+                button.disabled = True
+                await interaction.followup.edit_message(message_id=message.id, view=self)
+        except Exception as e:
+            print(f"There was a problem setting up PhotoDelete (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
+
     @discord.ui.button(label="Profiles", style=discord.ButtonStyle.blurple, emoji="🪪")
     async def profiles(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
@@ -469,6 +493,31 @@ class RemoveButtons(discord.ui.View):
                 await interaction.followup.edit_message(message_id=message.id, view=self)
         except Exception as e:
             print(f"There was a problem removing Embeds (Guild ID: {guild.id}). Error: {e}")
+            print(traceback.format_exc())
+            error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
+            await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
+    
+    @discord.ui.button(label="PhotoDelete", style=discord.ButtonStyle.blurple, emoji="🖼️")
+    async def photodelete(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        message = interaction.message
+        guild = interaction.guild
+        try:
+            if interaction.user == self.user:
+                await self.bot.remove_cog(photodelete.PhotoDelete(bot=self.bot), guild=guild)
+                self.bot.tree.remove_command("photodelete", guild=guild)
+                if guild.id not in self.guild_cogs:
+                    self.guild_cogs[guild.id] = []
+                coglist = self.guild_cogs[guild.id]
+                if "PhotoDelete" not in coglist:
+                    coglist.append("PhotoDelete")
+                button.label = "Removed: PhotoDelete"
+                button.style = discord.ButtonStyle.gray
+                button.emoji = "✅"
+                button.disabled = True
+                await interaction.followup.edit_message(message_id=message.id, view=self)
+        except Exception as e:
+            print(f"There was a problem removing PhotoDelete (Guild ID: {guild.id}). Error: {e}")
             print(traceback.format_exc())
             error = discord.Embed(color=self.bot.red, title="Error", description=f"{e}")
             await interaction.followup.edit_message(message_id=message.id, embed=error, view=None)
@@ -982,9 +1031,10 @@ class Start(commands.Cog):
             )
             ask_cogs.add_field(name="AutoDelete", value="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.", inline=False)
             ask_cogs.add_field(name="Awards", value="These commands allow you to set up an awards system in your server. The award name and emoji can be customized.", inline=False)
-            ask_cogs.add_field(name="Embeds", value="These commands allow you to send and edit messages containing embeds.", inline=False)
-            ask_cogs.add_field(name="Profiles", value="These commands allow you and your server members to set up member profiles that can be viewed and edited.", inline=False)
-            ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
+            ask_cogs.add_field(name="Embeds", value="These commands allow you to create embeds, send messages with embeds, and edit messages with embeds.", inline=False)
+            ask_cogs.add_field(name="PhotoDelete", value="This extension will ask server members if they would like any posted photos or videos deleted at a scheduled time.", inline=False)
+            ask_cogs.add_field(name="Profiles", value="These commands allow server members to set up (and edit) member profiles that can be viewed by other server members.", inline=False)
+            ask_cogs.add_field(name="Purge", value="These commands allow you to easily purge (mass delete) messages in a single channel or in multiple channels at once.", inline=False)
             ask_cogs.add_field(name="Remind", value="These commands allow you to set reminders for yourself, a user, a role, or everyone.", inline=False)
             # ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
             ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
@@ -1103,9 +1153,10 @@ class Commands(commands.GroupCog, name = "commands"):
             )
             ask_cogs.add_field(name="AutoDelete", value="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.", inline=False)
             ask_cogs.add_field(name="Awards", value="These commands allow you to set up an awards system in your server. The award name and emoji can be customized.", inline=False)
-            ask_cogs.add_field(name="Embeds", value="These commands allow you to send and edit messages containing embeds.", inline=False)
-            ask_cogs.add_field(name="Profiles", value="These commands allow you and your server members to set up member profiles that can be viewed and edited.", inline=False)
-            ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
+            ask_cogs.add_field(name="Embeds", value="These commands allow you to create embeds, send messages with embeds, and edit messages with embeds.", inline=False)
+            ask_cogs.add_field(name="PhotoDelete", value="This extension will ask server members if they would like any posted photos or videos deleted at a scheduled time.", inline=False)
+            ask_cogs.add_field(name="Profiles", value="These commands allow server members to set up (and edit) member profiles that can be viewed by other server members.", inline=False)
+            ask_cogs.add_field(name="Purge", value="These commands allow you to easily purge (mass delete) messages in a single channel or in multiple channels at once.", inline=False)
             ask_cogs.add_field(name="Remind", value="These commands allow you to set reminders for yourself, a user, a role, or everyone.", inline=False)
             # ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
             ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
@@ -1187,9 +1238,10 @@ class Commands(commands.GroupCog, name = "commands"):
             )
             ask_cogs.add_field(name="AutoDelete", value="These commands allow you to set the messages in a channel to be automatically deleted on a rolling basis.", inline=False)
             ask_cogs.add_field(name="Awards", value="These commands allow you to set up an awards system in your server. The award name and emoji can be customized.", inline=False)
-            ask_cogs.add_field(name="Embeds", value="These commands allow you to send and edit messages containing embeds.", inline=False)
-            ask_cogs.add_field(name="Profiles", value="These commands allow you and your server members to set up member profiles that can be viewed and edited.", inline=False)
-            ask_cogs.add_field(name="Purge", value="These commands allow you to easily mass-delete messages in a single channel or in multiple channels at once.", inline=False)
+            ask_cogs.add_field(name="Embeds", value="These commands allow you to create embeds, send messages with embeds, and edit messages with embeds.", inline=False)
+            ask_cogs.add_field(name="PhotoDelete", value="This extension will ask server members if they would like any posted photos or videos deleted at a scheduled time.", inline=False)
+            ask_cogs.add_field(name="Profiles", value="These commands allow server members to set up (and edit) member profiles that can be viewed by other server members.", inline=False)
+            ask_cogs.add_field(name="Purge", value="These commands allow you to easily purge (mass delete) messages in a single channel or in multiple channels at once.", inline=False)
             ask_cogs.add_field(name="Remind", value="These commands allow you to set reminders for yourself, a user, a role, or everyone.", inline=False)
             # ask_cogs.add_field(name="RSS Feeds", value="These commands allow you to easily assign and unassign RSS feeds to Webhooks to post new entries automatically.", inline=False)
             ask_cogs.add_field(name="Tickets", value="These commands allow you to set up a simple ticketing system for your server using threads.", inline=False)
