@@ -46,18 +46,11 @@ class ReminderButtons(discord.ui.View):
         self.user = user
         self.value = None
 
-    @discord.ui.button(label="Snooze (5 Minutes)", style=discord.ButtonStyle.blurple, emoji="💤")
-    async def snooze(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.defer()
-        if interaction.user == self.user:
-            self.value = True
-            self.stop()
-
     @discord.ui.button(label="Close", style=discord.ButtonStyle.red, emoji="✖️")
     async def close(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
-            self.value = False
+            self.value = True
             self.stop()
     
     async def on_timeout(self):
@@ -125,37 +118,6 @@ class Remind(commands.GroupCog, group_name = "remind"):
 
                 if view.value == True:
 
-                    snoozing = True
-                    snooze = discord.Embed(color=self.bot.blurple, title="Snoozing", description="This reminder has been snoozed for 5 minutes.")
-                    await reminder.edit(content=None, embed=snooze, delete_after=10.0)
-                
-                elif view.value == False:
-
-                    snoozing = False
-                
-                while snoozing == True:
-
-                    now = datetime.now(tz=timezone.utc)
-                    five_mins = timedelta(minutes=5.0)
-                    in_5_mins = now + five_mins
-                    await discord.utils.sleep_until(when=in_5_mins)
-
-                    content = f"-# @everyone"
-                    reminder_embed = discord.Embed(color=self.bot.blurple, title="Reminder", description=what)
-                    view = ReminderButtons(bot=self.bot, user=user)
-                    reminder = await where.send(content=content, embed=reminder_embed, allowed_mentions=discord.AllowedMentions(everyone=True), view=view)
-
-                    if view.value == True:
-
-                        snoozing = True
-                        snooze_embed = discord.Embed(color=self.bot.blurple, title="Snoozing", description="This reminder has been snoozed for 5 minutes.")
-                        await reminder.edit(content=None, embed=snooze_embed, delete_after=10.0)
-                    
-                    elif view.value == False:
-
-                        snoozing = False
-                
-                if snoozing == False:
                     await reminder.delete()
 
             elif view.value == False:
@@ -224,37 +186,6 @@ class Remind(commands.GroupCog, group_name = "remind"):
 
                 if view.value == True:
 
-                    snoozing = True
-                    snooze = discord.Embed(color=self.bot.blurple, title="Snoozing", description="This reminder has been snoozed for 5 minutes.")
-                    await reminder.edit(content=None, embed=snooze, delete_after=10.0)
-                
-                elif view.value == False:
-
-                    snoozing = False
-                
-                while snoozing == True:
-
-                    now = datetime.now(tz=timezone.utc)
-                    five_mins = timedelta(minutes=5.0)
-                    in_5_mins = now + five_mins
-                    await discord.utils.sleep_until(when=in_5_mins)
-
-                    content = f"-# {who.mention}"
-                    reminder_embed = discord.Embed(color=self.bot.blurple, title="Reminder", description=what)
-                    view = ReminderButtons(bot=self.bot, user=user)
-                    reminder = await where.send(content=content, embed=reminder_embed, view=view)
-
-                    if view.value == True:
-
-                        snoozing = True
-                        snooze_embed = discord.Embed(color=self.bot.blurple, title="Snoozing", description="This reminder has been snoozed for 5 minutes.")
-                        await reminder.edit(content=None, embed=snooze_embed, delete_after=10.0)
-                    
-                    elif view.value == False:
-
-                        snoozing = False
-                
-                if snoozing == False:
                     await reminder.delete()
 
             elif view.value == False:
@@ -323,37 +254,6 @@ class Remind(commands.GroupCog, group_name = "remind"):
 
                 if view.value == True:
 
-                    snoozing = True
-                    snooze = discord.Embed(color=self.bot.blurple, title="Snoozing", description="This reminder has been snoozed for 5 minutes.")
-                    await reminder.edit(content=None, embed=snooze, delete_after=10.0)
-                
-                elif view.value == False:
-
-                    snoozing = False
-                
-                while snoozing == True:
-
-                    now = datetime.now(tz=timezone.utc)
-                    five_mins = timedelta(minutes=5.0)
-                    in_5_mins = now + five_mins
-                    await discord.utils.sleep_until(when=in_5_mins)
-
-                    content = f"-# {who.mention}"
-                    reminder_embed = discord.Embed(color=self.bot.blurple, title="Reminder", description=what)
-                    view = ReminderButtons(bot=self.bot, user=who)
-                    reminder = await where.send(content=content, embed=reminder_embed, view=view)
-
-                    if view.value == True:
-
-                        snoozing = True
-                        snooze_embed = discord.Embed(color=self.bot.blurple, title="Snoozing", description="This reminder has been snoozed for 5 minutes.")
-                        await reminder.edit(content=None, embed=snooze_embed, delete_after=10.0)
-                    
-                    elif view.value == False:
-
-                        snoozing = False
-                
-                if snoozing == False:
                     await reminder.delete()
 
             elif view.value == False:
@@ -418,37 +318,6 @@ class Remind(commands.GroupCog, group_name = "remind"):
 
                 if view.value == True:
 
-                    snoozing = True
-                    snooze = discord.Embed(color=self.bot.blurple, title="Snoozing", description="This reminder has been snoozed for 5 minutes.")
-                    await reminder.edit(content=None, embed=snooze, delete_after=10.0)
-                
-                elif view.value == False:
-
-                    snoozing = False
-                
-                while snoozing == True:
-
-                    now = datetime.now(tz=timezone.utc)
-                    five_mins = timedelta(minutes=5.0)
-                    in_5_mins = now + five_mins
-                    await discord.utils.sleep_until(when=in_5_mins)
-
-                    content = f"-# {user.mention}"
-                    reminder_embed = discord.Embed(color=self.bot.blurple, title="Reminder", description=what)
-                    view = ReminderButtons(bot=self.bot, user=user)
-                    reminder = await where.send(content=content, embed=reminder_embed, view=view)
-
-                    if view.value == True:
-
-                        snoozing = True
-                        snooze_embed = discord.Embed(color=self.bot.blurple, title="Snoozing", description="This reminder has been snoozed for 5 minutes.")
-                        await reminder.edit(content=None, embed=snooze_embed, delete_after=10.0)
-                    
-                    elif view.value == False:
-
-                        snoozing = False
-                
-                if snoozing == False:
                     await reminder.delete()
 
             elif view.value == False:
