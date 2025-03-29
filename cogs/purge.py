@@ -14,7 +14,7 @@ class YesOrNo(discord.ui.View):
         self.method = None
 
     @discord.ui.button(label="Yes (Delete Recent Messages)", style=discord.ButtonStyle.green, emoji="👍", row=0)
-    async def yes(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def recent(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
@@ -22,7 +22,7 @@ class YesOrNo(discord.ui.View):
             self.stop()
     
     @discord.ui.button(label="Yes (Delete All Messages)", style=discord.ButtonStyle.blurple, emoji="👍", row=0)
-    async def yes(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def all(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
