@@ -11,12 +11,22 @@ class YesOrNo(discord.ui.View):
         self.bot = bot
         self.user = user
         self.value = None
+        self.method = None
 
-    @discord.ui.button(label="Yes", style=discord.ButtonStyle.green, emoji="👍", row=0)
+    @discord.ui.button(label="Yes (Delete Recent Messages)", style=discord.ButtonStyle.green, emoji="👍", row=0)
     async def yes(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.defer()
         if interaction.user == self.user:
             self.value = True
+            self.method = "Recent"
+            self.stop()
+    
+    @discord.ui.button(label="Yes (Delete All Messages)", style=discord.ButtonStyle.blurple, emoji="👍", row=0)
+    async def yes(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.defer()
+        if interaction.user == self.user:
+            self.value = True
+            self.method = "All"
             self.stop()
 
     @discord.ui.button(label="No", style=discord.ButtonStyle.red, emoji="👎", row=0)
@@ -126,6 +136,9 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 title="Confirm Purge",
                 description="Are you **sure** you want to purge all unpinned messages in the current channel?"
             )
+            embed.add_field(name="Delete Recent Messages", value="This option will delete all messages posted within the last 2 weeks.", inline=False)
+            embed.add_field(name="Delete All Messages", value="This option will delete all messages (this can take a very long time).", inline=False)
+            embed.add_field(name="No", value="Cancels the interaction.", inline=False)
             response = await interaction.followup.send(embed=embed, view=yesorno, wait=True)
             await response.pin()
             await yesorno.wait()
@@ -139,10 +152,12 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 )
                 wait.add_field(name="Currently Purging", value=f"{channel.mention}", inline=False)
                 await response.edit(embed=wait, view=None)
-                time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
-                messages = [m async for m in channel.history()]
-                limit = len(messages)
-                deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False, after=time, oldest_first=True, bulk=True)
+
+                if yesorno.method == "Recent":
+                    time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
+                    deleted = await channel.purge(limit=1000, check=lambda m: m.pinned == False, after=time, oldest_first=True, bulk=True)
+                elif yesorno.method == "All":
+                    deleted = await channel.purge(limit=1000, check=lambda m: m.pinned == False, oldest_first=True, bulk=True)
 
                 success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete!')
                 await response.edit(embed=success, view=None)
@@ -159,7 +174,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
                         purge_log = discord.Embed(
                             color=self.bot.green,
                             title="Purge Log",
-                            description=f"{user.mention} has just deleted {len(deleted)} out of {limit} messages from {channel.mention} via the `/purge here` command.",
+                            description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge here` command.",
                             timestamp=now
                         )
                         await logging_channel.send(embed=purge_log)
@@ -228,6 +243,9 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     title="Confirm Purge",
                     description=f"Please review the list of selected channels below and confirm that you would like to continue with the purge of your own unpinned messages from the following channels:\n\n{channels_str}"
                 )
+                embed.add_field(name="Delete Recent Messages", value="This option will delete all messages posted within the last 2 weeks.", inline=False)
+                embed.add_field(name="Delete All Messages", value="This option will delete all messages (this can take a very long time).", inline=False)
+                embed.add_field(name="No", value="Cancels the interaction.", inline=False)
                 await response.edit(embed=embed, view=yon)
                 await yon.wait()
 
@@ -244,9 +262,12 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     for channel in csv.channels:
                         wait.set_field_at(index=0, name="Currently Purging", value=f"{channel.mention}", inline=False)
                         await response.edit(embed=wait, view=None)
-                        messages = [m async for m in channel.history()]
-                        limit = len(messages)
-                        deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False and m.author == member, after=time, oldest_first=True, bulk=True)
+
+                        if yon.method == "Recent":
+                            time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
+                            deleted = await channel.purge(limit=1000, check=lambda m: m.pinned == False and m.author == member, after=time, oldest_first=True, bulk=True)
+                        elif yon.method == "All":
+                            deleted = await channel.purge(limit=1000, check=lambda m: m.pinned == False and m.author == member, oldest_first=True, bulk=True)
                         
                         # Send logs to the logging channel as the channels are purged
                         cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -259,7 +280,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
                                 purge_log = discord.Embed(
                                     color=self.bot.green,
                                     title="Purge Log",
-                                    description=f"{member.mention} has just deleted {len(deleted)} out of {limit} messages from {channel.mention} via the `/purge self` command."
+                                    description=f"{member.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge self` command."
                                 )
                                 await logging_channel.send(embed=purge_log)
                     
@@ -364,6 +385,9 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     title="Confirm Purge",
                     description=f"Please review the list of selected channels below and confirm that you would like to continue with the purge of {member.mention}'s unpinned messages from the following channels:\n\n{channels_str}"
                 )
+                embed.add_field(name="Delete Recent Messages", value="This option will delete all messages posted within the last 2 weeks.", inline=False)
+                embed.add_field(name="Delete All Messages", value="This option will delete all messages (this can take a very long time).", inline=False)
+                embed.add_field(name="No", value="Cancels the interaction.", inline=False)
                 await response.edit(embed=embed, view=yon)
                 await yon.wait()
 
@@ -380,9 +404,12 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     for channel in csv.channels:
                         wait.set_field_at(index=0, name="Currently Purging", value=f"{channel.mention}", inline=False)
                         await response.edit(embed=wait, view=None)
-                        messages = [m async for m in channel.history()]
-                        limit = len(messages)
-                        deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False and m.author == member, after=time, oldest_first=True, bulk=True)
+
+                        if yon.method == "Recent":
+                            time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
+                            deleted = await channel.purge(limit=1000, check=lambda m: m.pinned == False and m.author == member, after=time, oldest_first=True, bulk=True)
+                        elif yon.method == "All":
+                            deleted = await channel.purge(limit=1000, check=lambda m: m.pinned == False and m.author == member, oldest_first=True, bulk=True)
                         
                         # Send logs to the logging channel as the channels are purged
                         cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -395,7 +422,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
                                 purge_log = discord.Embed(
                                     color=self.bot.green,
                                     title="Purge Log",
-                                    description=f"{user.mention} has just deleted {len(deleted)} out of {limit} messages from {channel.mention} via the `/purge member` command."
+                                    description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge member` command."
                                 )
                                 await logging_channel.send(embed=purge_log)
                     
@@ -495,6 +522,9 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     title="Confirm Purge",
                     description=f"Please review the list of selected channels below and confirm that you would like to continue with the purge of all unpinned messages from the following channels:\n\n{channels_str}"
                 )
+                embed.add_field(name="Delete Recent Messages", value="This option will delete all messages posted within the last 2 weeks.", inline=False)
+                embed.add_field(name="Delete All Messages", value="This option will delete all messages (this can take a very long time).", inline=False)
+                embed.add_field(name="No", value="Cancels the interaction.", inline=False)
                 await response.edit(embed=embed, view=yon)
                 await yon.wait()
 
@@ -511,9 +541,12 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     for channel in csv.channels:
                         wait.set_field_at(index=0, name="Currently Purging", value=f"{channel.mention}", inline=False)
                         await response.edit(embed=wait, view=None)
-                        messages = [m async for m in channel.history()]
-                        limit = len(messages)
-                        deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False, after=time, oldest_first=True, bulk=True)
+
+                        if yon.method == "Recent":
+                            time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
+                            deleted = await channel.purge(limit=1000, check=lambda m: m.pinned == False, after=time, oldest_first=True, bulk=True)
+                        elif yon.method == "All":
+                            deleted = await channel.purge(limit=1000, check=lambda m: m.pinned == False, oldest_first=True, bulk=True)
 
                         # Send logs to the logging channel as the channels are purged
                         cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -526,7 +559,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
                                 purge_log = discord.Embed(
                                     color=self.bot.green,
                                     title="Purge Log",
-                                    description=f"{user.mention} has just deleted {len(deleted)} out of {limit} messages from {channel.mention} via the `/purge channels` command."
+                                    description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge channels` command."
                                 )
                                 await logging_channel.send(embed=purge_log)
                     
@@ -626,6 +659,9 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     title="Confirm Purge",
                     description=f"Please review the list of selected channels below and confirm that you would like to continue with the purge of all unpinned messages in the server **except** from the following channels:\n\n{channels_str}"
                 )
+                embed.add_field(name="Delete Recent Messages", value="This option will delete all messages posted within the last 2 weeks.", inline=False)
+                embed.add_field(name="Delete All Messages", value="This option will delete all messages (this can take a very long time).", inline=False)
+                embed.add_field(name="No", value="Cancels the interaction.", inline=False)
                 await response.edit(embed=embed, view=yon)
                 await yon.wait()
 
@@ -643,9 +679,12 @@ class Purge(commands.GroupCog, group_name = "purge"):
                     for channel in purge_channels:
                         wait.set_field_at(index=0, name="Currently Purging", value=f"{channel.mention}", inline=False)
                         await response.edit(embed=wait, view=None)
-                        messages = [m async for m in channel.history()]
-                        limit = len(messages)
-                        deleted = await channel.purge(limit=limit, check=lambda m: m.pinned == False, after=time, oldest_first=True, bulk=True)
+
+                        if yon.method == "Recent":
+                            time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
+                            deleted = await channel.purge(limit=1000, check=lambda m: m.pinned == False, after=time, oldest_first=True, bulk=True)
+                        elif yon.method == "All":
+                            deleted = await channel.purge(limit=1000, check=lambda m: m.pinned == False, oldest_first=True, bulk=True)
 
                         # Send logs to the logging channel as the channels are purged
                         cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -658,7 +697,7 @@ class Purge(commands.GroupCog, group_name = "purge"):
                                 purge_log = discord.Embed(
                                     color=self.bot.green,
                                     title="Purge Log",
-                                    description=f"{user.mention} has just deleted {len(deleted)} out of {limit} messages from {channel.mention} via the `/purge server` command."
+                                    description=f"{user.mention} has just deleted {len(deleted)} messages from {channel.mention} via the `/purge server` command."
                                 )
                                 await logging_channel.send(embed=purge_log)
                     
