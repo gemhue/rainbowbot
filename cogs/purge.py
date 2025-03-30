@@ -145,13 +145,18 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
             if yesorno.value == True:
 
+                response_id = response.id
                 wait = discord.Embed(
                     color=self.bot.blurple,
                     title="Purge in Progress",
                     description="Please wait while the purge is in progress. This message will be edited when the purge is complete."
                 )
                 wait.add_field(name="Currently Purging", value=f"{channel.mention}", inline=False)
-                await response.edit(embed=wait, view=None)
+                try:
+                    await response.edit(embed=wait, view=None)
+                except Exception:
+                    fetched_response = await channel.fetch_message(response_id)
+                    await fetched_response.edit(embed=wait, view=None)
 
                 if yesorno.method == "Recent":
                     time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
@@ -159,9 +164,18 @@ class Purge(commands.GroupCog, group_name = "purge"):
                 elif yesorno.method == "All":
                     deleted = await channel.purge(limit=1000, check=lambda m: m.pinned == False, oldest_first=True, bulk=True)
 
-                success = discord.Embed(color=self.bot.green, title="Success", description=f'The purge is now complete!')
-                await response.edit(embed=success, view=None)
-                await response.delete(delay=10.0)
+                success = discord.Embed(
+                    color=self.bot.green,
+                    title="Success",
+                    description=f'The purge is now complete!'
+                )
+                try:
+                    await response.edit(embed=success, view=None)
+                    await response.delete(delay=10.0)
+                except Exception:
+                    fetched_response = await channel.fetch_message(response_id)
+                    await fetched_response.edit(embed=success, view=None)
+                    await fetched_response.delete(delay=10.0)
                                         
                 # Send a log to the logging channel
                 cur = await self.db.execute("SELECT logging_channel_id FROM guilds WHERE guild_id = ?", (guild.id,))
@@ -251,17 +265,26 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
                 if yon.value == True:
 
+                    response_id = response.id
                     wait = discord.Embed(
                         color=self.bot.blurple,
                         title="Purge in Progress",
                         description="Please wait while the purge is in progress. This message will be edited when the purge is complete."
                     )
                     wait.add_field(name="Currently Purging", value="None", inline=False)
-                    await response.edit(embed=wait, view=None)
-                    time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
+                    try:
+                        await response.edit(embed=wait, view=None)
+                    except Exception:
+                        fetched_response = await channel.fetch_message(response_id)
+                        await fetched_response.edit(embed=wait, view=None)
+
                     for channel in csv.channels:
                         wait.set_field_at(index=0, name="Currently Purging", value=f"{channel.mention}", inline=False)
-                        await response.edit(embed=wait, view=None)
+                        try:
+                            await response.edit(embed=wait, view=None)
+                        except Exception:
+                            fetched_response = await channel.fetch_message(response_id)
+                            await fetched_response.edit(embed=wait, view=None)
 
                         if yon.method == "Recent":
                             time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
@@ -393,17 +416,26 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
                 if yon.value == True:
 
+                    response_id = response.id
                     wait = discord.Embed(
                         color=self.bot.blurple,
                         title="Purge in Progress",
                         description="Please wait while the purge is in progress. This message will be edited when the purge is complete."
                     )
                     wait.add_field(name="Currently Purging", value="None", inline=False)
-                    await response.edit(embed=wait, view=None)
-                    time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
+                    try:
+                        await response.edit(embed=wait, view=None)
+                    except Exception:
+                        fetched_response = await channel.fetch_message(response_id)
+                        await fetched_response.edit(embed=wait, view=None)
+
                     for channel in csv.channels:
                         wait.set_field_at(index=0, name="Currently Purging", value=f"{channel.mention}", inline=False)
-                        await response.edit(embed=wait, view=None)
+                        try:
+                            await response.edit(embed=wait, view=None)
+                        except Exception:
+                            fetched_response = await channel.fetch_message(response_id)
+                            await fetched_response.edit(embed=wait, view=None)
 
                         if yon.method == "Recent":
                             time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
@@ -530,17 +562,26 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
                 if yon.value == True:
 
+                    response_id = response.id
                     wait = discord.Embed(
                         color=self.bot.blurple,
                         title="Purge in Progress",
                         description="Please wait while the purge is in progress. This message will be edited when the purge is complete."
                     )
                     wait.add_field(name="Currently Purging", value="None", inline=False)
-                    await response.edit(embed=wait, view=None)
-                    time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
+                    try:
+                        await response.edit(embed=wait, view=None)
+                    except Exception:
+                        fetched_response = await channel.fetch_message(response_id)
+                        await fetched_response.edit(embed=wait, view=None)
+
                     for channel in csv.channels:
                         wait.set_field_at(index=0, name="Currently Purging", value=f"{channel.mention}", inline=False)
-                        await response.edit(embed=wait, view=None)
+                        try:
+                            await response.edit(embed=wait, view=None)
+                        except Exception:
+                            fetched_response = await channel.fetch_message(response_id)
+                            await fetched_response.edit(embed=wait, view=None)
 
                         if yon.method == "Recent":
                             time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
@@ -667,18 +708,27 @@ class Purge(commands.GroupCog, group_name = "purge"):
 
                 if yon.value == True:
 
+                    response_id = response.id
                     wait = discord.Embed(
                         color=self.bot.blurple,
                         title="Purge in Progress",
                         description="Please wait while the purge is in progress. This message will be edited when the purge is complete."
                     )
                     wait.add_field(name="Currently Purging", value="None", inline=False)
-                    await response.edit(embed=wait, view=None)
-                    time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
+                    try:
+                        await response.edit(embed=wait, view=None)
+                    except Exception:
+                        fetched_response = await channel.fetch_message(response_id)
+                        await fetched_response.edit(embed=wait, view=None)
+
                     purge_channels = [c for c in guild.text_channels if c not in csv.channels]
                     for channel in purge_channels:
                         wait.set_field_at(index=0, name="Currently Purging", value=f"{channel.mention}", inline=False)
-                        await response.edit(embed=wait, view=None)
+                        try:
+                            await response.edit(embed=wait, view=None)
+                        except Exception:
+                            fetched_response = await channel.fetch_message(response_id)
+                            await fetched_response.edit(embed=wait, view=None)
 
                         if yon.method == "Recent":
                             time = datetime.now(tz=timezone.utc) - timedelta(weeks=2.0)
