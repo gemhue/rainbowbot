@@ -412,9 +412,9 @@ class Purge(commands.GroupCog, group_name = "purge"):
 class RainbowBot(commands.Bot):
     def __init__(self):
         super().__init__(
-            command_prefix = commands.when_mentioned,
+            command_prefix = commands.when_mentioned(),
             description = "A Discord bot made by GitHub user gemhue.",
-            intents = discord.Intents.all(),
+            intents = discord.Intents.none(),
             status = discord.Status.online
         )
     
